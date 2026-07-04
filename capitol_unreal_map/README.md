@@ -82,7 +82,7 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 804,762 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 809,562 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
@@ -101,6 +101,7 @@ The current generated build contains:
 - Capitol visual massing details including dome, lantern, porticos, columns, steps, plaza, grounds, public-facing revolving-door visuals, facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, stair tread records, approach handrails, dentil/cornice courses, cornice brackets, roof balustrades, dome ribs, dome drum window trim, dome lateral bands, pediment relief panels, entry lamps, bollards, and benches
 - 1,176 Capitol facade/furniture detail records, including 266 facade window mullions, 116 cornice brackets, 12 public door surrounds, and 8 public approach handrails
 - 60 generic public office/support visual cells
+- 192 public office/support detail records, including 60 generic door panels, 60 door thresholds, 60 generic public plaques, 8 shared support tables, and 4 public corridor bands
 - 448 generic House floor seats
 - 100 generic Senate desks
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
@@ -172,7 +173,7 @@ The current realism pass uses deterministic 4K procedural texture maps plus mate
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal. The importer also spawns guarded environment actors for sun, skylight, sky atmosphere, fog, reflection capture, and post-process exposure where the Unreal Python API exposes them, plus metadata-driven interior lights, capped public streetlights, and authored public grounds walk lamps.
 
-The current mesh-detail pass adds surrounding-building facade windows, roofline caps, public-entry markers, rooftop detail blocks, public streetscape props, traffic-signal heads, crosswalk striping, tree planters, public stop bars, lane arrows, bike symbols, curb-ramp visuals, wayfinding signs, authored public grounds details, Capitol facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, public stair treads, approach handrails, dentil courses, cornice brackets, roof balustrades, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public chamber gallery benches, gallery dividers, balcony fascia, public lecterns, work tables, rostrum desks, desk surface markers, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for landscape planting, public streetscape fixtures, and chamber furniture.
+The current mesh-detail pass adds surrounding-building facade windows, roofline caps, public-entry markers, rooftop detail blocks, public streetscape props, traffic-signal heads, crosswalk striping, tree planters, public stop bars, lane arrows, bike symbols, curb-ramp visuals, wayfinding signs, authored public grounds details, Capitol facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, public stair treads, approach handrails, dentil courses, cornice brackets, roof balustrades, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public office door panels, office thresholds, generic public plaques, shared support tables, public chamber gallery benches, gallery dividers, balcony fascia, public lecterns, work tables, rostrum desks, desk surface markers, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for landscape planting, public streetscape fixtures, and chamber furniture.
 
 The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction. Flagpole banner visuals are simple color-blocked game props, not exact merchandise replicas.
 
@@ -210,7 +211,7 @@ Included:
 - House Chamber and Senate Chamber
 - House and Senate galleries
 - generic office/support zones
-- 60 generic office/support cells with desks, chairs, and partitions
+- 60 generic office/support cells with desks, chairs, partitions, generic door panels, thresholds, public plaques, shared support tables, and public corridor bands
 - generic House member seating and Senate desk positions
 - aggregate public seating sections for House member floor seating, House gallery, Senate desk blocks, Senate gallery, rostrum/presiding-officer areas, and joint-session role zones
 - House Chamber joint-session layout for public ceremonial addresses, including President podium, Speaker and Vice President positions, and public generic seating zones for Senators, Cabinet, Supreme Court, diplomatic corps, press, members, and guests

@@ -1934,6 +1934,7 @@ def add_public_office_grid(
     size: tuple[float, float],
     columns: int,
     rows: int,
+    office_details: list[dict[str, Any]] | None = None,
     z: float = 4.45,
 ) -> list[dict[str, Any]]:
     cx, cy = center
@@ -1941,6 +1942,32 @@ def add_public_office_grid(
     cell_w = sx / columns
     cell_h = sy / rows
     records: list[dict[str, Any]] = []
+
+    def add_office_detail(name: str, kind: str, center_m: tuple[float, float, float], size_m: tuple[float, float] | None = None) -> None:
+        if office_details is None:
+            return
+        record: dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "zone": prefix,
+            "center_m": [round(center_m[0], 3), round(center_m[1], 3), round(center_m[2], 3)],
+            "public_accuracy": "schematic_public_office_visual_detail",
+            "assignment": "Generic public visual detail only; not an actual office assignment, staff location, or room number.",
+        }
+        if size_m is not None:
+            record["size_m"] = [round(size_m[0], 3), round(size_m[1], 3)]
+        office_details.append(record)
+
+    obj.add_box((cx, cy), (cell_w * 0.48, sy * 0.94), 0.05, z + 0.012, f"{prefix}_public_office_corridor_band", "InteriorFloor")
+    add_office_detail(f"{prefix}_public_office_corridor_band", "public_office_corridor_band", (cx, cy, z + 0.04), (cell_w * 0.48, sy * 0.94))
+
+    for shared_index, y_offset in enumerate([-sy * 0.39, sy * 0.39], start=1):
+        table_name = f"{prefix}_shared_support_table_{shared_index}"
+        table_center = (cx, cy + y_offset)
+        obj.add_box(table_center, (cell_w * 0.62, 0.92), 0.32, z + 0.20, f"{table_name}_top", "DeskWood")
+        obj.add_box((table_center[0], table_center[1] - 0.50), (cell_w * 0.50, 0.08), 0.38, z + 0.46, f"{table_name}_rear_lip", "InteriorTrim")
+        add_office_detail(table_name, "shared_support_table", (table_center[0], table_center[1], z + 0.36), (cell_w * 0.62, 0.92))
+
     for row in range(rows):
         for col in range(columns):
             ox = cx - sx / 2.0 + cell_w * (col + 0.5)
@@ -1952,6 +1979,14 @@ def add_public_office_grid(
             obj.add_box((ox + cell_w * 0.40, oy), (0.18, cell_h * 0.68), 2.2, z + 0.16, room_id + "_right_partition", "InteriorTrim")
             obj.add_box((ox, oy - cell_h * 0.10), (cell_w * 0.40, 0.70), 0.78, z + 0.18, room_id + "_desk", "DeskWood")
             obj.add_box((ox, oy - cell_h * 0.28), (0.70, 0.55), 0.55, z + 0.18, room_id + "_chair", "ChairLeather")
+            door_y = oy - cell_h * 0.36
+            obj.add_box((ox, door_y), (cell_w * 0.36, 0.08), 0.06, z + 0.03, room_id + "_public_door_threshold", "StepStone")
+            obj.add_box((ox, door_y + 0.05), (cell_w * 0.26, 0.10), 1.62, z + 0.22, room_id + "_generic_door_panel", "DoorGlass")
+            plaque_x = ox - cell_w * 0.24
+            obj.add_box((plaque_x, door_y + 0.10), (0.34, 0.055), 0.22, z + 1.38, room_id + "_generic_public_plaque", "MarkerBlue")
+            add_office_detail(room_id + "_public_door_threshold", "office_door_threshold", (ox, door_y, z + 0.06), (cell_w * 0.36, 0.08))
+            add_office_detail(room_id + "_generic_door_panel", "generic_office_door_panel", (ox, door_y + 0.05, z + 1.03), (cell_w * 0.26, 0.10))
+            add_office_detail(room_id + "_generic_public_plaque", "generic_office_plaque", (plaque_x, door_y + 0.10, z + 1.49), (0.34, 0.055))
             records.append(
                 {
                     "name": room_id,
@@ -2986,6 +3021,7 @@ def build_interior() -> dict[str, Any]:
     seats: list[dict[str, Any]] = []
     seating_sections: list[dict[str, Any]] = []
     office_cells: list[dict[str, Any]] = []
+    office_details: list[dict[str, Any]] = []
     joint_session: list[dict[str, Any]] = []
     public_art: list[dict[str, Any]] = []
     light_fixtures: list[dict[str, Any]] = []
@@ -3023,10 +3059,10 @@ def build_interior() -> dict[str, Any]:
     add_room(obj, rooms, labels, "East public approach / visitor circulation", (62.0, 0.0), (14.0, 70.0), "InteriorFloor", "public_circulation")
     add_room(obj, rooms, labels, "West terrace public orientation marker", (-62.0, 0.0), (14.0, 70.0), "InteriorFloor", "public_circulation")
 
-    office_cells.extend(add_public_office_grid(obj, labels, "house_west_support", (-53.0, -55.0), (19.0, 42.0), 3, 5))
-    office_cells.extend(add_public_office_grid(obj, labels, "house_east_support", (53.0, -55.0), (19.0, 42.0), 3, 5))
-    office_cells.extend(add_public_office_grid(obj, labels, "senate_west_support", (-52.0, 55.0), (19.0, 42.0), 3, 5))
-    office_cells.extend(add_public_office_grid(obj, labels, "senate_east_support", (52.0, 55.0), (19.0, 42.0), 3, 5))
+    office_cells.extend(add_public_office_grid(obj, labels, "house_west_support", (-53.0, -55.0), (19.0, 42.0), 3, 5, office_details))
+    office_cells.extend(add_public_office_grid(obj, labels, "house_east_support", (53.0, -55.0), (19.0, 42.0), 3, 5, office_details))
+    office_cells.extend(add_public_office_grid(obj, labels, "senate_west_support", (-52.0, 55.0), (19.0, 42.0), 3, 5, office_details))
+    office_cells.extend(add_public_office_grid(obj, labels, "senate_east_support", (52.0, 55.0), (19.0, 42.0), 3, 5, office_details))
 
     add_public_circulation_details(obj, labels, circulation_details)
     build_house_seats(obj, seats, labels)
@@ -3056,6 +3092,7 @@ def build_interior() -> dict[str, Any]:
         "seating": seats,
         "seating_sections": seating_sections,
         "office_cells": office_cells,
+        "office_details": office_details,
         "joint_session": joint_session,
         "public_art": public_art,
         "light_fixtures": light_fixtures,
@@ -3316,6 +3353,7 @@ def main() -> None:
         f"{len(landmark['elements'])} landmark detail elements,",
         f"{len(landmark['facade_details'])} facade/furniture details,",
         f"{len(interior['office_cells'])} generic office cells,",
+        f"{len(interior['office_details'])} public office details,",
         f"{len(interior['seating_sections'])} seating sections,",
         f"{len(interior['public_art'])} public-art visuals,",
         f"{len(interior['light_fixtures'])} light fixtures,",

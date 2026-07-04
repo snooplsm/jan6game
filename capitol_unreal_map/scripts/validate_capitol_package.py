@@ -153,6 +153,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "rooms",
     "seating",
     "office_cells",
+    "office_details",
     "circulation_details",
     "joint_session",
     "gameplay_items",
@@ -315,6 +316,14 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "gallery_divider",
     "balcony_fascia",
     "desk_surface_marker",
+}
+
+REQUIRED_OFFICE_DETAIL_KINDS = {
+    "public_office_corridor_band",
+    "shared_support_table",
+    "office_door_threshold",
+    "generic_office_door_panel",
+    "generic_office_plaque",
 }
 
 REQUIRED_CIRCULATION_DETAIL_KINDS = {
@@ -788,6 +797,34 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     if len(office_cells) != 60:
         error(errors, f"expected 60 generic office/support cells, got {len(office_cells)}")
 
+    office_details = interior.get("office_details", [])
+    office_detail_kinds = {detail.get("kind") for detail in office_details}
+    summary["office_details"] = len(office_details)
+    summary["office_detail_kinds"] = len(office_detail_kinds)
+    if len(office_details) < 190:
+        error(errors, f"expected at least 190 public office detail records, got {len(office_details)}")
+    missing_office_kinds = sorted(REQUIRED_OFFICE_DETAIL_KINDS - office_detail_kinds)
+    if missing_office_kinds:
+        error(errors, f"missing public office detail kinds: {', '.join(missing_office_kinds)}")
+    if len([detail for detail in office_details if detail.get("kind") == "office_door_threshold"]) < 60:
+        error(errors, "expected at least 60 public office door threshold records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_door_panel"]) < 60:
+        error(errors, "expected at least 60 generic office door panel records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_plaque"]) < 60:
+        error(errors, "expected at least 60 generic office plaque records")
+    if len([detail for detail in office_details if detail.get("kind") == "public_office_corridor_band"]) < 4:
+        error(errors, "expected at least 4 public office corridor band records")
+    if len([detail for detail in office_details if detail.get("kind") == "shared_support_table"]) < 8:
+        error(errors, "expected at least 8 shared support table records")
+    for detail in office_details[:12]:
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"office detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        assignment = detail.get("assignment", "").lower()
+        if "generic public visual" not in assignment or "not an actual office assignment" not in assignment:
+            error(errors, f"office detail {detail.get('name', '<unknown>')} lacks public/generic office boundary")
+            break
+
     seating_sections = interior.get("seating_sections", [])
     section_ids = {section.get("id") for section in seating_sections}
     summary["seating_sections"] = len(seating_sections)
@@ -1229,6 +1266,7 @@ def main() -> int:
     print(f"House seats: {metadata_summary.get('house_seats', 0):,}")
     print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
     print(f"Seating sections: {metadata_summary.get('seating_sections', 0):,}")
+    print(f"Office details: {metadata_summary.get('office_details', 0):,}")
     print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
     print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
