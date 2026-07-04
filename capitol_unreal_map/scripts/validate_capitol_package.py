@@ -262,15 +262,23 @@ REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS = {
 }
 
 REQUIRED_VIEWER_MARKERS = {
+    'id="quickGroundsDetails"',
     'id="quickOffices"',
+    'href="#grounds-details"',
     'href="#offices"',
+    'id="presetGroundsDetails"',
     'id="presetOffices"',
+    'value="grounds_detail"',
     'value="office_detail"',
+    "metadata.exterior?.grounds_details",
     "metadata.interior?.office_details",
     "hiddenByDefaultLabelCategories",
+    "focusGroundsDetails",
+    "focusGroundsDetailsRoute",
     "focusOffices",
     "focusOfficesRoute",
     "humanizeId",
+    "grounds-details",
     "office-details",
 }
 

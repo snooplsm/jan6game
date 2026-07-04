@@ -200,6 +200,7 @@
     <p class="status" id="status">Loading generated assets...</p>
 
     <div class="quick-links">
+      <a class="quick-link" id="quickGroundsDetails" href="#grounds-details">Grounds Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
       <a class="quick-link" id="quickGameplayItems" href="#gameplay-items">Gameplay Items</a>
     </div>
@@ -210,6 +211,7 @@
       <button id="presetInterior">Interior</button>
       <button id="presetRoads">Roads</button>
       <button id="presetGrounds">Grounds</button>
+      <button id="presetGroundsDetails">Grounds Details</button>
       <button id="presetRotunda">Rotunda</button>
       <button id="presetHouse">House</button>
       <button id="presetSenate">Senate</button>
@@ -229,6 +231,7 @@
         <option value="seating_section">Seating sections</option>
         <option value="chamber_detail">Chamber details</option>
         <option value="public_circulation_detail">Circulation details</option>
+        <option value="grounds_detail">Grounds details</option>
         <option value="visitor_gallery">Galleries</option>
         <option value="generic_office_zone">Office zones</option>
         <option value="office_detail">Office details</option>
@@ -297,7 +300,7 @@
       }
     ];
 
-    const hiddenByDefaultLabelCategories = new Set(["office_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "office_detail"]);
 
     const state = {
       meshes: [],
@@ -375,12 +378,18 @@
     document.getElementById("presetInterior").onclick = () => setCamera(0.65, 0.70, 36000, [0, 0, 5200]);
     document.getElementById("presetRoads").onclick = () => setCamera(0.2, 1.1, 210000, [0, 0, 800]);
     document.getElementById("presetGrounds").onclick = () => setCamera(-0.72, 0.58, 82000, [-25000, 0, 1200]);
+    document.getElementById("presetGroundsDetails").onclick = () => focusGroundsDetailsRoute();
     document.getElementById("presetRotunda").onclick = () => setCamera(0.62, 0.64, 26000, [0, 0, 5600]);
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
+
+    document.getElementById("quickGroundsDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusGroundsDetailsRoute();
+    });
 
     document.getElementById("quickOffices").addEventListener("click", (event) => {
       event.preventDefault();
@@ -563,6 +572,13 @@
           category: "office_detail"
         });
       }
+      for (const detail of metadata.exterior?.grounds_details || []) {
+        labels.push({
+          text: humanizeId(detail.name || detail.kind || "grounds_detail"),
+          location: detail.center_m,
+          category: "grounds_detail"
+        });
+      }
       for (const label of metadata.exterior?.street_labels || []) {
         labels.push({ text: label.text, location: label.location_m, category: "street_name" });
       }
@@ -707,6 +723,28 @@
       setCamera(0.58, 0.68, distance, target);
     }
 
+    function focusGroundsDetails() {
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "grounds_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "grounds_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(-0.64, 0.58, 76000, [-18500, 0, 900]);
+      statusEl.textContent = "Focused authored public grounds details.";
+    }
+
+    function focusGroundsDetailsRoute() {
+      if (window.location.hash !== "#grounds-details") {
+        history.pushState(null, "", "#grounds-details");
+      }
+      focusGroundsDetails();
+    }
+
     function focusOffices() {
       setMeshVisible("capitol_public_interior_schematic", true);
       state.labelsVisible = true;
@@ -753,6 +791,10 @@
 
     function applyHashRoute() {
       const route = window.location.hash.replace(/^#/, "").toLowerCase();
+      if (route === "grounds-details" || route === "grounds") {
+        focusGroundsDetails();
+        return;
+      }
       if (route === "offices" || route === "office-details") {
         focusOffices();
         return;
