@@ -200,6 +200,7 @@
     <p class="status" id="status">Loading generated assets...</p>
 
     <div class="quick-links">
+      <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
       <a class="quick-link" id="quickGameplayItems" href="#gameplay-items">Gameplay Items</a>
     </div>
 
@@ -213,6 +214,7 @@
       <button id="presetHouse">House</button>
       <button id="presetSenate">Senate</button>
       <button id="presetJoint">Joint Session</button>
+      <button id="presetOffices">Offices</button>
       <button id="presetGameplay">Gameplay Items</button>
     </div>
 
@@ -229,6 +231,7 @@
         <option value="public_circulation_detail">Circulation details</option>
         <option value="visitor_gallery">Galleries</option>
         <option value="generic_office_zone">Office zones</option>
+        <option value="office_detail">Office details</option>
         <option value="gameplay_item">Gameplay items</option>
         <option value="street_name">Streets</option>
         <option value="building">Buildings</option>
@@ -293,6 +296,8 @@
         visible: true
       }
     ];
+
+    const hiddenByDefaultLabelCategories = new Set(["office_detail"]);
 
     const state = {
       meshes: [],
@@ -374,7 +379,13 @@
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
+    document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
+
+    document.getElementById("quickOffices").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusOfficesRoute();
+    });
 
     document.getElementById("quickGameplayItems").addEventListener("click", (event) => {
       event.preventDefault();
@@ -545,6 +556,13 @@
       for (const label of metadata.interior?.labels || []) {
         labels.push({ text: label.text, location: label.location_m, category: label.category });
       }
+      for (const detail of metadata.interior?.office_details || []) {
+        labels.push({
+          text: humanizeId(detail.name || detail.kind || "office_detail"),
+          location: detail.center_m,
+          category: "office_detail"
+        });
+      }
       for (const label of metadata.exterior?.street_labels || []) {
         labels.push({ text: label.text, location: label.location_m, category: "street_name" });
       }
@@ -561,6 +579,12 @@
         labels.push({ text: building.name, location: [x, y, Math.max(z * 2 + 4, 7)], category: "building" });
       }
       return labels;
+    }
+
+    function humanizeId(value) {
+      return String(value)
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (match) => match.toUpperCase());
     }
 
     function renderLabelElements() {
@@ -658,6 +682,7 @@
     }
 
     function labelPassesFilter(label) {
+      if (!state.labelCategory && !state.labelQuery && hiddenByDefaultLabelCategories.has(label.category)) return false;
       if (state.labelCategory && label.category !== state.labelCategory) return false;
       if (!state.labelQuery) return true;
       return label.text.toLowerCase().includes(state.labelQuery);
@@ -675,10 +700,33 @@
         "joint_session",
         "seating",
         "visitor_gallery",
-        "generic_office_zone"
+        "generic_office_zone",
+        "office_detail"
       ]);
       const distance = closeInterior.has(label.category) ? 22000 : 62000;
       setCamera(0.58, 0.68, distance, target);
+    }
+
+    function focusOffices() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "office_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "office_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.72, 0.66, 43000, [0, 0, 620]);
+      statusEl.textContent = "Focused public schematic office/support details.";
+    }
+
+    function focusOfficesRoute() {
+      if (window.location.hash !== "#offices") {
+        history.pushState(null, "", "#offices");
+      }
+      focusOffices();
     }
 
     function focusGameplayItems() {
@@ -705,6 +753,10 @@
 
     function applyHashRoute() {
       const route = window.location.hash.replace(/^#/, "").toLowerCase();
+      if (route === "offices" || route === "office-details") {
+        focusOffices();
+        return;
+      }
       if (route === "gameplay-items" || route === "gameplay") {
         focusGameplayItems();
       }

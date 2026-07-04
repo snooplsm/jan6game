@@ -5,6 +5,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 ## Quick Links
 
 - Local viewer: `http://127.0.0.1:8765/viewer.html`
+- Office/support detail preview: `http://127.0.0.1:8765/viewer.html#offices`
 - Gameplay item preview: `http://127.0.0.1:8765/viewer.html#gameplay-items`
 - Texture preview: `http://127.0.0.1:8765/texture_preview.html`
 
@@ -134,6 +135,12 @@ Gameplay item quick link:
 http://127.0.0.1:8765/viewer.html#gameplay-items
 ```
 
+Office/support detail quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#offices
+```
+
 The viewer can toggle:
 
 - surrounding buildings
@@ -144,7 +151,7 @@ The viewer can toggle:
 - gameplay item props
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, office zones, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, public office/support details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, office zones, office detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 

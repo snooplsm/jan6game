@@ -30,6 +30,7 @@ UNREAL_IMPORTER_PATH = ROOT / "unreal" / "import_capitol_map.py"
 UPROJECT_PATH = ROOT / "CapitolMap.uproject"
 DEFAULT_ENGINE_PATH = ROOT / "Config" / "DefaultEngine.ini"
 DEFAULT_GAME_PATH = ROOT / "Config" / "DefaultGame.ini"
+VIEWER_PATH = ROOT / "viewer.html"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 
 EXPECTED_MESHES = {
@@ -258,6 +259,19 @@ REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS = {
         "ProjectName=Capitol Unreal Map",
         "Public-data U.S. Capitol exterior and public-interior schematic map package.",
     },
+}
+
+REQUIRED_VIEWER_MARKERS = {
+    'id="quickOffices"',
+    'href="#offices"',
+    'id="presetOffices"',
+    'value="office_detail"',
+    "metadata.interior?.office_details",
+    "hiddenByDefaultLabelCategories",
+    "focusOffices",
+    "focusOfficesRoute",
+    "humanizeId",
+    "office-details",
 }
 
 REQUIRED_ROOMS = {
@@ -1206,6 +1220,26 @@ def validate_unreal_project_config(errors: list[str]) -> dict[str, Any]:
     return summary
 
 
+def validate_viewer_contract(errors: list[str]) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "path": "viewer.html",
+        "required_markers": 0,
+        "missing": [],
+    }
+    if not VIEWER_PATH.exists():
+        error(errors, f"missing local OBJ viewer: {VIEWER_PATH}")
+        summary["missing"] = sorted(REQUIRED_VIEWER_MARKERS)
+        return summary
+
+    text = VIEWER_PATH.read_text(encoding="utf-8")
+    missing = sorted(marker for marker in REQUIRED_VIEWER_MARKERS if marker not in text)
+    summary["required_markers"] = len(REQUIRED_VIEWER_MARKERS) - len(missing)
+    summary["missing"] = missing
+    if missing:
+        error(errors, f"viewer missing office-detail inspection markers: {', '.join(missing)}")
+    return summary
+
+
 def main() -> int:
     errors: list[str] = []
     if not METADATA_PATH.exists():
@@ -1220,6 +1254,7 @@ def main() -> int:
     texture_summary = validate_texture_manifest(materials, errors)
     unreal_importer_summary = validate_unreal_importer(errors)
     unreal_project_config_summary = validate_unreal_project_config(errors)
+    viewer_summary = validate_viewer_contract(errors)
     mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
 
     report = {
@@ -1230,6 +1265,7 @@ def main() -> int:
         "textures": texture_summary,
         "unreal_importer": unreal_importer_summary,
         "unreal_project_config": unreal_project_config_summary,
+        "viewer": viewer_summary,
         "meshes": mesh_stats,
         "errors": errors,
     }
@@ -1281,6 +1317,7 @@ def main() -> int:
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")
     print(f"Unreal importer environment markers: {unreal_importer_summary.get('environment_markers', 0):,}")
     print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")
+    print(f"Viewer markers: {viewer_summary.get('required_markers', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
 
