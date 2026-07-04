@@ -158,6 +158,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "circulation_details",
     "rotunda_details",
     "ceiling_details",
+    "floor_details",
     "joint_session",
     "gameplay_items",
     "viewpoints",
@@ -384,6 +385,14 @@ REQUIRED_CEILING_DETAIL_KINDS = {
     "coffer_panel",
     "ceiling_medallion",
     "light_canopy",
+}
+
+REQUIRED_FLOOR_DETAIL_KINDS = {
+    "floor_border_strip",
+    "marble_tile_joint",
+    "carpet_border_strip",
+    "public_threshold_slab",
+    "floor_medallion",
 }
 
 REQUIRED_GROUNDS_DETAIL_KINDS = {
@@ -1047,6 +1056,38 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"ceiling detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
             break
 
+    floor_details = interior.get("floor_details", [])
+    floor_detail_kinds = {detail.get("kind") for detail in floor_details}
+    summary["floor_details"] = len(floor_details)
+    summary["floor_detail_kinds"] = len(floor_detail_kinds)
+    if len(floor_details) < 130:
+        error(errors, f"expected at least 130 public floor detail records, got {len(floor_details)}")
+    missing_floor_kinds = sorted(REQUIRED_FLOOR_DETAIL_KINDS - floor_detail_kinds)
+    if missing_floor_kinds:
+        error(errors, f"missing public floor detail kinds: {', '.join(missing_floor_kinds)}")
+    if len([detail for detail in floor_details if detail.get("kind") == "floor_border_strip"]) < 28:
+        error(errors, "expected at least 28 public floor border records")
+    if len([detail for detail in floor_details if detail.get("kind") == "marble_tile_joint"]) < 70:
+        error(errors, "expected at least 70 public marble tile joint records")
+    if len([detail for detail in floor_details if detail.get("kind") == "carpet_border_strip"]) < 16:
+        error(errors, "expected at least 16 public carpet border records")
+    if len([detail for detail in floor_details if detail.get("kind") == "public_threshold_slab"]) < 8:
+        error(errors, "expected at least 8 public threshold slab records")
+    if len([detail for detail in floor_details if detail.get("kind") == "floor_medallion"]) < 10:
+        error(errors, "expected at least 10 public floor medallion records")
+    for detail in floor_details:
+        if not detail.get("area"):
+            error(errors, f"floor detail {detail.get('name', '<unknown>')} is missing area")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"floor detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if "public" not in public_accuracy or "public visual" not in assignment or "security feature" not in assignment:
+            error(errors, f"floor detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     joint_session = interior.get("joint_session", [])
     joint_names = {item.get("name") for item in joint_session}
     summary["joint_session_records"] = len(joint_session)
@@ -1436,6 +1477,7 @@ def main() -> int:
     print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
     print(f"Rotunda details: {metadata_summary.get('rotunda_details', 0):,}")
     print(f"Ceiling details: {metadata_summary.get('ceiling_details', 0):,}")
+    print(f"Floor details: {metadata_summary.get('floor_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")

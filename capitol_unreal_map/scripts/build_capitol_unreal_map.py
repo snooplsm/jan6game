@@ -2784,6 +2784,163 @@ def add_public_interior_ceiling_details(
     add_label(labels, "Coffered ceilings and crown trim - schematic", 0.0, 0.0, 8.9, "wall_treatment")
 
 
+def add_public_floor_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    area: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "area": area,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_interior_floor_finish",
+        "assignment": (
+            "Public visual floor-finish detail only; not a restricted route, "
+            "security feature, or operational placement."
+        ),
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_floor_border(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    name: str,
+    area: str,
+    center: tuple[float, float],
+    size: tuple[float, float],
+    z: float,
+    kind: str,
+    material: str,
+    thickness: float = 0.16,
+) -> None:
+    cx, cy = center
+    sx, sy = size
+    border_specs = [
+        ("north", (cx, cy + sy / 2.0 - thickness / 2.0), (sx, thickness)),
+        ("south", (cx, cy - sy / 2.0 + thickness / 2.0), (sx, thickness)),
+        ("east", (cx + sx / 2.0 - thickness / 2.0, cy), (thickness, sy)),
+        ("west", (cx - sx / 2.0 + thickness / 2.0, cy), (thickness, sy)),
+    ]
+    for side, detail_center, detail_size in border_specs:
+        detail_name = f"{name}_{side}"
+        obj.add_box(detail_center, detail_size, 0.035, z, detail_name, material)
+        add_public_floor_detail_record(records, detail_name, kind, area, (detail_center[0], detail_center[1], z + 0.018), detail_size)
+
+
+def add_floor_tile_grid(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    name: str,
+    area: str,
+    center: tuple[float, float],
+    size: tuple[float, float],
+    columns: int,
+    rows: int,
+    z: float,
+) -> None:
+    cx, cy = center
+    sx, sy = size
+    for col in range(1, columns):
+        x = cx - sx / 2.0 + sx * col / columns
+        detail_name = f"{name}_vertical_joint_{col:02d}"
+        detail_size = (0.075, sy * 0.94)
+        obj.add_box((x, cy), detail_size, 0.026, z, detail_name, "StepStone")
+        add_public_floor_detail_record(records, detail_name, "marble_tile_joint", area, (x, cy, z + 0.013), detail_size)
+    for row in range(1, rows):
+        y = cy - sy / 2.0 + sy * row / rows
+        detail_name = f"{name}_horizontal_joint_{row:02d}"
+        detail_size = (sx * 0.94, 0.075)
+        obj.add_box((cx, y), detail_size, 0.026, z, detail_name, "StepStone")
+        add_public_floor_detail_record(records, detail_name, "marble_tile_joint", area, (cx, y, z + 0.013), detail_size)
+
+
+def add_floor_medallion(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    name: str,
+    area: str,
+    center: tuple[float, float],
+    radius: float,
+    z: float,
+) -> None:
+    obj.add_cylinder(center, radius, z, 0.035, name, "BrassRail", segments=28)
+    add_public_floor_detail_record(records, name, "floor_medallion", area, (center[0], center[1], z + 0.018), (radius * 2.0, radius * 2.0))
+
+
+def add_public_interior_floor_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    public_floor_specs = [
+        ("national_statuary_hall_floor", "National Statuary Hall", (28.0, -30.0), (28.0, 18.0), 4, 3, 4.47),
+        ("old_senate_chamber_floor", "Old Senate Chamber", (28.0, 30.0), (24.0, 16.0), 4, 3, 4.47),
+        ("crypt_marker_floor", "Crypt below Rotunda marker", (0.0, -24.0), (22.0, 10.0), 3, 2, 4.47),
+        ("house_well_floor", "House Chamber public well", (0.0, -54.0), (18.0, 8.0), 5, 2, 4.58),
+        ("senate_presiding_floor", "Senate presiding-officer public well", (0.0, 83.0), (14.0, 7.0), 4, 2, 4.58),
+        ("north_public_spine_floor", "Rotunda / Senate public spine", (0.0, 35.0), (16.0, 26.0), 2, 5, 4.47),
+        ("south_public_spine_floor", "Rotunda / House public spine", (0.0, -35.0), (16.0, 26.0), 2, 5, 4.47),
+        ("east_public_circulation_floor", "East public approach / visitor circulation", (62.0, 0.0), (11.5, 66.0), 2, 8, 4.47),
+        ("west_public_circulation_floor", "West terrace public orientation marker", (-62.0, 0.0), (11.5, 66.0), 2, 8, 4.47),
+        ("house_west_office_floor", "House leadership/support offices - schematic zone", (-53.0, -55.0), (19.0, 42.0), 3, 5, 4.62),
+        ("house_east_office_floor", "House committee/support rooms - schematic zone", (53.0, -55.0), (19.0, 42.0), 3, 5, 4.62),
+        ("senate_west_office_floor", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (19.0, 42.0), 3, 5, 4.62),
+        ("senate_east_office_floor", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (19.0, 42.0), 3, 5, 4.62),
+    ]
+    for name, area, center, size, columns, rows, z in public_floor_specs:
+        add_floor_border(obj, records, f"{name}_stone_border", area, center, size, z, "floor_border_strip", "BrassRail")
+        add_floor_tile_grid(obj, records, f"{name}_tile_grid", area, center, size, columns, rows, z + 0.04)
+
+    carpet_specs = [
+        ("house_chamber_carpet_border", "House Chamber", (0.0, -80.0), (55.5, 30.5), 4.57, "HouseCarpet"),
+        ("senate_chamber_carpet_border", "Senate Chamber", (0.0, 73.0), (42.5, 26.5), 4.57, "SenateCarpet"),
+        ("house_gallery_carpet_border", "House galleries", (0.0, -100.0), (66.5, 7.6), 4.92, "HouseCarpet"),
+        ("senate_gallery_carpet_border", "Senate galleries", (0.0, 97.5), (52.5, 6.8), 4.92, "SenateCarpet"),
+    ]
+    for name, area, center, size, z, material in carpet_specs:
+        add_floor_border(obj, records, name, area, center, size, z, "carpet_border_strip", material, thickness=0.22)
+
+    threshold_specs = [
+        ("west_public_approach_floor_slab", "West terrace public orientation marker", (-55.0, 0.0), (0.90, 8.2), 4.52),
+        ("east_public_approach_floor_slab", "East public approach / visitor circulation", (55.0, 0.0), (0.90, 8.2), 4.52),
+        ("rotunda_statuary_hall_floor_slab", "Rotunda / National Statuary Hall", (16.2, -15.8), (5.2, 0.90), 4.52),
+        ("rotunda_old_senate_floor_slab", "Rotunda / Old Senate Chamber", (16.2, 15.8), (5.0, 0.90), 4.52),
+        ("rotunda_house_floor_slab", "Rotunda / House Chamber orientation", (0.0, -51.0), (6.6, 0.95), 4.56),
+        ("rotunda_senate_floor_slab", "Rotunda / Senate Chamber orientation", (0.0, 51.0), (6.4, 0.95), 4.56),
+        ("house_gallery_floor_slab", "House Chamber / public gallery", (0.0, -91.0), (8.4, 0.90), 4.76),
+        ("senate_gallery_floor_slab", "Senate Chamber / public gallery", (0.0, 89.0), (7.4, 0.90), 4.76),
+    ]
+    for name, area, center, size, z in threshold_specs:
+        obj.add_box(center, size, 0.035, z, name, "StepStone")
+        add_public_floor_detail_record(records, name, "public_threshold_slab", area, (center[0], center[1], z + 0.018), size)
+
+    medallion_specs = [
+        ("statuary_hall_center_floor_medallion", "National Statuary Hall", (28.0, -30.0), 1.25, 4.53),
+        ("old_senate_center_floor_medallion", "Old Senate Chamber", (28.0, 30.0), 1.05, 4.53),
+        ("east_circulation_floor_medallion_north", "East public approach / visitor circulation", (62.0, 18.0), 0.72, 4.53),
+        ("east_circulation_floor_medallion_south", "East public approach / visitor circulation", (62.0, -18.0), 0.72, 4.53),
+        ("west_circulation_floor_medallion_north", "West terrace public orientation marker", (-62.0, 18.0), 0.72, 4.53),
+        ("west_circulation_floor_medallion_south", "West terrace public orientation marker", (-62.0, -18.0), 0.72, 4.53),
+        ("house_floor_centerline_medallion", "House Chamber", (0.0, -65.0), 0.62, 4.61),
+        ("senate_floor_centerline_medallion", "Senate Chamber", (0.0, 70.0), 0.62, 4.61),
+        ("house_gallery_floor_medallion", "House galleries", (0.0, -100.0), 0.58, 4.98),
+        ("senate_gallery_floor_medallion", "Senate galleries", (0.0, 97.5), 0.58, 4.98),
+        ("house_west_office_floor_medallion", "House leadership/support offices - schematic zone", (-53.0, -55.0), 0.56, 4.68),
+        ("senate_east_office_floor_medallion", "Senate committee/support rooms - schematic zone", (52.0, 55.0), 0.56, 4.68),
+    ]
+    for name, area, center, radius, z in medallion_specs:
+        add_floor_medallion(obj, records, name, area, center, radius, z)
+
+    add_label(labels, "Public floor borders, thresholds, and marble tile joints - schematic", 18.0, 0.0, 5.2, "public_circulation_detail")
+
+
 def add_chamber_detail_record(
     records: list[dict[str, Any]],
     name: str,
@@ -3437,6 +3594,7 @@ def build_interior() -> dict[str, Any]:
     circulation_details: list[dict[str, Any]] = []
     rotunda_details: list[dict[str, Any]] = []
     ceiling_details: list[dict[str, Any]] = []
+    floor_details: list[dict[str, Any]] = []
 
     # Broad second-floor public schematic. North = +Y. East = +X.
     add_room(obj, rooms, labels, "Capitol second-floor public schematic footprint", (0.0, 0.0), (150.0, 190.0), "InteriorFloor", "floorplate", z=3.95, height=0.08, with_walls=True)
@@ -3493,6 +3651,7 @@ def build_interior() -> dict[str, Any]:
     add_wall_treatment(obj, wall_treatments, "senate_west_office_wall_finish", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), 5, 8, z=4.45)
     add_wall_treatment(obj, wall_treatments, "senate_east_office_wall_finish", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 5, 8, z=4.45)
     add_public_interior_ceiling_details(obj, labels, ceiling_details)
+    add_public_interior_floor_details(obj, labels, floor_details)
     add_label(labels, "Wainscot panels, chair rails, and picture rails - schematic", 0.0, -6.5, 7.6, "wall_treatment")
 
     obj.write(MESH_DIR / "capitol_public_interior_schematic.obj", "capitol_materials.mtl")
@@ -3511,6 +3670,7 @@ def build_interior() -> dict[str, Any]:
         "circulation_details": circulation_details,
         "rotunda_details": rotunda_details,
         "ceiling_details": ceiling_details,
+        "floor_details": floor_details,
         "interior_notice": (
             "Public schematic only. It maps major public spaces and generic chamber seating. "
             "It does not include restricted security details, private office assignments, "
@@ -3774,6 +3934,7 @@ def main() -> None:
         f"{len(interior['circulation_details'])} circulation detail records,",
         f"{len(interior['rotunda_details'])} rotunda detail records,",
         f"{len(interior['ceiling_details'])} ceiling detail records,",
+        f"{len(interior['floor_details'])} floor detail records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
         f"{len(interior['seating'])} generic chamber seats/desks,",
         f"{len(gameplay['items'])} gameplay item props",
