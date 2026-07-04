@@ -92,6 +92,20 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "material_count",
     "texture_set_count",
     "texture_asset_count",
+    "first_person_setup",
+    "static_mesh_lod_group",
+    "auto_generate_collision",
+    "collision_trace",
+    "actor_collision",
+    "can_affect_navigation",
+    "nanite_enabled",
+    "player_start_actor_class",
+    "player_start_label",
+    "player_start_location_cm",
+    "nav_mesh_bounds_actor_class",
+    "nav_mesh_bounds_label",
+    "nav_mesh_bounds_location_cm",
+    "nav_mesh_bounds_scale_cm",
     "metadata_counts",
     "buildings",
     "roads",
@@ -136,6 +150,19 @@ REQUIRED_UNREAL_OUTLINER_FOLDERS = {
     "CapitolMap/Labels/Exterior",
     "CapitolMap/Labels/Landmark",
     "CapitolMap/Labels/Gameplay",
+}
+
+REQUIRED_UNREAL_FIRST_PERSON_MARKERS = {
+    "LargeProp",
+    "auto_generate_collision",
+    "CTF_USE_COMPLEX_AS_SIMPLE",
+    "QUERY_AND_PHYSICS",
+    "can_ever_affect_navigation",
+    "NavMeshBoundsVolume",
+    "PlayerStart",
+    "CapitolMap_PlayerStart_WestFront",
+    "CapitolMap_NavMeshBounds_CentralCampus",
+    "nanite_settings",
 }
 
 REQUIRED_ROOMS = {
@@ -851,6 +878,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "report_keys": 0,
         "label_categories": 0,
         "outliner_folders": 0,
+        "first_person_markers": 0,
     }
     if not UNREAL_IMPORTER_PATH.exists():
         error(errors, f"missing Unreal import script: {UNREAL_IMPORTER_PATH}")
@@ -885,6 +913,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     missing_report_keys = sorted(REQUIRED_UNREAL_REPORT_KEYS - string_literals)
     missing_label_categories = sorted(REQUIRED_UNREAL_LABEL_CATEGORIES - string_literals)
     missing_outliner_folders = sorted(REQUIRED_UNREAL_OUTLINER_FOLDERS - string_literals)
+    missing_first_person_markers = sorted(REQUIRED_UNREAL_FIRST_PERSON_MARKERS - string_literals)
 
     summary["mesh_files"] = len(EXPECTED_UNREAL_MESH_BASENAMES) - len(missing_meshes)
     summary["destination_paths"] = len(EXPECTED_UNREAL_DESTINATIONS) - len(missing_destinations)
@@ -893,6 +922,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     summary["report_keys"] = len(REQUIRED_UNREAL_REPORT_KEYS) - len(missing_report_keys)
     summary["label_categories"] = len(REQUIRED_UNREAL_LABEL_CATEGORIES) - len(missing_label_categories)
     summary["outliner_folders"] = len(REQUIRED_UNREAL_OUTLINER_FOLDERS) - len(missing_outliner_folders)
+    summary["first_person_markers"] = len(REQUIRED_UNREAL_FIRST_PERSON_MARKERS) - len(missing_first_person_markers)
     summary["missing"] = {
         "mesh_files": missing_meshes,
         "destination_paths": missing_destinations,
@@ -901,6 +931,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "report_keys": missing_report_keys,
         "label_categories": missing_label_categories,
         "outliner_folders": missing_outliner_folders,
+        "first_person_markers": missing_first_person_markers,
     }
 
     if missing_meshes:
@@ -917,6 +948,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         error(errors, f"Unreal importer missing label categories: {', '.join(missing_label_categories)}")
     if missing_outliner_folders:
         error(errors, f"Unreal importer missing outliner folders: {', '.join(missing_outliner_folders)}")
+    if missing_first_person_markers:
+        error(errors, f"Unreal importer missing first-person setup markers: {', '.join(missing_first_person_markers)}")
 
     return summary
 

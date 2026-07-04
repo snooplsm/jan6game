@@ -71,7 +71,7 @@ The validator checks that:
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
-- the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, and import-report key
+- the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, first-person setup marker, and import-report key
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
@@ -150,9 +150,9 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 5. The script imports meshes into `/Game/CapitolMap/Generated`.
 6. The script imports generated texture PNGs into `/Game/CapitolMap/Textures`.
 7. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json`, wires generated basecolor/normal/roughness texture samples from `generated/data/material_texture_manifest.json`, and applies those materials to matching imported material slots.
-8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors, interior lights, a capped set of exterior streetlight actors, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
+8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors with collision/navigation settings, interior lights, a capped set of exterior streetlight actors, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
 9. The script saves the current level when the Unreal editor API allows it.
-10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, and metadata counts.
+10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, first-person collision/navigation setup, and metadata counts.
 
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
 

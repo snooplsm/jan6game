@@ -29,6 +29,26 @@ MATERIAL_DESTINATION_PATH = "/Game/CapitolMap/Materials"
 TEXTURE_DESTINATION_PATH = "/Game/CapitolMap/Textures"
 MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
+PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
+PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
+NAV_MESH_BOUNDS_LABEL = "CapitolMap_NavMeshBounds_CentralCampus"
+NAV_MESH_BOUNDS_LOCATION_CM = [0.0, 0.0, 2500.0]
+NAV_MESH_BOUNDS_SCALE = [750.0, 750.0, 45.0]
+FIRST_PERSON_IMPORT_SETUP = {
+    "static_mesh_lod_group": "LargeProp",
+    "auto_generate_collision": True,
+    "collision_trace": "CTF_USE_COMPLEX_AS_SIMPLE",
+    "actor_collision": "QUERY_AND_PHYSICS",
+    "can_affect_navigation": True,
+    "nanite_enabled": True,
+    "player_start_actor_class": "PlayerStart",
+    "player_start_label": PLAYER_START_LABEL,
+    "player_start_location_cm": PLAYER_START_LOCATION_CM,
+    "nav_mesh_bounds_actor_class": "NavMeshBoundsVolume",
+    "nav_mesh_bounds_label": NAV_MESH_BOUNDS_LABEL,
+    "nav_mesh_bounds_location_cm": NAV_MESH_BOUNDS_LOCATION_CM,
+    "nav_mesh_bounds_scale_cm": NAV_MESH_BOUNDS_SCALE,
+}
 
 MESH_FILES = [
     "capitol_exterior_buildings.obj",
@@ -625,11 +645,11 @@ def spawn_scene_setup() -> None:
     try:
         player_start = unreal.EditorLevelLibrary.spawn_actor_from_class(
             unreal.PlayerStart,
-            unreal.Vector(-9000, 0, 120),
+            unreal.Vector(*PLAYER_START_LOCATION_CM),
             unreal.Rotator(0, 0, 0),
         )
         if player_start:
-            player_start.set_actor_label("CapitolMap_PlayerStart_WestFront")
+            player_start.set_actor_label(PLAYER_START_LABEL)
             player_start.set_folder_path("CapitolMap/SceneSetup")
     except Exception as exc:
         log(f"PlayerStart setup skipped: {exc}")
@@ -687,14 +707,14 @@ def spawn_navigation_bounds() -> None:
     try:
         volume = unreal.EditorLevelLibrary.spawn_actor_from_class(
             unreal.NavMeshBoundsVolume,
-            unreal.Vector(0.0, 0.0, 2500.0),
+            unreal.Vector(*NAV_MESH_BOUNDS_LOCATION_CM),
             unreal.Rotator(0.0, 0.0, 0.0),
         )
         if not volume:
             return
-        volume.set_actor_label("CapitolMap_NavMeshBounds_CentralCampus")
+        volume.set_actor_label(NAV_MESH_BOUNDS_LABEL)
         volume.set_folder_path("CapitolMap/SceneSetup")
-        volume.set_actor_scale3d(unreal.Vector(750.0, 750.0, 45.0))
+        volume.set_actor_scale3d(unreal.Vector(*NAV_MESH_BOUNDS_SCALE))
     except Exception as exc:
         log(f"Navigation bounds setup skipped: {exc}")
 
@@ -870,6 +890,7 @@ def write_unreal_import_report(
             "material_count": len(material_assets),
             "texture_set_count": len(texture_assets),
             "texture_asset_count": sum(len(value) for value in texture_assets.values()),
+            "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
             "metadata_counts": {
                 "buildings": len(data.get("exterior", {}).get("buildings", [])),
                 "roads": len(data.get("exterior", {}).get("roads", [])),

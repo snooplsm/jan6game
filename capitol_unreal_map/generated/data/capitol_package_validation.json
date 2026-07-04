@@ -57,9 +57,10 @@
     "destination_paths": 4,
     "required_functions": 13,
     "required_calls": 13,
-    "report_keys": 27,
+    "report_keys": 41,
     "label_categories": 16,
     "outliner_folders": 8,
+    "first_person_markers": 10,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],
@@ -67,7 +68,8 @@
       "required_calls": [],
       "report_keys": [],
       "label_categories": [],
-      "outliner_folders": []
+      "outliner_folders": [],
+      "first_person_markers": []
     }
   },
   "meshes": [
