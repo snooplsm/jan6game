@@ -156,6 +156,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "office_cells",
     "office_details",
     "circulation_details",
+    "rotunda_details",
     "joint_session",
     "gameplay_items",
     "viewpoints",
@@ -362,6 +363,18 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "room_portal_trim",
     "orientation_sign",
     "floor_inlay",
+}
+
+REQUIRED_ROTUNDA_DETAIL_KINDS = {
+    "wall_ring",
+    "floor_trim_ring",
+    "center_floor_medallion",
+    "floor_radial_inlay",
+    "perimeter_column",
+    "upper_coffer_panel",
+    "public_arch_portal",
+    "upper_balustrade",
+    "statue_pedestal_base",
 }
 
 REQUIRED_GROUNDS_DETAIL_KINDS = {
@@ -946,6 +959,38 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} lacks public/non-secure boundary")
             break
 
+    rotunda_details = interior.get("rotunda_details", [])
+    rotunda_detail_kinds = {detail.get("kind") for detail in rotunda_details}
+    summary["rotunda_details"] = len(rotunda_details)
+    summary["rotunda_detail_kinds"] = len(rotunda_detail_kinds)
+    if len(rotunda_details) < 75:
+        error(errors, f"expected at least 75 public Rotunda detail records, got {len(rotunda_details)}")
+    missing_rotunda_kinds = sorted(REQUIRED_ROTUNDA_DETAIL_KINDS - rotunda_detail_kinds)
+    if missing_rotunda_kinds:
+        error(errors, f"missing public Rotunda detail kinds: {', '.join(missing_rotunda_kinds)}")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "floor_radial_inlay"]) < 16:
+        error(errors, "expected at least 16 public Rotunda floor radial inlay records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "perimeter_column"]) < 16:
+        error(errors, "expected at least 16 public Rotunda perimeter column records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "upper_coffer_panel"]) < 32:
+        error(errors, "expected at least 32 public Rotunda upper coffer panel records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "public_arch_portal"]) < 4:
+        error(errors, "expected at least 4 public Rotunda arch portal records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "statue_pedestal_base"]) < 7:
+        error(errors, "expected at least 7 public Rotunda statue pedestal records")
+    for detail in rotunda_details:
+        if detail.get("location") != "Rotunda":
+            error(errors, f"Rotunda detail {detail.get('name', '<unknown>')} has invalid location")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"Rotunda detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if "public" not in public_accuracy or "public visual" not in assignment or "security feature" not in assignment:
+            error(errors, f"Rotunda detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     joint_session = interior.get("joint_session", [])
     joint_names = {item.get("name") for item in joint_session}
     summary["joint_session_records"] = len(joint_session)
@@ -1333,6 +1378,7 @@ def main() -> int:
     print(f"Office details: {metadata_summary.get('office_details', 0):,}")
     print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
     print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
+    print(f"Rotunda details: {metadata_summary.get('rotunda_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")

@@ -2092,16 +2092,112 @@ def add_public_office_grid(
     return records
 
 
-def add_rotunda_visual_details(obj: ObjWriter, labels: list[dict[str, Any]]) -> None:
+def add_rotunda_visual_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    def add_rotunda_detail(
+        name: str,
+        kind: str,
+        center_m: tuple[float, float, float],
+        size_m: tuple[float, float] | None = None,
+    ) -> None:
+        record: dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "location": "Rotunda",
+            "center_m": [round(center_m[0], 3), round(center_m[1], 3), round(center_m[2], 3)],
+            "public_accuracy": "schematic_public_rotunda_visual_detail",
+            "assignment": (
+                "Public visual architectural detail only; not a restricted route, "
+                "security feature, or operational placement."
+            ),
+        }
+        if size_m is not None:
+            record["size_m"] = [round(size_m[0], 3), round(size_m[1], 3)]
+        records.append(record)
+
     obj.add_ring((0.0, 0.0), 15.05, 14.45, 4.35, 4.9, "rotunda_public_wall_ring", "RotundaWall", segments=96)
+    add_rotunda_detail("rotunda_public_wall_ring", "wall_ring", (0.0, 0.0, 6.8), (30.1, 30.1))
     obj.add_ring((0.0, 0.0), 10.8, 10.55, 4.42, 0.18, "rotunda_inner_floor_trim_ring", "BrassRail", segments=96)
+    add_rotunda_detail("rotunda_inner_floor_trim_ring", "floor_trim_ring", (0.0, 0.0, 4.51), (21.6, 21.6))
     obj.add_cylinder((0.0, 0.0), 3.2, 4.46, 0.18, "rotunda_center_floor_medallion", "BrassRail", segments=64)
+    add_rotunda_detail("rotunda_center_floor_medallion", "center_floor_medallion", (0.0, 0.0, 4.55), (6.4, 6.4))
+
+    for idx in range(16):
+        angle = math.tau * idx / 16.0
+        start = (3.95 * math.cos(angle), 3.95 * math.sin(angle))
+        end = (10.25 * math.cos(angle), 10.25 * math.sin(angle))
+        name = f"rotunda_floor_radial_inlay_{idx+1:02d}"
+        obj.add_polyline_strip([start, end], 0.16, 4.49, name, "BrassRail")
+        mid_radius = 7.10
+        add_rotunda_detail(
+            name,
+            "floor_radial_inlay",
+            (mid_radius * math.cos(angle), mid_radius * math.sin(angle), 4.5),
+            (6.3, 0.16),
+        )
+
     for idx in range(16):
         angle = math.tau * idx / 16.0
         x = 13.55 * math.cos(angle)
         y = 13.55 * math.sin(angle)
-        obj.add_cylinder((x, y), 0.28, 4.42, 4.25, f"rotunda_perimeter_column_{idx+1:02d}", "ColumnStone", segments=16)
-    add_label(labels, "Rotunda wall ring, columns, floor trim", 0.0, 11.0, 7.2, "major_public_space")
+        name = f"rotunda_perimeter_column_{idx+1:02d}"
+        obj.add_cylinder((x, y), 0.28, 4.42, 4.25, name, "ColumnStone", segments=16)
+        add_rotunda_detail(name, "perimeter_column", (x, y, 6.545), (0.56, 0.56))
+
+    for idx in range(32):
+        angle = math.tau * idx / 32.0 + math.pi / 32.0
+        x = 14.72 * math.cos(angle)
+        y = 14.72 * math.sin(angle)
+        name = f"rotunda_upper_coffer_panel_{idx+1:02d}"
+        obj.add_cylinder((x, y), 0.24, 7.55, 0.10, name, "ArtFrameGold", segments=12)
+        add_rotunda_detail(name, "upper_coffer_panel", (x, y, 7.6), (0.48, 0.48))
+
+    portal_specs = [
+        ("north", (0.0, 14.42), "y", 1.0),
+        ("south", (0.0, -14.42), "y", -1.0),
+        ("east", (14.42, 0.0), "x", 1.0),
+        ("west", (-14.42, 0.0), "x", -1.0),
+    ]
+    for name_part, (cx, cy), axis, sign in portal_specs:
+        name = f"rotunda_public_arch_{name_part}_portal"
+        if axis == "y":
+            obj.add_box((cx - 3.15, cy), (0.46, 0.72), 3.35, 4.48, f"{name}_left_post", "InteriorTrim")
+            obj.add_box((cx + 3.15, cy), (0.46, 0.72), 3.35, 4.48, f"{name}_right_post", "InteriorTrim")
+            obj.add_box((cx, cy), (6.75, 0.72), 0.55, 7.62, f"{name}_lintel", "InteriorTrim")
+            obj.add_box((cx, cy - sign * 0.18), (5.65, 0.16), 0.42, 7.12, f"{name}_inner_shadow_line", "BrassRail")
+            size = (6.75, 0.72)
+        else:
+            obj.add_box((cx, cy - 3.15), (0.72, 0.46), 3.35, 4.48, f"{name}_left_post", "InteriorTrim")
+            obj.add_box((cx, cy + 3.15), (0.72, 0.46), 3.35, 4.48, f"{name}_right_post", "InteriorTrim")
+            obj.add_box((cx, cy), (0.72, 6.75), 0.55, 7.62, f"{name}_lintel", "InteriorTrim")
+            obj.add_box((cx - sign * 0.18, cy), (0.16, 5.65), 0.42, 7.12, f"{name}_inner_shadow_line", "BrassRail")
+            size = (0.72, 6.75)
+        add_rotunda_detail(name, "public_arch_portal", (cx, cy, 6.1), size)
+
+    obj.add_ring((0.0, 0.0), 13.05, 12.72, 8.72, 0.32, "rotunda_upper_balustrade_ring", "BrassRail", segments=96)
+    add_rotunda_detail("rotunda_upper_balustrade_ring", "upper_balustrade", (0.0, 0.0, 8.88), (26.1, 26.1))
+
+    rotunda_statue_pedestals = [
+        ("washington", 0.0),
+        ("jackson", 60.0),
+        ("garfield", 120.0),
+        ("eisenhower", 180.0),
+        ("reagan", 240.0),
+        ("ford", 300.0),
+        ("truman", 330.0),
+    ]
+    for label, degrees in rotunda_statue_pedestals:
+        angle = math.radians(degrees)
+        x = 11.2 * math.cos(angle)
+        y = 11.2 * math.sin(angle)
+        name = f"rotunda_{label}_statue_public_pedestal_base"
+        obj.add_cylinder((x, y), 0.86, 4.41, 0.18, name, "StepStone", segments=20)
+        add_rotunda_detail(name, "statue_pedestal_base", (x, y, 4.5), (1.72, 1.72))
+
+    add_label(labels, "Rotunda architectural details - public schematic", 0.0, 11.0, 7.2, "major_public_space")
 
 
 def add_statue_visual(
@@ -3121,6 +3217,7 @@ def build_interior() -> dict[str, Any]:
     wall_treatments: list[dict[str, Any]] = []
     chamber_details: list[dict[str, Any]] = []
     circulation_details: list[dict[str, Any]] = []
+    rotunda_details: list[dict[str, Any]] = []
 
     # Broad second-floor public schematic. North = +Y. East = +X.
     add_room(obj, rooms, labels, "Capitol second-floor public schematic footprint", (0.0, 0.0), (150.0, 190.0), "InteriorFloor", "floorplate", z=3.95, height=0.08, with_walls=True)
@@ -3136,7 +3233,7 @@ def build_interior() -> dict[str, Any]:
         }
     )
     add_label(labels, "Rotunda - 96 ft diameter", 0.0, 0.0, 5.0, "major_public_space")
-    add_rotunda_visual_details(obj, labels)
+    add_rotunda_visual_details(obj, labels, rotunda_details)
 
     add_room(obj, rooms, labels, "National Statuary Hall", (28.0, -30.0), (30.0, 20.0), "RotundaFloor", "major_public_space")
     add_room(obj, rooms, labels, "Old Senate Chamber", (28.0, 30.0), (26.0, 18.0), "RotundaFloor", "major_public_space")
@@ -3192,6 +3289,7 @@ def build_interior() -> dict[str, Any]:
         "wall_treatments": wall_treatments,
         "chamber_details": chamber_details,
         "circulation_details": circulation_details,
+        "rotunda_details": rotunda_details,
         "interior_notice": (
             "Public schematic only. It maps major public spaces and generic chamber seating. "
             "It does not include restricted security details, private office assignments, "
@@ -3453,6 +3551,7 @@ def main() -> None:
         f"{len(interior['wall_treatments'])} wall-treatment records,",
         f"{len(interior['chamber_details'])} chamber detail records,",
         f"{len(interior['circulation_details'])} circulation detail records,",
+        f"{len(interior['rotunda_details'])} rotunda detail records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
         f"{len(interior['seating'])} generic chamber seats/desks,",
         f"{len(gameplay['items'])} gameplay item props",
