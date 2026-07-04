@@ -8,7 +8,7 @@ It contains:
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
 - a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, and a joint-session House Chamber visual layout
 - public-facing Capitol visual details including approximate revolving-door assemblies, facade windows, cornice/belt-course bands, entry lamps, bollards, and benches
-- fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
+- fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole with American flag and campaign-style banner variants, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - Unreal-friendly OBJ/MTL meshes in centimeter units
 - JSON metadata for labels, source provenance, coordinates, rooms, seating records, and gameplay item records
 - shared camera/viewpoint metadata for browser and Unreal inspection
@@ -86,6 +86,7 @@ The current generated build contains:
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
 - 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
+- 5 flagpole banner visuals: American flag, two Trump 2024 campaign-style banners, a Save America campaign-style banner, and a Make America Great Again campaign-style banner
 
 ## Local Browser Viewer
 
@@ -140,7 +141,7 @@ The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, cr
 
 The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, Capitol facade windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
 
-The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction.
+The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction. Flagpole banner visuals are simple color-blocked game props, not exact merchandise replicas.
 
 Generated camera viewpoints:
 

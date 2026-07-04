@@ -91,6 +91,14 @@ REQUIRED_GAMEPLAY_ITEMS = {
     "handgun",
 }
 
+REQUIRED_FLAGPOLE_BANNERS = {
+    "american_flag",
+    "trump_2024_red",
+    "trump_2024_blue",
+    "save_america_red",
+    "maga_blue",
+}
+
 
 def error(errors: list[str], message: str) -> None:
     errors.append(message)
@@ -420,8 +428,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     gameplay = metadata.get("gameplay", {})
     gameplay_items = gameplay.get("items", [])
     gameplay_labels = gameplay.get("labels", [])
+    flagpole_banners = gameplay.get("flagpole_banners", [])
     summary["gameplay_items"] = len(gameplay_items)
     summary["gameplay_labels"] = len(gameplay_labels)
+    summary["flagpole_banners"] = len(flagpole_banners)
     gameplay_ids = {item.get("id") for item in gameplay_items}
     missing_gameplay = sorted(REQUIRED_GAMEPLAY_ITEMS - gameplay_ids)
     if missing_gameplay:
@@ -441,6 +451,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     gameplay_notice = gameplay.get("notice", "")
     if "Fictional" not in gameplay_notice or "not historical" not in gameplay_notice:
         error(errors, "gameplay notice must state fictional/non-historical boundary")
+    banner_ids = {banner.get("id") for banner in flagpole_banners}
+    missing_banners = sorted(REQUIRED_FLAGPOLE_BANNERS - banner_ids)
+    if missing_banners:
+        error(errors, f"missing flagpole banner visuals: {', '.join(missing_banners)}")
+    for banner in flagpole_banners:
+        if not is_vec3(banner.get("center_m")):
+            error(errors, f"flagpole banner {banner.get('id', '<unknown>')} has invalid center_m")
+            break
+        if "fictional" not in banner.get("public_accuracy", "").lower():
+            error(errors, f"flagpole banner {banner.get('id', '<unknown>')} must be marked fictional")
+            break
 
     viewpoints = metadata.get("viewpoints", [])
     viewpoint_labels = {item.get("label") for item in viewpoints}
@@ -583,6 +604,7 @@ def main() -> int:
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")
     print(f"Gameplay item props: {metadata_summary.get('gameplay_items', 0):,}")
+    print(f"Flagpole banner visuals: {metadata_summary.get('flagpole_banners', 0):,}")
     print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
     print(f"Texture sets: {texture_summary.get('texture_sets', 0):,}")
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")

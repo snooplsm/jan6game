@@ -1827,6 +1827,7 @@ def build_gameplay_items() -> dict[str, Any]:
     obj = ObjWriter("capitol_gameplay_items")
     items: list[dict[str, Any]] = []
     labels: list[dict[str, Any]] = []
+    flagpole_banners: list[dict[str, Any]] = []
 
     base_x = -132.0
     base_y = -126.0
@@ -1876,8 +1877,64 @@ def build_gameplay_items() -> dict[str, Any]:
     def add_flagpole(center: tuple[float, float]) -> None:
         x, y = center
         obj.add_box((x, y), (4.4, 0.13), 0.13, z + 0.22, "flagpole_staff", "ItemWood")
-        obj.add_box((x + 1.35, y + 0.42), (1.15, 0.08), 0.72, z + 0.35, "flagpole_flag_cloth", "ItemCloth")
         obj.add_cylinder((x - 2.25, y), 0.15, z + 0.16, 0.24, "flagpole_end_cap", "ItemMetal", segments=12)
+
+        # Flat prop panels, not exact merchandise replicas. The American flag
+        # uses simple stripe/canton geometry; campaign banners use readable
+        # metadata labels plus color-blocked cloth shapes for the viewer/Unreal.
+        stripe_h = 0.055
+        flag_origin_x = x + 0.72
+        flag_origin_y = y + 0.50
+        for stripe in range(13):
+            material = "ItemCloth" if stripe % 2 == 0 else "LaneMarkingWhite"
+            obj.add_box(
+                (flag_origin_x + 0.48, flag_origin_y + stripe * stripe_h),
+                (0.96, 0.045),
+                0.035,
+                z + 0.43,
+                f"flagpole_american_flag_stripe_{stripe+1:02d}",
+                material,
+            )
+        obj.add_box((flag_origin_x + 0.17, flag_origin_y + 0.47), (0.36, 0.30), 0.045, z + 0.46, "flagpole_american_flag_canton", "MarkerBlue")
+        for star_index in range(12):
+            sx = flag_origin_x + 0.04 + (star_index % 4) * 0.08
+            sy = flag_origin_y + 0.37 + (star_index // 4) * 0.08
+            obj.add_box((sx, sy), (0.025, 0.025), 0.055, z + 0.50, f"flagpole_american_flag_star_{star_index+1:02d}", "LaneMarkingWhite")
+        flagpole_banners.append(
+            {
+                "id": "american_flag",
+                "display_name": "American flag",
+                "kind": "flag",
+                "center_m": [round(flag_origin_x + 0.48, 3), round(flag_origin_y + 0.34, 3), round(z + 0.52, 3)],
+                "style": "abstract red white stripe and blue canton game prop",
+                "public_accuracy": "fictional_gameplay_banner_visual",
+            }
+        )
+
+        banner_specs = [
+            ("trump_2024_red", "Trump 2024 red banner", "ItemCloth", "LaneMarkingWhite"),
+            ("trump_2024_blue", "Trump 2024 blue banner", "MarkerBlue", "LaneMarkingWhite"),
+            ("save_america_red", "Save America campaign-style banner", "ItemCloth", "LaneMarkingWhite"),
+            ("maga_blue", "Make America Great Again campaign-style banner", "MarkerBlue", "LaneMarkingWhite"),
+        ]
+        for banner_index, (banner_id, display_name, background, accent) in enumerate(banner_specs):
+            bx = x - 1.30 + (banner_index % 2) * 2.65
+            by = y - 1.22 - (banner_index // 2) * 0.62
+            obj.add_box((bx, by), (2.35, 0.40), 0.045, z + 0.42, f"flagpole_{banner_id}_cloth", background)
+            obj.add_box((bx, by - 0.16), (2.05, 0.035), 0.055, z + 0.47, f"flagpole_{banner_id}_top_text_bar", accent)
+            obj.add_box((bx, by + 0.16), (1.45, 0.035), 0.055, z + 0.47, f"flagpole_{banner_id}_bottom_text_bar", accent)
+            obj.add_box((bx - 1.25, by), (0.08, 0.48), 0.08, z + 0.36, f"flagpole_{banner_id}_left_grommet_strip", "ItemMetal")
+            flagpole_banners.append(
+                {
+                    "id": banner_id,
+                    "display_name": display_name,
+                    "kind": "campaign_banner",
+                    "center_m": [round(bx, 3), round(by, 3), round(z + 0.48, 3)],
+                    "style": "abstract color-blocked campaign-style banner, not exact merch artwork",
+                    "public_accuracy": "fictional_gameplay_banner_visual",
+                    "text_reference": display_name,
+                }
+            )
 
     def add_nunchucks(center: tuple[float, float]) -> None:
         x, y = center
@@ -1931,6 +1988,7 @@ def build_gameplay_items() -> dict[str, Any]:
     return {
         "items": items,
         "labels": labels,
+        "flagpole_banners": flagpole_banners,
         "notice": (
             "Fictional non-graphic gameplay pickup props only. These are not historical placements, "
             "not public-safety guidance, and not real-world weapon use or construction instructions."

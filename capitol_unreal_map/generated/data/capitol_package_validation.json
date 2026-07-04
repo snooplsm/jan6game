@@ -27,6 +27,7 @@
     "wall_treatments": 11,
     "gameplay_items": 7,
     "gameplay_labels": 7,
+    "flagpole_banners": 5,
     "viewpoints": 5
   },
   "materials": {
@@ -212,12 +213,12 @@
     },
     {
       "path": "generated/meshes/capitol_gameplay_items.obj",
-      "vertices": 556,
-      "uvs": 1668,
-      "faces": 364,
-      "faces_with_uvs": 364,
-      "triangles": 940,
-      "groups": 43,
+      "vertices": 884,
+      "uvs": 2652,
+      "faces": 610,
+      "faces_with_uvs": 610,
+      "triangles": 1432,
+      "groups": 84,
       "materials": [
         "GameplayPickupPad",
         "ItemBlade",
@@ -228,6 +229,7 @@
         "ItemSprayCan",
         "ItemWarningOrange",
         "ItemWood",
+        "LaneMarkingWhite",
         "MarkerBlue"
       ],
       "mtllibs": [
@@ -236,7 +238,7 @@
       "bbox_cm": {
         "min": [
           -13470.0,
-          -12794.0,
+          -12808.0,
           8.0
         ],
         "max": [
