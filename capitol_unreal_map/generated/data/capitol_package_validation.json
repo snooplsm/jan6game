@@ -10,7 +10,9 @@
     "curbs": 1216,
     "lane_edge_markings": 608,
     "street_markers": 880,
+    "streetscape_props": 818,
     "landmark_elements": 18,
+    "facade_details": 255,
     "revolving_door_visuals": 12,
     "rooms": 15,
     "house_seats": 448,
@@ -26,13 +28,13 @@
     "viewpoints": 5
   },
   "materials": {
-    "manifest_materials": 50,
+    "manifest_materials": 62,
     "missing_manifest_materials": 0,
     "extra_manifest_materials": 0
   },
   "textures": {
     "texture_sets": 41,
-    "texture_material_bindings": 50,
+    "texture_material_bindings": 62,
     "texture_files": 123
   },
   "meshes": [
@@ -64,10 +66,10 @@
     },
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
-      "vertices": 138620,
-      "faces": 42307,
-      "triangles": 84614,
-      "groups": 8926,
+      "vertices": 215940,
+      "faces": 92363,
+      "triangles": 216462,
+      "groups": 14624,
       "materials": [
         "BikeLaneGreen",
         "BikeLanePost",
@@ -75,9 +77,19 @@
         "CurbConcrete",
         "LaneMarkingWhite",
         "LaneMarkingYellow",
+        "PlanterStone",
         "RoadAsphalt",
         "SidewalkConcrete",
-        "SignalMarker"
+        "SignalMarker",
+        "StreetLightGlass",
+        "StreetLightPole",
+        "StreetSignGreen",
+        "TrafficSignalGreen",
+        "TrafficSignalHousing",
+        "TrafficSignalRed",
+        "TrafficSignalYellow",
+        "TreeCanopy",
+        "TreeTrunk"
       ],
       "mtllibs": [
         "capitol_materials.mtl"
@@ -86,30 +98,35 @@
         "min": [
           -100473.656,
           -111292.2521,
-          0.0
+          3.0
         ],
         "max": [
           151793.6552,
           114351.6042,
-          180.0
+          520.0
         ]
       }
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 3130,
-      "faces": 2214,
-      "triangles": 5732,
-      "groups": 107,
+      "vertices": 7306,
+      "faces": 4994,
+      "triangles": 12700,
+      "groups": 453,
       "materials": [
+        "BenchWood",
+        "BollardMetal",
         "CapitolDome",
         "CapitolStone",
         "ColumnStone",
         "DoorGlass",
         "DoorMetal",
+        "FacadeWindow",
         "GroundGrass",
         "PlazaStone",
-        "StepStone"
+        "StepStone",
+        "StreetLightGlass",
+        "StreetLightPole"
       ],
       "mtllibs": [
         "capitol_materials.mtl"

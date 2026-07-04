@@ -121,6 +121,18 @@ MATERIAL_TEXTURE_BINDINGS = {
     "PortraitCanvas": "portrait_canvas",
     "WarmLightGlass": "warm_light_glass",
     "LightFixtureMetal": "fixture_dark_metal",
+    "FacadeWindow": "glass_blue",
+    "StreetLightPole": "black_metal",
+    "StreetLightGlass": "warm_light_glass",
+    "TrafficSignalHousing": "black_metal",
+    "TrafficSignalRed": "warm_light_glass",
+    "TrafficSignalYellow": "warm_light_glass",
+    "TrafficSignalGreen": "warm_light_glass",
+    "TreeTrunk": "dark_wood",
+    "TreeCanopy": "grass",
+    "PlanterStone": "plaza_stone",
+    "BenchWood": "polished_wood",
+    "BollardMetal": "black_metal",
 }
 
 

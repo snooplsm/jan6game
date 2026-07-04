@@ -347,3 +347,87 @@ Ka 0.000 0.000 0.000
 Ks 0.050 0.050 0.050
 d 1.000
 illum 2
+
+newmtl FacadeWindow
+Kd 0.080 0.130 0.160
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 0.720
+illum 2
+
+newmtl StreetLightPole
+Kd 0.110 0.110 0.100
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl StreetLightGlass
+Kd 1.000 0.860 0.540
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 0.700
+illum 2
+
+newmtl TrafficSignalHousing
+Kd 0.045 0.052 0.045
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl TrafficSignalRed
+Kd 0.850 0.060 0.035
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl TrafficSignalYellow
+Kd 0.950 0.680 0.050
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl TrafficSignalGreen
+Kd 0.040 0.500 0.160
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl TreeTrunk
+Kd 0.250 0.130 0.055
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl TreeCanopy
+Kd 0.075 0.280 0.100
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PlanterStone
+Kd 0.520 0.500 0.450
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl BenchWood
+Kd 0.280 0.140 0.055
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl BollardMetal
+Kd 0.120 0.120 0.115
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2

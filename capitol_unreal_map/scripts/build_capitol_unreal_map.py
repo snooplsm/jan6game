@@ -81,6 +81,18 @@ MATERIALS = {
     "PortraitCanvas": (0.24, 0.18, 0.14, 1.0),
     "WarmLightGlass": (1.0, 0.82, 0.48, 0.72),
     "LightFixtureMetal": (0.18, 0.15, 0.11, 1.0),
+    "FacadeWindow": (0.08, 0.13, 0.16, 0.72),
+    "StreetLightPole": (0.11, 0.11, 0.10, 1.0),
+    "StreetLightGlass": (1.0, 0.86, 0.54, 0.70),
+    "TrafficSignalHousing": (0.045, 0.052, 0.045, 1.0),
+    "TrafficSignalRed": (0.85, 0.06, 0.035, 1.0),
+    "TrafficSignalYellow": (0.95, 0.68, 0.05, 1.0),
+    "TrafficSignalGreen": (0.04, 0.50, 0.16, 1.0),
+    "TreeTrunk": (0.25, 0.13, 0.055, 1.0),
+    "TreeCanopy": (0.075, 0.28, 0.10, 1.0),
+    "PlanterStone": (0.52, 0.50, 0.45, 1.0),
+    "BenchWood": (0.28, 0.14, 0.055, 1.0),
+    "BollardMetal": (0.12, 0.12, 0.115, 1.0),
 }
 
 VIEWPOINTS = [
@@ -548,7 +560,80 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "lane_edge_markings": [],
         "street_markers": [],
         "street_labels": [],
+        "streetscape_props": [],
     }
+    streetlight_count = 0
+    tree_count = 0
+    street_sign_count = 0
+    traffic_signal_count = 0
+
+    def on_central_campus(point: tuple[float, float]) -> bool:
+        x, y = point
+        return -650.0 <= x <= 650.0 and -650.0 <= y <= 650.0
+
+    def add_streetscape_record(
+        name: str,
+        kind: str,
+        center: tuple[float, float, float],
+        public_accuracy: str = "approximate_public_visual",
+        extra: dict[str, Any] | None = None,
+    ) -> None:
+        record: dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+            "public_accuracy": public_accuracy,
+        }
+        if extra:
+            record.update(extra)
+        metadata["streetscape_props"].append(record)
+
+    def add_streetlight(name: str, point: tuple[float, float], side_sign: float) -> None:
+        x, y = point
+        lamp_x = x + side_sign * 0.62
+        roads.add_cylinder((x, y), 0.075, 0.10, 5.1, f"{name}_pole", "StreetLightPole", segments=10)
+        roads.add_box((x + side_sign * 0.30, y), (0.62, 0.10), 0.08, 5.05, f"{name}_arm", "StreetLightPole")
+        roads.add_cylinder((lamp_x, y), 0.18, 4.62, 0.34, f"{name}_warm_glass", "StreetLightGlass", segments=12)
+        add_streetscape_record(
+            name,
+            "streetlight",
+            (x, y, 2.7),
+            extra={
+                "light_m": [round(lamp_x, 3), round(y, 3), 4.78],
+                "intensity": 420.0,
+                "attenuation_radius_m": 9.0,
+                "color": [1.0, 0.82, 0.55],
+            },
+        )
+
+    def add_tree(name: str, point: tuple[float, float]) -> None:
+        x, y = point
+        roads.add_cylinder((x, y), 0.16, 0.08, 1.9, f"{name}_trunk", "TreeTrunk", segments=10)
+        roads.add_cylinder((x, y), 1.05, 1.55, 1.0, f"{name}_lower_canopy", "TreeCanopy", segments=18)
+        roads.add_cylinder((x, y), 0.82, 2.18, 0.9, f"{name}_upper_canopy", "TreeCanopy", segments=18)
+        roads.add_cylinder((x, y), 1.18, 0.06, 0.18, f"{name}_planter_ring", "PlanterStone", segments=18)
+        add_streetscape_record(name, "tree_planter", (x, y, 1.75))
+
+    def add_street_sign(name: str, point: tuple[float, float], text: str) -> None:
+        x, y = point
+        roads.add_cylinder((x, y), 0.045, 0.10, 2.15, f"{name}_post", "StreetLightPole", segments=8)
+        roads.add_box((x, y), (1.55, 0.12), 0.44, 1.92, f"{name}_blade", "StreetSignGreen")
+        add_streetscape_record(name, "street_name_sign", (x, y, 1.45), extra={"label": text[:80]})
+
+    def add_traffic_signal(name: str, point: tuple[float, float]) -> None:
+        x, y = point
+        roads.add_cylinder((x, y), 0.07, 0.08, 4.05, f"{name}_pole", "StreetLightPole", segments=10)
+        roads.add_box((x, y), (0.44, 0.28), 1.24, 3.05, f"{name}_signal_head", "TrafficSignalHousing")
+        roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.95, f"{name}_red_lens", "TrafficSignalRed")
+        roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.58, f"{name}_yellow_lens", "TrafficSignalYellow")
+        roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.21, f"{name}_green_lens", "TrafficSignalGreen")
+        add_streetscape_record(name, "traffic_signal_prop", (x, y, 2.5))
+
+    def add_crosswalk_stripes(name: str, point: tuple[float, float]) -> None:
+        x, y = point
+        for stripe in range(4):
+            sx = x + (stripe - 1.5) * 0.46
+            roads.add_box((sx, y), (0.24, 2.35), 0.035, 0.14, f"{name}_stripe_{stripe+1}", "CrosswalkWhite")
 
     for way in ways:
         tags = way.get("tags", {})
@@ -636,6 +721,22 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                             "source_tag": tags.get("sidewalk") or tags.get(f"sidewalk:{side}") or "sidewalk",
                         }
                     )
+                if streetlight_count < 260:
+                    for side in ("left", "right"):
+                        side_sign = 1.0 if side == "left" else -1.0
+                        lamp_line = offset_polyline(points, side_sign * (width / 2.0 + 2.25))
+                        for px, py in sample_polyline(lamp_line, spacing=85.0)[:3]:
+                            if streetlight_count >= 260:
+                                break
+                            if not on_central_campus((px, py)):
+                                continue
+                            streetlight_count += 1
+                            add_streetlight(f"streetlight_{way['id']}_{streetlight_count:03d}", (px, py), side_sign)
+                if street_sign_count < 180 and name and not name.startswith("osm_way_"):
+                    mx, my = polyline_midpoint(points)
+                    if on_central_campus((mx, my)):
+                        street_sign_count += 1
+                        add_street_sign(f"street_name_sign_{way['id']}", (mx, my), name)
             if name and not name.startswith("osm_way_") and tags.get("highway") not in {"footway", "path", "steps"}:
                 mx, my = polyline_midpoint(points)
                 metadata["street_labels"].append(
@@ -669,6 +770,15 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "tags": tags,
                     }
                 )
+            if tree_count < 220 and highway in {"footway", "path", "pedestrian"}:
+                tree_line = offset_polyline(points, 2.4)
+                for px, py in sample_polyline(tree_line, spacing=42.0)[:4]:
+                    if tree_count >= 220:
+                        break
+                    if not on_central_campus((px, py)):
+                        continue
+                    tree_count += 1
+                    add_tree(f"campus_tree_planter_{way['id']}_{tree_count:03d}", (px, py))
 
     # Node street markers are in the OSM element list, so read them directly.
     source_data = json.loads(SOURCE.read_text(encoding="utf-8"))
@@ -679,9 +789,16 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         if not (tags.get("highway") == "traffic_signals" or tags.get("crossing")):
             continue
         x, y = local_xy(float(element["lat"]), float(element["lon"]))
-        material = "SignalMarker" if tags.get("highway") == "traffic_signals" else "CrosswalkWhite"
+        is_signal = tags.get("highway") == "traffic_signals"
+        material = "SignalMarker" if is_signal else "CrosswalkWhite"
         size = (1.2, 1.2) if material == "SignalMarker" else (1.8, 1.8)
-        roads.add_box((x, y), size, 1.8, 0.0, f"street_marker_{element['id']}", material)
+        marker_height = 0.08 if is_signal else 0.035
+        roads.add_box((x, y), size, marker_height, 0.16, f"street_marker_{element['id']}", material)
+        if is_signal:
+            traffic_signal_count += 1
+            add_traffic_signal(f"traffic_signal_{element['id']}", (x, y))
+        else:
+            add_crosswalk_stripes(f"crosswalk_{element['id']}", (x, y))
         metadata["street_markers"].append(
             {
                 "id": element["id"],
@@ -700,6 +817,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     obj = ObjWriter("capitol_landmark_visual_details")
     labels: list[dict[str, Any]] = []
     elements: list[dict[str, Any]] = []
+    facade_details: list[dict[str, Any]] = []
 
     def add_element(name: str, category: str, center: tuple[float, float, float]) -> None:
         elements.append(
@@ -711,6 +829,65 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             }
         )
         add_label(labels, name, center[0], center[1], center[2] + 2.0, category)
+
+    def add_facade_detail(name: str, kind: str, center: tuple[float, float, float], extra: dict[str, Any] | None = None) -> None:
+        record: dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+            "public_accuracy": "approximate_public_visual_detail",
+        }
+        if extra:
+            record.update(extra)
+        facade_details.append(record)
+
+    def add_window_panel(name: str, center: tuple[float, float], z: float, orientation: str) -> None:
+        x, y = center
+        if orientation == "east_west":
+            obj.add_box((x, y), (0.12, 1.34), 1.28, z, name, "FacadeWindow")
+        else:
+            obj.add_box((x, y), (1.34, 0.12), 1.28, z, name, "FacadeWindow")
+        add_facade_detail(name, "facade_window", (x, y, z + 0.64), {"orientation": orientation})
+
+    def add_facade_window_grid(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        span_values: list[float],
+        z_levels: list[float],
+    ) -> None:
+        for level_index, z in enumerate(z_levels, start=1):
+            for span_index, value in enumerate(span_values, start=1):
+                if orientation == "east_west":
+                    center = (fixed, value)
+                else:
+                    center = (value, fixed)
+                add_window_panel(f"{prefix}_window_l{level_index:02d}_{span_index:02d}", center, z, orientation)
+
+    def add_plaza_bollard(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.16, 0.08, 0.84, f"{name}_post", "BollardMetal", segments=12)
+        obj.add_cylinder((x, y), 0.18, 0.92, 0.12, f"{name}_cap", "BollardMetal", segments=12)
+        add_facade_detail(name, "plaza_bollard", (x, y, 0.55))
+
+    def add_bench(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_box((x, y), (2.2, 0.45), 0.16, 0.52, f"{name}_seat", "BenchWood")
+        obj.add_box((x, y + 0.22), (2.2, 0.12), 0.72, 0.58, f"{name}_back", "BenchWood")
+        for leg_index, lx in enumerate([-0.82, 0.82], start=1):
+            obj.add_box((x + lx, y), (0.12, 0.34), 0.48, 0.08, f"{name}_leg_{leg_index}", "BollardMetal")
+        add_facade_detail(name, "public_bench", (x, y, 0.75))
+
+    def add_public_entry_lamp(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.08, 0.12, 3.4, f"{name}_pole", "StreetLightPole", segments=10)
+        obj.add_cylinder((x, y), 0.24, 3.34, 0.42, f"{name}_lantern_glass", "StreetLightGlass", segments=12)
+        add_facade_detail(
+            name,
+            "public_entry_lamp",
+            (x, y, 2.0),
+            {"light_m": [round(x, 3), round(y, 3), 3.55], "intensity": 520.0, "attenuation_radius_m": 8.0},
+        )
 
     def add_revolving_door(name: str, center: tuple[float, float], facade: str) -> None:
         x, y = center
@@ -737,6 +914,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     obj.add_box((54.0, 0.0), (18.0, 66.0), 15.5, 0.08, "east_front_portico_massing", "CapitolStone")
     obj.add_box((-54.0, 0.0), (18.0, 66.0), 15.5, 0.08, "west_front_portico_massing", "CapitolStone")
 
+    # Facade rhythm: public visual windows, belt courses, and cornice bands.
+    y_window_positions = [value * 5.0 for value in range(-6, 7)]
+    wing_x_window_positions = [value * 5.6 for value in range(-7, 8)]
+    add_facade_window_grid("east_front", "east_west", 63.2, y_window_positions, [3.8, 7.2, 10.6, 14.0])
+    add_facade_window_grid("west_front", "east_west", -63.2, y_window_positions, [3.8, 7.2, 10.6, 14.0])
+    add_facade_window_grid("senate_north_wing", "north_south", 97.2, wing_x_window_positions, [3.7, 7.1, 10.5])
+    add_facade_window_grid("house_south_wing", "north_south", -97.2, wing_x_window_positions, [3.7, 7.1, 10.5])
+    for band_index, (z, height) in enumerate([(5.7, 0.18), (9.1, 0.18), (15.55, 0.48)], start=1):
+        obj.add_box((0.0, 29.4), (77.0, 0.28), height, z, f"central_north_belt_course_{band_index}", "ColumnStone")
+        obj.add_box((0.0, -29.4), (77.0, 0.28), height, z, f"central_south_belt_course_{band_index}", "ColumnStone")
+        obj.add_box((38.4, 0.0), (0.28, 58.0), height, z, f"central_east_belt_course_{band_index}", "ColumnStone")
+        obj.add_box((-38.4, 0.0), (0.28, 58.0), height, z, f"central_west_belt_course_{band_index}", "ColumnStone")
+        add_facade_detail(f"central_belt_course_{band_index}", "facade_belt_course", (0.0, 0.0, z + height / 2.0))
+
     add_element("Central Rotunda exterior massing", "landmark", (0.0, 0.0, 12.0))
     add_element("Senate wing exterior massing", "landmark", (0.0, 68.0, 8.0))
     add_element("House wing exterior massing", "landmark", (0.0, -68.0, 8.0))
@@ -752,10 +943,21 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_element(f"{side.title()} front steps and colonnade", "landmark", (x, 0.0, 3.0))
         for door_index, y in enumerate([-9.0, 0.0, 9.0], start=1):
             add_revolving_door(f"{side}_front_{door_index}", (x * 0.86, y), side)
+        for lamp_index, y in enumerate([-18.0, -6.0, 6.0, 18.0], start=1):
+            add_public_entry_lamp(f"{side}_front_lamp_{lamp_index}", (x * 0.92, y))
 
     for side, y in (("north", 99.0), ("south", -99.0)):
         for door_index, x in enumerate([-8.0, 0.0, 8.0], start=1):
             add_revolving_door(f"{side}_wing_{door_index}", (x, y), side)
+        for lamp_index, x in enumerate([-18.0, -6.0, 6.0, 18.0], start=1):
+            add_public_entry_lamp(f"{side}_wing_lamp_{lamp_index}", (x, y * 0.95))
+
+    for idx, y in enumerate([value * 8.0 for value in range(-7, 8)], start=1):
+        add_plaza_bollard(f"east_plaza_bollard_{idx:02d}", (78.0, y))
+        add_plaza_bollard(f"west_plaza_bollard_{idx:02d}", (-78.0, y))
+    for idx, x in enumerate([-46.0, -30.0, -14.0, 14.0, 30.0, 46.0], start=1):
+        add_bench(f"east_public_bench_{idx:02d}", (86.0, x * 0.55))
+        add_bench(f"west_public_bench_{idx:02d}", (-86.0, x * 0.55))
 
     obj.add_cylinder((0.0, 0.0), 18.0, 18.0, 16.0, "dome_drum_cylinder", "CapitolDome", segments=72)
     obj.add_dome((0.0, 0.0), 18.0, 34.0, 22.0, "capitol_dome_approximate_shell", "CapitolDome", segments=72, rings=10)
@@ -764,7 +966,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_element("Capitol Dome / lantern visual massing", "landmark", (0.0, 0.0, 49.0))
 
     obj.write(MESH_DIR / "capitol_landmark_visual_details.obj", "capitol_materials.mtl")
-    return {"elements": elements, "labels": labels}
+    return {"elements": elements, "labels": labels, "facade_details": facade_details}
 
 
 def add_label(labels: list[dict[str, Any]], name: str, x: float, y: float, z: float, category: str) -> None:
@@ -1636,7 +1838,9 @@ def main() -> None:
         f"{len(exterior['pedestrian_paths'])} pedestrian paths,",
         f"{len(exterior['curbs'])} curb edge records,",
         f"{len(exterior['street_markers'])} street markers,",
+        f"{len(exterior['streetscape_props'])} streetscape props,",
         f"{len(landmark['elements'])} landmark detail elements,",
+        f"{len(landmark['facade_details'])} facade/furniture details,",
         f"{len(interior['office_cells'])} generic office cells,",
         f"{len(interior['seating_sections'])} seating sections,",
         f"{len(interior['public_art'])} public-art visuals,",

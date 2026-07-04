@@ -4,10 +4,10 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 
 It contains:
 
-- exterior buildings, roads, bike-lane features, crossings, and traffic-signal markers derived from OpenStreetMap
+- exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, and public streetscape props derived from OpenStreetMap
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
 - a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, and a joint-session House Chamber visual layout
-- public-facing Capitol visual details including approximate revolving-door assemblies
+- public-facing Capitol visual details including approximate revolving-door assemblies, facade windows, cornice/belt-course bands, entry lamps, bollards, and benches
 - Unreal-friendly OBJ/MTL meshes in centimeter units
 - JSON metadata for labels, source provenance, coordinates, rooms, and seating records
 - shared camera/viewpoint metadata for browser and Unreal inspection
@@ -57,7 +57,7 @@ The validator checks that:
 - OBJ material references exist in `capitol_materials.mtl`
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
-- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, and generated viewpoints are present
+- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, and generated viewpoints are present
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
@@ -70,7 +70,9 @@ The current generated build contains:
 - 1,216 curb edge records
 - 608 lane-edge marking records
 - 880 street markers/crossings/traffic signals
-- Capitol visual massing details including dome, lantern, porticos, columns, steps, plaza, grounds, and public-facing revolving-door visuals
+- 818 public streetscape prop records, including schematic streetlights, street-name signs, traffic-signal heads, and tree planters; the mesh also includes crosswalk striping and bike-lane marker posts
+- Capitol visual massing details including dome, lantern, porticos, columns, steps, plaza, grounds, public-facing revolving-door visuals, facade windows, cornice/belt-course bands, entry lamps, bollards, and benches
+- 255 Capitol facade/furniture detail records
 - 60 generic public office/support visual cells
 - 448 generic House floor seats
 - 100 generic Senate desks
@@ -95,8 +97,8 @@ http://127.0.0.1:8765/viewer.html
 The viewer can toggle:
 
 - surrounding buildings
-- roads, bike lanes, traffic signals, and crossing markers
-- Capitol visual details
+- roads, bike lanes, traffic signals, crossing markers, and streetscape props
+- Capitol visual details, facade details, and public approach furniture
 - public interior schematic
 - labels
 
@@ -115,7 +117,7 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 5. The script imports meshes into `/Game/CapitolMap/Generated`.
 6. The script imports generated texture PNGs into `/Game/CapitolMap/Textures`.
 7. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json`, wires generated basecolor/normal/roughness texture samples from `generated/data/material_texture_manifest.json`, and applies those materials to matching imported material slots.
-8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors, lights, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
+8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors, interior lights, a capped set of exterior streetlight actors, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
 9. The script saves the current level when the Unreal editor API allows it.
 10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, and metadata counts.
 
@@ -127,7 +129,7 @@ The current realism pass uses deterministic procedural texture maps plus materia
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names.
 
-The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add modular meshes for Capitol facade details, chamber furniture, street signs, traffic lights, trees, lamps, and other public streetscape props.
+The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, Capitol facade windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
 
 Generated camera viewpoints:
 

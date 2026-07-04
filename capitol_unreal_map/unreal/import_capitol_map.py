@@ -685,10 +685,28 @@ def spawn_navigation_bounds() -> None:
 
 def spawn_metadata_lights() -> None:
     try:
-        fixtures = load_metadata().get("interior", {}).get("light_fixtures", [])
+        data = load_metadata()
+        fixtures = list(data.get("interior", {}).get("light_fixtures", []))
+        exterior_streetlights = [
+            prop
+            for prop in data.get("exterior", {}).get("streetscape_props", [])
+            if prop.get("kind") == "streetlight" and prop.get("light_m")
+        ][:120]
     except Exception as exc:
         log(f"Lighting metadata skipped: {exc}")
         return
+    for prop in exterior_streetlights:
+        fixtures.append(
+            {
+                "name": prop.get("name", "streetlight"),
+                "type": "exterior_streetlight",
+                "location": "Exterior public streetscape",
+                "center_m": prop.get("light_m"),
+                "intensity": prop.get("intensity", 420.0),
+                "attenuation_radius_m": prop.get("attenuation_radius_m", 9.0),
+                "color": prop.get("color", [1.0, 0.82, 0.55]),
+            }
+        )
     for fixture in fixtures:
         try:
             light = unreal.EditorLevelLibrary.spawn_actor_from_class(
@@ -707,6 +725,8 @@ def spawn_metadata_lights() -> None:
                 set_property(component, "light_color", unreal.Color(int(color[0] * 255), int(color[1] * 255), int(color[2] * 255), 255))
         except Exception as exc:
             log(f"Light fixture skipped ({fixture.get('name', '<unknown>')}): {exc}")
+    if exterior_streetlights:
+        log(f"Spawned metadata lights including {len(exterior_streetlights)} capped exterior streetlights")
 
 
 def label_color(category: str) -> unreal.Color:

@@ -248,6 +248,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["curbs"] = len(exterior.get("curbs", []))
     summary["lane_edge_markings"] = len(exterior.get("lane_edge_markings", []))
     summary["street_markers"] = len(exterior.get("street_markers", []))
+    streetscape_props = exterior.get("streetscape_props", [])
+    summary["streetscape_props"] = len(streetscape_props)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
     if summary["roads"] < 3000:
@@ -262,16 +264,30 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 500 lane edge marking records")
     if summary["street_markers"] < 500:
         error(errors, "expected at least 500 street markers/crossings/signals")
+    if len(streetscape_props) < 650:
+        error(errors, f"expected at least 650 public streetscape props, got {len(streetscape_props)}")
+    for prop in streetscape_props[:12]:
+        if not is_vec3(prop.get("center_m")):
+            error(errors, f"streetscape prop {prop.get('name', '<unknown>')} has invalid center_m")
+            break
 
     landmark = metadata.get("landmark", {})
     elements = landmark.get("elements", [])
+    facade_details = landmark.get("facade_details", [])
     summary["landmark_elements"] = len(elements)
+    summary["facade_details"] = len(facade_details)
     revolving = [item for item in elements if "revolving door" in item.get("name", "").lower()]
     summary["revolving_door_visuals"] = len(revolving)
     if len(elements) < 18:
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
+    if len(facade_details) < 230:
+        error(errors, f"expected at least 230 public facade/furniture visual details, got {len(facade_details)}")
+    for detail in facade_details[:12]:
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"facade detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
 
     interior = metadata.get("interior", {})
     rooms = interior.get("rooms", [])
@@ -485,6 +501,8 @@ def main() -> int:
     print(f"Curbs: {metadata_summary.get('curbs', 0):,}")
     print(f"Lane edge markings: {metadata_summary.get('lane_edge_markings', 0):,}")
     print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
+    print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
+    print(f"Facade/furniture details: {metadata_summary.get('facade_details', 0):,}")
     print(f"House seats: {metadata_summary.get('house_seats', 0):,}")
     print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
     print(f"Seating sections: {metadata_summary.get('seating_sections', 0):,}")
