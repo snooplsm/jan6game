@@ -1962,6 +1962,114 @@ def add_chamber_realism_details(
     add_label(labels, "House and Senate chamber rails, dais steps, flags, and aisle trim - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
 
+def add_public_circulation_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    area: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "area": area,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_circulation_visual_detail",
+        "assignment": "Public orientation visual only; not a secure route, service route, evacuation route, or office assignment.",
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_public_circulation_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    z = 4.49
+
+    def corridor(name: str, area: str, points: list[tuple[float, float]], width: float) -> None:
+        obj.add_polyline_strip(points, width, z, name, "RotundaFloor")
+        center = polyline_midpoint(points)
+        length = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:]))
+        add_public_circulation_record(records, name, "public_corridor_band", area, (center[0], center[1], z), (length, width))
+
+    def threshold(name: str, area: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        obj.add_box(center, size, 0.055, z - 0.015, name, "StepStone")
+        add_public_circulation_record(records, name, "door_threshold", area, (center[0], center[1], z), size)
+
+    def portal(name: str, area: str, center: tuple[float, float], width: float, orientation: str) -> None:
+        x, y = center
+        if orientation == "east_west":
+            post_size = (0.16, 0.24)
+            lintel_size = (0.20, width + 0.50)
+            post_offsets = [(0.0, -width / 2.0), (0.0, width / 2.0)]
+        else:
+            post_size = (0.24, 0.16)
+            lintel_size = (width + 0.50, 0.20)
+            post_offsets = [(-width / 2.0, 0.0), (width / 2.0, 0.0)]
+        for idx, (dx, dy) in enumerate(post_offsets, start=1):
+            obj.add_box((x + dx, y + dy), post_size, 2.35, 4.43, f"{name}_side_trim_{idx}", "InteriorTrim")
+        obj.add_box((x, y), lintel_size, 0.22, 6.78, f"{name}_header_trim", "InteriorTrim")
+        add_public_circulation_record(records, name, "room_portal_trim", area, (x, y, 5.65), (width, 0.42))
+
+    def sign(name: str, area: str, center: tuple[float, float], text: str) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.045, 4.48, 1.18, f"{name}_post", "BrassRail", segments=8)
+        obj.add_box((x, y), (1.55, 0.10), 0.42, 5.55, f"{name}_blade", "MarkerBlue")
+        add_public_circulation_record(records, name, "orientation_sign", area, (x, y, 5.75), (1.55, 0.42))
+        add_label(labels, text, x, y, 6.55, "public_circulation_detail")
+
+    def inlay(name: str, area: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        obj.add_box(center, size, 0.035, z + 0.005, name, "BrassRail")
+        add_public_circulation_record(records, name, "floor_inlay", area, (center[0], center[1], z + 0.02), size)
+
+    corridor("east_west_public_axis_band", "Rotunda / east-west public approach", [(-68.0, 0.0), (-22.0, 0.0), (22.0, 0.0), (68.0, 0.0)], 5.2)
+    corridor("rotunda_to_house_public_band", "Rotunda to House Chamber public orientation", [(0.0, -12.0), (0.0, -38.0), (0.0, -52.0)], 4.6)
+    corridor("rotunda_to_senate_public_band", "Rotunda to Senate Chamber public orientation", [(0.0, 12.0), (0.0, 38.0), (0.0, 52.0)], 4.6)
+    corridor("rotunda_to_statuary_hall_public_band", "Rotunda to National Statuary Hall", [(10.0, -8.0), (22.0, -18.0), (28.0, -26.0)], 3.6)
+    corridor("rotunda_to_old_senate_public_band", "Rotunda to Old Senate Chamber", [(10.0, 8.0), (22.0, 18.0), (28.0, 26.0)], 3.4)
+    corridor("house_gallery_public_band", "House gallery public orientation", [(0.0, -88.0), (0.0, -97.0)], 4.0)
+    corridor("senate_gallery_public_band", "Senate gallery public orientation", [(0.0, 86.0), (0.0, 96.0)], 3.8)
+
+    for name, area, center, size, orientation, width in [
+        ("west_public_approach_threshold", "West terrace public orientation marker", (-55.0, 0.0), (0.72, 7.8), "east_west", 7.8),
+        ("east_public_approach_threshold", "East public approach", (55.0, 0.0), (0.72, 7.8), "east_west", 7.8),
+        ("rotunda_statuary_hall_threshold", "Rotunda / National Statuary Hall", (16.2, -15.8), (4.8, 0.62), "north_south", 4.8),
+        ("rotunda_old_senate_threshold", "Rotunda / Old Senate Chamber", (16.2, 15.8), (4.6, 0.62), "north_south", 4.6),
+        ("rotunda_house_threshold", "Rotunda / House Chamber orientation", (0.0, -51.0), (6.2, 0.70), "north_south", 6.2),
+        ("rotunda_senate_threshold", "Rotunda / Senate Chamber orientation", (0.0, 51.0), (6.0, 0.70), "north_south", 6.0),
+        ("house_gallery_threshold", "House Chamber / public gallery", (0.0, -91.0), (8.0, 0.62), "north_south", 8.0),
+        ("senate_gallery_threshold", "Senate Chamber / public gallery", (0.0, 89.0), (7.0, 0.62), "north_south", 7.0),
+    ]:
+        threshold(name, area, center, size)
+        portal(f"{name}_portal", area, center, width, orientation)
+
+    for name, area, center, text in [
+        ("rotunda_orientation_sign_west", "Rotunda", (-11.2, -3.8), "Rotunda / west public orientation"),
+        ("rotunda_orientation_sign_east", "Rotunda", (11.2, 3.8), "Rotunda / east public orientation"),
+        ("house_orientation_sign", "House Chamber approach", (-7.5, -53.5), "House Chamber public orientation"),
+        ("senate_orientation_sign", "Senate Chamber approach", (7.5, 53.5), "Senate Chamber public orientation"),
+        ("statuary_orientation_sign", "National Statuary Hall approach", (23.0, -22.0), "National Statuary Hall public marker"),
+        ("old_senate_orientation_sign", "Old Senate Chamber approach", (23.0, 22.0), "Old Senate Chamber public marker"),
+    ]:
+        sign(name, area, center, text)
+
+    for name, area, center, size in [
+        ("rotunda_west_floor_inlay", "Rotunda", (-8.0, 0.0), (4.0, 0.16)),
+        ("rotunda_east_floor_inlay", "Rotunda", (8.0, 0.0), (4.0, 0.16)),
+        ("rotunda_north_floor_inlay", "Rotunda", (0.0, 8.0), (0.16, 4.0)),
+        ("rotunda_south_floor_inlay", "Rotunda", (0.0, -8.0), (0.16, 4.0)),
+        ("house_approach_floor_inlay", "House Chamber approach", (0.0, -42.0), (8.0, 0.14)),
+        ("senate_approach_floor_inlay", "Senate Chamber approach", (0.0, 42.0), (8.0, 0.14)),
+    ]:
+        inlay(name, area, center, size)
+
+    add_label(labels, "Public circulation thresholds, portals, and orientation signs - schematic", -17.0, 0.0, 7.3, "public_circulation_detail")
+
+
 def add_joint_session_layout(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
@@ -2266,6 +2374,7 @@ def build_interior() -> dict[str, Any]:
     light_fixtures: list[dict[str, Any]] = []
     wall_treatments: list[dict[str, Any]] = []
     chamber_details: list[dict[str, Any]] = []
+    circulation_details: list[dict[str, Any]] = []
 
     # Broad second-floor public schematic. North = +Y. East = +X.
     add_room(obj, rooms, labels, "Capitol second-floor public schematic footprint", (0.0, 0.0), (150.0, 190.0), "InteriorFloor", "floorplate", z=3.95, height=0.08, with_walls=True)
@@ -2302,6 +2411,7 @@ def build_interior() -> dict[str, Any]:
     office_cells.extend(add_public_office_grid(obj, labels, "senate_west_support", (-52.0, 55.0), (19.0, 42.0), 3, 5))
     office_cells.extend(add_public_office_grid(obj, labels, "senate_east_support", (52.0, 55.0), (19.0, 42.0), 3, 5))
 
+    add_public_circulation_details(obj, labels, circulation_details)
     build_house_seats(obj, seats, labels)
     build_senate_desks(obj, seats, labels)
     add_joint_session_layout(obj, labels, joint_session)
@@ -2334,6 +2444,7 @@ def build_interior() -> dict[str, Any]:
         "light_fixtures": light_fixtures,
         "wall_treatments": wall_treatments,
         "chamber_details": chamber_details,
+        "circulation_details": circulation_details,
         "interior_notice": (
             "Public schematic only. It maps major public spaces and generic chamber seating. "
             "It does not include restricted security details, private office assignments, "
@@ -2592,6 +2703,7 @@ def main() -> None:
         f"{len(interior['light_fixtures'])} light fixtures,",
         f"{len(interior['wall_treatments'])} wall-treatment records,",
         f"{len(interior['chamber_details'])} chamber detail records,",
+        f"{len(interior['circulation_details'])} circulation detail records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
         f"{len(interior['seating'])} generic chamber seats/desks,",
         f"{len(gameplay['items'])} gameplay item props",

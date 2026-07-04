@@ -86,6 +86,14 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "desk_arc_marker",
 }
 
+REQUIRED_CIRCULATION_DETAIL_KINDS = {
+    "public_corridor_band",
+    "door_threshold",
+    "room_portal_trim",
+    "orientation_sign",
+    "floor_inlay",
+}
+
 REQUIRED_GROUNDS_DETAIL_KINDS = {
     "lawn_panel",
     "public_walk",
@@ -511,6 +519,24 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
             break
 
+    circulation_details = interior.get("circulation_details", [])
+    circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
+    summary["circulation_details"] = len(circulation_details)
+    summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
+    if len(circulation_details) < 35:
+        error(errors, f"expected at least 35 public circulation detail records, got {len(circulation_details)}")
+    missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
+    if missing_circulation_kinds:
+        error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
+    for detail in circulation_details:
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"circulation detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        assignment = detail.get("assignment", "").lower()
+        if "public orientation" not in assignment or "secure route" not in assignment or "service route" not in assignment:
+            error(errors, f"circulation detail {detail.get('name', '<unknown>')} lacks public/non-secure boundary")
+            break
+
     joint_session = interior.get("joint_session", [])
     joint_names = {item.get("name") for item in joint_session}
     summary["joint_session_records"] = len(joint_session)
@@ -747,6 +773,7 @@ def main() -> int:
     print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
     print(f"Seating sections: {metadata_summary.get('seating_sections', 0):,}")
     print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
+    print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")
