@@ -4,8 +4,20 @@ __pycache__/
 **/__pycache__/
 *.py[cod]
 
-# Local unrelated workspace content.
-ryan/
+# Local generated/reference image content. Track only the MetaHuman prompt scripts
+# and text manifests needed to reproduce the synthetic-person queue.
+ryan/*
+!ryan/scripts/
+ryan/scripts/*
+!ryan/scripts/build_synthetic_people_roster.py
+!ryan/scripts/build_generation_queue.py
+!ryan/scripts/copy_latest_generated_image.py
+!ryan/generated_people_corrected/
+ryan/generated_people_corrected/*
+!ryan/generated_people_corrected/prompts.jsonl
+!ryan/generated_people_corrected/manifest.csv
+!ryan/generated_people_corrected/generation_queue.csv
+!ryan/generated_people_corrected/distribution_notes.md
 
 # Unreal-generated local/editor folders.
 capitol_unreal_map/Binaries/
