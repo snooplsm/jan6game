@@ -35,6 +35,7 @@ MESH_FILES = [
     "capitol_exterior_roads_bike_lanes_markers.obj",
     "capitol_landmark_visual_details.obj",
     "capitol_public_interior_schematic.obj",
+    "capitol_gameplay_items.obj",
 ]
 
 DEFAULT_VIEWPOINTS = [
@@ -84,6 +85,7 @@ LABEL_COLORS = {
     "landmark": (235, 235, 220, 255),
     "street_name": (210, 230, 210, 255),
     "building": (226, 226, 214, 255),
+    "gameplay_item": (255, 155, 105, 255),
 }
 
 
@@ -739,6 +741,8 @@ def label_folder(category: str) -> str:
         return "CapitolMap/Labels/Exterior"
     if category in {"landmark"}:
         return "CapitolMap/Labels/Landmark"
+    if category in {"gameplay_item"}:
+        return "CapitolMap/Labels/Gameplay"
     return "CapitolMap/Labels/Interior"
 
 
@@ -774,6 +778,9 @@ def spawn_metadata_labels() -> None:
         spawn_text_label(label["text"], label["location_m"], label["category"])
 
     for label in data.get("landmark", {}).get("labels", []):
+        spawn_text_label(label["text"], label["location_m"], label["category"])
+
+    for label in data.get("gameplay", {}).get("labels", []):
         spawn_text_label(label["text"], label["location_m"], label["category"])
 
     for label in data.get("exterior", {}).get("street_labels", []):
@@ -835,6 +842,7 @@ def write_unreal_import_report(
                 "seating": len(data.get("interior", {}).get("seating", [])),
                 "office_cells": len(data.get("interior", {}).get("office_cells", [])),
                 "joint_session": len(data.get("interior", {}).get("joint_session", [])),
+                "gameplay_items": len(data.get("gameplay", {}).get("items", [])),
                 "viewpoints": len(data.get("viewpoints", [])),
             },
         }

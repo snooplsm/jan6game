@@ -68,6 +68,8 @@ TEXTURE_SETS: dict[str, dict[str, Any]] = {
     "portrait_canvas": {"base": [0.22, 0.16, 0.12], "roughness": 0.84, "style": "canvas", "normal_strength": 2.8},
     "warm_light_glass": {"base": [1.0, 0.78, 0.42], "roughness": 0.18, "style": "glass", "normal_strength": 0.3},
     "fixture_dark_metal": {"base": [0.16, 0.13, 0.09], "roughness": 0.36, "style": "brushed_metal", "normal_strength": 1.1},
+    "brushed_steel": {"base": [0.70, 0.70, 0.66], "roughness": 0.34, "style": "brushed_metal", "normal_strength": 1.1},
+    "cloth_red": {"base": [0.72, 0.06, 0.04], "roughness": 0.82, "style": "fabric", "normal_strength": 2.6},
 }
 
 MATERIAL_TEXTURE_BINDINGS = {
@@ -133,6 +135,15 @@ MATERIAL_TEXTURE_BINDINGS = {
     "PlanterStone": "plaza_stone",
     "BenchWood": "polished_wood",
     "BollardMetal": "black_metal",
+    "GameplayPickupPad": "gallery_dark",
+    "ItemWood": "polished_wood",
+    "ItemMetal": "black_metal",
+    "ItemGrip": "leather_dark",
+    "ItemSprayCan": "road_paint_yellow",
+    "ItemWarningOrange": "road_paint_yellow",
+    "ItemOrganicBrown": "dark_wood",
+    "ItemBlade": "brushed_steel",
+    "ItemCloth": "cloth_red",
 }
 
 

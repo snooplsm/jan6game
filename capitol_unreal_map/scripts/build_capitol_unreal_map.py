@@ -94,6 +94,15 @@ MATERIALS = {
     "PlanterStone": (0.52, 0.50, 0.45, 1.0),
     "BenchWood": (0.28, 0.14, 0.055, 1.0),
     "BollardMetal": (0.12, 0.12, 0.115, 1.0),
+    "GameplayPickupPad": (0.12, 0.18, 0.24, 1.0),
+    "ItemWood": (0.30, 0.15, 0.06, 1.0),
+    "ItemMetal": (0.16, 0.16, 0.15, 1.0),
+    "ItemGrip": (0.055, 0.055, 0.052, 1.0),
+    "ItemSprayCan": (0.88, 0.30, 0.08, 1.0),
+    "ItemWarningOrange": (0.95, 0.38, 0.04, 1.0),
+    "ItemOrganicBrown": (0.22, 0.11, 0.045, 1.0),
+    "ItemBlade": (0.70, 0.70, 0.66, 1.0),
+    "ItemCloth": (0.72, 0.06, 0.04, 1.0),
 }
 
 VIEWPOINTS = [
@@ -1814,10 +1823,126 @@ def build_interior() -> dict[str, Any]:
     }
 
 
+def build_gameplay_items() -> dict[str, Any]:
+    obj = ObjWriter("capitol_gameplay_items")
+    items: list[dict[str, Any]] = []
+    labels: list[dict[str, Any]] = []
+
+    base_x = -132.0
+    base_y = -126.0
+    spacing = 8.0
+    z = 0.28
+    definitions = [
+        ("flagpole", "Flagpole", "flagpole_melee_prop", "abstract_melee_reach"),
+        ("nunchucks", "Nunchucks", "nunchucks_melee_prop", "abstract_melee_stun"),
+        ("bear_spray", "Bear spray", "bear_spray_prop", "abstract_cone_irritant_status"),
+        ("mace_spray", "Mace spray", "mace_spray_prop", "abstract_short_cone_irritant_status"),
+        ("feces_throwable", "Throwable feces", "feces_throwable_prop", "abstract_throwable_contamination"),
+        ("knife", "Knife", "knife_melee_prop", "abstract_close_melee"),
+        ("handgun", "Handgun", "handgun_prop", "abstract_ranged_placeholder"),
+    ]
+
+    def add_record(
+        item_id: str,
+        display_name: str,
+        item_type: str,
+        effect_class: str,
+        center: tuple[float, float],
+        aliases: list[str] | None = None,
+    ) -> None:
+        items.append(
+            {
+                "id": item_id,
+                "display_name": display_name,
+                "item_type": item_type,
+                "category": "gameplay_item",
+                "center_m": [round(center[0], 3), round(center[1], 3), round(z + 0.55, 3)],
+                "sandbox_location": "Gameplay item preview lane west of the public map core",
+                "effect_class": effect_class,
+                "non_graphic": True,
+                "public_accuracy": "fictional_gameplay_pickup_not_historical_or_map_feature",
+                "implementation_note": "Abstract game pickup prop only; no real-world use, construction, or operational placement guidance.",
+                "aliases": aliases or [],
+            }
+        )
+        add_label(labels, display_name, center[0], center[1], z + 1.45, "gameplay_item")
+
+    def add_pickup_pad(item_id: str, center: tuple[float, float], display_name: str) -> None:
+        x, y = center
+        obj.add_box((x, y), (5.4, 3.2), 0.12, 0.08, f"{item_id}_pickup_pad", "GameplayPickupPad")
+        obj.add_box((x, y - 1.85), (4.4, 0.18), 0.18, 0.20, f"{item_id}_front_label_strip", "MarkerBlue")
+        obj.add_box((x, y + 1.85), (4.4, 0.18), 0.18, 0.20, f"{item_id}_back_label_strip", "MarkerBlue")
+
+    def add_flagpole(center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_box((x, y), (4.4, 0.13), 0.13, z + 0.22, "flagpole_staff", "ItemWood")
+        obj.add_box((x + 1.35, y + 0.42), (1.15, 0.08), 0.72, z + 0.35, "flagpole_flag_cloth", "ItemCloth")
+        obj.add_cylinder((x - 2.25, y), 0.15, z + 0.16, 0.24, "flagpole_end_cap", "ItemMetal", segments=12)
+
+    def add_nunchucks(center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_box((x - 0.75, y), (1.25, 0.26), 0.24, z + 0.24, "nunchucks_left_handle", "ItemWood")
+        obj.add_box((x + 0.75, y), (1.25, 0.26), 0.24, z + 0.24, "nunchucks_right_handle", "ItemWood")
+        obj.add_box((x, y), (0.70, 0.08), 0.08, z + 0.42, "nunchucks_chain", "ItemMetal")
+
+    def add_spray_can(item_id: str, center: tuple[float, float], radius: float, height: float, material: str) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), radius, z + 0.18, height, f"{item_id}_canister", material, segments=18)
+        obj.add_cylinder((x, y), radius * 0.72, z + 0.18 + height, 0.18, f"{item_id}_cap", "ItemMetal", segments=18)
+        obj.add_box((x + radius * 0.55, y), (radius * 1.3, radius * 0.28), 0.12, z + 0.18 + height + 0.14, f"{item_id}_nozzle", "ItemGrip")
+
+    def add_feces_throwable(center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.55, z + 0.18, 0.22, "feces_throwable_base_blob", "ItemOrganicBrown", segments=18)
+        obj.add_cylinder((x - 0.18, y + 0.05), 0.38, z + 0.36, 0.22, "feces_throwable_mid_blob", "ItemOrganicBrown", segments=18)
+        obj.add_cylinder((x + 0.10, y - 0.03), 0.24, z + 0.54, 0.18, "feces_throwable_top_blob", "ItemOrganicBrown", segments=18)
+
+    def add_knife(center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_box((x - 0.62, y), (1.05, 0.28), 0.18, z + 0.26, "knife_grip", "ItemGrip")
+        obj.add_box((x + 0.56, y), (1.35, 0.20), 0.10, z + 0.30, "knife_blade", "ItemBlade")
+        obj.add_box((x - 0.02, y), (0.12, 0.46), 0.20, z + 0.23, "knife_guard", "ItemMetal")
+
+    def add_handgun(center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_box((x - 0.10, y), (1.35, 0.36), 0.34, z + 0.28, "handgun_slide_block", "ItemMetal")
+        obj.add_box((x + 0.74, y), (0.70, 0.18), 0.18, z + 0.36, "handgun_barrel_block", "ItemMetal")
+        obj.add_box((x - 0.45, y - 0.28), (0.34, 0.26), 0.82, z + 0.02, "handgun_grip_block", "ItemGrip")
+        obj.add_box((x + 0.05, y - 0.27), (0.28, 0.10), 0.30, z + 0.18, "handgun_trigger_guard_silhouette", "ItemGrip")
+
+    builders = {
+        "flagpole": add_flagpole,
+        "nunchucks": add_nunchucks,
+        "bear_spray": lambda center: add_spray_can("bear_spray", center, 0.38, 1.18, "ItemWarningOrange"),
+        "mace_spray": lambda center: add_spray_can("mace_spray", center, 0.28, 0.92, "ItemSprayCan"),
+        "feces_throwable": add_feces_throwable,
+        "knife": add_knife,
+        "handgun": add_handgun,
+    }
+
+    for index, (item_id, display_name, item_type, effect_class) in enumerate(definitions):
+        center = (base_x + (index % 4) * spacing, base_y + (index // 4) * spacing)
+        add_pickup_pad(item_id, center, display_name)
+        builders[item_id](center)
+        aliases = ["numb-chucks"] if item_id == "nunchucks" else []
+        add_record(item_id, display_name, item_type, effect_class, center, aliases)
+
+    obj.write(MESH_DIR / "capitol_gameplay_items.obj", "capitol_materials.mtl")
+    return {
+        "items": items,
+        "labels": labels,
+        "notice": (
+            "Fictional non-graphic gameplay pickup props only. These are not historical placements, "
+            "not public-safety guidance, and not real-world weapon use or construction instructions."
+        ),
+    }
+
+
 def write_scene_metadata(
     exterior: dict[str, Any],
     landmark: dict[str, Any],
     interior: dict[str, Any],
+    gameplay: dict[str, Any],
     osm_data: dict[str, Any],
 ) -> None:
     metadata = {
@@ -1848,11 +1973,13 @@ def write_scene_metadata(
             "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
             "generated/meshes/capitol_landmark_visual_details.obj",
             "generated/meshes/capitol_public_interior_schematic.obj",
+            "generated/meshes/capitol_gameplay_items.obj",
         ],
         "viewpoints": VIEWPOINTS,
         "exterior": exterior,
         "landmark": landmark,
         "interior": interior,
+        "gameplay": gameplay,
     }
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     (DATA_DIR / "capitol_scene_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
@@ -1866,7 +1993,8 @@ def main() -> None:
     exterior = build_exterior(nodes, ways)
     landmark = build_capitol_landmark_details()
     interior = build_interior()
-    write_scene_metadata(exterior, landmark, interior, osm_data)
+    gameplay = build_gameplay_items()
+    write_scene_metadata(exterior, landmark, interior, gameplay, osm_data)
     print(f"Wrote meshes to {MESH_DIR}")
     print(f"Wrote metadata to {DATA_DIR / 'capitol_scene_metadata.json'}")
     print(
@@ -1886,7 +2014,8 @@ def main() -> None:
         f"{len(interior['light_fixtures'])} light fixtures,",
         f"{len(interior['wall_treatments'])} wall-treatment records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
-        f"{len(interior['seating'])} generic chamber seats/desks",
+        f"{len(interior['seating'])} generic chamber seats/desks,",
+        f"{len(gameplay['items'])} gameplay item props",
     )
 
 

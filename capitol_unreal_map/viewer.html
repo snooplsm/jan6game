@@ -200,6 +200,7 @@
         <option value="seating_section">Seating sections</option>
         <option value="visitor_gallery">Galleries</option>
         <option value="generic_office_zone">Office zones</option>
+        <option value="gameplay_item">Gameplay items</option>
         <option value="street_name">Streets</option>
         <option value="building">Buildings</option>
       </select>
@@ -211,6 +212,7 @@
       <label><input type="checkbox" data-mesh="capitol_exterior_roads_bike_lanes_markers" checked /> Roads, bike lanes, street markers</label>
       <label><input type="checkbox" data-mesh="capitol_landmark_visual_details" checked /> Capitol visual details</label>
       <label><input type="checkbox" data-mesh="capitol_public_interior_schematic" checked /> Public interior schematic</label>
+      <label><input type="checkbox" data-mesh="capitol_gameplay_items" checked /> Gameplay item props</label>
       <label><input type="checkbox" id="labelsToggle" checked /> Labels</label>
     </div>
 
@@ -254,6 +256,11 @@
       {
         id: "capitol_public_interior_schematic",
         obj: "generated/meshes/capitol_public_interior_schematic.obj",
+        visible: true
+      },
+      {
+        id: "capitol_gameplay_items",
+        obj: "generated/meshes/capitol_gameplay_items.obj",
         visible: true
       }
     ];
@@ -503,6 +510,9 @@
         labels.push({ text: label.text, location: label.location_m, category: "street_name" });
       }
       for (const label of metadata.landmark?.labels || []) {
+        labels.push({ text: label.text, location: label.location_m, category: label.category });
+      }
+      for (const label of metadata.gameplay?.labels || []) {
         labels.push({ text: label.text, location: label.location_m, category: label.category });
       }
       for (const building of metadata.exterior?.buildings || []) {

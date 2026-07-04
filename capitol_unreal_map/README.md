@@ -8,8 +8,9 @@ It contains:
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
 - a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, and a joint-session House Chamber visual layout
 - public-facing Capitol visual details including approximate revolving-door assemblies, facade windows, cornice/belt-course bands, entry lamps, bollards, and benches
+- fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - Unreal-friendly OBJ/MTL meshes in centimeter units
-- JSON metadata for labels, source provenance, coordinates, rooms, and seating records
+- JSON metadata for labels, source provenance, coordinates, rooms, seating records, and gameplay item records
 - shared camera/viewpoint metadata for browser and Unreal inspection
 - a Unreal material realism manifest for PBR-style roughness, metallic, specular, opacity, and base-color setup
 - an Unreal Editor Python import script
@@ -25,6 +26,7 @@ It contains:
 - `generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj`
 - `generated/meshes/capitol_landmark_visual_details.obj`
 - `generated/meshes/capitol_public_interior_schematic.obj`
+- `generated/meshes/capitol_gameplay_items.obj`
 - `generated/meshes/capitol_materials.mtl`
 - `generated/data/capitol_scene_metadata.json`
 - `generated/data/capitol_package_validation.json`
@@ -60,11 +62,11 @@ The validator checks that:
 - OBJ material references exist in `capitol_materials.mtl`
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
-- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, and generated viewpoints are present
+- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 659,208 generated texture coordinates across the four OBJ meshes.
+The current validation report counts 660,876 generated texture coordinates across the five OBJ meshes.
 
 The current generated build contains:
 
@@ -83,6 +85,7 @@ The current generated build contains:
 - 100 generic Senate desks
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
+- 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 
 ## Local Browser Viewer
 
@@ -105,9 +108,10 @@ The viewer can toggle:
 - roads, bike lanes, traffic signals, crossing markers, and streetscape props
 - Capitol visual details, facade details, and public approach furniture
 - public interior schematic
+- gameplay item props
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, and joint-session House Chamber views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, office zones, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, and joint-session House Chamber views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, office zones, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
@@ -135,6 +139,8 @@ The current realism pass uses deterministic procedural texture maps plus materia
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal.
 
 The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, Capitol facade windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
+
+The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction.
 
 Generated camera viewpoints:
 

@@ -57,6 +57,17 @@
       "normal": "generated/textures/brass_normal.png",
       "roughness": "generated/textures/brass_roughness.png"
     },
+    "brushed_steel": {
+      "style": "brushed_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/brushed_steel_basecolor.png",
+      "normal": "generated/textures/brushed_steel_normal.png",
+      "roughness": "generated/textures/brushed_steel_roughness.png"
+    },
     "cabinet_blue": {
       "style": "fabric",
       "size_px": [
@@ -67,6 +78,17 @@
       "basecolor": "generated/textures/cabinet_blue_basecolor.png",
       "normal": "generated/textures/cabinet_blue_normal.png",
       "roughness": "generated/textures/cabinet_blue_roughness.png"
+    },
+    "cloth_red": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/cloth_red_basecolor.png",
+      "normal": "generated/textures/cloth_red_normal.png",
+      "roughness": "generated/textures/cloth_red_roughness.png"
     },
     "concrete": {
       "style": "concrete",
@@ -516,6 +538,15 @@
     "TreeCanopy": "grass",
     "PlanterStone": "plaza_stone",
     "BenchWood": "polished_wood",
-    "BollardMetal": "black_metal"
+    "BollardMetal": "black_metal",
+    "GameplayPickupPad": "gallery_dark",
+    "ItemWood": "polished_wood",
+    "ItemMetal": "black_metal",
+    "ItemGrip": "leather_dark",
+    "ItemSprayCan": "road_paint_yellow",
+    "ItemWarningOrange": "road_paint_yellow",
+    "ItemOrganicBrown": "dark_wood",
+    "ItemBlade": "brushed_steel",
+    "ItemCloth": "cloth_red"
   }
 }

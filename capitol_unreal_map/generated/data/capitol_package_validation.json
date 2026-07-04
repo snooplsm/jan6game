@@ -2,7 +2,7 @@
   "ok": true,
   "root": "/Volumes/128gb/metahuman/capitol_unreal_map",
   "metadata": {
-    "mesh_count": 4,
+    "mesh_count": 5,
     "buildings": 2525,
     "roads": 3528,
     "bike_lanes": 445,
@@ -25,17 +25,19 @@
     "public_art": 61,
     "light_fixtures": 29,
     "wall_treatments": 11,
+    "gameplay_items": 7,
+    "gameplay_labels": 7,
     "viewpoints": 5
   },
   "materials": {
-    "manifest_materials": 62,
+    "manifest_materials": 71,
     "missing_manifest_materials": 0,
     "extra_manifest_materials": 0
   },
   "textures": {
-    "texture_sets": 41,
-    "texture_material_bindings": 62,
-    "texture_files": 123
+    "texture_sets": 43,
+    "texture_material_bindings": 71,
+    "texture_files": 129
   },
   "meshes": [
     {
@@ -205,6 +207,42 @@
           7521.0,
           10084.25,
           925.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_gameplay_items.obj",
+      "vertices": 556,
+      "uvs": 1668,
+      "faces": 364,
+      "faces_with_uvs": 364,
+      "triangles": 940,
+      "groups": 43,
+      "materials": [
+        "GameplayPickupPad",
+        "ItemBlade",
+        "ItemCloth",
+        "ItemGrip",
+        "ItemMetal",
+        "ItemOrganicBrown",
+        "ItemSprayCan",
+        "ItemWarningOrange",
+        "ItemWood",
+        "MarkerBlue"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -13470.0,
+          -12794.0,
+          8.0
+        ],
+        "max": [
+          -10530.0,
+          -11606.0,
+          190.0
         ]
       }
     }

@@ -431,3 +431,66 @@ Ka 0.000 0.000 0.000
 Ks 0.050 0.050 0.050
 d 1.000
 illum 2
+
+newmtl GameplayPickupPad
+Kd 0.120 0.180 0.240
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemWood
+Kd 0.300 0.150 0.060
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemMetal
+Kd 0.160 0.160 0.150
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemGrip
+Kd 0.055 0.055 0.052
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemSprayCan
+Kd 0.880 0.300 0.080
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemWarningOrange
+Kd 0.950 0.380 0.040
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemOrganicBrown
+Kd 0.220 0.110 0.045
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemBlade
+Kd 0.700 0.700 0.660
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ItemCloth
+Kd 0.720 0.060 0.040
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2

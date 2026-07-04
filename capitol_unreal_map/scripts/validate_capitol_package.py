@@ -29,6 +29,7 @@ EXPECTED_MESHES = {
     "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
     "generated/meshes/capitol_landmark_visual_details.obj",
     "generated/meshes/capitol_public_interior_schematic.obj",
+    "generated/meshes/capitol_gameplay_items.obj",
 }
 
 REQUIRED_ROOMS = {
@@ -78,6 +79,16 @@ REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Rotunda",
     "CapitolMap_Camera_HouseChamber_JointSession",
     "CapitolMap_Camera_SenateChamber",
+}
+
+REQUIRED_GAMEPLAY_ITEMS = {
+    "flagpole",
+    "nunchucks",
+    "bear_spray",
+    "mace_spray",
+    "feces_throwable",
+    "knife",
+    "handgun",
 }
 
 
@@ -406,6 +417,31 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     if "Public schematic only" not in notice or "restricted" not in notice:
         error(errors, "interior_notice must state public schematic and restricted-detail boundary")
 
+    gameplay = metadata.get("gameplay", {})
+    gameplay_items = gameplay.get("items", [])
+    gameplay_labels = gameplay.get("labels", [])
+    summary["gameplay_items"] = len(gameplay_items)
+    summary["gameplay_labels"] = len(gameplay_labels)
+    gameplay_ids = {item.get("id") for item in gameplay_items}
+    missing_gameplay = sorted(REQUIRED_GAMEPLAY_ITEMS - gameplay_ids)
+    if missing_gameplay:
+        error(errors, f"missing gameplay item props: {', '.join(missing_gameplay)}")
+    if len(gameplay_items) != len(REQUIRED_GAMEPLAY_ITEMS):
+        error(errors, f"expected {len(REQUIRED_GAMEPLAY_ITEMS)} gameplay item props, got {len(gameplay_items)}")
+    for item in gameplay_items:
+        if not is_vec3(item.get("center_m")):
+            error(errors, f"gameplay item {item.get('id', '<unknown>')} has invalid center_m")
+            break
+        if item.get("category") != "gameplay_item" or item.get("non_graphic") is not True:
+            error(errors, f"gameplay item {item.get('id', '<unknown>')} must be marked non-graphic gameplay_item")
+            break
+        if "fictional" not in item.get("public_accuracy", "").lower():
+            error(errors, f"gameplay item {item.get('id', '<unknown>')} must be marked fictional")
+            break
+    gameplay_notice = gameplay.get("notice", "")
+    if "Fictional" not in gameplay_notice or "not historical" not in gameplay_notice:
+        error(errors, "gameplay notice must state fictional/non-historical boundary")
+
     viewpoints = metadata.get("viewpoints", [])
     viewpoint_labels = {item.get("label") for item in viewpoints}
     summary["viewpoints"] = len(viewpoints)
@@ -471,6 +507,9 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     missing_bindings = sorted(materials - set(bindings))
     if missing_bindings:
         error(errors, f"texture manifest missing material bindings: {', '.join(missing_bindings)}")
+    unknown_texture_sets = sorted(set(bindings.values()) - set(sets))
+    if unknown_texture_sets:
+        error(errors, f"texture manifest bindings reference unknown texture sets: {', '.join(unknown_texture_sets)}")
     for set_name, spec in sets.items():
         for key in ("basecolor", "normal", "roughness"):
             rel = spec.get(key)
@@ -543,6 +582,7 @@ def main() -> int:
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")
+    print(f"Gameplay item props: {metadata_summary.get('gameplay_items', 0):,}")
     print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
     print(f"Texture sets: {texture_summary.get('texture_sets', 0):,}")
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
