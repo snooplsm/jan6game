@@ -1708,6 +1708,39 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"radial_index": index},
         )
 
+    def dome_shell_radius(z: float) -> float:
+        t = max(0.0, min(1.0, (z - 34.0) / 22.0))
+        return 18.0 * math.sqrt(max(0.0, 1.0 - t * t))
+
+    def add_dome_shell_panel_frame(
+        name: str,
+        angle: float,
+        z: float,
+        panel_height: float,
+        panel_width: float,
+    ) -> None:
+        radius = dome_shell_radius(z + panel_height / 2.0) + 0.22
+        add_radial_trim_bar(f"{name}_left_stile", angle, radius, -panel_width / 2.0, z, panel_height, 0.055, 0.22)
+        add_radial_trim_bar(f"{name}_right_stile", angle, radius, panel_width / 2.0, z, panel_height, 0.055, 0.22)
+        add_radial_trim_bar(f"{name}_bottom_rail", angle, radius, 0.0, z, 0.065, panel_width, 0.22)
+        add_radial_trim_bar(f"{name}_top_rail", angle, radius, 0.0, z + panel_height, 0.065, panel_width, 0.22)
+        add_facade_detail(
+            name,
+            "dome_shell_panel_frame",
+            (radius * math.cos(angle), radius * math.sin(angle), z + panel_height / 2.0),
+            {"angle_degrees": round(math.degrees(angle), 2), "size_m": [round(panel_width, 3), round(panel_height, 3)]},
+        )
+
+    def add_dome_drum_spandrel_panel(name: str, angle: float, z: float) -> None:
+        radius = 18.18
+        add_radial_trim_bar(f"{name}_stone_panel", angle, radius, 0.0, z, 0.34, 1.18, 0.24)
+        add_facade_detail(
+            name,
+            "dome_drum_spandrel_panel",
+            (radius * math.cos(angle), radius * math.sin(angle), z + 0.17),
+            {"angle_degrees": round(math.degrees(angle), 2)},
+        )
+
     def add_revolving_door(name: str, center: tuple[float, float], facade: str) -> None:
         x, y = center
         obj.add_cylinder((x, y), 1.18, 0.14, 2.65, f"{name}_glass_drum", "DoorGlass", segments=28)
@@ -2013,6 +2046,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             wy = 17.85 * math.sin(angle)
             add_dome_window_trim(idx // 2 + 1, angle, 18.02)
             obj.add_cylinder((wx, wy), 0.30, 22.8, 1.25, f"dome_drum_dark_window_{idx//2+1:02d}", "FacadeWindow", segments=10)
+            add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx//2+1:02d}", angle, 25.25)
     for idx in range(24):
         angle = math.tau * idx / 24.0
         px = 12.2 * math.cos(angle)
@@ -2035,8 +2069,33 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (0.0, 0.0, z + 0.08),
             {"band_index": band_index},
         )
+    for row_index, (z, panel_height, panel_width) in enumerate(
+        [(36.2, 1.04, 1.05), (40.6, 1.00, 0.98), (45.0, 0.88, 0.86), (49.1, 0.72, 0.72)],
+        start=1,
+    ):
+        for idx in range(24):
+            angle = math.tau * (idx + 0.5) / 24.0
+            add_dome_shell_panel_frame(
+                f"dome_shell_panel_frame_r{row_index:02d}_{idx+1:02d}",
+                angle,
+                z,
+                panel_height,
+                panel_width,
+            )
     obj.add_dome((0.0, 0.0), 18.0, 34.0, 22.0, "capitol_dome_approximate_shell", "CapitolDome", segments=72, rings=10)
     obj.add_cylinder((0.0, 0.0), 4.2, 55.5, 5.2, "dome_lantern_cylinder", "ColumnStone", segments=32)
+    for idx in range(16):
+        angle = math.tau * idx / 16.0
+        obj.add_cylinder((4.45 * math.cos(angle), 4.45 * math.sin(angle)), 0.10, 55.55, 4.48, f"dome_lantern_column_{idx+1:02d}", "ColumnStone", segments=10)
+        obj.add_cylinder((4.58 * math.cos(angle), 4.58 * math.sin(angle)), 0.055, 59.88, 0.70, f"dome_lantern_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
+        add_facade_detail(
+            f"dome_lantern_column_{idx+1:02d}",
+            "lantern_column",
+            (4.45 * math.cos(angle), 4.45 * math.sin(angle), 57.79),
+            {"radial_index": idx + 1},
+        )
+    obj.add_ring((0.0, 0.0), 4.72, 4.44, 60.45, 0.16, "dome_lantern_balustrade_ring", "ColumnStone", segments=64)
+    add_facade_detail("dome_lantern_balustrade", "lantern_balustrade", (0.0, 0.0, 60.28), {"count": 16})
     for idx in range(8):
         angle = math.tau * idx / 8.0
         obj.add_cylinder((4.28 * math.cos(angle), 4.28 * math.sin(angle)), 0.16, 56.25, 1.7, f"dome_lantern_dark_window_{idx+1:02d}", "FacadeWindow", segments=8)

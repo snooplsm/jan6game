@@ -575,9 +575,13 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "roof_skylight_strip",
     "dome_balustrade_posts",
     "dome_vertical_rib",
+    "dome_shell_panel_frame",
     "dome_drum_window_trim",
+    "dome_drum_spandrel_panel",
     "dome_lateral_band",
     "lantern_window",
+    "lantern_column",
+    "lantern_balustrade",
     "dome_finial",
     "pediment_relief_panel",
 }
@@ -945,10 +949,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public roof skylight strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_vertical_rib"]) < 24:
         error(errors, "expected at least 24 dome vertical rib records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_frame"]) < 96:
+        error(errors, "expected at least 96 dome shell panel frame records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_window_trim"]) < 16:
         error(errors, "expected at least 16 dome drum window trim records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_spandrel_panel"]) < 16:
+        error(errors, "expected at least 16 dome drum spandrel panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_lateral_band"]) < 4:
         error(errors, "expected at least 4 dome lateral band records")
+    if len([detail for detail in facade_details if detail.get("kind") == "lantern_column"]) < 16:
+        error(errors, "expected at least 16 lantern column records")
+    if len([detail for detail in facade_details if detail.get("kind") == "lantern_balustrade"]) < 1:
+        error(errors, "expected public lantern balustrade record")
     for detail in facade_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"facade detail {detail.get('name', '<unknown>')} has invalid center_m")
