@@ -300,6 +300,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["curbs"] = len(exterior.get("curbs", []))
     summary["lane_edge_markings"] = len(exterior.get("lane_edge_markings", []))
     summary["street_markers"] = len(exterior.get("street_markers", []))
+    replaced_buildings = exterior.get("replaced_buildings", [])
+    summary["replaced_buildings"] = len(replaced_buildings)
     streetscape_props = exterior.get("streetscape_props", [])
     summary["streetscape_props"] = len(streetscape_props)
     if summary["buildings"] < 2000:
@@ -316,6 +318,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 500 lane edge marking records")
     if summary["street_markers"] < 500:
         error(errors, "expected at least 500 street markers/crossings/signals")
+    if not any(item.get("name") == "United States Capitol" for item in replaced_buildings):
+        error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
+    if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
+        error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
     if len(streetscape_props) < 650:
         error(errors, f"expected at least 650 public streetscape props, got {len(streetscape_props)}")
     for prop in streetscape_props[:12]:
@@ -595,6 +601,7 @@ def main() -> int:
     print(f"Curbs: {metadata_summary.get('curbs', 0):,}")
     print(f"Lane edge markings: {metadata_summary.get('lane_edge_markings', 0):,}")
     print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
+    print(f"Replaced OSM building footprints: {metadata_summary.get('replaced_buildings', 0):,}")
     print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
     print(f"Facade/furniture details: {metadata_summary.get('facade_details', 0):,}")
     print(f"House seats: {metadata_summary.get('house_seats', 0):,}")

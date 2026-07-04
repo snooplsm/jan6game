@@ -7,7 +7,7 @@ It contains:
 - exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, and public streetscape props derived from OpenStreetMap
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
 - a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, and a joint-session House Chamber visual layout
-- public-facing Capitol visual details including approximate revolving-door assemblies, facade windows, cornice/belt-course bands, entry lamps, bollards, and benches
+- public-facing Capitol visual details including an authored Capitol landmark mesh, approximate revolving-door assemblies, layered pavilions, pediments, facade windows, cornice/belt-course bands, dome drum detail, entry lamps, bollards, and benches
 - fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole with American flag and campaign-style banner variants, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - Unreal-friendly OBJ/MTL meshes in centimeter units
 - JSON metadata for labels, source provenance, coordinates, rooms, seating records, and gameplay item records
@@ -66,11 +66,11 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 660,876 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 672,978 generated texture coordinates across the five OBJ meshes.
 
 The current generated build contains:
 
-- 2,525 building footprints
+- 2,524 surrounding building footprints; the OSM `United States Capitol` footprint is intentionally skipped and replaced by the authored Capitol landmark mesh to avoid concave-roof triangulation artifacts
 - 3,528 roads/paths
 - 445 bike-lane/cycleway features
 - 2,533 pedestrian path/footway records
@@ -79,7 +79,7 @@ The current generated build contains:
 - 880 street markers/crossings/traffic signals
 - 818 public streetscape prop records, including schematic streetlights, street-name signs, traffic-signal heads, and tree planters; the mesh also includes crosswalk striping and bike-lane marker posts
 - Capitol visual massing details including dome, lantern, porticos, columns, steps, plaza, grounds, public-facing revolving-door visuals, facade windows, cornice/belt-course bands, entry lamps, bollards, and benches
-- 255 Capitol facade/furniture detail records
+- 360 Capitol facade/furniture detail records
 - 60 generic public office/support visual cells
 - 448 generic House floor seats
 - 100 generic Senate desks
