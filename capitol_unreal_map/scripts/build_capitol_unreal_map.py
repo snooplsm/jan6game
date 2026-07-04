@@ -2669,6 +2669,150 @@ def add_wall_treatment(
     )
 
 
+def add_wall_finish_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    room: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "room": room,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_interior_wall_finish_detail",
+        "assignment": (
+            "Public visual wall/trim finish detail only; not a restricted room, "
+            "security feature, staff location, or operational access map."
+        ),
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_public_interior_wall_finish_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    panel_bottom_z = 4.58
+    panel_height = 0.86
+    baseboard_z = 4.42
+    pilaster_z = 4.50
+    upper_z = 6.34
+
+    def add_baseboard(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        obj.add_box(center, size, 0.18, baseboard_z, f"{name}_baseboard", "InteriorTrim")
+        add_wall_finish_detail_record(records, name, "baseboard", room, (center[0], center[1], baseboard_z + 0.09), size)
+
+    def add_pilaster(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        obj.add_box(center, size, 2.35, pilaster_z, f"{name}_shaft", "InteriorTrim")
+        obj.add_box(center, (size[0] * 1.45, size[1] * 1.45), 0.18, pilaster_z + 2.32, f"{name}_cap", "ArtFrameGold")
+        add_wall_finish_detail_record(records, name, "wall_pilaster", room, (center[0], center[1], pilaster_z + 1.18), size)
+
+    def add_frame(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+        kind: str,
+        bottom_z: float,
+        height: float,
+        material: str,
+    ) -> None:
+        x, y = center
+        thickness = 0.055
+        wall_depth = 0.11
+        if orientation == "east_west":
+            top_size = (width, wall_depth)
+            side_size = (thickness, wall_depth)
+            obj.add_box((x, y), top_size, 0.065, bottom_z, f"{name}_bottom_rail", material)
+            obj.add_box((x, y), top_size, 0.065, bottom_z + height, f"{name}_top_rail", material)
+            obj.add_box((x - width / 2.0, y), side_size, height, bottom_z, f"{name}_left_stile", material)
+            obj.add_box((x + width / 2.0, y), side_size, height, bottom_z, f"{name}_right_stile", material)
+            size = (width, wall_depth)
+        else:
+            top_size = (wall_depth, width)
+            side_size = (wall_depth, thickness)
+            obj.add_box((x, y), top_size, 0.065, bottom_z, f"{name}_bottom_rail", material)
+            obj.add_box((x, y), top_size, 0.065, bottom_z + height, f"{name}_top_rail", material)
+            obj.add_box((x, y - width / 2.0), side_size, height, bottom_z, f"{name}_left_stile", material)
+            obj.add_box((x, y + width / 2.0), side_size, height, bottom_z, f"{name}_right_stile", material)
+            size = (wall_depth, width)
+        add_wall_finish_detail_record(records, name, kind, room, (x, y, bottom_z + height / 2.0), size)
+
+    def add_room_finish(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        panel_count_long: int,
+        panel_count_short: int,
+    ) -> None:
+        cx, cy = center
+        sx, sy = size
+        north_y = cy + sy / 2.0 - 0.22
+        south_y = cy - sy / 2.0 + 0.22
+        east_x = cx + sx / 2.0 - 0.22
+        west_x = cx - sx / 2.0 + 0.22
+
+        add_baseboard(f"{name}_north", room, (cx, north_y), (sx * 0.96, 0.12))
+        add_baseboard(f"{name}_south", room, (cx, south_y), (sx * 0.96, 0.12))
+        add_baseboard(f"{name}_east", room, (east_x, cy), (0.12, sy * 0.96))
+        add_baseboard(f"{name}_west", room, (west_x, cy), (0.12, sy * 0.96))
+
+        for index in range(panel_count_long):
+            x = cx - sx / 2.0 + sx * (index + 0.5) / panel_count_long
+            width = sx / panel_count_long * 0.64
+            add_frame(f"{name}_north_wainscot_frame_{index+1:02d}", room, (x, north_y), width, "east_west", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
+            add_frame(f"{name}_south_wainscot_frame_{index+1:02d}", room, (x, south_y), width, "east_west", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
+            if index % 2 == 0:
+                upper_width = sx / panel_count_long * 0.72
+                add_frame(f"{name}_north_upper_wall_frame_{index+1:02d}", room, (x, north_y), upper_width, "east_west", "upper_wall_panel_frame", upper_z, 0.72, "ArtFrameGold")
+                add_frame(f"{name}_south_upper_wall_frame_{index+1:02d}", room, (x, south_y), upper_width, "east_west", "upper_wall_panel_frame", upper_z, 0.72, "ArtFrameGold")
+        for index in range(panel_count_short):
+            y = cy - sy / 2.0 + sy * (index + 0.5) / panel_count_short
+            width = sy / panel_count_short * 0.64
+            add_frame(f"{name}_east_wainscot_frame_{index+1:02d}", room, (east_x, y), width, "north_south", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
+            add_frame(f"{name}_west_wainscot_frame_{index+1:02d}", room, (west_x, y), width, "north_south", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
+            if index % 2 == 0:
+                upper_width = sy / panel_count_short * 0.70
+                add_frame(f"{name}_east_upper_wall_frame_{index+1:02d}", room, (east_x, y), upper_width, "north_south", "upper_wall_panel_frame", upper_z, 0.68, "ArtFrameGold")
+                add_frame(f"{name}_west_upper_wall_frame_{index+1:02d}", room, (west_x, y), upper_width, "north_south", "upper_wall_panel_frame", upper_z, 0.68, "ArtFrameGold")
+
+        pilaster_long_step = max(1, panel_count_long // 4)
+        for index in range(0, panel_count_long + 1, pilaster_long_step):
+            x = cx - sx / 2.0 + sx * index / panel_count_long
+            add_pilaster(f"{name}_north_pilaster_{index+1:02d}", room, (x, north_y), (0.13, 0.16))
+            add_pilaster(f"{name}_south_pilaster_{index+1:02d}", room, (x, south_y), (0.13, 0.16))
+        pilaster_short_step = max(1, panel_count_short // 3)
+        for index in range(0, panel_count_short + 1, pilaster_short_step):
+            y = cy - sy / 2.0 + sy * index / panel_count_short
+            add_pilaster(f"{name}_east_pilaster_{index+1:02d}", room, (east_x, y), (0.16, 0.13))
+            add_pilaster(f"{name}_west_pilaster_{index+1:02d}", room, (west_x, y), (0.16, 0.13))
+
+    for args in [
+        ("rotunda_wall_finish_detail", "Rotunda", (0.0, 0.0), (29.5, 29.5), 10, 10),
+        ("house_chamber_wall_finish_detail", "House Chamber", (0.0, -72.0), (62.0, 42.0), 12, 8),
+        ("senate_chamber_wall_finish_detail", "Senate Chamber", (0.0, 68.0), (48.0, 38.0), 10, 8),
+        ("national_statuary_hall_wall_finish_detail", "National Statuary Hall", (28.0, -30.0), (30.0, 20.0), 8, 5),
+        ("old_senate_chamber_wall_finish_detail", "Old Senate Chamber", (28.0, 30.0), (26.0, 18.0), 7, 5),
+        ("house_gallery_wall_finish_detail", "House galleries", (0.0, -96.0), (68.0, 10.0), 12, 3),
+        ("senate_gallery_wall_finish_detail", "Senate galleries", (0.0, 94.0), (54.0, 10.0), 10, 3),
+        ("house_west_office_wall_finish_detail", "House leadership/support offices - schematic zone", (-53.0, -55.0), (22.0, 46.0), 5, 8),
+        ("house_east_office_wall_finish_detail", "House committee/support rooms - schematic zone", (53.0, -55.0), (22.0, 46.0), 5, 8),
+        ("senate_west_office_wall_finish_detail", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), 5, 8),
+        ("senate_east_office_wall_finish_detail", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 5, 8),
+    ]:
+        add_room_finish(*args)
+
+    add_label(labels, "Raised wall panels, pilasters, and baseboards - schematic", -23.0, -7.5, 7.7, "wall_finish_detail")
+
+
 def add_interior_ceiling_detail_record(
     records: list[dict[str, Any]],
     name: str,
@@ -3757,6 +3901,7 @@ def build_interior() -> dict[str, Any]:
     public_art: list[dict[str, Any]] = []
     light_fixtures: list[dict[str, Any]] = []
     wall_treatments: list[dict[str, Any]] = []
+    wall_finish_details: list[dict[str, Any]] = []
     chamber_details: list[dict[str, Any]] = []
     circulation_details: list[dict[str, Any]] = []
     signage_details: list[dict[str, Any]] = []
@@ -3819,6 +3964,7 @@ def build_interior() -> dict[str, Any]:
     add_wall_treatment(obj, wall_treatments, "house_east_office_wall_finish", "House committee/support rooms - schematic zone", (53.0, -55.0), (22.0, 46.0), 5, 8, z=4.45)
     add_wall_treatment(obj, wall_treatments, "senate_west_office_wall_finish", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), 5, 8, z=4.45)
     add_wall_treatment(obj, wall_treatments, "senate_east_office_wall_finish", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 5, 8, z=4.45)
+    add_public_interior_wall_finish_details(obj, labels, wall_finish_details)
     add_public_interior_ceiling_details(obj, labels, ceiling_details)
     add_public_interior_floor_details(obj, labels, floor_details)
     add_label(labels, "Wainscot panels, chair rails, and picture rails - schematic", 0.0, -6.5, 7.6, "wall_treatment")
@@ -3835,6 +3981,7 @@ def build_interior() -> dict[str, Any]:
         "public_art": public_art,
         "light_fixtures": light_fixtures,
         "wall_treatments": wall_treatments,
+        "wall_finish_details": wall_finish_details,
         "chamber_details": chamber_details,
         "circulation_details": circulation_details,
         "signage_details": signage_details,
@@ -4100,6 +4247,7 @@ def main() -> None:
         f"{len(interior['public_art'])} public-art visuals,",
         f"{len(interior['light_fixtures'])} light fixtures,",
         f"{len(interior['wall_treatments'])} wall-treatment records,",
+        f"{len(interior['wall_finish_details'])} wall-finish detail records,",
         f"{len(interior['chamber_details'])} chamber detail records,",
         f"{len(interior['circulation_details'])} circulation detail records,",
         f"{len(interior['signage_details'])} signage detail records,",

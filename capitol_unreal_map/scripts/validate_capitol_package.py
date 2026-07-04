@@ -157,6 +157,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "office_details",
     "circulation_details",
     "signage_details",
+    "wall_finish_details",
     "rotunda_details",
     "ceiling_details",
     "floor_details",
@@ -179,6 +180,7 @@ REQUIRED_UNREAL_LABEL_CATEGORIES = {
     "public_art",
     "lighting",
     "wall_treatment",
+    "wall_finish_detail",
     "landmark",
     "street_name",
     "building",
@@ -271,6 +273,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickFacadeDetails"',
     'id="quickOffices"',
     'id="quickSignageDetails"',
+    'id="quickWallFinishDetails"',
     'id="quickFloorDetails"',
     'id="quickCeilingDetails"',
     'id="quickGameplayItems"',
@@ -278,6 +281,7 @@ REQUIRED_VIEWER_MARKERS = {
     'href="#facade-details"',
     'href="#offices"',
     'href="#signage-details"',
+    'href="#wall-finish-details"',
     'href="#floor-details"',
     'href="#ceiling-details"',
     'href="#gameplay-items"',
@@ -285,6 +289,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="presetFacadeDetails"',
     'id="presetOffices"',
     'id="presetSignageDetails"',
+    'id="presetWallFinishDetails"',
     'id="presetFloorDetails"',
     'id="presetCeilingDetails"',
     'id="presetGameplay"',
@@ -292,6 +297,7 @@ REQUIRED_VIEWER_MARKERS = {
     'value="facade_detail"',
     'value="office_detail"',
     'value="signage_detail"',
+    'value="wall_finish_detail"',
     'value="floor_detail"',
     'value="ceiling_detail"',
     'value="gameplay_item"',
@@ -299,6 +305,7 @@ REQUIRED_VIEWER_MARKERS = {
     "metadata.landmark?.facade_details",
     "metadata.interior?.office_details",
     "metadata.interior?.signage_details",
+    "metadata.interior?.wall_finish_details",
     "metadata.interior?.floor_details",
     "metadata.interior?.ceiling_details",
     "metadata.gameplay?.labels",
@@ -311,6 +318,8 @@ REQUIRED_VIEWER_MARKERS = {
     "focusOfficesRoute",
     "focusSignageDetails",
     "focusSignageDetailsRoute",
+    "focusWallFinishDetails",
+    "focusWallFinishDetailsRoute",
     "focusFloorDetails",
     "focusFloorDetailsRoute",
     "focusCeilingDetails",
@@ -322,6 +331,7 @@ REQUIRED_VIEWER_MARKERS = {
     "facade-details",
     "office-details",
     "signage-details",
+    "wall-finish-details",
     "floor-details",
     "ceiling-details",
     "gameplay-items",
@@ -408,6 +418,13 @@ REQUIRED_SIGNAGE_DETAIL_KINDS = {
     "chamber_role_sign",
     "generic_office_zone_sign",
     "public_map_kiosk",
+}
+
+REQUIRED_WALL_FINISH_DETAIL_KINDS = {
+    "baseboard",
+    "raised_wainscot_frame",
+    "upper_wall_panel_frame",
+    "wall_pilaster",
 }
 
 REQUIRED_ROTUNDA_DETAIL_KINDS = {
@@ -1075,6 +1092,54 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"signage detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
             break
 
+    wall_finish_details = interior.get("wall_finish_details", [])
+    wall_finish_detail_kinds = {detail.get("kind") for detail in wall_finish_details}
+    wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
+    summary["wall_finish_details"] = len(wall_finish_details)
+    summary["wall_finish_detail_kinds"] = len(wall_finish_detail_kinds)
+    if len(wall_finish_details) < 700:
+        error(errors, f"expected at least 700 public wall-finish detail records, got {len(wall_finish_details)}")
+    missing_wall_finish_kinds = sorted(REQUIRED_WALL_FINISH_DETAIL_KINDS - wall_finish_detail_kinds)
+    if missing_wall_finish_kinds:
+        error(errors, f"missing public wall-finish detail kinds: {', '.join(missing_wall_finish_kinds)}")
+    for room in [
+        "Rotunda",
+        "House Chamber",
+        "Senate Chamber",
+        "National Statuary Hall",
+        "Old Senate Chamber",
+        "House galleries",
+        "Senate galleries",
+    ]:
+        if room not in wall_finish_rooms:
+            error(errors, f"missing wall-finish details for {room}")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "baseboard"]) < 40:
+        error(errors, "expected at least 40 public baseboard detail records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "raised_wainscot_frame"]) < 300:
+        error(errors, "expected at least 300 public raised wainscot frame records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "upper_wall_panel_frame"]) < 170:
+        error(errors, "expected at least 170 public upper wall panel frame records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_pilaster"]) < 230:
+        error(errors, "expected at least 230 public wall pilaster records")
+    for detail in wall_finish_details:
+        if not detail.get("room"):
+            error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} is missing room")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if (
+            "public" not in public_accuracy
+            or "public visual" not in assignment
+            or "restricted room" not in assignment
+            or "security feature" not in assignment
+            or "operational" not in assignment
+        ):
+            error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     rotunda_details = interior.get("rotunda_details", [])
     rotunda_detail_kinds = {detail.get("kind") for detail in rotunda_details}
     summary["rotunda_details"] = len(rotunda_details)
@@ -1565,6 +1630,7 @@ def main() -> int:
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")
+    print(f"Wall-finish details: {metadata_summary.get('wall_finish_details', 0):,}")
     print(f"Gameplay item props: {metadata_summary.get('gameplay_items', 0):,}")
     print(f"Flagpole banner visuals: {metadata_summary.get('flagpole_banners', 0):,}")
     print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
