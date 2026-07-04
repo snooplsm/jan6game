@@ -137,7 +137,9 @@ def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, A
     stats: dict[str, Any] = {
         "path": str(path.relative_to(ROOT)),
         "vertices": 0,
+        "uvs": 0,
         "faces": 0,
+        "faces_with_uvs": 0,
         "triangles": 0,
         "groups": 0,
         "materials": [],
@@ -170,13 +172,24 @@ def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, A
             for axis in range(3):
                 min_xyz[axis] = min(min_xyz[axis], parsed[axis])
                 max_xyz[axis] = max(max_xyz[axis], parsed[axis])
+        elif kind == "vt":
+            if len(parts) < 3:
+                error(errors, f"{path}:{lineno}: malformed texture coordinate")
+                continue
+            parsed = parse_floatish(parts[1:3])
+            if parsed is None:
+                error(errors, f"{path}:{lineno}: nonnumeric texture coordinate")
+                continue
+            stats["uvs"] += 1
         elif kind == "f":
             if len(parts) < 4:
                 error(errors, f"{path}:{lineno}: face has fewer than 3 vertices")
                 continue
             face_indexes = []
+            uv_indexes = []
             for token in parts[1:]:
-                index_token = token.split("/")[0]
+                token_parts = token.split("/")
+                index_token = token_parts[0]
                 try:
                     raw_index = int(index_token)
                 except ValueError:
@@ -190,8 +203,24 @@ def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, A
                     error(errors, f"{path}:{lineno}: face index {raw_index} outside 1..{stats['vertices']}")
                     continue
                 face_indexes.append(resolved)
+                if len(token_parts) > 1 and token_parts[1]:
+                    try:
+                        raw_uv_index = int(token_parts[1])
+                    except ValueError:
+                        error(errors, f"{path}:{lineno}: invalid texture coordinate index {token!r}")
+                        continue
+                    if raw_uv_index == 0:
+                        error(errors, f"{path}:{lineno}: OBJ texture coordinate index 0 is invalid")
+                        continue
+                    resolved_uv = raw_uv_index if raw_uv_index > 0 else stats["uvs"] + raw_uv_index + 1
+                    if resolved_uv < 1 or resolved_uv > stats["uvs"]:
+                        error(errors, f"{path}:{lineno}: texture coordinate index {raw_uv_index} outside 1..{stats['uvs']}")
+                        continue
+                    uv_indexes.append(resolved_uv)
             if len(face_indexes) >= 3:
                 stats["faces"] += 1
+                if len(uv_indexes) == len(face_indexes):
+                    stats["faces_with_uvs"] += 1
                 stats["triangles"] += len(face_indexes) - 2
         elif kind == "usemtl":
             if len(parts) < 2:
@@ -210,6 +239,10 @@ def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, A
         error(errors, f"{path}: no vertices")
     if stats["faces"] <= 0:
         error(errors, f"{path}: no faces")
+    if stats["uvs"] <= 0:
+        error(errors, f"{path}: no texture coordinates")
+    if stats["faces"] > 0 and stats["faces_with_uvs"] != stats["faces"]:
+        error(errors, f"{path}: {stats['faces'] - stats['faces_with_uvs']} face(s) missing full texture-coordinate coverage")
     if "capitol_materials.mtl" not in stats["mtllibs"]:
         error(errors, f"{path}: missing mtllib capitol_materials.mtl")
 
@@ -493,6 +526,7 @@ def main() -> int:
     print("Capitol package validation OK")
     print(f"Meshes: {len(mesh_stats)}")
     print(f"Vertices: {vertices:,}")
+    print(f"Texture coordinates: {sum(int(mesh.get('uvs', 0)) for mesh in mesh_stats):,}")
     print(f"Triangles: {triangles:,}")
     print(f"Buildings: {metadata_summary.get('buildings', 0):,}")
     print(f"Roads/paths: {metadata_summary.get('roads', 0):,}")

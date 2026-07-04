@@ -41,7 +41,9 @@
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
       "vertices": 49296,
+      "uvs": 147888,
       "faces": 29698,
+      "faces_with_uvs": 29698,
       "triangles": 88492,
       "groups": 2525,
       "materials": [
@@ -67,7 +69,9 @@
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
       "vertices": 215940,
+      "uvs": 401188,
       "faces": 92363,
+      "faces_with_uvs": 92363,
       "triangles": 216462,
       "groups": 14624,
       "materials": [
@@ -110,7 +114,9 @@
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
       "vertices": 7306,
+      "uvs": 22688,
       "faces": 4994,
+      "faces_with_uvs": 4994,
       "triangles": 12700,
       "groups": 453,
       "materials": [
@@ -147,7 +153,9 @@
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
       "vertices": 28909,
+      "uvs": 87444,
       "faces": 20774,
+      "faces_with_uvs": 20774,
       "triangles": 45896,
       "groups": 2960,
       "materials": [

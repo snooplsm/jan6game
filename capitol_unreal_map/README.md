@@ -35,6 +35,8 @@ It contains:
 - `unreal/import_capitol_map.py`
 - `viewer.html`
 
+The OBJ meshes include generated `vt` texture coordinates, so Unreal material texture samples have UVs to read instead of relying on importer-generated defaults.
+
 ## Regenerate
 
 From the repository root:
@@ -54,12 +56,15 @@ The validator checks that:
 
 - every metadata mesh exists
 - OBJ face indices are valid
+- every generated OBJ face has texture-coordinate coverage
 - OBJ material references exist in `capitol_materials.mtl`
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, and generated viewpoints are present
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
+
+The current validation report counts 659,208 generated texture coordinates across the four OBJ meshes.
 
 The current generated build contains:
 
@@ -127,7 +132,7 @@ The OBJ vertices are already authored in centimeters, so import scale should rem
 
 The current realism pass uses deterministic procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable basecolor, normal, and roughness PNGs under `generated/textures/` and writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
 
-The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names.
+The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal.
 
 The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, Capitol facade windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
 

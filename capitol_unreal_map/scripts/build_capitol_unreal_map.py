@@ -28,6 +28,7 @@ LON0 = -77.009051
 EARTH_M_PER_DEG_LAT = 111_320.0
 EARTH_M_PER_DEG_LON = 111_320.0 * math.cos(math.radians(LAT0))
 OBJ_UNIT_SCALE = 100.0  # meters to Unreal centimeters
+UV_TILE_METERS = 3.0
 
 
 MATERIALS = {
@@ -138,15 +139,51 @@ VIEWPOINTS = [
 class ObjWriter:
     name: str
     vertices: list[tuple[float, float, float]] = field(default_factory=list)
+    texture_vertices: list[tuple[float, float]] = field(default_factory=list)
     faces: list[str] = field(default_factory=list)
 
     def add_vertex(self, x: float, y: float, z: float) -> int:
         self.vertices.append((x * OBJ_UNIT_SCALE, y * OBJ_UNIT_SCALE, z * OBJ_UNIT_SCALE))
         return len(self.vertices)
 
+    def add_texture_vertex(self, u: float, v: float) -> int:
+        self.texture_vertices.append((u, v))
+        return len(self.texture_vertices)
+
+    def projected_uvs(self, indexes: list[int]) -> list[tuple[float, float]]:
+        points = [self.vertices[index - 1] for index in indexes]
+        if len(points) < 3:
+            return [(0.0, 0.0) for _ in indexes]
+
+        ax = points[1][0] - points[0][0]
+        ay = points[1][1] - points[0][1]
+        az = points[1][2] - points[0][2]
+        bx = points[2][0] - points[0][0]
+        by = points[2][1] - points[0][1]
+        bz = points[2][2] - points[0][2]
+        normal = (
+            ay * bz - az * by,
+            az * bx - ax * bz,
+            ax * by - ay * bx,
+        )
+        dominant_axis = max(range(3), key=lambda axis: abs(normal[axis]))
+        tile_cm = UV_TILE_METERS * OBJ_UNIT_SCALE
+        uvs: list[tuple[float, float]] = []
+        for x, y, z in points:
+            if dominant_axis == 0:
+                u, v = y / tile_cm, z / tile_cm
+            elif dominant_axis == 1:
+                u, v = x / tile_cm, z / tile_cm
+            else:
+                u, v = x / tile_cm, y / tile_cm
+            uvs.append((u, v))
+        return uvs
+
     def add_face(self, indexes: list[int]) -> None:
         if len(indexes) >= 3:
-            self.faces.append("f " + " ".join(str(i) for i in indexes))
+            texture_indexes = [self.add_texture_vertex(u, v) for u, v in self.projected_uvs(indexes)]
+            tokens = [f"{vertex_index}/{texture_index}" for vertex_index, texture_index in zip(indexes, texture_indexes)]
+            self.faces.append("f " + " ".join(tokens))
 
     def add_group(self, name: str, material: str) -> None:
         safe = re.sub(r"[^A-Za-z0-9_]+", "_", name).strip("_") or "group"
@@ -360,6 +397,8 @@ class ObjWriter:
         lines = [f"mtllib {mtl_name}", f"o {self.name}"]
         for x, y, z in self.vertices:
             lines.append(f"v {x:.4f} {y:.4f} {z:.4f}")
+        for u, v in self.texture_vertices:
+            lines.append(f"vt {u:.6f} {v:.6f}")
         lines.extend(self.faces)
         lines.append("")
         path.write_text("\n".join(lines), encoding="utf-8")
