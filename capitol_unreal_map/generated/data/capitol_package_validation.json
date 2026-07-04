@@ -29,8 +29,8 @@
     "seating_sections": 16,
     "regular_session_seating_sections": 7,
     "joint_session_seating_sections": 9,
-    "chamber_details": 109,
-    "chamber_detail_kinds": 9,
+    "chamber_details": 145,
+    "chamber_detail_kinds": 14,
     "circulation_details": 35,
     "circulation_detail_kinds": 5,
     "joint_session_records": 9,
@@ -203,12 +203,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 32689,
-      "uvs": 97720,
-      "faces": 23199,
-      "faces_with_uvs": 23199,
-      "triangles": 51322,
-      "groups": 3313,
+      "vertices": 33137,
+      "uvs": 99064,
+      "faces": 23535,
+      "faces_with_uvs": 23535,
+      "triangles": 51994,
+      "groups": 3369,
       "materials": [
         "ArtFrameGold",
         "BrassRail",
@@ -217,6 +217,7 @@
         "ColumnStone",
         "DeskWood",
         "DiplomaticZone",
+        "DoorMetal",
         "HouseCarpet",
         "HouseDesk",
         "HouseSeat",
@@ -250,12 +251,12 @@
       "bbox_cm": {
         "min": [
           -7521.0,
-          -10382.0,
+          -10424.0,
           395.0
         ],
         "max": [
           7521.0,
-          10128.0,
+          10173.0,
           935.0
         ]
       }

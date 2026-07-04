@@ -82,7 +82,7 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 803,418 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 804,762 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
@@ -104,7 +104,7 @@ The current generated build contains:
 - 448 generic House floor seats
 - 100 generic Senate desks
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
-- 109 public chamber detail records for House/Senate rails, dais steps, rostrum desks, gallery rails, gallery benches, aisle edge markers, desk arc markers, backdrop panels, and flag standards
+- 145 public chamber detail records for House/Senate rails, dais steps, rostrum desks, public lecterns, work tables, gallery rails, gallery benches, gallery dividers, balcony fascia, aisle edge markers, desk arc markers, desk surface markers, backdrop panels, and flag standards
 - 35 public circulation detail records for schematic corridor bands, door thresholds, room portal trim, orientation signs, and floor inlays between major public spaces
 - 91 public-art visuals, 55 public light fixtures, and 11 wall-treatment records for public interior visual orientation
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
@@ -172,7 +172,7 @@ The current realism pass uses deterministic 4K procedural texture maps plus mate
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal. The importer also spawns metadata-driven interior lights, capped public streetlights, and authored public grounds walk lamps.
 
-The current mesh-detail pass adds surrounding-building facade windows, roofline caps, public-entry markers, rooftop detail blocks, public streetscape props, traffic-signal heads, crosswalk striping, tree planters, public stop bars, lane arrows, bike symbols, curb-ramp visuals, wayfinding signs, authored public grounds details, Capitol facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, public stair treads, approach handrails, dentil courses, cornice brackets, roof balustrades, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public chamber gallery benches, rostrum desks, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for landscape planting, public streetscape fixtures, and chamber furniture.
+The current mesh-detail pass adds surrounding-building facade windows, roofline caps, public-entry markers, rooftop detail blocks, public streetscape props, traffic-signal heads, crosswalk striping, tree planters, public stop bars, lane arrows, bike symbols, curb-ramp visuals, wayfinding signs, authored public grounds details, Capitol facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, public stair treads, approach handrails, dentil courses, cornice brackets, roof balustrades, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public chamber gallery benches, gallery dividers, balcony fascia, public lecterns, work tables, rostrum desks, desk surface markers, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for landscape planting, public streetscape fixtures, and chamber furniture.
 
 The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction. Flagpole banner visuals are simple color-blocked game props, not exact merchandise replicas.
 

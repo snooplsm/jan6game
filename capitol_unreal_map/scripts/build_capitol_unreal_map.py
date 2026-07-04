@@ -2443,6 +2443,47 @@ def add_chamber_realism_details(
         obj.add_box((x + 0.28, y), (0.55, 0.08), 0.68, z + 1.35, f"{name}_cloth_panel", flag_material)
         add_chamber_detail_record(records, name, "flag_standard", chamber, (x, y, z + 1.15), (0.7, 0.18))
 
+    def public_lectern(name: str, chamber: str, center: tuple[float, float], z: float) -> None:
+        x, y = center
+        obj.add_box((x, y), (0.78, 0.46), 0.82, z, f"{name}_base", "DeskWood")
+        obj.add_box((x, y + 0.03), (0.92, 0.54), 0.12, z + 0.82, f"{name}_sloped_top", "InteriorTrim")
+        obj.add_box((x, y - 0.32), (0.18, 0.12), 0.22, z + 0.92, f"{name}_microphone_marker", "DoorMetal")
+        add_chamber_detail_record(records, name, "public_lectern", chamber, (x, y, z + 0.58), (0.92, 0.54))
+
+    def public_work_table(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+    ) -> None:
+        x, y = center
+        sx, sy = size
+        obj.add_box(center, size, 0.26, z, f"{name}_tabletop", "DeskWood")
+        for post_index, (dx, dy) in enumerate(
+            [(-sx * 0.38, -sy * 0.32), (sx * 0.38, -sy * 0.32), (-sx * 0.38, sy * 0.32), (sx * 0.38, sy * 0.32)],
+            start=1,
+        ):
+            obj.add_box((x + dx, y + dy), (0.10, 0.10), 0.62, z - 0.58, f"{name}_leg_{post_index}", "DeskWood")
+        add_chamber_detail_record(records, name, "public_work_table", chamber, (x, y, z + 0.13), size)
+
+    def gallery_divider(name: str, chamber: str, center: tuple[float, float], orientation: str, z: float) -> None:
+        x, y = center
+        if orientation == "north_south":
+            size = (0.14, 1.42)
+        else:
+            size = (1.42, 0.14)
+        obj.add_box(center, size, 0.46, z, name, "BrassRail")
+        add_chamber_detail_record(records, name, "gallery_divider", chamber, (x, y, z + 0.23), size)
+
+    def balcony_fascia(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.44, z, name, "InteriorTrim")
+        add_chamber_detail_record(records, name, "balcony_fascia", chamber, (center[0], center[1], z + 0.22), size)
+
+    def desk_surface_marker(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.035, z, name, "BrassRail")
+        add_chamber_detail_record(records, name, "desk_surface_marker", chamber, (center[0], center[1], z + 0.018), size)
+
     # House chamber public visual details.
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
@@ -2461,6 +2502,18 @@ def add_chamber_realism_details(
     flag_standard("house_rostrum_us_flag_right", "House Chamber", 6.35, -46.95, 5.05, "ItemCloth")
     add_chamber_arc_strip(obj, records, "house_front_desk_arc_marker", "House Chamber", (0.0, -50.5), 21.5, 214.0, 326.0, 0.10, 4.64, "BrassRail")
     add_chamber_arc_strip(obj, records, "house_rear_desk_arc_marker", "House Chamber", (0.0, -50.5), 39.5, 218.0, 322.0, 0.10, 4.64, "BrassRail")
+    public_lectern("house_well_public_lectern", "House Chamber", (0.0, -54.25), 4.62)
+    public_work_table("house_clerk_public_work_table", "House Chamber", (0.0, -50.9), (4.8, 0.82), 5.16)
+    public_work_table("house_press_public_work_table", "House Chamber", (0.0, -57.3), (5.8, 0.72), 4.82)
+    balcony_fascia("house_gallery_front_balcony_fascia", "House Chamber", (0.0, -94.72), (66.5, 0.42), 5.76)
+    balcony_fascia("house_gallery_rear_balcony_fascia", "House Chamber", (0.0, -104.05), (66.5, 0.38), 5.92)
+    for idx, x in enumerate([-30.0, -22.0, -14.0, -6.0, 6.0, 14.0, 22.0, 30.0], start=1):
+        gallery_divider(f"house_gallery_divider_{idx:02d}", "House Chamber", (x, -99.9), "north_south", 5.42)
+    for row_index, (y, width) in enumerate(
+        [(-69.0, 24.0), (-74.7, 32.8), (-80.4, 41.6), (-86.1, 50.4), (-91.8, 58.0)],
+        start=1,
+    ):
+        desk_surface_marker(f"house_floor_row_surface_marker_{row_index:02d}", "House Chamber", (0.0, y), (width, 0.08), 4.98)
     for idx, (x, y, sx, sy) in enumerate(
         [(0.0, -48.7, 3.8, 0.92), (-3.2, -49.8, 2.2, 0.72), (3.2, -49.8, 2.2, 0.72), (0.0, -52.1, 5.4, 0.72)],
         start=1,
@@ -2495,6 +2548,18 @@ def add_chamber_realism_details(
     flag_standard("senate_presiding_us_flag_right", "Senate Chamber", 5.2, 84.55, 5.0, "ItemCloth")
     add_chamber_arc_strip(obj, records, "senate_front_desk_arc_marker", "Senate Chamber", (0.0, 84.0), 12.2, 205.0, 335.0, 0.10, 4.64, "BrassRail")
     add_chamber_arc_strip(obj, records, "senate_rear_desk_arc_marker", "Senate Chamber", (0.0, 84.0), 25.0, 209.0, 331.0, 0.10, 4.64, "BrassRail")
+    public_lectern("senate_well_public_lectern", "Senate Chamber", (0.0, 79.55), 4.62)
+    public_work_table("senate_clerk_public_work_table", "Senate Chamber", (0.0, 82.15), (4.2, 0.74), 5.08)
+    public_work_table("senate_press_public_work_table", "Senate Chamber", (0.0, 77.2), (4.6, 0.66), 4.82)
+    balcony_fascia("senate_gallery_front_balcony_fascia", "Senate Chamber", (0.0, 93.65), (52.5, 0.40), 5.74)
+    balcony_fascia("senate_gallery_rear_balcony_fascia", "Senate Chamber", (0.0, 101.55), (52.5, 0.36), 5.90)
+    for idx, x in enumerate([-23.5, -16.5, -9.5, -2.5, 2.5, 9.5, 16.5, 23.5], start=1):
+        gallery_divider(f"senate_gallery_divider_{idx:02d}", "Senate Chamber", (x, 97.9), "north_south", 5.42)
+    for row_index, (y, width) in enumerate(
+        [(66.3, 15.0), (70.4, 21.6), (74.5, 28.2), (78.6, 34.8), (82.7, 39.5)],
+        start=1,
+    ):
+        desk_surface_marker(f"senate_floor_row_surface_marker_{row_index:02d}", "Senate Chamber", (0.0, y), (width, 0.08), 4.98)
     for idx, (x, y, sx, sy) in enumerate(
         [(0.0, 83.75, 3.2, 0.82), (-2.8, 82.7, 2.0, 0.66), (2.8, 82.7, 2.0, 0.66)],
         start=1,
