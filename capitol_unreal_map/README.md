@@ -48,6 +48,13 @@ python3 capitol_unreal_map/scripts/generate_material_textures.py
 python3 capitol_unreal_map/scripts/build_capitol_unreal_map.py
 ```
 
+Texture generation defaults to production 4096x4096 PNG maps. For a quick local preview run, override the size explicitly:
+
+```bash
+CAPITOL_TEXTURE_SIZE=512 python3 capitol_unreal_map/scripts/generate_material_textures.py
+CAPITOL_MIN_TEXTURE_SIZE=512 python3 capitol_unreal_map/scripts/validate_capitol_package.py
+```
+
 Validate the generated OBJ/MTL/metadata package before Unreal import:
 
 ```bash
@@ -62,11 +69,14 @@ The validator checks that:
 - OBJ material references exist in `capitol_materials.mtl`
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
+- every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
 The current validation report counts 672,978 generated texture coordinates across the five OBJ meshes.
+
+The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
 The current generated build contains:
 
@@ -87,6 +97,7 @@ The current generated build contains:
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
 - 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - 5 flagpole banner visuals: American flag, two Trump 2024 campaign-style banners, a Save America campaign-style banner, and a Make America Great Again campaign-style banner
+- 43 deterministic 4K procedural material texture sets, each with basecolor, normal, and roughness PNG maps
 
 ## Local Browser Viewer
 
@@ -135,7 +146,7 @@ The OBJ vertices are already authored in centimeters, so import scale should rem
 
 ## Realism Pass
 
-The current realism pass uses deterministic procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable basecolor, normal, and roughness PNGs under `generated/textures/` and writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
+The current realism pass uses deterministic 4K procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable 4096x4096 basecolor, normal, and roughness PNGs under `generated/textures/` and writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal.
 

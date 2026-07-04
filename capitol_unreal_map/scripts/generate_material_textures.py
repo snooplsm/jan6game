@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import hashlib
 import math
+import os
 import struct
 import zlib
 from pathlib import Path
@@ -23,7 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 TEXTURE_DIR = ROOT / "generated" / "textures"
 DATA_DIR = ROOT / "generated" / "data"
 MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
-SIZE = 512
+SIZE = int(os.environ.get("CAPITOL_TEXTURE_SIZE", "4096"))
+PNG_COMPRESSION_LEVEL = int(os.environ.get("CAPITOL_TEXTURE_COMPRESSION", "6"))
 
 
 TEXTURE_SETS: dict[str, dict[str, Any]] = {
@@ -161,30 +163,31 @@ def write_png(path: Path, rgb: np.ndarray) -> None:
     path.write_bytes(
         b"\x89PNG\r\n\x1a\n"
         + png_chunk(b"IHDR", header)
-        + png_chunk(b"IDAT", zlib.compress(raw, 9))
+        + png_chunk(b"IDAT", zlib.compress(raw, PNG_COMPRESSION_LEVEL))
         + png_chunk(b"IEND", b"")
     )
 
 
 def tile_noise(size: int, seed: int, octaves: int = 7) -> np.ndarray:
     rng = np.random.default_rng(seed)
-    coords = np.linspace(0.0, math.tau, size, endpoint=False)
-    x, y = np.meshgrid(coords, coords)
-    field = np.zeros((size, size), dtype=np.float64)
-    amplitude = 1.0
-    total = 0.0
+    coords = np.linspace(0.0, math.tau, size, endpoint=False, dtype=np.float32)
+    x = coords.reshape(1, size)
+    y = coords.reshape(size, 1)
+    field = np.zeros((size, size), dtype=np.float32)
+    amplitude = np.float32(1.0)
+    total = np.float32(0.0)
     for _ in range(octaves):
         fx = int(rng.integers(1, 11))
         fy = int(rng.integers(1, 11))
-        phase_a = float(rng.random() * math.tau)
-        phase_b = float(rng.random() * math.tau)
+        phase_a = np.float32(rng.random() * math.tau)
+        phase_b = np.float32(rng.random() * math.tau)
         field += amplitude * np.sin(fx * x + phase_a) * np.cos(fy * y + phase_b)
-        field += amplitude * 0.55 * np.cos((fx + fy) * x - fy * y + phase_a * 0.7)
-        total += amplitude * 1.55
-        amplitude *= 0.55
-    field /= max(total, 0.001)
+        field += amplitude * np.float32(0.55) * np.cos((fx + fy) * x - fy * y + phase_a * np.float32(0.7))
+        total += amplitude * np.float32(1.55)
+        amplitude *= np.float32(0.55)
+    field /= max(float(total), 0.001)
     field = (field - field.min()) / max(float(field.max() - field.min()), 0.001)
-    return field
+    return field.astype(np.float32, copy=False)
 
 
 def ridge_noise(size: int, seed: int) -> np.ndarray:
@@ -193,17 +196,18 @@ def ridge_noise(size: int, seed: int) -> np.ndarray:
 
 
 def style_height(style: str, size: int, seed: int) -> np.ndarray:
-    x = np.linspace(0.0, math.tau, size, endpoint=False)
-    xx, yy = np.meshgrid(x, x)
+    x = np.linspace(0.0, math.tau, size, endpoint=False, dtype=np.float32)
+    xx = x.reshape(1, size)
+    yy = x.reshape(size, 1)
     base = tile_noise(size, seed, 7)
     fine = tile_noise(size, seed + 17, 10)
     ridges = ridge_noise(size, seed + 31)
 
     if style == "asphalt":
-        aggregate = (fine > 0.58).astype(np.float64) * 0.32
+        aggregate = (fine > 0.58).astype(np.float32) * np.float32(0.32)
         return np.clip(base * 0.45 + aggregate + ridges * 0.20, 0.0, 1.0)
     if style == "concrete":
-        hairline = (ridge_noise(size, seed + 7) > 0.955).astype(np.float64) * 0.38
+        hairline = (ridge_noise(size, seed + 7) > 0.955).astype(np.float32) * np.float32(0.38)
         return np.clip(base * 0.45 + fine * 0.22 + hairline, 0.0, 1.0)
     if style == "grass":
         blades = (np.sin(xx * 34.0 + tile_noise(size, seed + 2, 3) * 4.0) + 1.0) * 0.16
@@ -219,7 +223,7 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
         weave = (np.sin(xx * 52.0) * np.sin(yy * 52.0)) * 0.12 + 0.5
         return np.clip(weave + fine * 0.30, 0.0, 1.0)
     if style == "leather":
-        pores = (fine > 0.72).astype(np.float64) * 0.28
+        pores = (fine > 0.72).astype(np.float32) * np.float32(0.28)
         return np.clip(base * 0.50 + ridges * 0.20 + pores, 0.0, 1.0)
     if style == "brushed_metal":
         brush = (np.sin(xx * 60.0 + fine * 2.0) + 1.0) * 0.12
@@ -227,27 +231,27 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
     if style == "painted_metal":
         return np.clip(base * 0.28 + fine * 0.18, 0.0, 1.0)
     if style == "worn_paint":
-        wear = (ridges > 0.82).astype(np.float64) * 0.42
+        wear = (ridges > 0.82).astype(np.float32) * np.float32(0.42)
         return np.clip(base * 0.22 + fine * 0.18 + wear, 0.0, 1.0)
     if style == "glass":
         return np.clip(base * 0.08 + fine * 0.05, 0.0, 1.0)
     if style == "marble":
         veins = np.sin(xx * 4.0 + yy * 3.0 + tile_noise(size, seed + 9, 5) * 8.0)
         veins = np.clip((veins + 1.0) * 0.5, 0.0, 1.0)
-        return np.clip(base * 0.35 + (veins > 0.88).astype(np.float64) * 0.35, 0.0, 1.0)
+        return np.clip(base * 0.35 + (veins > 0.88).astype(np.float32) * np.float32(0.35), 0.0, 1.0)
     if style == "pavers":
-        grid_x = (np.abs(np.sin(xx * 8.0)) < 0.045).astype(np.float64)
-        grid_y = (np.abs(np.sin(yy * 8.0)) < 0.045).astype(np.float64)
+        grid_x = (np.abs(np.sin(xx * 8.0)) < 0.045).astype(np.float32)
+        grid_y = (np.abs(np.sin(yy * 8.0)) < 0.045).astype(np.float32)
         return np.clip(base * 0.30 + fine * 0.18 + (grid_x + grid_y) * 0.28, 0.0, 1.0)
     if style == "worn_stone":
-        chips = (fine > 0.80).astype(np.float64) * 0.30
+        chips = (fine > 0.80).astype(np.float32) * np.float32(0.30)
         return np.clip(base * 0.45 + ridges * 0.20 + chips, 0.0, 1.0)
     if style == "canvas":
         weave = (np.sin(xx * 70.0) + np.sin(yy * 74.0)) * 0.08 + 0.5
         brush = ridge_noise(size, seed + 12) * 0.24
         return np.clip(weave + brush + fine * 0.24, 0.0, 1.0)
     # stone
-    flecks = (fine > 0.86).astype(np.float64) * 0.18
+    flecks = (fine > 0.86).astype(np.float32) * np.float32(0.18)
     return np.clip(base * 0.38 + ridges * 0.16 + flecks, 0.0, 1.0)
 
 
@@ -263,7 +267,7 @@ def normal_from_height(height: np.ndarray, strength: float) -> np.ndarray:
 
 
 def color_map(base_color: list[float], height: np.ndarray, style: str, seed: int) -> np.ndarray:
-    base = np.array(base_color, dtype=np.float64).reshape(1, 1, 3)
+    base = np.array(base_color, dtype=np.float32).reshape(1, 1, 3)
     variation = (height - 0.5)[:, :, None]
     tint_noise = tile_noise(height.shape[0], seed + 101, 5)[:, :, None] - 0.5
     color = base * (1.0 + variation * 0.24 + tint_noise * 0.10)
@@ -271,12 +275,12 @@ def color_map(base_color: list[float], height: np.ndarray, style: str, seed: int
     if style in {"asphalt", "leather", "brushed_metal"}:
         color *= 0.92 + variation * 0.18
     elif style in {"grass"}:
-        yellow = np.array([0.08, 0.07, -0.04]).reshape(1, 1, 3)
+        yellow = np.array([0.08, 0.07, -0.04], dtype=np.float32).reshape(1, 1, 3)
         color += yellow * np.clip(tint_noise + 0.4, 0.0, 1.0)
     elif style in {"wood"}:
-        color += np.array([0.05, 0.018, -0.012]).reshape(1, 1, 3) * np.sin(height[:, :, None] * math.tau * 2.0)
+        color += np.array([0.05, 0.018, -0.012], dtype=np.float32).reshape(1, 1, 3) * np.sin(height[:, :, None] * math.tau * 2.0)
     elif style in {"marble"}:
-        color += np.array([0.05, 0.045, 0.02]).reshape(1, 1, 3) * np.clip(height[:, :, None] - 0.62, 0.0, 1.0)
+        color += np.array([0.05, 0.045, 0.02], dtype=np.float32).reshape(1, 1, 3) * np.clip(height[:, :, None] - 0.62, 0.0, 1.0)
 
     return (np.clip(color, 0.0, 1.0) * 255.0).astype(np.uint8)
 
@@ -329,6 +333,8 @@ def main() -> None:
     manifest = {
         "package": "capitol_unreal_map",
         "texture_root": "generated/textures",
+        "target_size_px": [SIZE, SIZE],
+        "png_compression_level": PNG_COMPRESSION_LEVEL,
         "sets": sets,
         "materials": MATERIAL_TEXTURE_BINDINGS,
     }

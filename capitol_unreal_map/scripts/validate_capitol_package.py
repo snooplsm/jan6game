@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import struct
 import sys
 from pathlib import Path
 from typing import Any
@@ -23,6 +25,7 @@ MTL_PATH = MESH_DIR / "capitol_materials.mtl"
 REPORT_PATH = DATA_DIR / "capitol_package_validation.json"
 MATERIAL_MANIFEST_PATH = ROOT / "unreal" / "material_realism_manifest.json"
 TEXTURE_MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
+MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 
 EXPECTED_MESHES = {
     "generated/meshes/capitol_exterior_buildings.obj",
@@ -150,6 +153,17 @@ def parse_floatish(values: list[str]) -> list[float] | None:
     if not all(math.isfinite(value) for value in parsed):
         return None
     return parsed
+
+
+def png_dimensions(path: Path) -> tuple[int, int] | None:
+    try:
+        header = path.read_bytes()[:24]
+    except OSError:
+        return None
+    if len(header) < 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+        return None
+    width, height = struct.unpack(">II", header[16:24])
+    return int(width), int(height)
 
 
 def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, Any]:
@@ -522,7 +536,13 @@ def validate_material_manifest(materials: set[str], errors: list[str]) -> dict[s
 
 
 def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[str, Any]:
-    summary = {"texture_sets": 0, "texture_material_bindings": 0, "texture_files": 0}
+    summary = {
+        "texture_sets": 0,
+        "texture_material_bindings": 0,
+        "texture_files": 0,
+        "min_texture_size_px": None,
+        "expected_min_texture_size_px": MIN_TEXTURE_SIZE_PX,
+    }
     if not TEXTURE_MANIFEST_PATH.exists():
         error(errors, f"missing material texture manifest: {TEXTURE_MANIFEST_PATH}")
         return summary
@@ -538,6 +558,14 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     if unknown_texture_sets:
         error(errors, f"texture manifest bindings reference unknown texture sets: {', '.join(unknown_texture_sets)}")
     for set_name, spec in sets.items():
+        declared_size = spec.get("size_px")
+        if not (
+            isinstance(declared_size, list)
+            and len(declared_size) == 2
+            and all(isinstance(item, int) for item in declared_size)
+        ):
+            error(errors, f"texture set {set_name} has invalid size_px")
+            declared_size = None
         for key in ("basecolor", "normal", "roughness"):
             rel = spec.get(key)
             if not rel:
@@ -548,6 +576,21 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
                 error(errors, f"texture file missing: {rel}")
             elif path.stat().st_size < 256:
                 error(errors, f"texture file too small: {rel}")
+            else:
+                dimensions = png_dimensions(path)
+                if dimensions is None:
+                    error(errors, f"texture file is not a valid PNG: {rel}")
+                else:
+                    width, height = dimensions
+                    current_min = min(width, height)
+                    if summary["min_texture_size_px"] is None:
+                        summary["min_texture_size_px"] = current_min
+                    else:
+                        summary["min_texture_size_px"] = min(int(summary["min_texture_size_px"]), current_min)
+                    if declared_size and [width, height] != declared_size:
+                        error(errors, f"texture file {rel} is {width}x{height}, manifest declares {declared_size[0]}x{declared_size[1]}")
+                    if width < MIN_TEXTURE_SIZE_PX or height < MIN_TEXTURE_SIZE_PX:
+                        error(errors, f"texture file {rel} is below {MIN_TEXTURE_SIZE_PX}px production size: {width}x{height}")
             summary["texture_files"] += 1
     if summary["texture_sets"] < 35:
         error(errors, f"expected at least 35 generated texture sets, got {summary['texture_sets']}")
