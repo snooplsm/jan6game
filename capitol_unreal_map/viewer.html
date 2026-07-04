@@ -187,6 +187,7 @@
       <button id="presetHouse">House</button>
       <button id="presetSenate">Senate</button>
       <button id="presetJoint">Joint Session</button>
+      <button id="presetGameplay">Gameplay Items</button>
     </div>
 
     <div class="row">
@@ -344,6 +345,7 @@
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
+    document.getElementById("presetGameplay").onclick = () => focusGameplayItems();
 
     document.getElementById("labelSearch").addEventListener("input", (event) => {
       state.labelQuery = event.target.value.trim().toLowerCase();
@@ -640,6 +642,28 @@
       ]);
       const distance = closeInterior.has(label.category) ? 22000 : 62000;
       setCamera(0.58, 0.68, distance, target);
+    }
+
+    function focusGameplayItems() {
+      setMeshVisible("capitol_gameplay_items", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "gameplay_item";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "gameplay_item";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.28, 0.58, 19000, [-12400, -12200, 520]);
+      statusEl.textContent = "Focused gameplay item preview lane.";
+    }
+
+    function setMeshVisible(meshId, visible) {
+      const mesh = state.meshes.find((item) => item.id === meshId);
+      if (mesh) mesh.visible = visible;
+      const input = document.querySelector(`[data-mesh="${meshId}"]`);
+      if (input) input.checked = visible;
     }
 
     function onPointerDown(event) {

@@ -123,7 +123,7 @@ The viewer can toggle:
 - gameplay item props
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, and joint-session House Chamber views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, office zones, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, office zones, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
