@@ -102,6 +102,17 @@ REQUIRED_FLAGPOLE_BANNERS = {
     "maga_blue",
 }
 
+REQUIRED_FACADE_DETAIL_KINDS = {
+    "facade_window",
+    "facade_window_surround",
+    "facade_dentil_course",
+    "roof_balustrade",
+    "dome_balustrade_posts",
+    "lantern_window",
+    "dome_finial",
+    "pediment_relief_panel",
+}
+
 
 def error(errors: list[str], message: str) -> None:
     errors.append(message)
@@ -346,16 +357,27 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     landmark = metadata.get("landmark", {})
     elements = landmark.get("elements", [])
     facade_details = landmark.get("facade_details", [])
+    facade_detail_kinds = {detail.get("kind") for detail in facade_details}
     summary["landmark_elements"] = len(elements)
     summary["facade_details"] = len(facade_details)
+    summary["facade_detail_kinds"] = len(facade_detail_kinds)
     revolving = [item for item in elements if "revolving door" in item.get("name", "").lower()]
     summary["revolving_door_visuals"] = len(revolving)
     if len(elements) < 18:
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 230:
-        error(errors, f"expected at least 230 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 600:
+        error(errors, f"expected at least 600 public facade/furniture visual details, got {len(facade_details)}")
+    missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
+    if missing_facade_kinds:
+        error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_window_surround"]) < 240:
+        error(errors, "expected at least 240 facade window surround records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_dentil_course"]) < 8:
+        error(errors, "expected at least 8 facade dentil course records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
+        error(errors, "expected at least 6 public roof balustrade records")
     for detail in facade_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"facade detail {detail.get('name', '<unknown>')} has invalid center_m")
