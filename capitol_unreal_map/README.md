@@ -28,7 +28,9 @@ It contains:
 - `generated/meshes/capitol_materials.mtl`
 - `generated/data/capitol_scene_metadata.json`
 - `generated/data/capitol_package_validation.json`
+- `generated/data/material_texture_manifest.json`
 - `generated/data/unreal_import_report.json` after the Unreal import script is run
+- `generated/textures/*_{basecolor,normal,roughness}.png`
 - `unreal/material_realism_manifest.json`
 - `unreal/import_capitol_map.py`
 - `viewer.html`
@@ -38,6 +40,7 @@ It contains:
 From the repository root:
 
 ```bash
+python3 capitol_unreal_map/scripts/generate_material_textures.py
 python3 capitol_unreal_map/scripts/build_capitol_unreal_map.py
 ```
 
@@ -53,6 +56,7 @@ The validator checks that:
 - OBJ face indices are valid
 - OBJ material references exist in `capitol_materials.mtl`
 - every generated MTL material has a valid Unreal realism-material manifest entry
+- every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, and generated viewpoints are present
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
@@ -109,18 +113,21 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 3. Run `capitol_unreal_map/unreal/import_capitol_map.py` from Unreal Editor with `Tools > Execute Python Script...`.
 4. The script creates or opens `/Game/CapitolMap/Maps/CapitolMap_Level`.
 5. The script imports meshes into `/Game/CapitolMap/Generated`.
-6. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json` and applies them to matching imported material slots.
-7. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors, lights, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
-8. The script saves the current level when the Unreal editor API allows it.
-9. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, and metadata counts.
+6. The script imports generated texture PNGs into `/Game/CapitolMap/Textures`.
+7. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json`, wires generated basecolor/normal/roughness texture samples from `generated/data/material_texture_manifest.json`, and applies those materials to matching imported material slots.
+8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors, lights, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
+9. The script saves the current level when the Unreal editor API allows it.
+10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, and metadata counts.
 
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
 
 ## Realism Pass
 
-The current realism pass is material-first. `unreal/material_realism_manifest.json` defines base color, roughness, metallic, specular, and opacity values for all generated MTL materials. The Unreal import script uses that manifest to create `M_*` materials under `/Game/CapitolMap/Materials` and assigns them to imported static mesh material slots when the slot names match the original MTL names.
+The current realism pass uses deterministic procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable basecolor, normal, and roughness PNGs under `generated/textures/` and writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
 
-This is not a texture pass yet. The next visual-fidelity step is to add real PBR texture maps and modular meshes for Capitol facade details, chamber furniture, street signs, traffic lights, trees, lamps, and other public streetscape props.
+The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names.
+
+The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add modular meshes for Capitol facade details, chamber furniture, street signs, traffic lights, trees, lamps, and other public streetscape props.
 
 Generated camera viewpoints:
 

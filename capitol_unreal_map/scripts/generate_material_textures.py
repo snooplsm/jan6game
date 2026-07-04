@@ -9,6 +9,7 @@ roughness PNGs plus a manifest consumed by the Unreal import script.
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 import struct
 import zlib
@@ -268,7 +269,7 @@ def roughness_map(base_roughness: float, height: np.ndarray, style: str) -> np.n
 
 
 def generate_set(name: str, spec: dict[str, Any]) -> dict[str, str]:
-    seed = abs(hash(name)) % 1_000_000
+    seed = int.from_bytes(hashlib.sha256(name.encode("utf-8")).digest()[:8], "big") % 1_000_000
     style = str(spec["style"])
     height = style_height(style, SIZE, seed)
     basecolor = color_map(spec["base"], height, style, seed)

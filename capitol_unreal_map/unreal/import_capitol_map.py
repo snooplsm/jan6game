@@ -23,8 +23,10 @@ MESH_DIR = PACKAGE_ROOT / "generated" / "meshes"
 METADATA_PATH = PACKAGE_ROOT / "generated" / "data" / "capitol_scene_metadata.json"
 UNREAL_IMPORT_REPORT_PATH = PACKAGE_ROOT / "generated" / "data" / "unreal_import_report.json"
 MATERIAL_MANIFEST_PATH = PACKAGE_ROOT / "unreal" / "material_realism_manifest.json"
+TEXTURE_MANIFEST_PATH = PACKAGE_ROOT / "generated" / "data" / "material_texture_manifest.json"
 DESTINATION_PATH = "/Game/CapitolMap/Generated"
 MATERIAL_DESTINATION_PATH = "/Game/CapitolMap/Materials"
+TEXTURE_DESTINATION_PATH = "/Game/CapitolMap/Textures"
 MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
 
@@ -115,8 +117,14 @@ def load_material_manifest() -> dict[str, Any]:
     return json.loads(MATERIAL_MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
+def load_texture_manifest() -> dict[str, Any]:
+    if not TEXTURE_MANIFEST_PATH.exists():
+        return {}
+    return json.loads(TEXTURE_MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
 def ensure_content_dirs() -> None:
-    for path in ["/Game/CapitolMap", DESTINATION_PATH, MATERIAL_DESTINATION_PATH, MAP_DESTINATION_PATH]:
+    for path in ["/Game/CapitolMap", DESTINATION_PATH, MATERIAL_DESTINATION_PATH, TEXTURE_DESTINATION_PATH, MAP_DESTINATION_PATH]:
         try:
             unreal.EditorAssetLibrary.make_directory(path)
         except Exception as exc:
@@ -198,6 +206,85 @@ def import_meshes() -> list[str]:
     return imported
 
 
+def texture_asset_name(rel_path: str) -> str:
+    safe = "".join(ch if ch.isalnum() else "_" for ch in Path(rel_path).stem).strip("_")
+    return f"T_{safe or 'CapitolTexture'}"
+
+
+def texture_asset_path(rel_path: str) -> str:
+    return f"{TEXTURE_DESTINATION_PATH}/{texture_asset_name(rel_path)}"
+
+
+def configure_texture_asset(asset_path: str, texture_kind: str) -> None:
+    texture = unreal.EditorAssetLibrary.load_asset(asset_path)
+    if not texture:
+        return
+
+    set_property(texture, "srgb", texture_kind == "basecolor")
+    if texture_kind == "normal" and hasattr(unreal, "TextureCompressionSettings"):
+        setting = getattr(unreal.TextureCompressionSettings, "TC_NORMALMAP", None)
+        if setting is not None:
+            set_property(texture, "compression_settings", setting)
+    elif texture_kind == "roughness" and hasattr(unreal, "TextureCompressionSettings"):
+        setting = getattr(unreal.TextureCompressionSettings, "TC_GRAYSCALE", None)
+        if setting is not None:
+            set_property(texture, "compression_settings", setting)
+
+    try:
+        unreal.EditorAssetLibrary.save_asset(asset_path, only_if_is_dirty=False)
+    except Exception:
+        pass
+
+
+def import_texture_assets() -> tuple[dict[str, dict[str, str]], dict[str, str]]:
+    manifest = load_texture_manifest()
+    sets = manifest.get("sets", {})
+    material_bindings = manifest.get("materials", {})
+    if not sets:
+        log("Texture manifest missing or empty; materials will use scalar/color fallback")
+        return {}, material_bindings
+
+    ensure_content_dirs()
+    tasks = []
+    for texture_set in sets.values():
+        for texture_kind in ("basecolor", "normal", "roughness"):
+            rel_path = texture_set.get(texture_kind)
+            if not rel_path:
+                continue
+            source_path = PACKAGE_ROOT / rel_path
+            if not source_path.exists():
+                log(f"WARNING: texture source missing: {source_path}")
+                continue
+            task = unreal.AssetImportTask()
+            task.filename = str(source_path)
+            task.destination_path = TEXTURE_DESTINATION_PATH
+            task.destination_name = texture_asset_name(rel_path)
+            task.automated = True
+            task.replace_existing = True
+            task.save = True
+            tasks.append(task)
+
+    if tasks:
+        unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
+
+    imported: dict[str, dict[str, str]] = {}
+    for set_name, texture_set in sets.items():
+        imported[set_name] = {}
+        for texture_kind in ("basecolor", "normal", "roughness"):
+            rel_path = texture_set.get(texture_kind)
+            if not rel_path:
+                continue
+            asset_path = texture_asset_path(rel_path)
+            if unreal.EditorAssetLibrary.does_asset_exist(asset_path):
+                configure_texture_asset(asset_path, texture_kind)
+                imported[set_name][texture_kind] = asset_path
+            else:
+                log(f"WARNING: expected texture asset missing: {asset_path}")
+
+    log(f"Imported/configured {sum(len(value) for value in imported.values())} texture assets")
+    return imported, material_bindings
+
+
 def configure_static_mesh(asset_path: str) -> None:
     asset = unreal.EditorAssetLibrary.load_asset(asset_path)
     if not asset:
@@ -240,6 +327,32 @@ def create_material_constant(material: Any, expression_class: Any, value: Any, x
         expression = unreal.MaterialEditingLibrary.create_material_expression(material, expression_class, x, y)
         if expression is not None:
             set_property(expression, "constant", value)
+            set_property(expression, "default_value", value)
+        return expression
+    except Exception:
+        return None
+
+
+def create_texture_sample(material: Any, texture_asset_path: str, x: int, y: int, sampler_type_name: str | None = None) -> Any | None:
+    if not hasattr(unreal, "MaterialEditingLibrary") or not hasattr(unreal, "MaterialExpressionTextureSample"):
+        return None
+    texture = unreal.EditorAssetLibrary.load_asset(texture_asset_path)
+    if not texture:
+        return None
+    try:
+        expression = unreal.MaterialEditingLibrary.create_material_expression(
+            material,
+            unreal.MaterialExpressionTextureSample,
+            x,
+            y,
+        )
+        if expression is None:
+            return None
+        set_property(expression, "texture", texture)
+        if sampler_type_name and hasattr(unreal, "MaterialSamplerType"):
+            sampler_type = getattr(unreal.MaterialSamplerType, sampler_type_name, None)
+            if sampler_type is not None:
+                set_property(expression, "sampler_type", sampler_type)
         return expression
     except Exception:
         return None
@@ -257,13 +370,35 @@ def connect_material_property(expression: Any, output_name: str, property_name: 
         pass
 
 
-def configure_unreal_material(material: Any, spec: dict[str, Any]) -> None:
+def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: dict[str, str] | None = None) -> None:
     color = spec.get("base_color", [0.72, 0.72, 0.72])
     roughness = float(spec.get("roughness", 0.75))
     metallic = float(spec.get("metallic", 0.0))
     specular = float(spec.get("specular", 0.3))
+    texture_set = texture_set or {}
 
-    if hasattr(unreal, "MaterialExpressionConstant3Vector"):
+    if hasattr(unreal, "MaterialEditingLibrary"):
+        try:
+            unreal.MaterialEditingLibrary.delete_all_material_expressions(material)
+        except Exception:
+            pass
+
+    basecolor_sample = create_texture_sample(material, texture_set.get("basecolor", ""), -760, -160) if texture_set.get("basecolor") else None
+    normal_sample = (
+        create_texture_sample(material, texture_set.get("normal", ""), -760, 60, "SAMPLERTYPE_NORMAL")
+        if texture_set.get("normal")
+        else None
+    )
+    roughness_sample = create_texture_sample(material, texture_set.get("roughness", ""), -760, 260) if texture_set.get("roughness") else None
+
+    if basecolor_sample is not None:
+        connect_material_property(basecolor_sample, "RGB", "MP_BASE_COLOR")
+    if normal_sample is not None:
+        connect_material_property(normal_sample, "RGB", "MP_NORMAL")
+    if roughness_sample is not None:
+        connect_material_property(roughness_sample, "R", "MP_ROUGHNESS")
+
+    if basecolor_sample is None and hasattr(unreal, "MaterialExpressionConstant3Vector"):
         color_expr = create_material_constant(
             material,
             unreal.MaterialExpressionConstant3Vector,
@@ -276,10 +411,11 @@ def configure_unreal_material(material: Any, spec: dict[str, Any]) -> None:
     if hasattr(unreal, "MaterialExpressionScalarParameter"):
         # Parameters make the generated material easier to tune by hand later.
         settings = [
-            ("Roughness", roughness, "MP_ROUGHNESS", -260, -40),
             ("Metallic", metallic, "MP_METALLIC", -260, 80),
             ("Specular", specular, "MP_SPECULAR", -260, 200),
         ]
+        if roughness_sample is None:
+            settings.insert(0, ("Roughness", roughness, "MP_ROUGHNESS", -260, -40))
         for parameter_name, value, property_name, x, y in settings:
             expr = create_material_constant(material, unreal.MaterialExpressionScalarParameter, value, x, y)
             if expr is not None:
@@ -287,10 +423,11 @@ def configure_unreal_material(material: Any, spec: dict[str, Any]) -> None:
             connect_material_property(expr, "", property_name)
     elif hasattr(unreal, "MaterialExpressionConstant"):
         settings = [
-            (roughness, "MP_ROUGHNESS", -260, -40),
             (metallic, "MP_METALLIC", -260, 80),
             (specular, "MP_SPECULAR", -260, 200),
         ]
+        if roughness_sample is None:
+            settings.insert(0, (roughness, "MP_ROUGHNESS", -260, -40))
         for value, property_name, x, y in settings:
             expr = create_material_constant(material, unreal.MaterialExpressionConstant, value, x, y)
             connect_material_property(expr, "", property_name)
@@ -310,7 +447,7 @@ def configure_unreal_material(material: Any, spec: dict[str, Any]) -> None:
             pass
 
 
-def create_or_update_materials() -> dict[str, str]:
+def create_or_update_materials(texture_assets: dict[str, dict[str, str]], material_texture_bindings: dict[str, str]) -> dict[str, str]:
     manifest = load_material_manifest()
     if not manifest:
         log("Material realism manifest missing or empty; using imported OBJ materials")
@@ -334,7 +471,8 @@ def create_or_update_materials() -> dict[str, str]:
                 log(f"Could not create material {material_name}: {exc}")
                 continue
         if material:
-            configure_unreal_material(material, spec)
+            texture_set_name = material_texture_bindings.get(material_name, "")
+            configure_unreal_material(material, spec, texture_assets.get(texture_set_name))
             try:
                 unreal.EditorAssetLibrary.save_asset(asset_path, only_if_is_dirty=False)
             except Exception:
@@ -649,7 +787,11 @@ def save_generated_level() -> None:
         log(f"Could not save generated level automatically: {exc}")
 
 
-def write_unreal_import_report(imported: list[str], material_assets: dict[str, str]) -> None:
+def write_unreal_import_report(
+    imported: list[str],
+    material_assets: dict[str, str],
+    texture_assets: dict[str, dict[str, str]],
+) -> None:
     try:
         data = load_metadata()
         report = {
@@ -659,8 +801,11 @@ def write_unreal_import_report(imported: list[str], material_assets: dict[str, s
             "material_destination": MATERIAL_DESTINATION_PATH,
             "imported_assets": imported,
             "material_assets": material_assets,
+            "texture_assets": texture_assets,
             "mesh_count": len(imported),
             "material_count": len(material_assets),
+            "texture_set_count": len(texture_assets),
+            "texture_asset_count": sum(len(value) for value in texture_assets.values()),
             "metadata_counts": {
                 "buildings": len(data.get("exterior", {}).get("buildings", [])),
                 "roads": len(data.get("exterior", {}).get("roads", [])),
@@ -687,12 +832,13 @@ def main() -> None:
     prepare_level()
     clear_generated_level_actors()
     imported = import_meshes()
-    material_assets = create_or_update_materials()
+    texture_assets, material_texture_bindings = import_texture_assets()
+    material_assets = create_or_update_materials(texture_assets, material_texture_bindings)
     spawn_mesh_actors(imported, material_assets)
     spawn_scene_setup()
     spawn_metadata_labels()
     save_generated_level()
-    write_unreal_import_report(imported, material_assets)
+    write_unreal_import_report(imported, material_assets, texture_assets)
     log(f"Done. Check {MAP_ASSET_PATH} and the CapitolMap folders in the World Outliner.")
 
 
