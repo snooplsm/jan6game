@@ -35,6 +35,8 @@
     "chamber_detail_kinds": 14,
     "circulation_details": 35,
     "circulation_detail_kinds": 5,
+    "signage_details": 53,
+    "signage_detail_kinds": 6,
     "rotunda_details": 79,
     "rotunda_detail_kinds": 9,
     "ceiling_details": 283,
@@ -68,8 +70,8 @@
     "destination_paths": 4,
     "required_functions": 16,
     "required_calls": 16,
-    "report_keys": 73,
-    "label_categories": 16,
+    "report_keys": 74,
+    "label_categories": 17,
     "outliner_folders": 9,
     "first_person_markers": 15,
     "environment_markers": 24,
@@ -92,7 +94,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 50,
+    "required_markers": 58,
     "missing": []
   },
   "meshes": [
@@ -220,12 +222,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 42589,
-      "uvs": 127676,
-      "faces": 29833,
-      "faces_with_uvs": 29833,
-      "triangles": 68010,
-      "groups": 4084,
+      "vertices": 44677,
+      "uvs": 133940,
+      "faces": 31275,
+      "faces_with_uvs": 31275,
+      "triangles": 71390,
+      "groups": 4283,
       "materials": [
         "ArtFrameGold",
         "BrassRail",
@@ -244,6 +246,7 @@
         "InteriorWall",
         "ItemCloth",
         "JointSessionZone",
+        "LaneMarkingWhite",
         "LightFixtureMetal",
         "MarkerBlue",
         "OfficeZone",
@@ -260,6 +263,7 @@
         "StatueBronze",
         "StatueMarble",
         "StepStone",
+        "StreetSignGreen",
         "SupremeCourtZone",
         "WarmLightGlass"
       ],

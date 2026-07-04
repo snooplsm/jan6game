@@ -203,6 +203,7 @@
       <a class="quick-link" id="quickGroundsDetails" href="#grounds-details">Grounds Details</a>
       <a class="quick-link" id="quickFacadeDetails" href="#facade-details">Facade Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
+      <a class="quick-link" id="quickSignageDetails" href="#signage-details">Signage</a>
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
       <a class="quick-link" id="quickGameplayItems" href="#gameplay-items">Gameplay Items</a>
@@ -221,6 +222,7 @@
       <button id="presetSenate">Senate</button>
       <button id="presetJoint">Joint Session</button>
       <button id="presetOffices">Offices</button>
+      <button id="presetSignageDetails">Signage</button>
       <button id="presetFloorDetails">Floor Details</button>
       <button id="presetCeilingDetails">Ceiling Details</button>
       <button id="presetGameplay">Gameplay Items</button>
@@ -242,6 +244,7 @@
         <option value="visitor_gallery">Galleries</option>
         <option value="generic_office_zone">Office zones</option>
         <option value="office_detail">Office details</option>
+        <option value="signage_detail">Signage details</option>
         <option value="floor_detail">Floor details</option>
         <option value="ceiling_detail">Ceiling details</option>
         <option value="gameplay_item">Gameplay items</option>
@@ -309,7 +312,7 @@
       }
     ];
 
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "office_detail", "floor_detail", "ceiling_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "office_detail", "signage_detail", "floor_detail", "ceiling_detail"]);
 
     const state = {
       meshes: [],
@@ -394,6 +397,7 @@
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
+    document.getElementById("presetSignageDetails").onclick = () => focusSignageDetailsRoute();
     document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
     document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
@@ -411,6 +415,11 @@
     document.getElementById("quickOffices").addEventListener("click", (event) => {
       event.preventDefault();
       focusOfficesRoute();
+    });
+
+    document.getElementById("quickSignageDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusSignageDetailsRoute();
     });
 
     document.getElementById("quickFloorDetails").addEventListener("click", (event) => {
@@ -597,6 +606,16 @@
           text: humanizeId(detail.name || detail.kind || "office_detail"),
           location: detail.center_m,
           category: "office_detail"
+        });
+      }
+      for (const detail of metadata.interior?.signage_details || []) {
+        const labelText = detail.message
+          ? detail.message
+          : humanizeId(detail.name || detail.kind || "signage_detail");
+        labels.push({
+          text: labelText,
+          location: detail.center_m,
+          category: "signage_detail"
         });
       }
       for (const detail of metadata.interior?.floor_details || []) {
@@ -848,6 +867,28 @@
       focusOffices();
     }
 
+    function focusSignageDetails() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "signage_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "signage_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.58, 0.69, 35000, [0, 0, 760]);
+      statusEl.textContent = "Focused public wayfinding signage and map kiosks.";
+    }
+
+    function focusSignageDetailsRoute() {
+      if (window.location.hash !== "#signage-details") {
+        history.pushState(null, "", "#signage-details");
+      }
+      focusSignageDetails();
+    }
+
     function focusFloorDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
       state.labelsVisible = true;
@@ -926,6 +967,10 @@
       }
       if (route === "offices" || route === "office-details") {
         focusOffices();
+        return;
+      }
+      if (route === "signage-details" || route === "signage") {
+        focusSignageDetails();
         return;
       }
       if (route === "floor-details" || route === "floor-finishes") {

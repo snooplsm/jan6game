@@ -3286,6 +3286,173 @@ def add_public_circulation_details(
     add_label(labels, "Public circulation thresholds, portals, and orientation signs - schematic", -17.0, 0.0, 7.3, "public_circulation_detail")
 
 
+def add_public_signage_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    area: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+    message: str | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "area": area,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_wayfinding_signage_visual_detail",
+        "assignment": (
+            "Public visual wayfinding/signage detail only; not a restricted route, "
+            "security feature, staff location, office assignment, or operational access map."
+        ),
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    if message is not None:
+        record["message"] = message
+    records.append(record)
+
+
+def add_public_interior_signage_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    sign_z = 5.34
+    label_z = 6.18
+
+    def sign_size(width: float, thickness: float, orientation: str) -> tuple[float, float]:
+        if orientation == "north_south":
+            return (thickness, width)
+        return (width, thickness)
+
+    def wall_sign(
+        name: str,
+        kind: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+        message: str,
+        material: str = "MarkerBlue",
+    ) -> None:
+        size = sign_size(width, 0.10, orientation)
+        obj.add_box(center, size, 0.42, sign_z, f"{name}_panel", material)
+        obj.add_box(center, sign_size(width * 0.88, 0.035, orientation), 0.045, sign_z + 0.32, f"{name}_letter_bar_primary", "LaneMarkingWhite")
+        obj.add_box(center, sign_size(width * 0.52, 0.030, orientation), 0.045, sign_z + 0.17, f"{name}_letter_bar_secondary", "LaneMarkingWhite")
+        add_public_signage_detail_record(records, name, kind, area, (center[0], center[1], sign_z + 0.21), size, message)
+        add_label(labels, message, center[0], center[1], label_z, "signage_detail")
+
+    def standing_sign(
+        name: str,
+        kind: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+        message: str,
+        material: str = "StreetSignGreen",
+    ) -> None:
+        x, y = center
+        size = sign_size(width, 0.12, orientation)
+        obj.add_cylinder((x, y), 0.052, 4.50, 1.36, f"{name}_post", "BrassRail", segments=8)
+        obj.add_cylinder((x, y), 0.20, 4.43, 0.08, f"{name}_base", "DoorMetal", segments=12)
+        obj.add_box(center, size, 0.48, 5.58, f"{name}_blade", material)
+        obj.add_box(center, sign_size(width * 0.82, 0.035, orientation), 0.050, 5.93, f"{name}_arrow_bar", "LaneMarkingWhite")
+        obj.add_box(center, sign_size(width * 0.46, 0.030, orientation), 0.050, 5.75, f"{name}_caption_bar", "LaneMarkingWhite")
+        add_public_signage_detail_record(records, name, kind, area, (x, y, 5.82), size, message)
+        add_label(labels, message, x, y, 6.55, "signage_detail")
+
+    def map_kiosk(name: str, area: str, center: tuple[float, float], message: str) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.32, 4.45, 0.10, f"{name}_round_base", "DoorMetal", segments=18)
+        obj.add_box((x, y), (0.72, 0.22), 1.34, 4.55, f"{name}_support", "BrassRail")
+        obj.add_box((x, y), (1.55, 0.22), 1.12, 5.18, f"{name}_map_panel", "MarkerBlue")
+        obj.add_box((x, y - 0.03), (1.26, 0.055), 0.62, 5.42, f"{name}_map_graphic_field", "LaneMarkingWhite")
+        obj.add_box((x, y - 0.07), (0.92, 0.065), 0.08, 5.98, f"{name}_header_bar", "ArtFrameGold")
+        add_public_signage_detail_record(records, name, "public_map_kiosk", area, (x, y, 5.74), (1.55, 0.22), message)
+        add_label(labels, message, x, y, 6.65, "signage_detail")
+
+    for name, area, center, width, orientation, message in [
+        ("room_id_rotunda_west", "Rotunda", (-13.2, -0.7), 1.85, "east_west", "Rotunda room identification"),
+        ("room_id_rotunda_east", "Rotunda", (13.2, 0.7), 1.85, "east_west", "Rotunda room identification"),
+        ("room_id_statuary_hall", "National Statuary Hall", (16.8, -27.2), 2.05, "east_west", "National Statuary Hall identification"),
+        ("room_id_old_senate", "Old Senate Chamber", (16.8, 27.2), 1.95, "east_west", "Old Senate Chamber identification"),
+        ("room_id_crypt_marker", "Crypt below Rotunda marker", (-9.5, -23.6), 1.92, "east_west", "Crypt marker identification"),
+        ("room_id_house_chamber", "House Chamber", (-9.8, -52.8), 2.18, "east_west", "House Chamber identification"),
+        ("room_id_senate_chamber", "Senate Chamber", (9.8, 52.8), 2.12, "east_west", "Senate Chamber identification"),
+        ("room_id_house_gallery", "House galleries", (-16.5, -91.8), 2.22, "east_west", "House public gallery identification"),
+        ("room_id_senate_gallery", "Senate galleries", (16.5, 89.8), 2.16, "east_west", "Senate public gallery identification"),
+    ]:
+        wall_sign(name, "public_room_identification_sign", area, center, width, orientation, message)
+
+    for name, area, center, width, orientation, message in [
+        ("dir_west_rotunda_axis", "West terrace public orientation marker", (-45.0, -3.8), 2.20, "east_west", "Public wayfinding toward Rotunda"),
+        ("dir_east_rotunda_axis", "East public approach / visitor circulation", (45.0, 3.8), 2.20, "east_west", "Public wayfinding toward Rotunda"),
+        ("dir_rotunda_house", "Rotunda to House Chamber public orientation", (-4.8, -15.6), 2.02, "east_west", "Public wayfinding toward House Chamber"),
+        ("dir_rotunda_senate", "Rotunda to Senate Chamber public orientation", (4.8, 15.6), 2.02, "east_west", "Public wayfinding toward Senate Chamber"),
+        ("dir_rotunda_statuary", "Rotunda to National Statuary Hall", (10.8, -11.0), 1.88, "east_west", "Public wayfinding toward Statuary Hall"),
+        ("dir_rotunda_old_senate", "Rotunda to Old Senate Chamber", (10.8, 11.0), 1.88, "east_west", "Public wayfinding toward Old Senate Chamber"),
+        ("dir_house_gallery_left", "House gallery public orientation", (-20.0, -88.4), 1.92, "east_west", "Public wayfinding toward House Gallery"),
+        ("dir_house_gallery_right", "House gallery public orientation", (20.0, -88.4), 1.92, "east_west", "Public wayfinding toward House Gallery"),
+        ("dir_senate_gallery_left", "Senate gallery public orientation", (-17.0, 86.6), 1.88, "east_west", "Public wayfinding toward Senate Gallery"),
+        ("dir_senate_gallery_right", "Senate gallery public orientation", (17.0, 86.6), 1.88, "east_west", "Public wayfinding toward Senate Gallery"),
+        ("dir_house_support_west", "House leadership/support offices - schematic zone", (-42.0, -36.0), 1.78, "north_south", "Generic House support zone wayfinding"),
+        ("dir_house_support_east", "House committee/support rooms - schematic zone", (42.0, -36.0), 1.78, "north_south", "Generic House support zone wayfinding"),
+        ("dir_senate_support_west", "Senate leadership/support offices - schematic zone", (-42.0, 36.0), 1.78, "north_south", "Generic Senate support zone wayfinding"),
+        ("dir_senate_support_east", "Senate committee/support rooms - schematic zone", (42.0, 36.0), 1.78, "north_south", "Generic Senate support zone wayfinding"),
+        ("dir_public_return_west", "Public return orientation", (-32.0, 2.8), 1.86, "east_west", "Public wayfinding toward west orientation point"),
+        ("dir_public_return_east", "Public return orientation", (32.0, -2.8), 1.86, "east_west", "Public wayfinding toward east orientation point"),
+    ]:
+        standing_sign(name, "public_directional_sign", area, center, width, orientation, message)
+
+    for name, area, center, width, orientation, message in [
+        ("gallery_sign_house_front", "House galleries", (0.0, -94.0), 2.20, "east_west", "House gallery public viewing area"),
+        ("gallery_sign_house_rear", "House galleries", (0.0, -103.1), 2.00, "east_west", "House gallery rear public viewing area"),
+        ("gallery_sign_house_west", "House galleries", (-29.5, -99.0), 1.72, "north_south", "House gallery side section"),
+        ("gallery_sign_house_east", "House galleries", (29.5, -99.0), 1.72, "north_south", "House gallery side section"),
+        ("gallery_sign_senate_front", "Senate galleries", (0.0, 93.0), 2.10, "east_west", "Senate gallery public viewing area"),
+        ("gallery_sign_senate_rear", "Senate galleries", (0.0, 101.0), 1.92, "east_west", "Senate gallery rear public viewing area"),
+        ("gallery_sign_senate_west", "Senate galleries", (-23.0, 97.4), 1.60, "north_south", "Senate gallery side section"),
+        ("gallery_sign_senate_east", "Senate galleries", (23.0, 97.4), 1.60, "north_south", "Senate gallery side section"),
+    ]:
+        wall_sign(name, "visitor_gallery_sign", area, center, width, orientation, message, material="PublicGallery")
+
+    for name, area, center, width, orientation, message in [
+        ("role_house_speaker_rostrum", "House Chamber", (0.0, -47.35), 2.00, "east_west", "House rostrum role marker"),
+        ("role_house_clerk_press", "House Chamber", (0.0, -52.2), 2.18, "east_west", "House clerks and press role marker"),
+        ("role_house_members_left", "House Chamber", (-14.2, -73.0), 1.88, "east_west", "Generic House member seating block"),
+        ("role_house_members_right", "House Chamber", (14.2, -73.0), 1.88, "east_west", "Generic House member seating block"),
+        ("role_house_gallery", "House Chamber", (0.0, -96.0), 2.08, "east_west", "House public gallery role marker"),
+        ("role_senate_presiding", "Senate Chamber", (0.0, 84.5), 1.92, "east_west", "Senate presiding officer role marker"),
+        ("role_senate_clerk_press", "Senate Chamber", (0.0, 78.1), 2.00, "east_west", "Senate clerks and press role marker"),
+        ("role_senate_desks_left", "Senate Chamber", (-10.0, 72.4), 1.82, "east_west", "Generic Senate desk block"),
+        ("role_senate_desks_right", "Senate Chamber", (10.0, 72.4), 1.82, "east_west", "Generic Senate desk block"),
+        ("role_senate_gallery", "Senate Chamber", (0.0, 96.0), 2.00, "east_west", "Senate public gallery role marker"),
+    ]:
+        wall_sign(name, "chamber_role_sign", area, center, width, orientation, message, material="InteriorTrim")
+
+    for name, area, center, width, orientation, message in [
+        ("office_zone_house_west_entry", "House leadership/support offices - schematic zone", (-62.8, -55.0), 1.98, "north_south", "Generic House support offices"),
+        ("office_zone_house_east_entry", "House committee/support rooms - schematic zone", (62.8, -55.0), 1.98, "north_south", "Generic House committee/support rooms"),
+        ("office_zone_senate_west_entry", "Senate leadership/support offices - schematic zone", (-61.8, 55.0), 1.98, "north_south", "Generic Senate support offices"),
+        ("office_zone_senate_east_entry", "Senate committee/support rooms - schematic zone", (61.8, 55.0), 1.98, "north_south", "Generic Senate committee/support rooms"),
+        ("office_zone_house_inner_pair", "House support circulation", (37.0, -64.5), 1.74, "north_south", "Generic House support circulation"),
+        ("office_zone_senate_inner_pair", "Senate support circulation", (-36.5, 64.5), 1.74, "north_south", "Generic Senate support circulation"),
+    ]:
+        wall_sign(name, "generic_office_zone_sign", area, center, width, orientation, message, material="MarkerBlue")
+
+    for name, area, center, message in [
+        ("kiosk_west_public_orientation", "West terrace public orientation marker", (-57.0, -8.0), "Public orientation map kiosk - west"),
+        ("kiosk_east_public_orientation", "East public approach / visitor circulation", (57.0, 8.0), "Public orientation map kiosk - east"),
+        ("kiosk_rotunda_public_orientation", "Rotunda", (-6.5, 6.5), "Public orientation map kiosk - Rotunda"),
+        ("kiosk_gallery_public_orientation", "House and Senate gallery orientation", (6.5, -6.5), "Public orientation map kiosk - galleries"),
+    ]:
+        map_kiosk(name, area, center, message)
+
+    add_label(labels, "Public room signs, gallery signs, and map kiosks - schematic", -23.5, 7.0, 7.4, "signage_detail")
+
+
 def add_joint_session_layout(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
@@ -3592,6 +3759,7 @@ def build_interior() -> dict[str, Any]:
     wall_treatments: list[dict[str, Any]] = []
     chamber_details: list[dict[str, Any]] = []
     circulation_details: list[dict[str, Any]] = []
+    signage_details: list[dict[str, Any]] = []
     rotunda_details: list[dict[str, Any]] = []
     ceiling_details: list[dict[str, Any]] = []
     floor_details: list[dict[str, Any]] = []
@@ -3632,6 +3800,7 @@ def build_interior() -> dict[str, Any]:
     office_cells.extend(add_public_office_grid(obj, labels, "senate_east_support", (52.0, 55.0), (19.0, 42.0), 3, 5, office_details))
 
     add_public_circulation_details(obj, labels, circulation_details)
+    add_public_interior_signage_details(obj, labels, signage_details)
     build_house_seats(obj, seats, labels)
     build_senate_desks(obj, seats, labels)
     add_joint_session_layout(obj, labels, joint_session)
@@ -3668,6 +3837,7 @@ def build_interior() -> dict[str, Any]:
         "wall_treatments": wall_treatments,
         "chamber_details": chamber_details,
         "circulation_details": circulation_details,
+        "signage_details": signage_details,
         "rotunda_details": rotunda_details,
         "ceiling_details": ceiling_details,
         "floor_details": floor_details,
@@ -3932,6 +4102,7 @@ def main() -> None:
         f"{len(interior['wall_treatments'])} wall-treatment records,",
         f"{len(interior['chamber_details'])} chamber detail records,",
         f"{len(interior['circulation_details'])} circulation detail records,",
+        f"{len(interior['signage_details'])} signage detail records,",
         f"{len(interior['rotunda_details'])} rotunda detail records,",
         f"{len(interior['ceiling_details'])} ceiling detail records,",
         f"{len(interior['floor_details'])} floor detail records,",

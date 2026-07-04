@@ -156,6 +156,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "office_cells",
     "office_details",
     "circulation_details",
+    "signage_details",
     "rotunda_details",
     "ceiling_details",
     "floor_details",
@@ -173,6 +174,7 @@ REQUIRED_UNREAL_LABEL_CATEGORIES = {
     "seating_section",
     "chamber_detail",
     "public_circulation_detail",
+    "signage_detail",
     "joint_session",
     "public_art",
     "lighting",
@@ -268,30 +270,35 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickGroundsDetails"',
     'id="quickFacadeDetails"',
     'id="quickOffices"',
+    'id="quickSignageDetails"',
     'id="quickFloorDetails"',
     'id="quickCeilingDetails"',
     'id="quickGameplayItems"',
     'href="#grounds-details"',
     'href="#facade-details"',
     'href="#offices"',
+    'href="#signage-details"',
     'href="#floor-details"',
     'href="#ceiling-details"',
     'href="#gameplay-items"',
     'id="presetGroundsDetails"',
     'id="presetFacadeDetails"',
     'id="presetOffices"',
+    'id="presetSignageDetails"',
     'id="presetFloorDetails"',
     'id="presetCeilingDetails"',
     'id="presetGameplay"',
     'value="grounds_detail"',
     'value="facade_detail"',
     'value="office_detail"',
+    'value="signage_detail"',
     'value="floor_detail"',
     'value="ceiling_detail"',
     'value="gameplay_item"',
     "metadata.exterior?.grounds_details",
     "metadata.landmark?.facade_details",
     "metadata.interior?.office_details",
+    "metadata.interior?.signage_details",
     "metadata.interior?.floor_details",
     "metadata.interior?.ceiling_details",
     "metadata.gameplay?.labels",
@@ -302,6 +309,8 @@ REQUIRED_VIEWER_MARKERS = {
     "focusFacadeDetailsRoute",
     "focusOffices",
     "focusOfficesRoute",
+    "focusSignageDetails",
+    "focusSignageDetailsRoute",
     "focusFloorDetails",
     "focusFloorDetailsRoute",
     "focusCeilingDetails",
@@ -312,6 +321,7 @@ REQUIRED_VIEWER_MARKERS = {
     "grounds-details",
     "facade-details",
     "office-details",
+    "signage-details",
     "floor-details",
     "ceiling-details",
     "gameplay-items",
@@ -389,6 +399,15 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "room_portal_trim",
     "orientation_sign",
     "floor_inlay",
+}
+
+REQUIRED_SIGNAGE_DETAIL_KINDS = {
+    "public_room_identification_sign",
+    "public_directional_sign",
+    "visitor_gallery_sign",
+    "chamber_role_sign",
+    "generic_office_zone_sign",
+    "public_map_kiosk",
 }
 
 REQUIRED_ROTUNDA_DETAIL_KINDS = {
@@ -1016,6 +1035,46 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} lacks public/non-secure boundary")
             break
 
+    signage_details = interior.get("signage_details", [])
+    signage_detail_kinds = {detail.get("kind") for detail in signage_details}
+    summary["signage_details"] = len(signage_details)
+    summary["signage_detail_kinds"] = len(signage_detail_kinds)
+    if len(signage_details) < 50:
+        error(errors, f"expected at least 50 public signage detail records, got {len(signage_details)}")
+    missing_signage_kinds = sorted(REQUIRED_SIGNAGE_DETAIL_KINDS - signage_detail_kinds)
+    if missing_signage_kinds:
+        error(errors, f"missing public signage detail kinds: {', '.join(missing_signage_kinds)}")
+    if len([detail for detail in signage_details if detail.get("kind") == "public_room_identification_sign"]) < 9:
+        error(errors, "expected at least 9 public room-identification sign records")
+    if len([detail for detail in signage_details if detail.get("kind") == "public_directional_sign"]) < 16:
+        error(errors, "expected at least 16 public directional sign records")
+    if len([detail for detail in signage_details if detail.get("kind") == "visitor_gallery_sign"]) < 8:
+        error(errors, "expected at least 8 visitor gallery sign records")
+    if len([detail for detail in signage_details if detail.get("kind") == "chamber_role_sign"]) < 10:
+        error(errors, "expected at least 10 chamber role sign records")
+    if len([detail for detail in signage_details if detail.get("kind") == "generic_office_zone_sign"]) < 6:
+        error(errors, "expected at least 6 generic office-zone sign records")
+    if len([detail for detail in signage_details if detail.get("kind") == "public_map_kiosk"]) < 4:
+        error(errors, "expected at least 4 public map kiosk records")
+    for detail in signage_details:
+        if not detail.get("area"):
+            error(errors, f"signage detail {detail.get('name', '<unknown>')} is missing area")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"signage detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if (
+            "public" not in public_accuracy
+            or "public visual" not in assignment
+            or "restricted route" not in assignment
+            or "security feature" not in assignment
+            or "operational" not in assignment
+        ):
+            error(errors, f"signage detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     rotunda_details = interior.get("rotunda_details", [])
     rotunda_detail_kinds = {detail.get("kind") for detail in rotunda_details}
     summary["rotunda_details"] = len(rotunda_details)
@@ -1499,6 +1558,7 @@ def main() -> int:
     print(f"Office details: {metadata_summary.get('office_details', 0):,}")
     print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
     print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
+    print(f"Signage details: {metadata_summary.get('signage_details', 0):,}")
     print(f"Rotunda details: {metadata_summary.get('rotunda_details', 0):,}")
     print(f"Ceiling details: {metadata_summary.get('ceiling_details', 0):,}")
     print(f"Floor details: {metadata_summary.get('floor_details', 0):,}")
