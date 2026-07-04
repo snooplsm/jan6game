@@ -3725,6 +3725,239 @@ def add_public_interior_door_details(
     add_label(labels, "Public doorway panels, pulls, hinges, kick plates, and transoms - schematic", 22.5, -7.5, 7.65, "door_detail")
 
 
+def add_public_furnishing_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    area: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "area": area,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_interior_furnishing_fixture_detail",
+        "assignment": (
+            "Public visual furnishing/fixture detail only; not a restricted route, "
+            "queue plan, security feature, staff location, or operational access map."
+        ),
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_public_interior_furnishing_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    floor_z = 4.50
+
+    def oriented_size(length: float, depth: float, orientation: str) -> tuple[float, float]:
+        if orientation == "north_south":
+            return (depth, length)
+        return (length, depth)
+
+    def add_bench(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        seat_size = oriented_size(2.25, 0.52, orientation)
+        back_size = oriented_size(2.25, 0.12, orientation)
+        obj.add_box((x, y), seat_size, 0.16, floor_z + 0.32, f"{name}_seat_slab", "DeskWood")
+        if orientation == "north_south":
+            back_center = (x - 0.27, y)
+        else:
+            back_center = (x, y + 0.27)
+        obj.add_box(back_center, back_size, 0.72, floor_z + 0.38, f"{name}_back_rail", "ChairLeather")
+        for index, (dx, dy) in enumerate([(-0.82, -0.18), (0.82, -0.18), (-0.82, 0.18), (0.82, 0.18)], start=1):
+            if orientation == "north_south":
+                leg_center = (x + dy, y + dx)
+            else:
+                leg_center = (x + dx, y + dy)
+            obj.add_box(leg_center, (0.10, 0.10), 0.34, floor_z, f"{name}_leg_{index}", "BrassRail")
+        add_public_furnishing_detail_record(records, name, "public_bench", area, (x, y, floor_z + 0.42), seat_size)
+
+    def add_display_case(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        base_size = oriented_size(1.55, 0.70, orientation)
+        glass_size = oriented_size(1.35, 0.52, orientation)
+        obj.add_box((x, y), base_size, 0.42, floor_z, f"{name}_stone_base", "InteriorTrim")
+        obj.add_box((x, y), glass_size, 0.74, floor_z + 0.42, f"{name}_glass_case", "DoorGlass")
+        obj.add_box((x, y), oriented_size(1.10, 0.34, orientation), 0.12, floor_z + 0.54, f"{name}_object_plinth", "StatueMarble")
+        add_public_furnishing_detail_record(records, name, "display_case", area, (x, y, floor_z + 0.78), base_size)
+
+    def add_info_lectern(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        obj.add_box((x, y), (0.46, 0.38), 0.92, floor_z, f"{name}_pedestal", "DeskWood")
+        panel_size = oriented_size(0.96, 0.08, orientation)
+        obj.add_box((x, y), panel_size, 0.32, floor_z + 0.90, f"{name}_map_panel", "MarkerBlue")
+        obj.add_box((x, y), oriented_size(0.78, 0.04, orientation), 0.05, floor_z + 1.20, f"{name}_header_strip", "LaneMarkingWhite")
+        add_public_furnishing_detail_record(records, name, "information_lectern", area, (x, y, floor_z + 0.70), panel_size)
+
+    def add_receptacle(name: str, area: str, center: tuple[float, float], material: str) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.24, floor_z, 0.72, f"{name}_cylindrical_body", material, segments=14)
+        obj.add_cylinder((x, y), 0.26, floor_z + 0.72, 0.08, f"{name}_rim_lid", "DoorMetal", segments=14)
+        obj.add_box((x, y), (0.30, 0.045), 0.04, floor_z + 0.79, f"{name}_slot_marker", "LaneMarkingWhite")
+        add_public_furnishing_detail_record(records, name, "waste_receptacle", area, (x, y, floor_z + 0.40), (0.52, 0.52))
+
+    def add_plant_urn(name: str, area: str, center: tuple[float, float]) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.36, floor_z, 0.45, f"{name}_stone_urn", "PlanterStone", segments=18)
+        obj.add_cylinder((x, y), 0.30, floor_z + 0.43, 0.30, f"{name}_greenery_mass", "GroundGrass", segments=16)
+        add_public_furnishing_detail_record(records, name, "plant_urn", area, (x, y, floor_z + 0.42), (0.72, 0.72))
+
+    def add_queue_line(name: str, area: str, start: tuple[float, float], step: tuple[float, float], count: int) -> None:
+        posts: list[tuple[float, float]] = []
+        for index in range(count):
+            x = start[0] + step[0] * index
+            y = start[1] + step[1] * index
+            posts.append((x, y))
+            obj.add_cylinder((x, y), 0.055, floor_z, 0.86, f"{name}_post_{index+1:02d}", "BrassRail", segments=10)
+            obj.add_cylinder((x, y), 0.14, floor_z, 0.06, f"{name}_post_{index+1:02d}_base", "DoorMetal", segments=12)
+            add_public_furnishing_detail_record(records, f"{name}_post_{index+1:02d}", "public_queue_post", area, (x, y, floor_z + 0.43), (0.28, 0.28))
+        for index, (a, b) in enumerate(zip(posts, posts[1:]), start=1):
+            mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+            if abs(step[0]) >= abs(step[1]):
+                size = (math.hypot(step[0], step[1]), 0.045)
+            else:
+                size = (0.045, math.hypot(step[0], step[1]))
+            obj.add_box(mid, size, 0.05, floor_z + 0.66, f"{name}_rope_segment_{index:02d}", "BrassRail")
+            add_public_furnishing_detail_record(records, f"{name}_rope_segment_{index:02d}", "queue_rope_segment", area, (mid[0], mid[1], floor_z + 0.685), size)
+
+    for index, (center, orientation, area) in enumerate(
+        [
+            ((-8.6, 5.8), "east_west", "Rotunda"),
+            ((8.6, 5.8), "east_west", "Rotunda"),
+            ((-8.6, -5.8), "east_west", "Rotunda"),
+            ((8.6, -5.8), "east_west", "Rotunda"),
+            ((-11.8, 0.0), "north_south", "Rotunda"),
+            ((11.8, 0.0), "north_south", "Rotunda"),
+            ((20.0, -22.5), "east_west", "National Statuary Hall"),
+            ((28.0, -22.5), "east_west", "National Statuary Hall"),
+            ((36.0, -22.5), "east_west", "National Statuary Hall"),
+            ((20.0, -37.5), "east_west", "National Statuary Hall"),
+            ((28.0, -37.5), "east_west", "National Statuary Hall"),
+            ((36.0, -37.5), "east_west", "National Statuary Hall"),
+            ((20.5, 23.0), "east_west", "Old Senate Chamber"),
+            ((35.5, 23.0), "east_west", "Old Senate Chamber"),
+            ((20.5, 37.0), "east_west", "Old Senate Chamber"),
+            ((35.5, 37.0), "east_west", "Old Senate Chamber"),
+            ((-55.5, -20.0), "north_south", "Public circulation / schematic corridor"),
+            ((55.5, 20.0), "north_south", "Public circulation / schematic corridor"),
+            ((-24.0, -99.2), "east_west", "House galleries"),
+            ((24.0, -99.2), "east_west", "House galleries"),
+            ((-18.0, 97.5), "east_west", "Senate galleries"),
+            ((18.0, 97.5), "east_west", "Senate galleries"),
+            ((-52.8, -42.5), "north_south", "House leadership/support offices - schematic zone"),
+            ((52.8, 42.5), "north_south", "Senate committee/support rooms - schematic zone"),
+        ],
+        start=1,
+    ):
+        add_bench(f"public_interior_bench_{index:02d}", area, center, orientation)
+
+    for index, (center, orientation, area) in enumerate(
+        [
+            ((-6.0, 9.6), "east_west", "Rotunda"),
+            ((6.0, 9.6), "east_west", "Rotunda"),
+            ((-6.0, -9.6), "east_west", "Rotunda"),
+            ((6.0, -9.6), "east_west", "Rotunda"),
+            ((18.8, -28.0), "north_south", "National Statuary Hall"),
+            ((24.5, -28.0), "north_south", "National Statuary Hall"),
+            ((31.5, -32.0), "north_south", "National Statuary Hall"),
+            ((37.2, -32.0), "north_south", "National Statuary Hall"),
+            ((22.0, 28.0), "north_south", "Old Senate Chamber"),
+            ((34.0, 32.0), "north_south", "Old Senate Chamber"),
+            ((-47.5, -16.0), "north_south", "Public circulation / schematic corridor"),
+            ((47.5, 16.0), "north_south", "Public circulation / schematic corridor"),
+            ((-15.0, -94.2), "east_west", "House galleries"),
+            ((15.0, -94.2), "east_west", "House galleries"),
+            ((-13.0, 92.7), "east_west", "Senate galleries"),
+            ((13.0, 92.7), "east_west", "Senate galleries"),
+        ],
+        start=1,
+    ):
+        add_display_case(f"public_interior_display_case_{index:02d}", area, center, orientation)
+
+    for index, (center, orientation, area) in enumerate(
+        [
+            ((-4.2, 4.2), "east_west", "Rotunda"),
+            ((4.2, -4.2), "east_west", "Rotunda"),
+            ((-52.5, 6.5), "north_south", "West terrace public orientation marker"),
+            ((52.5, -6.5), "north_south", "East public approach / visitor circulation"),
+            ((21.5, -20.8), "east_west", "National Statuary Hall"),
+            ((21.5, 20.8), "east_west", "Old Senate Chamber"),
+            ((-7.0, -87.0), "east_west", "House gallery public orientation"),
+            ((7.0, 85.0), "east_west", "Senate gallery public orientation"),
+            ((-45.0, -55.0), "north_south", "House leadership/support offices - schematic zone"),
+            ((45.0, 55.0), "north_south", "Senate committee/support rooms - schematic zone"),
+        ],
+        start=1,
+    ):
+        add_info_lectern(f"public_information_lectern_{index:02d}", area, center, orientation)
+
+    receptacle_specs = [
+        ((-12.5, 7.0), "Rotunda", "DoorMetal"),
+        ((12.5, -7.0), "Rotunda", "MarkerBlue"),
+        ((-12.5, -7.0), "Rotunda", "DoorMetal"),
+        ((12.5, 7.0), "Rotunda", "MarkerBlue"),
+        ((17.0, -21.5), "National Statuary Hall", "DoorMetal"),
+        ((39.0, -38.5), "National Statuary Hall", "MarkerBlue"),
+        ((17.0, 21.5), "Old Senate Chamber", "DoorMetal"),
+        ((39.0, 38.5), "Old Senate Chamber", "MarkerBlue"),
+        ((-58.0, -4.5), "West terrace public orientation marker", "DoorMetal"),
+        ((58.0, 4.5), "East public approach / visitor circulation", "MarkerBlue"),
+        ((-31.0, -94.0), "House galleries", "DoorMetal"),
+        ((31.0, -94.0), "House galleries", "MarkerBlue"),
+        ((-24.0, 92.3), "Senate galleries", "DoorMetal"),
+        ((24.0, 92.3), "Senate galleries", "MarkerBlue"),
+        ((-45.0, -42.0), "House leadership/support offices - schematic zone", "DoorMetal"),
+        ((45.0, 42.0), "Senate committee/support rooms - schematic zone", "MarkerBlue"),
+    ]
+    for index, (center, area, material) in enumerate(receptacle_specs, start=1):
+        add_receptacle(f"public_receptacle_{index:02d}", area, center, material)
+
+    plant_specs = [
+        (-12.8, 0.0, "Rotunda"),
+        (12.8, 0.0, "Rotunda"),
+        (0.0, -12.8, "Rotunda"),
+        (0.0, 12.8, "Rotunda"),
+        (16.8, -39.0, "National Statuary Hall"),
+        (39.2, -39.0, "National Statuary Hall"),
+        (16.8, -21.0, "National Statuary Hall"),
+        (39.2, -21.0, "National Statuary Hall"),
+        (16.8, 21.0, "Old Senate Chamber"),
+        (39.2, 21.0, "Old Senate Chamber"),
+        (16.8, 39.0, "Old Senate Chamber"),
+        (39.2, 39.0, "Old Senate Chamber"),
+        (-56.0, -27.0, "West terrace public orientation marker"),
+        (-56.0, 27.0, "West terrace public orientation marker"),
+        (56.0, -27.0, "East public approach / visitor circulation"),
+        (56.0, 27.0, "East public approach / visitor circulation"),
+        (-30.0, -101.0, "House galleries"),
+        (30.0, -101.0, "House galleries"),
+        (-23.0, 99.8, "Senate galleries"),
+        (23.0, 99.8, "Senate galleries"),
+    ]
+    for index, (x, y, area) in enumerate(plant_specs, start=1):
+        add_plant_urn(f"public_plant_urn_{index:02d}", area, (x, y))
+
+    for index, (area, start, step, count) in enumerate(
+        [
+            ("West terrace public orientation marker", (-58.0, -11.0), (1.4, 0.0), 6),
+            ("East public approach / visitor circulation", (50.8, 11.0), (1.4, 0.0), 6),
+            ("House gallery public orientation", (-5.0, -88.0), (2.0, 0.0), 6),
+            ("Senate gallery public orientation", (-5.0, 86.0), (2.0, 0.0), 6),
+        ],
+        start=1,
+    ):
+        add_queue_line(f"public_fixture_queue_line_{index:02d}", area, start, step, count)
+
+    add_label(labels, "Public benches, exhibit cases, lecterns, receptacles, plant urns, and queue posts - schematic", -27.5, 6.0, 7.8, "furnishing_detail")
+
+
 def add_joint_session_layout(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
@@ -4034,6 +4267,7 @@ def build_interior() -> dict[str, Any]:
     circulation_details: list[dict[str, Any]] = []
     signage_details: list[dict[str, Any]] = []
     door_details: list[dict[str, Any]] = []
+    furnishing_details: list[dict[str, Any]] = []
     rotunda_details: list[dict[str, Any]] = []
     ceiling_details: list[dict[str, Any]] = []
     floor_details: list[dict[str, Any]] = []
@@ -4076,6 +4310,7 @@ def build_interior() -> dict[str, Any]:
     add_public_circulation_details(obj, labels, circulation_details)
     add_public_interior_signage_details(obj, labels, signage_details)
     add_public_interior_door_details(obj, labels, door_details)
+    add_public_interior_furnishing_details(obj, labels, furnishing_details)
     build_house_seats(obj, seats, labels)
     build_senate_desks(obj, seats, labels)
     add_joint_session_layout(obj, labels, joint_session)
@@ -4116,6 +4351,7 @@ def build_interior() -> dict[str, Any]:
         "circulation_details": circulation_details,
         "signage_details": signage_details,
         "door_details": door_details,
+        "furnishing_details": furnishing_details,
         "rotunda_details": rotunda_details,
         "ceiling_details": ceiling_details,
         "floor_details": floor_details,
@@ -4383,6 +4619,7 @@ def main() -> None:
         f"{len(interior['circulation_details'])} circulation detail records,",
         f"{len(interior['signage_details'])} signage detail records,",
         f"{len(interior['door_details'])} door detail records,",
+        f"{len(interior['furnishing_details'])} furnishing detail records,",
         f"{len(interior['rotunda_details'])} rotunda detail records,",
         f"{len(interior['ceiling_details'])} ceiling detail records,",
         f"{len(interior['floor_details'])} floor detail records,",

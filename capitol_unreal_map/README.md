@@ -10,6 +10,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Office/support detail preview: `http://127.0.0.1:8765/viewer.html#offices`
 - Public signage detail preview: `http://127.0.0.1:8765/viewer.html#signage-details`
 - Door hardware detail preview: `http://127.0.0.1:8765/viewer.html#door-details`
+- Public furnishing detail preview: `http://127.0.0.1:8765/viewer.html#furnishing-details`
 - Wall finish detail preview: `http://127.0.0.1:8765/viewer.html#wall-finish-details`
 - Floor finish detail preview: `http://127.0.0.1:8765/viewer.html#floor-details`
 - Ceiling/crown detail preview: `http://127.0.0.1:8765/viewer.html#ceiling-details`
@@ -20,7 +21,7 @@ It contains:
 
 - exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, public streetscape props, and authored public grounds details derived from OpenStreetMap context plus schematic visual markers
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
-- a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda architectural detail records, public room/galleries/wayfinding signage, public doorway panels and hardware, raised wall-finish/wainscot/pilaster trim, public ceiling/coffer/crown-trim records, public floor-finish records, House Chamber, Senate Chamber, galleries, generic chamber seating, public-art markers, visible lighting/wall-treatment details, and a joint-session House Chamber visual layout
+- a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda architectural detail records, public room/galleries/wayfinding signage, public doorway panels and hardware, public benches/display cases/lecterns/receptacles/plant urns, raised wall-finish/wainscot/pilaster trim, public ceiling/coffer/crown-trim records, public floor-finish records, House Chamber, Senate Chamber, galleries, generic chamber seating, public-art markers, visible lighting/wall-treatment details, and a joint-session House Chamber visual layout
 - public-facing Capitol visual details including an authored Capitol landmark mesh, approximate revolving-door assemblies, layered pavilions, articulated roof/courtyard recesses, dormers, skylight strips, pediments, stone window surrounds, window mullions, door surrounds, pilasters, stair treads, approach handrails, dentil/cornice courses, cornice brackets, roof balustrades, dome ribs, dome bands, dome drum trim, lantern detail, entry lamps, bollards, and benches
 - fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole with American flag and campaign-style banner variants, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - Unreal-friendly OBJ/MTL meshes in centimeter units
@@ -84,13 +85,13 @@ The validator checks that:
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
-- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, public Rotunda, signage, door-hardware, wall-finish, floor, and ceiling detail layers, fictional gameplay item props, and generated viewpoints are present
+- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, public Rotunda, signage, door-hardware, furnishing, wall-finish, floor, and ceiling detail layers, fictional gameplay item props, and generated viewpoints are present
 - the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, first-person setup marker, and import-report key
 - the Unreal project config still enables the scripting plugins, Nanite/navigation settings, and generated Capitol map editor/game defaults
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 917,206 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 933,334 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
@@ -117,6 +118,7 @@ The current generated build contains:
 - 35 public circulation detail records for schematic corridor bands, door thresholds, room portal trim, orientation signs, and floor inlays between major public spaces
 - 53 public signage detail records for room-identification signs, directional signs, visitor-gallery markers, chamber-role markers, generic office-zone signs, and public orientation map kiosks
 - 192 public door-hardware detail records: 24 double-door panels, 24 pull bars, 72 hinge plates, 24 kick plates, 12 transom panels, 12 header trims, and 24 side-lite panels at public/schematic doorway transitions
+- 130 public furnishing/fixture detail records: 24 benches, 16 display cases, 10 information lecterns, 16 receptacles, 20 plant urns, 24 public queue posts, and 20 rope segments
 - 780 public wall-finish detail records: 44 baseboards, 326 raised wainscot frames, 172 upper wall panel frames, and 238 wall pilasters across public rooms, chambers, galleries, and generic office/support zones
 - 79 public Rotunda architectural detail records for wall ring, floor trim, center medallion, 16 radial floor inlays, 16 perimeter columns, 32 upper coffer panels, 4 public arch portals, upper balustrade ring, and 7 public statue pedestal bases
 - 283 public ceiling detail records for coffer panels, ceiling grid beams, crown molding, medallions, and light canopies across the chambers, galleries, public rooms, and generic office/support zones
@@ -178,6 +180,12 @@ Door hardware detail quick link:
 http://127.0.0.1:8765/viewer.html#door-details
 ```
 
+Public furnishing detail quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#furnishing-details
+```
+
 Wall finish detail quick link:
 
 ```text
@@ -206,7 +214,7 @@ The viewer can toggle:
 - gameplay item props
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, public office/support details, public signage details, door hardware details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, office zones, office detail labels, signage detail labels, door detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
@@ -235,7 +243,7 @@ The current realism pass uses deterministic 4K procedural texture maps plus mate
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal. The importer also spawns guarded environment actors for sun, skylight, sky atmosphere, fog, reflection capture, and post-process exposure where the Unreal Python API exposes them, plus metadata-driven interior lights, capped public streetlights, and authored public grounds walk lamps.
 
-The current mesh-detail pass adds surrounding-building facade windows, roofline caps, public-entry markers, rooftop detail blocks, public streetscape props, traffic-signal heads, crosswalk striping, tree planters, public stop bars, lane arrows, bike symbols, curb-ramp visuals, wayfinding signs, authored public grounds details, hedges, path-edge stones, grounds benches, ornamental planting clusters, Capitol facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, public stair treads, approach handrails, dentil courses, cornice brackets, roof balustrades, roof articulation volumes, wing transition blocks, courtyard recess shadow planes, roof dormers, skylight strips, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public Rotunda floor inlays, upper coffer panels, arch portals, balustrade ring, public statue pedestal bases, public ceiling coffer panels, crown moldings, ceiling grid beams, medallions, light canopies, public floor tile joints, floor borders, carpet borders, threshold slabs, floor medallions, public room-identification signs, public directional signs, gallery markers, chamber-role signs, map kiosks, double-door panels, pull bars, hinge plates, kick plates, transoms, side lites, raised wainscot frames, upper wall panel frames, baseboards, wall pilasters, public office door panels, office thresholds, generic public plaques, shared support tables, public chamber gallery benches, gallery dividers, balcony fascia, public lecterns, work tables, rostrum desks, desk surface markers, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for public streetscape fixtures, facade ornament, and chamber furniture.
+The current mesh-detail pass adds surrounding-building facade windows, roofline caps, public-entry markers, rooftop detail blocks, public streetscape props, traffic-signal heads, crosswalk striping, tree planters, public stop bars, lane arrows, bike symbols, curb-ramp visuals, wayfinding signs, authored public grounds details, hedges, path-edge stones, grounds benches, ornamental planting clusters, Capitol facade windows, stone window surrounds, window mullions, public door surrounds, public facade pilasters, public stair treads, approach handrails, dentil courses, cornice brackets, roof balustrades, roof articulation volumes, wing transition blocks, courtyard recess shadow planes, roof dormers, skylight strips, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public Rotunda floor inlays, upper coffer panels, arch portals, balustrade ring, public statue pedestal bases, public ceiling coffer panels, crown moldings, ceiling grid beams, medallions, light canopies, public floor tile joints, floor borders, carpet borders, threshold slabs, floor medallions, public room-identification signs, public directional signs, gallery markers, chamber-role signs, map kiosks, double-door panels, pull bars, hinge plates, kick plates, transoms, side lites, public benches, display cases, information lecterns, receptacles, plant urns, queue posts, raised wainscot frames, upper wall panel frames, baseboards, wall pilasters, public office door panels, office thresholds, generic public plaques, shared support tables, public chamber gallery benches, gallery dividers, balcony fascia, public lecterns, work tables, rostrum desks, desk surface markers, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for public streetscape fixtures, facade ornament, and chamber furniture.
 
 The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction. Flagpole banner visuals are simple color-blocked game props, not exact merchandise replicas.
 
@@ -269,6 +277,7 @@ Included:
 - Rotunda wall ring, floor trim, center medallion, radial floor inlays, perimeter columns, public arch portals, upper coffer panels, upper balustrade ring, and statue pedestal-base details
 - Public room-identification signs, directional signs, gallery markers, chamber-role markers, generic office/support zone signs, and orientation map kiosks
 - Public doorway panels, pull bars, hinges, kick plates, transoms, header trim, and side-lite panels at schematic public transitions
+- Public benches, display cases, information lecterns, receptacles, plant urns, queue posts, and rope segments as generic public fixtures
 - Raised public wall-finish details: baseboards, wainscot frames, upper wall panel frames, and pilasters
 - Public coffered ceiling, crown molding, medallion, and light-canopy details in major public interior zones
 - Public floor borders, marble/tile joints, threshold slabs, carpet borders, and floor medallions in major public interior zones
