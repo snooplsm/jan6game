@@ -58,12 +58,13 @@
     "path": "unreal/import_capitol_map.py",
     "mesh_files": 5,
     "destination_paths": 4,
-    "required_functions": 14,
-    "required_calls": 14,
-    "report_keys": 46,
+    "required_functions": 16,
+    "required_calls": 16,
+    "report_keys": 69,
     "label_categories": 16,
-    "outliner_folders": 8,
+    "outliner_folders": 9,
     "first_person_markers": 15,
+    "environment_markers": 24,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],
@@ -72,7 +73,8 @@
       "report_keys": [],
       "label_categories": [],
       "outliner_folders": [],
-      "first_person_markers": []
+      "first_person_markers": [],
+      "environment_markers": []
     }
   },
   "unreal_project_config": {

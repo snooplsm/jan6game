@@ -37,6 +37,30 @@ PLAYTEST_PAWN_ROTATION_DEG = [0.0, 4.0, 0.0]
 NAV_MESH_BOUNDS_LABEL = "CapitolMap_NavMeshBounds_CentralCampus"
 NAV_MESH_BOUNDS_LOCATION_CM = [0.0, 0.0, 2500.0]
 NAV_MESH_BOUNDS_SCALE = [750.0, 750.0, 45.0]
+ENVIRONMENT_IMPORT_SETUP = {
+    "directional_light_actor_class": "DirectionalLight",
+    "directional_light_label": "CapitolMap_Sun_DirectionalLight",
+    "directional_light_location_cm": [-18000.0, -22000.0, 38000.0],
+    "directional_light_rotation_deg": [-42.0, -34.0, 0.0],
+    "directional_light_intensity": 4.2,
+    "sky_light_actor_class": "SkyLight",
+    "sky_light_label": "CapitolMap_SkyLight",
+    "sky_light_location_cm": [0.0, 0.0, 8000.0],
+    "sky_light_intensity": 0.85,
+    "sky_atmosphere_actor_class": "SkyAtmosphere",
+    "sky_atmosphere_label": "CapitolMap_SkyAtmosphere",
+    "exponential_height_fog_actor_class": "ExponentialHeightFog",
+    "exponential_height_fog_label": "CapitolMap_AtmosphericFog",
+    "reflection_capture_actor_class": "SphereReflectionCapture",
+    "reflection_capture_label": "CapitolMap_CampusReflectionCapture",
+    "reflection_capture_radius_cm": 42000.0,
+    "post_process_actor_class": "PostProcessVolume",
+    "post_process_label": "CapitolMap_GlobalPostProcess",
+    "post_process_location_cm": [0.0, 0.0, 5000.0],
+    "post_process_scale_cm": [620.0, 620.0, 125.0],
+    "post_process_exposure_min": 0.65,
+    "post_process_exposure_max": 1.25,
+}
 FIRST_PERSON_IMPORT_SETUP = {
     "static_mesh_lod_group": "LargeProp",
     "auto_generate_collision": True,
@@ -620,35 +644,8 @@ def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -
 
 
 def spawn_scene_setup() -> None:
-    """Add basic lighting and first-person spawn helpers."""
-    try:
-        directional = unreal.EditorLevelLibrary.spawn_actor_from_class(
-            unreal.DirectionalLight,
-            unreal.Vector(-18000, -22000, 38000),
-            unreal.Rotator(-42, -34, 0),
-        )
-        if directional:
-            directional.set_actor_label("CapitolMap_DirectionalLight")
-            directional.set_folder_path("CapitolMap/SceneSetup")
-            component = directional.get_component_by_class(unreal.DirectionalLightComponent)
-            if component:
-                component.set_editor_property("intensity", 4.2)
-    except Exception as exc:
-        log(f"Lighting setup skipped: {exc}")
-
-    try:
-        sky = unreal.EditorLevelLibrary.spawn_actor_from_class(
-            unreal.SkyLight,
-            unreal.Vector(0, 0, 8000),
-        )
-        if sky:
-            sky.set_actor_label("CapitolMap_SkyLight")
-            sky.set_folder_path("CapitolMap/SceneSetup")
-            component = sky.get_component_by_class(unreal.SkyLightComponent)
-            if component:
-                component.set_editor_property("intensity", 0.75)
-    except Exception as exc:
-        log(f"Sky light setup skipped: {exc}")
+    """Add lighting, environment, and first-person spawn helpers."""
+    spawn_environment_setup()
 
     try:
         player_start = unreal.EditorLevelLibrary.spawn_actor_from_class(
@@ -666,6 +663,109 @@ def spawn_scene_setup() -> None:
     spawn_camera_viewpoints()
     spawn_navigation_bounds()
     spawn_metadata_lights()
+
+
+def spawn_environment_setup() -> None:
+    """Place guarded atmosphere, lighting, reflection, and exposure helpers."""
+    try:
+        directional = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.DirectionalLight,
+            unreal.Vector(*ENVIRONMENT_IMPORT_SETUP["directional_light_location_cm"]),
+            unreal.Rotator(*ENVIRONMENT_IMPORT_SETUP["directional_light_rotation_deg"]),
+        )
+        if directional:
+            directional.set_actor_label(ENVIRONMENT_IMPORT_SETUP["directional_light_label"])
+            directional.set_folder_path("CapitolMap/Environment")
+            component = directional.get_component_by_class(unreal.DirectionalLightComponent)
+            if component:
+                set_property(component, "intensity", ENVIRONMENT_IMPORT_SETUP["directional_light_intensity"])
+                set_property(component, "cast_shadows", True)
+    except Exception as exc:
+        log(f"Lighting setup skipped: {exc}")
+
+    try:
+        sky = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.SkyLight,
+            unreal.Vector(*ENVIRONMENT_IMPORT_SETUP["sky_light_location_cm"]),
+        )
+        if sky:
+            sky.set_actor_label(ENVIRONMENT_IMPORT_SETUP["sky_light_label"])
+            sky.set_folder_path("CapitolMap/Environment")
+            component = sky.get_component_by_class(unreal.SkyLightComponent)
+            if component:
+                set_property(component, "intensity", ENVIRONMENT_IMPORT_SETUP["sky_light_intensity"])
+                set_property(component, "real_time_capture", True)
+    except Exception as exc:
+        log(f"Sky light setup skipped: {exc}")
+
+    spawn_optional_environment_actor(
+        ENVIRONMENT_IMPORT_SETUP["sky_atmosphere_actor_class"],
+        ENVIRONMENT_IMPORT_SETUP["sky_atmosphere_label"],
+        unreal.Vector(0.0, 0.0, 0.0),
+        unreal.Rotator(0.0, 0.0, 0.0),
+    )
+
+    try:
+        fog = spawn_optional_environment_actor(
+            ENVIRONMENT_IMPORT_SETUP["exponential_height_fog_actor_class"],
+            ENVIRONMENT_IMPORT_SETUP["exponential_height_fog_label"],
+            unreal.Vector(0.0, 0.0, 0.0),
+            unreal.Rotator(0.0, 0.0, 0.0),
+        )
+        if fog and hasattr(unreal, "ExponentialHeightFogComponent"):
+            component = fog.get_component_by_class(unreal.ExponentialHeightFogComponent)
+            if component:
+                set_property(component, "fog_density", 0.006)
+                set_property(component, "fog_height_falloff", 0.18)
+    except Exception as exc:
+        log(f"Atmospheric fog setup skipped: {exc}")
+
+    try:
+        capture = spawn_optional_environment_actor(
+            ENVIRONMENT_IMPORT_SETUP["reflection_capture_actor_class"],
+            ENVIRONMENT_IMPORT_SETUP["reflection_capture_label"],
+            unreal.Vector(0.0, 0.0, 2400.0),
+            unreal.Rotator(0.0, 0.0, 0.0),
+        )
+        if capture and hasattr(unreal, "SphereReflectionCaptureComponent"):
+            component = capture.get_component_by_class(unreal.SphereReflectionCaptureComponent)
+            if component:
+                set_property(component, "influence_radius", ENVIRONMENT_IMPORT_SETUP["reflection_capture_radius_cm"])
+    except Exception as exc:
+        log(f"Reflection capture setup skipped: {exc}")
+
+    try:
+        post = spawn_optional_environment_actor(
+            ENVIRONMENT_IMPORT_SETUP["post_process_actor_class"],
+            ENVIRONMENT_IMPORT_SETUP["post_process_label"],
+            unreal.Vector(*ENVIRONMENT_IMPORT_SETUP["post_process_location_cm"]),
+            unreal.Rotator(0.0, 0.0, 0.0),
+        )
+        if post:
+            post.set_actor_scale3d(unreal.Vector(*ENVIRONMENT_IMPORT_SETUP["post_process_scale_cm"]))
+            set_property(post, "b_unbound", True)
+            component = post.get_component_by_class(unreal.PostProcessComponent) if hasattr(unreal, "PostProcessComponent") else None
+            if component:
+                set_property(component, "b_unbound", True)
+                settings = get_property(component, "settings")
+                if settings:
+                    set_property(settings, "auto_exposure_method", 1)
+                    set_property(settings, "auto_exposure_min_brightness", ENVIRONMENT_IMPORT_SETUP["post_process_exposure_min"])
+                    set_property(settings, "auto_exposure_max_brightness", ENVIRONMENT_IMPORT_SETUP["post_process_exposure_max"])
+    except Exception as exc:
+        log(f"Post process setup skipped: {exc}")
+
+
+def spawn_optional_environment_actor(class_name: str, label: str, location: unreal.Vector, rotation: unreal.Rotator) -> Any | None:
+    actor_class = getattr(unreal, class_name, None)
+    if actor_class is None:
+        log(f"Environment actor skipped: {class_name} unavailable")
+        return None
+    actor = unreal.EditorLevelLibrary.spawn_actor_from_class(actor_class, location, rotation)
+    if actor:
+        actor.set_actor_label(label)
+        actor.set_folder_path("CapitolMap/Environment")
+    return actor
 
 
 def spawn_playtest_pawn() -> None:
@@ -921,6 +1021,7 @@ def write_unreal_import_report(
             "material_count": len(material_assets),
             "texture_set_count": len(texture_assets),
             "texture_asset_count": sum(len(value) for value in texture_assets.values()),
+            "environment_setup": ENVIRONMENT_IMPORT_SETUP,
             "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
             "metadata_counts": {
                 "buildings": len(data.get("exterior", {}).get("buildings", [])),

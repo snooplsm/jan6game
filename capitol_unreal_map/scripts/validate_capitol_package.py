@@ -57,6 +57,8 @@ REQUIRED_UNREAL_FUNCTIONS = {
     "create_or_update_materials",
     "spawn_mesh_actors",
     "spawn_scene_setup",
+    "spawn_environment_setup",
+    "spawn_optional_environment_actor",
     "spawn_playtest_pawn",
     "spawn_camera_viewpoints",
     "spawn_navigation_bounds",
@@ -74,6 +76,8 @@ REQUIRED_UNREAL_CALLS = {
     "create_or_update_materials",
     "spawn_mesh_actors",
     "spawn_scene_setup",
+    "spawn_environment_setup",
+    "spawn_optional_environment_actor",
     "spawn_playtest_pawn",
     "spawn_camera_viewpoints",
     "spawn_navigation_bounds",
@@ -97,6 +101,29 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "material_count",
     "texture_set_count",
     "texture_asset_count",
+    "environment_setup",
+    "directional_light_actor_class",
+    "directional_light_label",
+    "directional_light_location_cm",
+    "directional_light_rotation_deg",
+    "directional_light_intensity",
+    "sky_light_actor_class",
+    "sky_light_label",
+    "sky_light_location_cm",
+    "sky_light_intensity",
+    "sky_atmosphere_actor_class",
+    "sky_atmosphere_label",
+    "exponential_height_fog_actor_class",
+    "exponential_height_fog_label",
+    "reflection_capture_actor_class",
+    "reflection_capture_label",
+    "reflection_capture_radius_cm",
+    "post_process_actor_class",
+    "post_process_label",
+    "post_process_location_cm",
+    "post_process_scale_cm",
+    "post_process_exposure_min",
+    "post_process_exposure_max",
     "first_person_setup",
     "static_mesh_lod_group",
     "auto_generate_collision",
@@ -154,6 +181,7 @@ REQUIRED_UNREAL_LABEL_CATEGORIES = {
 REQUIRED_UNREAL_OUTLINER_FOLDERS = {
     "CapitolMap/Meshes",
     "CapitolMap/SceneSetup",
+    "CapitolMap/Environment",
     "CapitolMap/Viewpoints",
     "CapitolMap/Lighting",
     "CapitolMap/Labels/Interior",
@@ -178,6 +206,33 @@ REQUIRED_UNREAL_FIRST_PERSON_MARKERS = {
     "auto_receive_input",
     "CapitolMap_NavMeshBounds_CentralCampus",
     "nanite_settings",
+}
+
+REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
+    "DirectionalLight",
+    "SkyLight",
+    "SkyAtmosphere",
+    "ExponentialHeightFog",
+    "SphereReflectionCapture",
+    "PostProcessVolume",
+    "DirectionalLightComponent",
+    "SkyLightComponent",
+    "ExponentialHeightFogComponent",
+    "SphereReflectionCaptureComponent",
+    "PostProcessComponent",
+    "CapitolMap_Sun_DirectionalLight",
+    "CapitolMap_SkyLight",
+    "CapitolMap_SkyAtmosphere",
+    "CapitolMap_AtmosphericFog",
+    "CapitolMap_CampusReflectionCapture",
+    "CapitolMap_GlobalPostProcess",
+    "real_time_capture",
+    "fog_density",
+    "fog_height_falloff",
+    "influence_radius",
+    "b_unbound",
+    "auto_exposure_min_brightness",
+    "auto_exposure_max_brightness",
 }
 
 REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS = {
@@ -1003,6 +1058,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "label_categories": 0,
         "outliner_folders": 0,
         "first_person_markers": 0,
+        "environment_markers": 0,
     }
     if not UNREAL_IMPORTER_PATH.exists():
         error(errors, f"missing Unreal import script: {UNREAL_IMPORTER_PATH}")
@@ -1020,6 +1076,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         for node in ast.walk(tree)
         if isinstance(node, ast.Constant) and isinstance(node.value, str)
     }
+    attribute_names = {node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
+    marker_tokens = string_literals | attribute_names
     functions = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
     calls: set[str] = set()
     for node in ast.walk(tree):
@@ -1038,6 +1096,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     missing_label_categories = sorted(REQUIRED_UNREAL_LABEL_CATEGORIES - string_literals)
     missing_outliner_folders = sorted(REQUIRED_UNREAL_OUTLINER_FOLDERS - string_literals)
     missing_first_person_markers = sorted(REQUIRED_UNREAL_FIRST_PERSON_MARKERS - string_literals)
+    missing_environment_markers = sorted(REQUIRED_UNREAL_ENVIRONMENT_MARKERS - marker_tokens)
 
     summary["mesh_files"] = len(EXPECTED_UNREAL_MESH_BASENAMES) - len(missing_meshes)
     summary["destination_paths"] = len(EXPECTED_UNREAL_DESTINATIONS) - len(missing_destinations)
@@ -1047,6 +1106,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     summary["label_categories"] = len(REQUIRED_UNREAL_LABEL_CATEGORIES) - len(missing_label_categories)
     summary["outliner_folders"] = len(REQUIRED_UNREAL_OUTLINER_FOLDERS) - len(missing_outliner_folders)
     summary["first_person_markers"] = len(REQUIRED_UNREAL_FIRST_PERSON_MARKERS) - len(missing_first_person_markers)
+    summary["environment_markers"] = len(REQUIRED_UNREAL_ENVIRONMENT_MARKERS) - len(missing_environment_markers)
     summary["missing"] = {
         "mesh_files": missing_meshes,
         "destination_paths": missing_destinations,
@@ -1056,6 +1116,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "label_categories": missing_label_categories,
         "outliner_folders": missing_outliner_folders,
         "first_person_markers": missing_first_person_markers,
+        "environment_markers": missing_environment_markers,
     }
 
     if missing_meshes:
@@ -1074,6 +1135,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         error(errors, f"Unreal importer missing outliner folders: {', '.join(missing_outliner_folders)}")
     if missing_first_person_markers:
         error(errors, f"Unreal importer missing first-person setup markers: {', '.join(missing_first_person_markers)}")
+    if missing_environment_markers:
+        error(errors, f"Unreal importer missing environment setup markers: {', '.join(missing_environment_markers)}")
 
     return summary
 
@@ -1178,6 +1241,7 @@ def main() -> int:
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
     print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")
+    print(f"Unreal importer environment markers: {unreal_importer_summary.get('environment_markers', 0):,}")
     print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
