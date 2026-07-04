@@ -92,7 +92,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 42,
+    "required_markers": 50,
     "missing": []
   },
   "meshes": [
