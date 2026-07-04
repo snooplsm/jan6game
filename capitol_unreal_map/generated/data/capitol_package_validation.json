@@ -26,13 +26,13 @@
     "seating_sections": 16,
     "regular_session_seating_sections": 7,
     "joint_session_seating_sections": 9,
-    "chamber_details": 42,
-    "chamber_detail_kinds": 7,
+    "chamber_details": 109,
+    "chamber_detail_kinds": 9,
     "circulation_details": 35,
     "circulation_detail_kinds": 5,
     "joint_session_records": 9,
-    "public_art": 61,
-    "light_fixtures": 29,
+    "public_art": 91,
+    "light_fixtures": 55,
     "wall_treatments": 11,
     "gameplay_items": 7,
     "gameplay_labels": 7,
@@ -189,12 +189,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 30305,
-      "uvs": 90568,
-      "faces": 21515,
-      "faces_with_uvs": 21515,
-      "triangles": 47538,
-      "groups": 3067,
+      "vertices": 32689,
+      "uvs": 97720,
+      "faces": 23199,
+      "faces_with_uvs": 23199,
+      "triangles": 51322,
+      "groups": 3313,
       "materials": [
         "ArtFrameGold",
         "BrassRail",
@@ -242,7 +242,7 @@
         "max": [
           7521.0,
           10128.0,
-          925.0
+          935.0
         ]
       }
     },

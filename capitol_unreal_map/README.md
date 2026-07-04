@@ -6,7 +6,7 @@ It contains:
 
 - exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, public streetscape props, and authored public grounds details derived from OpenStreetMap context plus schematic visual markers
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
-- a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, and a joint-session House Chamber visual layout
+- a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, public-art markers, visible lighting/wall-treatment details, and a joint-session House Chamber visual layout
 - public-facing Capitol visual details including an authored Capitol landmark mesh, approximate revolving-door assemblies, layered pavilions, pediments, stone window surrounds, pilasters, stair treads, dentil/cornice courses, roof balustrades, dome ribs, dome bands, dome drum trim, lantern detail, entry lamps, bollards, and benches
 - fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole with American flag and campaign-style banner variants, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - Unreal-friendly OBJ/MTL meshes in centimeter units
@@ -75,7 +75,7 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 745,026 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 752,178 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
@@ -96,8 +96,9 @@ The current generated build contains:
 - 448 generic House floor seats
 - 100 generic Senate desks
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
-- 42 public chamber detail records for House/Senate rails, dais steps, gallery rails, aisle edge markers, desk arc markers, backdrop panels, and flag standards
+- 109 public chamber detail records for House/Senate rails, dais steps, rostrum desks, gallery rails, gallery benches, aisle edge markers, desk arc markers, backdrop panels, and flag standards
 - 35 public circulation detail records for schematic corridor bands, door thresholds, room portal trim, orientation signs, and floor inlays between major public spaces
+- 91 public-art visuals, 55 public light fixtures, and 11 wall-treatment records for public interior visual orientation
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
 - 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - 5 flagpole banner visuals: American flag, two Trump 2024 campaign-style banners, a Save America campaign-style banner, and a Make America Great Again campaign-style banner
@@ -161,7 +162,7 @@ The current realism pass uses deterministic 4K procedural texture maps plus mate
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal. The importer also spawns metadata-driven interior lights, capped public streetlights, and authored public grounds walk lamps.
 
-The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, authored public grounds details, Capitol facade windows, stone window surrounds, public facade pilasters, public stair treads, dentil courses, roof balustrades, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
+The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, authored public grounds details, Capitol facade windows, stone window surrounds, public facade pilasters, public stair treads, dentil courses, roof balustrades, dome balustrade posts, dome vertical ribs, dome drum window trim, dome lateral bands, lantern windows, entry lamps, bollards, benches, public chamber gallery benches, rostrum desks, additional public-art panels, and visible public light fixtures. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for facade ornament, landscape planting, and public streetscape fixtures.
 
 The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction. Flagpole banner visuals are simple color-blocked game props, not exact merchandise replicas.
 

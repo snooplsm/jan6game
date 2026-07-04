@@ -181,8 +181,10 @@ REQUIRED_SEATING_SECTIONS = {
 
 REQUIRED_CHAMBER_DETAIL_KINDS = {
     "rostrum_rail",
+    "rostrum_desk",
     "dais_step",
     "gallery_rail",
+    "gallery_bench",
     "aisle_edge",
     "backdrop_panel",
     "flag_standard",
@@ -620,14 +622,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 34:
-        error(errors, f"expected at least 34 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 100:
+        error(errors, f"expected at least 100 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
     for chamber_name in ["House Chamber", "Senate Chamber"]:
         if chamber_name not in chamber_detail_chambers:
             error(errors, f"missing chamber details for {chamber_name}")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_bench"]) < 60:
+        error(errors, "expected at least 60 public gallery bench records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_desk"]) < 7:
+        error(errors, "expected at least 7 public rostrum desk records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")
@@ -668,10 +674,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["public_art"] = len(public_art)
     summary["light_fixtures"] = len(light_fixtures)
     summary["wall_treatments"] = len(wall_treatments)
-    if len(public_art) < 55:
-        error(errors, f"expected at least 55 public-art visuals, got {len(public_art)}")
-    if len(light_fixtures) < 25:
-        error(errors, f"expected at least 25 public light fixtures, got {len(light_fixtures)}")
+    if len(public_art) < 90:
+        error(errors, f"expected at least 90 public-art visuals, got {len(public_art)}")
+    if len(light_fixtures) < 55:
+        error(errors, f"expected at least 55 public light fixtures, got {len(light_fixtures)}")
     if len(wall_treatments) < 10:
         error(errors, f"expected at least 10 wall-treatment records, got {len(wall_treatments)}")
     for record in public_art[:5] + light_fixtures[:5] + wall_treatments[:5]:

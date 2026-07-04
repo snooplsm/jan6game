@@ -1809,6 +1809,25 @@ def add_public_art_and_lighting(
         )
     add_label(labels, "Rotunda historical painting panels - schematic", 0.0, 14.0, 7.7, "public_art")
 
+    for idx in range(16):
+        angle = math.tau * idx / 16.0
+        x = 14.88 * math.cos(angle)
+        y = 14.88 * math.sin(angle)
+        facing_axis = "x" if abs(math.cos(angle)) > abs(math.sin(angle)) else "y"
+        add_wall_art_visual(
+            obj,
+            art,
+            f"rotunda_frieze_relief_panel_{idx+1:02d}",
+            "rotunda_frieze_relief_panel",
+            "Rotunda",
+            (x, y),
+            (1.75, 0.72),
+            facing_axis,
+            "PaintingCanvas",
+            z=8.65,
+            public_accuracy="schematic_public_rotunda_frieze_marker",
+        )
+
     # National Statuary Hall and nearby public statuary zones.
     for idx in range(18):
         row = idx // 6
@@ -1825,6 +1844,20 @@ def add_public_art_and_lighting(
             "StatueMarble" if idx % 3 else "StatueBronze",
         )
     add_label(labels, "National Statuary Hall collection markers - schematic", 28.0, -22.0, 7.1, "public_art")
+
+    for idx, x in enumerate([17.5, 20.5, 23.5, 26.5, 29.5, 32.5, 35.5, 38.5], start=1):
+        add_wall_art_visual(
+            obj,
+            art,
+            f"statuary_hall_wall_art_panel_{idx:02d}",
+            "public_hall_art_panel",
+            "National Statuary Hall",
+            (x, -20.2 if idx % 2 else -39.8),
+            (1.35, 1.85),
+            "y",
+            "PortraitCanvas",
+            z=6.05,
+        )
 
     for idx in range(10):
         angle = math.tau * idx / 10.0
@@ -1850,6 +1883,20 @@ def add_public_art_and_lighting(
             "x",
             "PortraitCanvas",
             z=6.15,
+        )
+
+    for idx, x in enumerate([18.5, 22.5, 26.5, 30.5, 34.5, 38.5], start=1):
+        add_wall_art_visual(
+            obj,
+            art,
+            f"old_senate_chamber_wall_art_panel_{idx:02d}",
+            "historic_chamber_art_panel",
+            "Old Senate Chamber",
+            (x, 21.2 if idx % 2 else 38.8),
+            (1.25, 1.75),
+            "y",
+            "PortraitCanvas",
+            z=6.0,
         )
 
     for idx, x in enumerate([-24.0, -16.0, -8.0, 8.0, 16.0, 24.0], start=1):
@@ -1898,6 +1945,18 @@ def add_public_art_and_lighting(
     for idx, x in enumerate([-20.0, -10.0, 0.0, 10.0, 20.0], start=1):
         add_light_fixture(obj, lights, f"house_chamber_pendant_{idx:02d}", "pendant", "House Chamber", (x, -72.0), 8.2, 900.0, 9.0)
         add_light_fixture(obj, lights, f"senate_chamber_pendant_{idx:02d}", "pendant", "Senate Chamber", (x * 0.75, 68.0), 8.2, 850.0, 8.0)
+
+    for idx, y in enumerate([-87.0, -80.5, -74.0, -67.5, -61.0], start=1):
+        add_light_fixture(obj, lights, f"house_west_wall_sconce_{idx:02d}", "sconce", "House Chamber", (-30.2, y), 7.0, 560.0, 6.8)
+        add_light_fixture(obj, lights, f"house_east_wall_sconce_{idx:02d}", "sconce", "House Chamber", (30.2, y), 7.0, 560.0, 6.8)
+
+    for idx, y in enumerate([58.0, 64.5, 71.0, 77.5], start=1):
+        add_light_fixture(obj, lights, f"senate_west_wall_sconce_{idx:02d}", "sconce", "Senate Chamber", (-23.2, y), 7.0, 540.0, 6.4)
+        add_light_fixture(obj, lights, f"senate_east_wall_sconce_{idx:02d}", "sconce", "Senate Chamber", (23.2, y), 7.0, 540.0, 6.4)
+
+    for idx, x in enumerate([-24.0, -8.0, 8.0, 24.0], start=1):
+        add_light_fixture(obj, lights, f"house_gallery_sconce_{idx:02d}", "sconce", "House galleries", (x, -100.9), 6.85, 440.0, 5.4)
+        add_light_fixture(obj, lights, f"senate_gallery_sconce_{idx:02d}", "sconce", "Senate galleries", (x * 0.78, 98.8), 6.85, 420.0, 5.2)
 
     for idx, x in enumerate([20.0, 28.0, 36.0], start=1):
         add_light_fixture(obj, lights, f"statuary_hall_pendant_{idx:02d}", "pendant", "National Statuary Hall", (x, -30.0), 7.8, 720.0, 7.0)
@@ -2036,6 +2095,26 @@ def add_chamber_realism_details(
         obj.add_box(center, size, 2.1, z, name, "InteriorTrim")
         add_chamber_detail_record(records, name, "backdrop_panel", chamber, (center[0], center[1], z + 1.05), size)
 
+    def rostrum_desk(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.42, z, f"{name}_desk_box", "DeskWood")
+        obj.add_box((center[0], center[1] + size[1] * 0.34), (size[0] * 0.78, 0.14), 0.38, z + 0.36, f"{name}_raised_lip", "InteriorTrim")
+        add_chamber_detail_record(records, name, "rostrum_desk", chamber, (center[0], center[1], z + 0.21), size)
+
+    def gallery_bench(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        orientation: str,
+    ) -> None:
+        obj.add_box(center, size, 0.18, z, f"{name}_seat", "DeskWood")
+        if orientation == "east_west":
+            obj.add_box((center[0], center[1] + size[1] * 0.38), (size[0], 0.12), 0.55, z + 0.14, f"{name}_back", "ChairLeather")
+        else:
+            obj.add_box((center[0] + size[0] * 0.38, center[1]), (0.12, size[1]), 0.55, z + 0.14, f"{name}_back", "ChairLeather")
+        add_chamber_detail_record(records, name, "gallery_bench", chamber, (center[0], center[1], z + 0.16), size)
+
     def flag_standard(name: str, chamber: str, x: float, y: float, z: float, flag_material: str) -> None:
         obj.add_cylinder((x, y), 0.055, z, 2.3, f"{name}_pole", "BrassRail", segments=10)
         obj.add_cylinder((x, y), 0.15, z + 2.3, 0.18, f"{name}_finial", "BrassRail", segments=12)
@@ -2060,6 +2139,21 @@ def add_chamber_realism_details(
     flag_standard("house_rostrum_us_flag_right", "House Chamber", 6.35, -46.95, 5.05, "ItemCloth")
     add_chamber_arc_strip(obj, records, "house_front_desk_arc_marker", "House Chamber", (0.0, -50.5), 21.5, 214.0, 326.0, 0.10, 4.64, "BrassRail")
     add_chamber_arc_strip(obj, records, "house_rear_desk_arc_marker", "House Chamber", (0.0, -50.5), 39.5, 218.0, 322.0, 0.10, 4.64, "BrassRail")
+    for idx, (x, y, sx, sy) in enumerate(
+        [(0.0, -48.7, 3.8, 0.92), (-3.2, -49.8, 2.2, 0.72), (3.2, -49.8, 2.2, 0.72), (0.0, -52.1, 5.4, 0.72)],
+        start=1,
+    ):
+        rostrum_desk(f"house_rostrum_generic_desk_{idx}", "House Chamber", (x, y), (sx, sy), 5.02)
+    for row_index, y in enumerate([-96.4, -98.4, -100.4, -102.4], start=1):
+        for col_index, x in enumerate([-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], start=1):
+            gallery_bench(
+                f"house_gallery_bench_r{row_index:02d}_c{col_index:02d}",
+                "House Chamber",
+                (x, y),
+                (5.2, 0.42),
+                4.98 + row_index * 0.14,
+                "east_west",
+            )
 
     # Senate chamber public visual details.
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
@@ -2079,6 +2173,21 @@ def add_chamber_realism_details(
     flag_standard("senate_presiding_us_flag_right", "Senate Chamber", 5.2, 84.55, 5.0, "ItemCloth")
     add_chamber_arc_strip(obj, records, "senate_front_desk_arc_marker", "Senate Chamber", (0.0, 84.0), 12.2, 205.0, 335.0, 0.10, 4.64, "BrassRail")
     add_chamber_arc_strip(obj, records, "senate_rear_desk_arc_marker", "Senate Chamber", (0.0, 84.0), 25.0, 209.0, 331.0, 0.10, 4.64, "BrassRail")
+    for idx, (x, y, sx, sy) in enumerate(
+        [(0.0, 83.75, 3.2, 0.82), (-2.8, 82.7, 2.0, 0.66), (2.8, 82.7, 2.0, 0.66)],
+        start=1,
+    ):
+        rostrum_desk(f"senate_presiding_generic_desk_{idx}", "Senate Chamber", (x, y), (sx, sy), 4.98)
+    for row_index, y in enumerate([94.8, 96.6, 98.4, 100.2], start=1):
+        for col_index, x in enumerate([-21.0, -14.0, -7.0, 0.0, 7.0, 14.0, 21.0], start=1):
+            gallery_bench(
+                f"senate_gallery_bench_r{row_index:02d}_c{col_index:02d}",
+                "Senate Chamber",
+                (x, y),
+                (4.8, 0.40),
+                4.96 + row_index * 0.14,
+                "east_west",
+            )
 
     add_label(labels, "House and Senate chamber rails, dais steps, flags, and aisle trim - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
