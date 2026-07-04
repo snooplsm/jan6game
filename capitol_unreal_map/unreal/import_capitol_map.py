@@ -31,6 +31,9 @@ MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
+PLAYTEST_PAWN_LABEL = "CapitolMap_Playtest_DefaultPawn"
+PLAYTEST_PAWN_LOCATION_CM = [-9600.0, -650.0, 160.0]
+PLAYTEST_PAWN_ROTATION_DEG = [0.0, 4.0, 0.0]
 NAV_MESH_BOUNDS_LABEL = "CapitolMap_NavMeshBounds_CentralCampus"
 NAV_MESH_BOUNDS_LOCATION_CM = [0.0, 0.0, 2500.0]
 NAV_MESH_BOUNDS_SCALE = [750.0, 750.0, 45.0]
@@ -44,6 +47,11 @@ FIRST_PERSON_IMPORT_SETUP = {
     "player_start_actor_class": "PlayerStart",
     "player_start_label": PLAYER_START_LABEL,
     "player_start_location_cm": PLAYER_START_LOCATION_CM,
+    "playtest_pawn_actor_class": "DefaultPawn",
+    "playtest_pawn_label": PLAYTEST_PAWN_LABEL,
+    "playtest_pawn_location_cm": PLAYTEST_PAWN_LOCATION_CM,
+    "playtest_pawn_rotation_deg": PLAYTEST_PAWN_ROTATION_DEG,
+    "playtest_pawn_auto_possess": "PLAYER0",
     "nav_mesh_bounds_actor_class": "NavMeshBoundsVolume",
     "nav_mesh_bounds_label": NAV_MESH_BOUNDS_LABEL,
     "nav_mesh_bounds_location_cm": NAV_MESH_BOUNDS_LOCATION_CM,
@@ -654,9 +662,32 @@ def spawn_scene_setup() -> None:
     except Exception as exc:
         log(f"PlayerStart setup skipped: {exc}")
 
+    spawn_playtest_pawn()
     spawn_camera_viewpoints()
     spawn_navigation_bounds()
     spawn_metadata_lights()
+
+
+def spawn_playtest_pawn() -> None:
+    """Place a default pawn for immediate PIE inspection when available."""
+    if not hasattr(unreal, "DefaultPawn"):
+        log("Playtest pawn skipped: DefaultPawn unavailable")
+        return
+    try:
+        pawn = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.DefaultPawn,
+            unreal.Vector(*PLAYTEST_PAWN_LOCATION_CM),
+            unreal.Rotator(*PLAYTEST_PAWN_ROTATION_DEG),
+        )
+        if not pawn:
+            return
+        pawn.set_actor_label(PLAYTEST_PAWN_LABEL)
+        pawn.set_folder_path("CapitolMap/SceneSetup")
+        if hasattr(unreal, "AutoReceiveInput") and hasattr(unreal.AutoReceiveInput, "PLAYER0"):
+            set_property(pawn, "auto_possess_player", unreal.AutoReceiveInput.PLAYER0)
+            set_property(pawn, "auto_receive_input", unreal.AutoReceiveInput.PLAYER0)
+    except Exception as exc:
+        log(f"Playtest pawn setup skipped: {exc}")
 
 
 def to_unreal_vector(location_m: list[float]) -> unreal.Vector:

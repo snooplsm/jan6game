@@ -2,6 +2,12 @@
 
 This package is a first public-data pass at a U.S. Capitol map for Unreal Engine 5.8, authored at first-person centimeter scale.
 
+## Quick Links
+
+- Local viewer: `http://127.0.0.1:8765/viewer.html`
+- Gameplay item preview: `http://127.0.0.1:8765/viewer.html#gameplay-items`
+- Texture preview: `http://127.0.0.1:8765/texture_preview.html`
+
 It contains:
 
 - exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, public streetscape props, and authored public grounds details derived from OpenStreetMap context plus schematic visual markers
@@ -152,9 +158,9 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 5. The script imports meshes into `/Game/CapitolMap/Generated`.
 6. The script imports generated texture PNGs into `/Game/CapitolMap/Textures`.
 7. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json`, wires generated basecolor/normal/roughness texture samples from `generated/data/material_texture_manifest.json`, and applies those materials to matching imported material slots.
-8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors with collision/navigation settings, interior lights, a capped set of exterior streetlight actors, labels, PlayerStart, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
+8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors with collision/navigation settings, interior lights, a capped set of exterior streetlight actors, labels, PlayerStart, a guarded DefaultPawn playtest helper, camera viewpoints, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
 9. The script saves the current level when the Unreal editor API allows it.
-10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, first-person collision/navigation setup, and metadata counts.
+10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, first-person collision/navigation/playtest setup, and metadata counts.
 
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
 
