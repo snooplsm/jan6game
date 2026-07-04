@@ -82,6 +82,7 @@ REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Rotunda",
     "CapitolMap_Camera_HouseChamber_JointSession",
     "CapitolMap_Camera_SenateChamber",
+    "CapitolMap_Camera_GameplayItems",
 }
 
 REQUIRED_GAMEPLAY_ITEMS = {

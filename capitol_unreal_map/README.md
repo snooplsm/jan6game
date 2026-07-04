@@ -161,6 +161,7 @@ Generated camera viewpoints:
 - `CapitolMap_Camera_Rotunda`
 - `CapitolMap_Camera_HouseChamber_JointSession`
 - `CapitolMap_Camera_SenateChamber`
+- `CapitolMap_Camera_GameplayItems`
 
 Those viewpoints are also written into `generated/data/capitol_scene_metadata.json` so downstream tools can reuse the same inspection positions.
 
