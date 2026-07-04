@@ -51,6 +51,25 @@
     "min_texture_size_px": 4096,
     "expected_min_texture_size_px": 4096
   },
+  "unreal_importer": {
+    "path": "unreal/import_capitol_map.py",
+    "mesh_files": 5,
+    "destination_paths": 4,
+    "required_functions": 13,
+    "required_calls": 13,
+    "report_keys": 27,
+    "label_categories": 16,
+    "outliner_folders": 8,
+    "missing": {
+      "mesh_files": [],
+      "destination_paths": [],
+      "required_functions": [],
+      "required_calls": [],
+      "report_keys": [],
+      "label_categories": [],
+      "outliner_folders": []
+    }
+  },
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",

@@ -71,8 +71,9 @@ The validator checks that:
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
+- the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, and import-report key
 
-It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
+It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
 The current validation report counts 732,546 generated texture coordinates across the five OBJ meshes.
 

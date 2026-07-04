@@ -8,6 +8,7 @@ with the public-data map package contract.
 
 from __future__ import annotations
 
+import ast
 import json
 import math
 import os
@@ -25,6 +26,7 @@ MTL_PATH = MESH_DIR / "capitol_materials.mtl"
 REPORT_PATH = DATA_DIR / "capitol_package_validation.json"
 MATERIAL_MANIFEST_PATH = ROOT / "unreal" / "material_realism_manifest.json"
 TEXTURE_MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
+UNREAL_IMPORTER_PATH = ROOT / "unreal" / "import_capitol_map.py"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 
 EXPECTED_MESHES = {
@@ -33,6 +35,107 @@ EXPECTED_MESHES = {
     "generated/meshes/capitol_landmark_visual_details.obj",
     "generated/meshes/capitol_public_interior_schematic.obj",
     "generated/meshes/capitol_gameplay_items.obj",
+}
+
+EXPECTED_UNREAL_MESH_BASENAMES = {Path(rel).name for rel in EXPECTED_MESHES}
+
+EXPECTED_UNREAL_DESTINATIONS = {
+    "/Game/CapitolMap/Generated",
+    "/Game/CapitolMap/Materials",
+    "/Game/CapitolMap/Textures",
+    "/Game/CapitolMap/Maps",
+}
+
+REQUIRED_UNREAL_FUNCTIONS = {
+    "prepare_level",
+    "clear_generated_level_actors",
+    "import_meshes",
+    "import_texture_assets",
+    "create_or_update_materials",
+    "spawn_mesh_actors",
+    "spawn_scene_setup",
+    "spawn_camera_viewpoints",
+    "spawn_navigation_bounds",
+    "spawn_metadata_lights",
+    "spawn_metadata_labels",
+    "write_unreal_import_report",
+    "main",
+}
+
+REQUIRED_UNREAL_CALLS = {
+    "prepare_level",
+    "clear_generated_level_actors",
+    "import_meshes",
+    "import_texture_assets",
+    "create_or_update_materials",
+    "spawn_mesh_actors",
+    "spawn_scene_setup",
+    "spawn_camera_viewpoints",
+    "spawn_navigation_bounds",
+    "spawn_metadata_lights",
+    "spawn_metadata_labels",
+    "save_generated_level",
+    "write_unreal_import_report",
+}
+
+REQUIRED_UNREAL_REPORT_KEYS = {
+    "ok",
+    "map_asset_path",
+    "map_destination",
+    "import_destination",
+    "material_destination",
+    "texture_destination",
+    "imported_assets",
+    "material_assets",
+    "texture_assets",
+    "mesh_count",
+    "material_count",
+    "texture_set_count",
+    "texture_asset_count",
+    "metadata_counts",
+    "buildings",
+    "roads",
+    "bike_lanes",
+    "street_markers",
+    "grounds_details",
+    "grounds_walk_lamps",
+    "rooms",
+    "seating",
+    "office_cells",
+    "circulation_details",
+    "joint_session",
+    "gameplay_items",
+    "viewpoints",
+}
+
+REQUIRED_UNREAL_LABEL_CATEGORIES = {
+    "major_public_space",
+    "legislative_chamber",
+    "visitor_gallery",
+    "generic_office_zone",
+    "seating",
+    "seating_section",
+    "chamber_detail",
+    "public_circulation_detail",
+    "joint_session",
+    "public_art",
+    "lighting",
+    "wall_treatment",
+    "landmark",
+    "street_name",
+    "building",
+    "gameplay_item",
+}
+
+REQUIRED_UNREAL_OUTLINER_FOLDERS = {
+    "CapitolMap/Meshes",
+    "CapitolMap/SceneSetup",
+    "CapitolMap/Viewpoints",
+    "CapitolMap/Lighting",
+    "CapitolMap/Labels/Interior",
+    "CapitolMap/Labels/Exterior",
+    "CapitolMap/Labels/Landmark",
+    "CapitolMap/Labels/Gameplay",
 }
 
 REQUIRED_ROOMS = {
@@ -717,6 +820,86 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     return summary
 
 
+def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "path": str(UNREAL_IMPORTER_PATH.relative_to(ROOT)),
+        "mesh_files": 0,
+        "destination_paths": 0,
+        "required_functions": 0,
+        "required_calls": 0,
+        "report_keys": 0,
+        "label_categories": 0,
+        "outliner_folders": 0,
+    }
+    if not UNREAL_IMPORTER_PATH.exists():
+        error(errors, f"missing Unreal import script: {UNREAL_IMPORTER_PATH}")
+        return summary
+
+    text = UNREAL_IMPORTER_PATH.read_text(encoding="utf-8")
+    try:
+        tree = ast.parse(text, filename=str(UNREAL_IMPORTER_PATH))
+    except SyntaxError as exc:
+        error(errors, f"Unreal import script has invalid Python syntax: {exc}")
+        return summary
+
+    string_literals = {
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    }
+    functions = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+    calls: set[str] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if isinstance(node.func, ast.Name):
+            calls.add(node.func.id)
+        elif isinstance(node.func, ast.Attribute):
+            calls.add(node.func.attr)
+
+    missing_meshes = sorted(EXPECTED_UNREAL_MESH_BASENAMES - string_literals)
+    missing_destinations = sorted(EXPECTED_UNREAL_DESTINATIONS - string_literals)
+    missing_functions = sorted(REQUIRED_UNREAL_FUNCTIONS - functions)
+    missing_calls = sorted(REQUIRED_UNREAL_CALLS - calls)
+    missing_report_keys = sorted(REQUIRED_UNREAL_REPORT_KEYS - string_literals)
+    missing_label_categories = sorted(REQUIRED_UNREAL_LABEL_CATEGORIES - string_literals)
+    missing_outliner_folders = sorted(REQUIRED_UNREAL_OUTLINER_FOLDERS - string_literals)
+
+    summary["mesh_files"] = len(EXPECTED_UNREAL_MESH_BASENAMES) - len(missing_meshes)
+    summary["destination_paths"] = len(EXPECTED_UNREAL_DESTINATIONS) - len(missing_destinations)
+    summary["required_functions"] = len(REQUIRED_UNREAL_FUNCTIONS) - len(missing_functions)
+    summary["required_calls"] = len(REQUIRED_UNREAL_CALLS) - len(missing_calls)
+    summary["report_keys"] = len(REQUIRED_UNREAL_REPORT_KEYS) - len(missing_report_keys)
+    summary["label_categories"] = len(REQUIRED_UNREAL_LABEL_CATEGORIES) - len(missing_label_categories)
+    summary["outliner_folders"] = len(REQUIRED_UNREAL_OUTLINER_FOLDERS) - len(missing_outliner_folders)
+    summary["missing"] = {
+        "mesh_files": missing_meshes,
+        "destination_paths": missing_destinations,
+        "required_functions": missing_functions,
+        "required_calls": missing_calls,
+        "report_keys": missing_report_keys,
+        "label_categories": missing_label_categories,
+        "outliner_folders": missing_outliner_folders,
+    }
+
+    if missing_meshes:
+        error(errors, f"Unreal importer missing generated mesh files: {', '.join(missing_meshes)}")
+    if missing_destinations:
+        error(errors, f"Unreal importer missing destination paths: {', '.join(missing_destinations)}")
+    if missing_functions:
+        error(errors, f"Unreal importer missing required functions: {', '.join(missing_functions)}")
+    if missing_calls:
+        error(errors, f"Unreal importer missing required helper calls: {', '.join(missing_calls)}")
+    if missing_report_keys:
+        error(errors, f"Unreal import report missing required keys: {', '.join(missing_report_keys)}")
+    if missing_label_categories:
+        error(errors, f"Unreal importer missing label categories: {', '.join(missing_label_categories)}")
+    if missing_outliner_folders:
+        error(errors, f"Unreal importer missing outliner folders: {', '.join(missing_outliner_folders)}")
+
+    return summary
+
+
 def main() -> int:
     errors: list[str] = []
     if not METADATA_PATH.exists():
@@ -729,6 +912,7 @@ def main() -> int:
     metadata_summary = validate_metadata(metadata, errors)
     material_summary = validate_material_manifest(materials, errors)
     texture_summary = validate_texture_manifest(materials, errors)
+    unreal_importer_summary = validate_unreal_importer(errors)
     mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
 
     report = {
@@ -737,6 +921,7 @@ def main() -> int:
         "metadata": metadata_summary,
         "materials": material_summary,
         "textures": texture_summary,
+        "unreal_importer": unreal_importer_summary,
         "meshes": mesh_stats,
         "errors": errors,
     }
@@ -782,6 +967,8 @@ def main() -> int:
     print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
     print(f"Texture sets: {texture_summary.get('texture_sets', 0):,}")
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
+    print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
+    print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
 

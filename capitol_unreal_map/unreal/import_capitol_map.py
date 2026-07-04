@@ -859,8 +859,10 @@ def write_unreal_import_report(
         report = {
             "ok": True,
             "map_asset_path": MAP_ASSET_PATH,
+            "map_destination": MAP_DESTINATION_PATH,
             "import_destination": DESTINATION_PATH,
             "material_destination": MATERIAL_DESTINATION_PATH,
+            "texture_destination": TEXTURE_DESTINATION_PATH,
             "imported_assets": imported,
             "material_assets": material_assets,
             "texture_assets": texture_assets,
