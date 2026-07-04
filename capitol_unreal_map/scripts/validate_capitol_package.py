@@ -157,6 +157,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "office_details",
     "circulation_details",
     "rotunda_details",
+    "ceiling_details",
     "joint_session",
     "gameplay_items",
     "viewpoints",
@@ -375,6 +376,14 @@ REQUIRED_ROTUNDA_DETAIL_KINDS = {
     "public_arch_portal",
     "upper_balustrade",
     "statue_pedestal_base",
+}
+
+REQUIRED_CEILING_DETAIL_KINDS = {
+    "crown_molding",
+    "ceiling_grid_beam",
+    "coffer_panel",
+    "ceiling_medallion",
+    "light_canopy",
 }
 
 REQUIRED_GROUNDS_DETAIL_KINDS = {
@@ -991,6 +1000,38 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"Rotunda detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
             break
 
+    ceiling_details = interior.get("ceiling_details", [])
+    ceiling_detail_kinds = {detail.get("kind") for detail in ceiling_details}
+    summary["ceiling_details"] = len(ceiling_details)
+    summary["ceiling_detail_kinds"] = len(ceiling_detail_kinds)
+    if len(ceiling_details) < 280:
+        error(errors, f"expected at least 280 public ceiling detail records, got {len(ceiling_details)}")
+    missing_ceiling_kinds = sorted(REQUIRED_CEILING_DETAIL_KINDS - ceiling_detail_kinds)
+    if missing_ceiling_kinds:
+        error(errors, f"missing public ceiling detail kinds: {', '.join(missing_ceiling_kinds)}")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "coffer_panel"]) < 120:
+        error(errors, "expected at least 120 public coffer-panel records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "crown_molding"]) < 40:
+        error(errors, "expected at least 40 public crown-molding records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_grid_beam"]) < 50:
+        error(errors, "expected at least 50 public ceiling grid beam records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_medallion"]) < 30:
+        error(errors, "expected at least 30 public ceiling medallion records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "light_canopy"]) < 30:
+        error(errors, "expected at least 30 public light canopy records")
+    for detail in ceiling_details:
+        if not detail.get("room"):
+            error(errors, f"ceiling detail {detail.get('name', '<unknown>')} is missing room")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"ceiling detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if "public" not in public_accuracy or "public visual" not in assignment or "security feature" not in assignment:
+            error(errors, f"ceiling detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     joint_session = interior.get("joint_session", [])
     joint_names = {item.get("name") for item in joint_session}
     summary["joint_session_records"] = len(joint_session)
@@ -1379,6 +1420,7 @@ def main() -> int:
     print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
     print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
     print(f"Rotunda details: {metadata_summary.get('rotunda_details', 0):,}")
+    print(f"Ceiling details: {metadata_summary.get('ceiling_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")

@@ -2566,6 +2566,121 @@ def add_wall_treatment(
     )
 
 
+def add_interior_ceiling_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    room: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "room": room,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_interior_ceiling_detail",
+        "assignment": (
+            "Public visual ceiling/trim detail only; not a restricted route, "
+            "security feature, or operational placement."
+        ),
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_coffered_ceiling(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    name: str,
+    room: str,
+    center: tuple[float, float],
+    size: tuple[float, float],
+    columns: int,
+    rows: int,
+    medallion_offsets: list[tuple[float, float]],
+    z: float,
+) -> None:
+    cx, cy = center
+    sx, sy = size
+    beam_width = 0.16
+    beam_height = 0.12
+    crown_height = 0.18
+
+    crown_specs = [
+        ("north", (cx, cy + sy / 2.0 - 0.12), (sx * 0.98, 0.18)),
+        ("south", (cx, cy - sy / 2.0 + 0.12), (sx * 0.98, 0.18)),
+        ("east", (cx + sx / 2.0 - 0.12, cy), (0.18, sy * 0.98)),
+        ("west", (cx - sx / 2.0 + 0.12, cy), (0.18, sy * 0.98)),
+    ]
+    for side, detail_center, detail_size in crown_specs:
+        detail_name = f"{name}_{side}_crown_molding"
+        obj.add_box(detail_center, detail_size, crown_height, z, detail_name, "ArtFrameGold")
+        add_interior_ceiling_detail_record(
+            records,
+            detail_name,
+            "crown_molding",
+            room,
+            (detail_center[0], detail_center[1], z + crown_height / 2.0),
+            detail_size,
+        )
+
+    for col in range(1, columns):
+        x = cx - sx / 2.0 + sx * col / columns
+        detail_name = f"{name}_vertical_ceiling_beam_{col:02d}"
+        obj.add_box((x, cy), (beam_width, sy * 0.94), beam_height, z + 0.02, detail_name, "InteriorTrim")
+        add_interior_ceiling_detail_record(records, detail_name, "ceiling_grid_beam", room, (x, cy, z + 0.08), (beam_width, sy * 0.94))
+    for row in range(1, rows):
+        y = cy - sy / 2.0 + sy * row / rows
+        detail_name = f"{name}_horizontal_ceiling_beam_{row:02d}"
+        obj.add_box((cx, y), (sx * 0.94, beam_width), beam_height, z + 0.02, detail_name, "InteriorTrim")
+        add_interior_ceiling_detail_record(records, detail_name, "ceiling_grid_beam", room, (cx, y, z + 0.08), (sx * 0.94, beam_width))
+
+    cell_w = sx / columns
+    cell_h = sy / rows
+    for row in range(rows):
+        for col in range(columns):
+            px = cx - sx / 2.0 + cell_w * (col + 0.5)
+            py = cy - sy / 2.0 + cell_h * (row + 0.5)
+            detail_name = f"{name}_coffer_panel_r{row+1:02d}_c{col+1:02d}"
+            panel_size = (cell_w * 0.70, cell_h * 0.66)
+            obj.add_box((px, py), panel_size, 0.035, z + 0.10, detail_name, "RotundaWall")
+            add_interior_ceiling_detail_record(records, detail_name, "coffer_panel", room, (px, py, z + 0.118), panel_size)
+
+    for index, (ox, oy) in enumerate(medallion_offsets, start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        medallion_name = f"{name}_ceiling_medallion_{index:02d}"
+        canopy_name = f"{name}_light_canopy_{index:02d}"
+        obj.add_cylinder((x, y), 0.52, z + 0.16, 0.06, medallion_name, "ArtFrameGold", segments=24)
+        obj.add_cylinder((x, y), 0.22, z + 0.22, 0.08, canopy_name, "LightFixtureMetal", segments=18)
+        add_interior_ceiling_detail_record(records, medallion_name, "ceiling_medallion", room, (x, y, z + 0.19), (1.04, 1.04))
+        add_interior_ceiling_detail_record(records, canopy_name, "light_canopy", room, (x, y, z + 0.26), (0.44, 0.44))
+
+
+def add_public_interior_ceiling_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    ceiling_specs = [
+        ("house_chamber_ceiling", "House Chamber", (0.0, -72.0), (62.0, 42.0), 6, 4, [(-0.28, -0.18), (0.0, -0.18), (0.28, -0.18), (-0.14, 0.18), (0.14, 0.18)], 8.15),
+        ("senate_chamber_ceiling", "Senate Chamber", (0.0, 68.0), (48.0, 38.0), 5, 4, [(-0.24, -0.16), (0.0, -0.16), (0.24, -0.16), (0.0, 0.18)], 8.05),
+        ("national_statuary_hall_ceiling", "National Statuary Hall", (28.0, -30.0), (30.0, 20.0), 4, 3, [(-0.22, 0.0), (0.0, 0.0), (0.22, 0.0)], 7.95),
+        ("old_senate_chamber_ceiling", "Old Senate Chamber", (28.0, 30.0), (26.0, 18.0), 4, 3, [(-0.22, 0.0), (0.0, 0.0), (0.22, 0.0)], 7.9),
+        ("house_gallery_ceiling", "House galleries", (0.0, -96.0), (68.0, 10.0), 6, 1, [(-0.34, 0.0), (-0.12, 0.0), (0.12, 0.0), (0.34, 0.0)], 7.65),
+        ("senate_gallery_ceiling", "Senate galleries", (0.0, 94.0), (54.0, 10.0), 5, 1, [(-0.32, 0.0), (-0.10, 0.0), (0.10, 0.0), (0.32, 0.0)], 7.65),
+        ("house_west_office_ceiling", "House leadership/support offices - schematic zone", (-53.0, -55.0), (22.0, 46.0), 3, 4, [(-0.18, -0.18), (0.18, 0.18)], 7.35),
+        ("house_east_office_ceiling", "House committee/support rooms - schematic zone", (53.0, -55.0), (22.0, 46.0), 3, 4, [(-0.18, -0.18), (0.18, 0.18)], 7.35),
+        ("senate_west_office_ceiling", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), 3, 4, [(-0.18, -0.18), (0.18, 0.18)], 7.35),
+        ("senate_east_office_ceiling", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 3, 4, [(-0.18, -0.18), (0.18, 0.18)], 7.35),
+    ]
+    for spec in ceiling_specs:
+        add_coffered_ceiling(obj, records, *spec)
+    add_label(labels, "Coffered ceilings and crown trim - schematic", 0.0, 0.0, 8.9, "wall_treatment")
+
+
 def add_chamber_detail_record(
     records: list[dict[str, Any]],
     name: str,
@@ -3218,6 +3333,7 @@ def build_interior() -> dict[str, Any]:
     chamber_details: list[dict[str, Any]] = []
     circulation_details: list[dict[str, Any]] = []
     rotunda_details: list[dict[str, Any]] = []
+    ceiling_details: list[dict[str, Any]] = []
 
     # Broad second-floor public schematic. North = +Y. East = +X.
     add_room(obj, rooms, labels, "Capitol second-floor public schematic footprint", (0.0, 0.0), (150.0, 190.0), "InteriorFloor", "floorplate", z=3.95, height=0.08, with_walls=True)
@@ -3273,6 +3389,7 @@ def build_interior() -> dict[str, Any]:
     add_wall_treatment(obj, wall_treatments, "house_east_office_wall_finish", "House committee/support rooms - schematic zone", (53.0, -55.0), (22.0, 46.0), 5, 8, z=4.45)
     add_wall_treatment(obj, wall_treatments, "senate_west_office_wall_finish", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), 5, 8, z=4.45)
     add_wall_treatment(obj, wall_treatments, "senate_east_office_wall_finish", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 5, 8, z=4.45)
+    add_public_interior_ceiling_details(obj, labels, ceiling_details)
     add_label(labels, "Wainscot panels, chair rails, and picture rails - schematic", 0.0, -6.5, 7.6, "wall_treatment")
 
     obj.write(MESH_DIR / "capitol_public_interior_schematic.obj", "capitol_materials.mtl")
@@ -3290,6 +3407,7 @@ def build_interior() -> dict[str, Any]:
         "chamber_details": chamber_details,
         "circulation_details": circulation_details,
         "rotunda_details": rotunda_details,
+        "ceiling_details": ceiling_details,
         "interior_notice": (
             "Public schematic only. It maps major public spaces and generic chamber seating. "
             "It does not include restricted security details, private office assignments, "
@@ -3552,6 +3670,7 @@ def main() -> None:
         f"{len(interior['chamber_details'])} chamber detail records,",
         f"{len(interior['circulation_details'])} circulation detail records,",
         f"{len(interior['rotunda_details'])} rotunda detail records,",
+        f"{len(interior['ceiling_details'])} ceiling detail records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
         f"{len(interior['seating'])} generic chamber seats/desks,",
         f"{len(gameplay['items'])} gameplay item props",

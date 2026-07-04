@@ -1042,6 +1042,7 @@ def write_unreal_import_report(
                 "office_details": len(data.get("interior", {}).get("office_details", [])),
                 "circulation_details": len(data.get("interior", {}).get("circulation_details", [])),
                 "rotunda_details": len(data.get("interior", {}).get("rotunda_details", [])),
+                "ceiling_details": len(data.get("interior", {}).get("ceiling_details", [])),
                 "joint_session": len(data.get("interior", {}).get("joint_session", [])),
                 "gameplay_items": len(data.get("gameplay", {}).get("items", [])),
                 "viewpoints": len(data.get("viewpoints", [])),
