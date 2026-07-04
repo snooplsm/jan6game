@@ -88,7 +88,7 @@ The current generated build contains:
 - 608 lane-edge marking records
 - 880 street markers/crossings/traffic signals
 - 818 public streetscape prop records, including schematic streetlights, street-name signs, traffic-signal heads, and tree planters; the mesh also includes crosswalk striping and bike-lane marker posts
-- 101 authored public grounds detail records, including lawn panels, public walks, reflecting-pool marker, pool coping, formal planting beds, tree allees, walk lamps, and low plaza walls
+- 101 authored public grounds detail records, including lawn panels, public walks, reflecting-pool marker, pool coping, formal planting beds, tree allees, 18 Unreal-spawnable public walk lamps, and low plaza walls
 - Capitol visual massing details including dome, lantern, porticos, columns, steps, plaza, grounds, public-facing revolving-door visuals, facade windows, stone window surrounds, dentil/cornice courses, roof balustrades, pediment relief panels, entry lamps, bollards, and benches
 - 648 Capitol facade/furniture detail records
 - 60 generic public office/support visual cells
@@ -126,7 +126,7 @@ The viewer can toggle:
 - gameplay item props
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, office zones, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, office zones, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
@@ -151,7 +151,7 @@ The OBJ vertices are already authored in centimeters, so import scale should rem
 
 The current realism pass uses deterministic 4K procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable 4096x4096 basecolor, normal, and roughness PNGs under `generated/textures/` and writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
 
-The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal.
+The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal. The importer also spawns metadata-driven interior lights, capped public streetlights, and authored public grounds walk lamps.
 
 The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, authored public grounds details, Capitol facade windows, stone window surrounds, dentil courses, roof balustrades, dome balustrade posts, lantern windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
 
@@ -161,6 +161,7 @@ Generated camera viewpoints:
 
 - `CapitolMap_Camera_Overview`
 - `CapitolMap_Camera_WestFront_FirstPerson`
+- `CapitolMap_Camera_WestGrounds`
 - `CapitolMap_Camera_Rotunda`
 - `CapitolMap_Camera_HouseChamber_JointSession`
 - `CapitolMap_Camera_SenateChamber`

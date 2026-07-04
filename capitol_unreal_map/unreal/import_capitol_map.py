@@ -52,6 +52,12 @@ DEFAULT_VIEWPOINTS = [
         "fov": 78.0,
     },
     {
+        "label": "CapitolMap_Camera_WestGrounds",
+        "location_m": [-360.0, -125.0, 42.0],
+        "target_m": [-235.0, 0.0, 1.0],
+        "fov": 52.0,
+    },
+    {
         "label": "CapitolMap_Camera_Rotunda",
         "location_m": [-23.0, -24.0, 7.5],
         "target_m": [0.0, 0.0, 5.0],
@@ -701,6 +707,11 @@ def spawn_metadata_lights() -> None:
             for prop in data.get("exterior", {}).get("streetscape_props", [])
             if prop.get("kind") == "streetlight" and prop.get("light_m")
         ][:120]
+        grounds_walk_lamps = [
+            detail
+            for detail in data.get("exterior", {}).get("grounds_details", [])
+            if detail.get("kind") == "public_walk_lamp" and detail.get("light_m")
+        ]
     except Exception as exc:
         log(f"Lighting metadata skipped: {exc}")
         return
@@ -714,6 +725,18 @@ def spawn_metadata_lights() -> None:
                 "intensity": prop.get("intensity", 420.0),
                 "attenuation_radius_m": prop.get("attenuation_radius_m", 9.0),
                 "color": prop.get("color", [1.0, 0.82, 0.55]),
+            }
+        )
+    for detail in grounds_walk_lamps:
+        fixtures.append(
+            {
+                "name": detail.get("name", "grounds_walk_lamp"),
+                "type": "public_grounds_walk_lamp",
+                "location": "Exterior public grounds",
+                "center_m": detail.get("light_m"),
+                "intensity": detail.get("intensity", 360.0),
+                "attenuation_radius_m": detail.get("attenuation_radius_m", 8.0),
+                "color": detail.get("color", [1.0, 0.82, 0.55]),
             }
         )
     for fixture in fixtures:
@@ -735,7 +758,11 @@ def spawn_metadata_lights() -> None:
         except Exception as exc:
             log(f"Light fixture skipped ({fixture.get('name', '<unknown>')}): {exc}")
     if exterior_streetlights:
-        log(f"Spawned metadata lights including {len(exterior_streetlights)} capped exterior streetlights")
+        log(
+            "Spawned metadata lights including "
+            f"{len(exterior_streetlights)} capped exterior streetlights and "
+            f"{len(grounds_walk_lamps)} public grounds walk lamps"
+        )
 
 
 def label_color(category: str) -> unreal.Color:
@@ -845,6 +872,14 @@ def write_unreal_import_report(
                 "roads": len(data.get("exterior", {}).get("roads", [])),
                 "bike_lanes": len(data.get("exterior", {}).get("bike_lanes", [])),
                 "street_markers": len(data.get("exterior", {}).get("street_markers", [])),
+                "grounds_details": len(data.get("exterior", {}).get("grounds_details", [])),
+                "grounds_walk_lamps": len(
+                    [
+                        detail
+                        for detail in data.get("exterior", {}).get("grounds_details", [])
+                        if detail.get("kind") == "public_walk_lamp"
+                    ]
+                ),
                 "rooms": len(data.get("interior", {}).get("rooms", [])),
                 "seating": len(data.get("interior", {}).get("seating", [])),
                 "office_cells": len(data.get("interior", {}).get("office_cells", [])),

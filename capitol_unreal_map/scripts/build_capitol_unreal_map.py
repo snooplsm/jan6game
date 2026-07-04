@@ -121,6 +121,13 @@ VIEWPOINTS = [
         "category": "first_person",
     },
     {
+        "label": "CapitolMap_Camera_WestGrounds",
+        "location_m": [-360.0, -125.0, 42.0],
+        "target_m": [-235.0, 0.0, 1.0],
+        "fov": 52.0,
+        "category": "public_exterior",
+    },
+    {
         "label": "CapitolMap_Camera_Rotunda",
         "location_m": [-23.0, -24.0, 7.5],
         "target_m": [0.0, 0.0, 5.0],
@@ -732,6 +739,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         center: tuple[float, float, float],
         size: tuple[float, float] | None = None,
         public_accuracy: str = "approximate_public_grounds_visual",
+        extra: dict[str, Any] | None = None,
     ) -> None:
         record: dict[str, Any] = {
             "name": name,
@@ -741,6 +749,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         }
         if size is not None:
             record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+        if extra:
+            record.update(extra)
         metadata["grounds_details"].append(record)
 
     def add_grounds_box(
@@ -779,6 +789,12 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             (x, y, 1.75),
             (0.36, 0.36),
             public_accuracy="schematic_public_grounds_lighting",
+            extra={
+                "light_m": [round(x, 3), round(y, 3), 3.22],
+                "intensity": 360.0,
+                "attenuation_radius_m": 8.0,
+                "color": [1.0, 0.82, 0.55],
+            },
         )
 
     def add_capitol_grounds_details() -> None:

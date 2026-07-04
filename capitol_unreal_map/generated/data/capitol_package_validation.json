@@ -14,6 +14,7 @@
     "streetscape_props": 818,
     "grounds_details": 101,
     "grounds_detail_kinds": 8,
+    "grounds_walk_lamps": 18,
     "landmark_elements": 18,
     "facade_details": 648,
     "facade_detail_kinds": 16,
@@ -34,7 +35,7 @@
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 6
+    "viewpoints": 7
   },
   "materials": {
     "manifest_materials": 71,

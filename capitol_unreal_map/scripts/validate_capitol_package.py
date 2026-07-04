@@ -100,6 +100,7 @@ REQUIRED_GROUNDS_DETAIL_KINDS = {
 REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Overview",
     "CapitolMap_Camera_WestFront_FirstPerson",
+    "CapitolMap_Camera_WestGrounds",
     "CapitolMap_Camera_Rotunda",
     "CapitolMap_Camera_HouseChamber_JointSession",
     "CapitolMap_Camera_SenateChamber",
@@ -353,8 +354,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["streetscape_props"] = len(streetscape_props)
     grounds_details = exterior.get("grounds_details", [])
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
+    grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
     summary["grounds_details"] = len(grounds_details)
     summary["grounds_detail_kinds"] = len(grounds_detail_kinds)
+    summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
     if summary["roads"] < 3000:
@@ -384,6 +387,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     missing_grounds_kinds = sorted(REQUIRED_GROUNDS_DETAIL_KINDS - grounds_detail_kinds)
     if missing_grounds_kinds:
         error(errors, f"missing public grounds detail kinds: {', '.join(missing_grounds_kinds)}")
+    if len(grounds_walk_lamps) < 18:
+        error(errors, f"expected at least 18 public grounds walk lamps, got {len(grounds_walk_lamps)}")
     for detail in grounds_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"grounds detail {detail.get('name', '<unknown>')} has invalid center_m")
@@ -391,6 +396,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         if "public" not in detail.get("public_accuracy", ""):
             error(errors, f"grounds detail {detail.get('name', '<unknown>')} lacks public accuracy boundary")
             break
+        if detail.get("kind") == "public_walk_lamp":
+            if not is_vec3(detail.get("light_m")):
+                error(errors, f"grounds lamp {detail.get('name', '<unknown>')} has invalid light_m")
+                break
+            if not is_number(detail.get("intensity")) or not is_number(detail.get("attenuation_radius_m")):
+                error(errors, f"grounds lamp {detail.get('name', '<unknown>')} has invalid light properties")
+                break
 
     landmark = metadata.get("landmark", {})
     elements = landmark.get("elements", [])
@@ -729,6 +741,7 @@ def main() -> int:
     print(f"Replaced OSM building footprints: {metadata_summary.get('replaced_buildings', 0):,}")
     print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
     print(f"Grounds details: {metadata_summary.get('grounds_details', 0):,}")
+    print(f"Grounds walk lamps: {metadata_summary.get('grounds_walk_lamps', 0):,}")
     print(f"Facade/furniture details: {metadata_summary.get('facade_details', 0):,}")
     print(f"House seats: {metadata_summary.get('house_seats', 0):,}")
     print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
