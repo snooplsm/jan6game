@@ -204,6 +204,7 @@
       <a class="quick-link" id="quickFacadeDetails" href="#facade-details">Facade Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
       <a class="quick-link" id="quickSignageDetails" href="#signage-details">Signage</a>
+      <a class="quick-link" id="quickDoorDetails" href="#door-details">Doors</a>
       <a class="quick-link" id="quickWallFinishDetails" href="#wall-finish-details">Wall Finish</a>
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
@@ -224,6 +225,7 @@
       <button id="presetJoint">Joint Session</button>
       <button id="presetOffices">Offices</button>
       <button id="presetSignageDetails">Signage</button>
+      <button id="presetDoorDetails">Doors</button>
       <button id="presetWallFinishDetails">Wall Finish</button>
       <button id="presetFloorDetails">Floor Details</button>
       <button id="presetCeilingDetails">Ceiling Details</button>
@@ -247,6 +249,7 @@
         <option value="generic_office_zone">Office zones</option>
         <option value="office_detail">Office details</option>
         <option value="signage_detail">Signage details</option>
+        <option value="door_detail">Door details</option>
         <option value="wall_finish_detail">Wall finish details</option>
         <option value="floor_detail">Floor details</option>
         <option value="ceiling_detail">Ceiling details</option>
@@ -315,7 +318,7 @@
       }
     ];
 
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "office_detail", "signage_detail", "wall_finish_detail", "floor_detail", "ceiling_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "office_detail", "signage_detail", "door_detail", "wall_finish_detail", "floor_detail", "ceiling_detail"]);
 
     const state = {
       meshes: [],
@@ -401,6 +404,7 @@
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
     document.getElementById("presetSignageDetails").onclick = () => focusSignageDetailsRoute();
+    document.getElementById("presetDoorDetails").onclick = () => focusDoorDetailsRoute();
     document.getElementById("presetWallFinishDetails").onclick = () => focusWallFinishDetailsRoute();
     document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
     document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
@@ -424,6 +428,11 @@
     document.getElementById("quickSignageDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusSignageDetailsRoute();
+    });
+
+    document.getElementById("quickDoorDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusDoorDetailsRoute();
     });
 
     document.getElementById("quickWallFinishDetails").addEventListener("click", (event) => {
@@ -627,6 +636,16 @@
           category: "signage_detail"
         });
       }
+      for (const detail of metadata.interior?.door_details || []) {
+        const labelText = detail.area
+          ? `${humanizeId(detail.kind || "door_detail")} - ${detail.area}`
+          : humanizeId(detail.name || detail.kind || "door_detail");
+        labels.push({
+          text: labelText,
+          location: detail.center_m,
+          category: "door_detail"
+        });
+      }
       for (const detail of metadata.interior?.wall_finish_details || []) {
         const labelText = detail.room
           ? `${humanizeId(detail.kind || "wall_finish_detail")} - ${detail.room}`
@@ -813,6 +832,7 @@
         "visitor_gallery",
         "generic_office_zone",
         "office_detail",
+        "door_detail",
         "wall_finish_detail",
         "floor_detail",
         "ceiling_detail"
@@ -907,6 +927,28 @@
         history.pushState(null, "", "#signage-details");
       }
       focusSignageDetails();
+    }
+
+    function focusDoorDetails() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "door_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "door_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.57, 0.69, 33000, [0, 0, 760]);
+      statusEl.textContent = "Focused public doorway panels and hardware details.";
+    }
+
+    function focusDoorDetailsRoute() {
+      if (window.location.hash !== "#door-details") {
+        history.pushState(null, "", "#door-details");
+      }
+      focusDoorDetails();
     }
 
     function focusWallFinishDetails() {
@@ -1013,6 +1055,10 @@
       }
       if (route === "signage-details" || route === "signage") {
         focusSignageDetails();
+        return;
+      }
+      if (route === "door-details" || route === "doors" || route === "door-hardware") {
+        focusDoorDetails();
         return;
       }
       if (route === "wall-finish-details" || route === "wall-finishes" || route === "wainscot") {

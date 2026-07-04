@@ -157,6 +157,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "office_details",
     "circulation_details",
     "signage_details",
+    "door_details",
     "wall_finish_details",
     "rotunda_details",
     "ceiling_details",
@@ -176,6 +177,7 @@ REQUIRED_UNREAL_LABEL_CATEGORIES = {
     "chamber_detail",
     "public_circulation_detail",
     "signage_detail",
+    "door_detail",
     "joint_session",
     "public_art",
     "lighting",
@@ -273,6 +275,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickFacadeDetails"',
     'id="quickOffices"',
     'id="quickSignageDetails"',
+    'id="quickDoorDetails"',
     'id="quickWallFinishDetails"',
     'id="quickFloorDetails"',
     'id="quickCeilingDetails"',
@@ -281,6 +284,7 @@ REQUIRED_VIEWER_MARKERS = {
     'href="#facade-details"',
     'href="#offices"',
     'href="#signage-details"',
+    'href="#door-details"',
     'href="#wall-finish-details"',
     'href="#floor-details"',
     'href="#ceiling-details"',
@@ -289,6 +293,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="presetFacadeDetails"',
     'id="presetOffices"',
     'id="presetSignageDetails"',
+    'id="presetDoorDetails"',
     'id="presetWallFinishDetails"',
     'id="presetFloorDetails"',
     'id="presetCeilingDetails"',
@@ -297,6 +302,7 @@ REQUIRED_VIEWER_MARKERS = {
     'value="facade_detail"',
     'value="office_detail"',
     'value="signage_detail"',
+    'value="door_detail"',
     'value="wall_finish_detail"',
     'value="floor_detail"',
     'value="ceiling_detail"',
@@ -305,6 +311,7 @@ REQUIRED_VIEWER_MARKERS = {
     "metadata.landmark?.facade_details",
     "metadata.interior?.office_details",
     "metadata.interior?.signage_details",
+    "metadata.interior?.door_details",
     "metadata.interior?.wall_finish_details",
     "metadata.interior?.floor_details",
     "metadata.interior?.ceiling_details",
@@ -318,6 +325,8 @@ REQUIRED_VIEWER_MARKERS = {
     "focusOfficesRoute",
     "focusSignageDetails",
     "focusSignageDetailsRoute",
+    "focusDoorDetails",
+    "focusDoorDetailsRoute",
     "focusWallFinishDetails",
     "focusWallFinishDetailsRoute",
     "focusFloorDetails",
@@ -331,6 +340,7 @@ REQUIRED_VIEWER_MARKERS = {
     "facade-details",
     "office-details",
     "signage-details",
+    "door-details",
     "wall-finish-details",
     "floor-details",
     "ceiling-details",
@@ -418,6 +428,16 @@ REQUIRED_SIGNAGE_DETAIL_KINDS = {
     "chamber_role_sign",
     "generic_office_zone_sign",
     "public_map_kiosk",
+}
+
+REQUIRED_DOOR_DETAIL_KINDS = {
+    "public_double_door_panel",
+    "door_pull_bar",
+    "hinge_plate",
+    "door_kick_plate",
+    "transom_panel",
+    "door_header_trim",
+    "side_lite_panel",
 }
 
 REQUIRED_WALL_FINISH_DETAIL_KINDS = {
@@ -1092,6 +1112,48 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"signage detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
             break
 
+    door_details = interior.get("door_details", [])
+    door_detail_kinds = {detail.get("kind") for detail in door_details}
+    summary["door_details"] = len(door_details)
+    summary["door_detail_kinds"] = len(door_detail_kinds)
+    if len(door_details) < 180:
+        error(errors, f"expected at least 180 public door detail records, got {len(door_details)}")
+    missing_door_kinds = sorted(REQUIRED_DOOR_DETAIL_KINDS - door_detail_kinds)
+    if missing_door_kinds:
+        error(errors, f"missing public door detail kinds: {', '.join(missing_door_kinds)}")
+    if len([detail for detail in door_details if detail.get("kind") == "public_double_door_panel"]) < 24:
+        error(errors, "expected at least 24 public double-door panel records")
+    if len([detail for detail in door_details if detail.get("kind") == "door_pull_bar"]) < 24:
+        error(errors, "expected at least 24 public door pull bar records")
+    if len([detail for detail in door_details if detail.get("kind") == "hinge_plate"]) < 72:
+        error(errors, "expected at least 72 public hinge plate records")
+    if len([detail for detail in door_details if detail.get("kind") == "door_kick_plate"]) < 24:
+        error(errors, "expected at least 24 public kick plate records")
+    if len([detail for detail in door_details if detail.get("kind") == "transom_panel"]) < 12:
+        error(errors, "expected at least 12 public transom panel records")
+    if len([detail for detail in door_details if detail.get("kind") == "door_header_trim"]) < 12:
+        error(errors, "expected at least 12 public door header trim records")
+    if len([detail for detail in door_details if detail.get("kind") == "side_lite_panel"]) < 24:
+        error(errors, "expected at least 24 public side-lite panel records")
+    for detail in door_details:
+        if not detail.get("area"):
+            error(errors, f"door detail {detail.get('name', '<unknown>')} is missing area")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"door detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if (
+            "public" not in public_accuracy
+            or "public visual" not in assignment
+            or "restricted access" not in assignment
+            or "security feature" not in assignment
+            or "operational" not in assignment
+        ):
+            error(errors, f"door detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     wall_finish_details = interior.get("wall_finish_details", [])
     wall_finish_detail_kinds = {detail.get("kind") for detail in wall_finish_details}
     wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
@@ -1624,6 +1686,7 @@ def main() -> int:
     print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
     print(f"Circulation details: {metadata_summary.get('circulation_details', 0):,}")
     print(f"Signage details: {metadata_summary.get('signage_details', 0):,}")
+    print(f"Door details: {metadata_summary.get('door_details', 0):,}")
     print(f"Rotunda details: {metadata_summary.get('rotunda_details', 0):,}")
     print(f"Ceiling details: {metadata_summary.get('ceiling_details', 0):,}")
     print(f"Floor details: {metadata_summary.get('floor_details', 0):,}")

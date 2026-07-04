@@ -37,6 +37,8 @@
     "circulation_detail_kinds": 5,
     "signage_details": 53,
     "signage_detail_kinds": 6,
+    "door_details": 192,
+    "door_detail_kinds": 7,
     "wall_finish_details": 780,
     "wall_finish_detail_kinds": 4,
     "rotunda_details": 79,
@@ -72,8 +74,8 @@
     "destination_paths": 4,
     "required_functions": 16,
     "required_calls": 16,
-    "report_keys": 75,
-    "label_categories": 18,
+    "report_keys": 76,
+    "label_categories": 19,
     "outliner_folders": 9,
     "first_person_markers": 15,
     "environment_markers": 24,
@@ -96,7 +98,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 66,
+    "required_markers": 74,
     "missing": []
   },
   "meshes": [
@@ -224,12 +226,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 64773,
-      "uvs": 194228,
-      "faces": 46347,
-      "faces_with_uvs": 46347,
-      "triangles": 101534,
-      "groups": 6795,
+      "vertices": 66309,
+      "uvs": 198836,
+      "faces": 47499,
+      "faces_with_uvs": 47499,
+      "triangles": 103838,
+      "groups": 6987,
       "materials": [
         "ArtFrameGold",
         "BrassRail",

@@ -3597,6 +3597,134 @@ def add_public_interior_signage_details(
     add_label(labels, "Public room signs, gallery signs, and map kiosks - schematic", -23.5, 7.0, 7.4, "signage_detail")
 
 
+def add_public_door_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    area: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "area": area,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_interior_door_hardware_detail",
+        "assignment": (
+            "Public visual doorway/hardware detail only; not a restricted access point, "
+            "security feature, staff location, or operational access map."
+        ),
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_public_interior_door_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    z = 4.48
+
+    def plane_size(width: float, depth: float, orientation: str) -> tuple[float, float]:
+        if orientation == "east_west":
+            return (depth, width)
+        return (width, depth)
+
+    def component_center(
+        center: tuple[float, float],
+        along_offset: float,
+        normal_offset: float,
+        orientation: str,
+    ) -> tuple[float, float]:
+        x, y = center
+        if orientation == "east_west":
+            return (x + normal_offset, y + along_offset)
+        return (x + along_offset, y + normal_offset)
+
+    def add_component(
+        name: str,
+        kind: str,
+        area: str,
+        center: tuple[float, float],
+        along_offset: float,
+        normal_offset: float,
+        width: float,
+        depth: float,
+        height: float,
+        bottom_z: float,
+        orientation: str,
+        material: str,
+    ) -> None:
+        cx, cy = component_center(center, along_offset, normal_offset, orientation)
+        size = plane_size(width, depth, orientation)
+        obj.add_box((cx, cy), size, height, bottom_z, name, material)
+        add_public_door_detail_record(records, name, kind, area, (cx, cy, bottom_z + height / 2.0), size)
+
+    def add_doorway(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+        label: str,
+    ) -> None:
+        leaf_gap = 0.08
+        leaf_width = max(0.72, (width - leaf_gap) / 2.0)
+        left_offset = -(leaf_width / 2.0 + leaf_gap / 2.0)
+        right_offset = leaf_width / 2.0 + leaf_gap / 2.0
+        panel_height = 2.18
+        side_lite_width = min(0.54, width * 0.10)
+
+        for suffix, offset in [("left", left_offset), ("right", right_offset)]:
+            add_component(f"{name}_{suffix}_door_leaf_panel", "public_double_door_panel", area, center, offset, 0.0, leaf_width, 0.12, panel_height, z, orientation, "DoorGlass")
+            add_component(f"{name}_{suffix}_brass_pull_bar", "door_pull_bar", area, center, offset, -0.075, 0.10, 0.07, 1.02, z + 0.58, orientation, "BrassRail")
+            add_component(f"{name}_{suffix}_kick_plate", "door_kick_plate", area, center, offset, -0.08, leaf_width * 0.82, 0.055, 0.30, z + 0.10, orientation, "DoorMetal")
+            for hinge_index, hinge_z in enumerate([z + 0.30, z + 1.02, z + 1.78], start=1):
+                hinge_offset = offset - leaf_width * 0.47 if suffix == "left" else offset + leaf_width * 0.47
+                add_component(
+                    f"{name}_{suffix}_hinge_plate_{hinge_index}",
+                    "hinge_plate",
+                    area,
+                    center,
+                    hinge_offset,
+                    0.075,
+                    0.14,
+                    0.055,
+                    0.22,
+                    hinge_z,
+                    orientation,
+                    "DoorMetal",
+                )
+
+        add_component(f"{name}_transom_glass_panel", "transom_panel", area, center, 0.0, 0.0, width * 0.86, 0.12, 0.48, z + panel_height + 0.10, orientation, "DoorGlass")
+        add_component(f"{name}_header_trim", "door_header_trim", area, center, 0.0, 0.0, width + 0.50, 0.18, 0.18, z + panel_height + 0.62, orientation, "InteriorTrim")
+        add_component(f"{name}_left_side_lite", "side_lite_panel", area, center, -width / 2.0 + side_lite_width / 2.0, 0.0, side_lite_width, 0.10, 1.62, z + 0.24, orientation, "DoorGlass")
+        add_component(f"{name}_right_side_lite", "side_lite_panel", area, center, width / 2.0 - side_lite_width / 2.0, 0.0, side_lite_width, 0.10, 1.62, z + 0.24, orientation, "DoorGlass")
+        add_label(labels, label, center[0], center[1], z + 3.18, "door_detail")
+
+    door_specs = [
+        ("west_public_approach_door_detail", "West terrace public orientation marker", (-55.0, 0.0), 7.8, "east_west", "West public approach door hardware - schematic"),
+        ("east_public_approach_door_detail", "East public approach", (55.0, 0.0), 7.8, "east_west", "East public approach door hardware - schematic"),
+        ("rotunda_statuary_hall_door_detail", "Rotunda / National Statuary Hall", (16.2, -15.8), 4.8, "north_south", "Rotunda to Statuary Hall door hardware - schematic"),
+        ("rotunda_old_senate_door_detail", "Rotunda / Old Senate Chamber", (16.2, 15.8), 4.6, "north_south", "Rotunda to Old Senate door hardware - schematic"),
+        ("rotunda_house_door_detail", "Rotunda / House Chamber orientation", (0.0, -51.0), 6.2, "north_south", "House Chamber public doorway hardware - schematic"),
+        ("rotunda_senate_door_detail", "Rotunda / Senate Chamber orientation", (0.0, 51.0), 6.0, "north_south", "Senate Chamber public doorway hardware - schematic"),
+        ("house_gallery_door_detail", "House Chamber / public gallery", (0.0, -91.0), 8.0, "north_south", "House gallery doorway hardware - schematic"),
+        ("senate_gallery_door_detail", "Senate Chamber / public gallery", (0.0, 89.0), 7.0, "north_south", "Senate gallery doorway hardware - schematic"),
+        ("house_west_support_door_detail", "House leadership/support offices - schematic zone", (-62.8, -55.0), 3.5, "east_west", "Generic House support doorway hardware - schematic"),
+        ("house_east_support_door_detail", "House committee/support rooms - schematic zone", (62.8, -55.0), 3.5, "east_west", "Generic House committee support doorway hardware - schematic"),
+        ("senate_west_support_door_detail", "Senate leadership/support offices - schematic zone", (-61.8, 55.0), 3.5, "east_west", "Generic Senate support doorway hardware - schematic"),
+        ("senate_east_support_door_detail", "Senate committee/support rooms - schematic zone", (61.8, 55.0), 3.5, "east_west", "Generic Senate committee support doorway hardware - schematic"),
+    ]
+    for args in door_specs:
+        add_doorway(*args)
+
+    add_label(labels, "Public doorway panels, pulls, hinges, kick plates, and transoms - schematic", 22.5, -7.5, 7.65, "door_detail")
+
+
 def add_joint_session_layout(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
@@ -3905,6 +4033,7 @@ def build_interior() -> dict[str, Any]:
     chamber_details: list[dict[str, Any]] = []
     circulation_details: list[dict[str, Any]] = []
     signage_details: list[dict[str, Any]] = []
+    door_details: list[dict[str, Any]] = []
     rotunda_details: list[dict[str, Any]] = []
     ceiling_details: list[dict[str, Any]] = []
     floor_details: list[dict[str, Any]] = []
@@ -3946,6 +4075,7 @@ def build_interior() -> dict[str, Any]:
 
     add_public_circulation_details(obj, labels, circulation_details)
     add_public_interior_signage_details(obj, labels, signage_details)
+    add_public_interior_door_details(obj, labels, door_details)
     build_house_seats(obj, seats, labels)
     build_senate_desks(obj, seats, labels)
     add_joint_session_layout(obj, labels, joint_session)
@@ -3985,6 +4115,7 @@ def build_interior() -> dict[str, Any]:
         "chamber_details": chamber_details,
         "circulation_details": circulation_details,
         "signage_details": signage_details,
+        "door_details": door_details,
         "rotunda_details": rotunda_details,
         "ceiling_details": ceiling_details,
         "floor_details": floor_details,
@@ -4251,6 +4382,7 @@ def main() -> None:
         f"{len(interior['chamber_details'])} chamber detail records,",
         f"{len(interior['circulation_details'])} circulation detail records,",
         f"{len(interior['signage_details'])} signage detail records,",
+        f"{len(interior['door_details'])} door detail records,",
         f"{len(interior['rotunda_details'])} rotunda detail records,",
         f"{len(interior['ceiling_details'])} ceiling detail records,",
         f"{len(interior['floor_details'])} floor detail records,",
