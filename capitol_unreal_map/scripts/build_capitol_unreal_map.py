@@ -1016,6 +1016,37 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             },
         )
 
+    def add_grounds_hedge(name: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        roads.add_box(center, size, 0.42, 0.12, name, "TreeCanopy")
+        add_grounds_record(name, "public_hedge", (center[0], center[1], 0.33), size)
+
+    def add_path_edge_stone(name: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        roads.add_box(center, size, 0.08, 0.16, name, "StepStone")
+        add_grounds_record(name, "path_edge_stone", (center[0], center[1], 0.20), size)
+
+    def add_grounds_bench(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        if orientation == "north_south":
+            roads.add_box((x, y), (0.42, 2.15), 0.16, 0.46, f"{name}_seat", "BenchWood")
+            roads.add_box((x + 0.24, y), (0.12, 2.15), 0.62, 0.54, f"{name}_back", "BenchWood")
+            for leg_index, ly in enumerate([-0.78, 0.78], start=1):
+                roads.add_box((x, y + ly), (0.32, 0.12), 0.42, 0.08, f"{name}_leg_{leg_index}", "BollardMetal")
+            size = (0.62, 2.15)
+        else:
+            roads.add_box((x, y), (2.15, 0.42), 0.16, 0.46, f"{name}_seat", "BenchWood")
+            roads.add_box((x, y + 0.24), (2.15, 0.12), 0.62, 0.54, f"{name}_back", "BenchWood")
+            for leg_index, lx in enumerate([-0.78, 0.78], start=1):
+                roads.add_box((x + lx, y), (0.12, 0.32), 0.42, 0.08, f"{name}_leg_{leg_index}", "BollardMetal")
+            size = (2.15, 0.62)
+        add_grounds_record(name, "grounds_bench", (x, y, 0.72), size)
+
+    def add_ornamental_planting_cluster(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.62, 0.09, 0.12, f"{name}_stone_ring", "PlanterStone", segments=14)
+        for index, (dx, dy, radius) in enumerate([(-0.22, -0.12, 0.22), (0.18, -0.10, 0.18), (0.02, 0.20, 0.20)], start=1):
+            roads.add_cylinder((x + dx, y + dy), radius, 0.15, 0.34, f"{name}_shrub_{index}", "TreeCanopy", segments=10)
+        add_grounds_record(name, "ornamental_planting_cluster", (x, y, 0.32), (1.35, 1.35))
+
     def add_capitol_grounds_details() -> None:
         # Broad public landscape shapes around the Capitol, authored as
         # approximate visual context rather than survey-grade grounds design.
@@ -1088,6 +1119,68 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             ("east_plaza_low_wall_south", (84.0, -86.0), (52.0, 0.45)),
         ]:
             add_grounds_box(name, "low_plaza_wall", center, size, 0.12, 0.46, "StepStone")
+
+        for name, center, size in [
+            ("west_north_lawn_inner_hedge", (-140.0, 21.0), (82.0, 0.72)),
+            ("west_south_lawn_inner_hedge", (-140.0, -21.0), (82.0, 0.72)),
+            ("west_outer_north_hedge", (-225.0, 96.0), (74.0, 0.70)),
+            ("west_outer_south_hedge", (-225.0, -96.0), (74.0, 0.70)),
+            ("east_north_lawn_inner_hedge", (132.0, 23.0), (64.0, 0.70)),
+            ("east_south_lawn_inner_hedge", (132.0, -23.0), (64.0, 0.70)),
+            ("east_outer_north_hedge", (170.0, 94.0), (46.0, 0.68)),
+            ("east_outer_south_hedge", (170.0, -94.0), (46.0, 0.68)),
+            ("north_lawn_west_hedge", (-58.0, 126.0), (0.70, 42.0)),
+            ("north_lawn_east_hedge", (58.0, 126.0), (0.70, 42.0)),
+            ("south_lawn_west_hedge", (-58.0, -126.0), (0.70, 42.0)),
+            ("south_lawn_east_hedge", (58.0, -126.0), (0.70, 42.0)),
+        ]:
+            add_grounds_hedge(name, center, size)
+
+        for name, center, size in [
+            ("west_axial_walk_north_edge_01", (-154.0, 4.58), (110.0, 0.22)),
+            ("west_axial_walk_south_edge_01", (-154.0, -4.58), (110.0, 0.22)),
+            ("west_axial_walk_north_edge_02", (-286.0, 4.58), (126.0, 0.22)),
+            ("west_axial_walk_south_edge_02", (-286.0, -4.58), (126.0, 0.22)),
+            ("east_axial_walk_north_edge", (151.0, 3.85), (112.0, 0.20)),
+            ("east_axial_walk_south_edge", (151.0, -3.85), (112.0, 0.20)),
+            ("north_crosswalk_path_edge_west", (-34.0, 121.9), (48.0, 0.18)),
+            ("north_crosswalk_path_edge_east", (34.0, 121.9), (48.0, 0.18)),
+            ("south_crosswalk_path_edge_west", (-34.0, -121.9), (48.0, 0.18)),
+            ("south_crosswalk_path_edge_east", (34.0, -121.9), (48.0, 0.18)),
+            ("northwest_diagonal_path_edge", (-170.0, 100.0), (52.0, 0.18)),
+            ("southwest_diagonal_path_edge", (-170.0, -100.0), (52.0, 0.18)),
+            ("northeast_diagonal_path_edge", (135.0, 90.0), (38.0, 0.18)),
+            ("southeast_diagonal_path_edge", (135.0, -90.0), (38.0, 0.18)),
+            ("west_pool_north_walk_edge", (-286.0, 19.8), (86.0, 0.18)),
+            ("west_pool_south_walk_edge", (-286.0, -19.8), (86.0, 0.18)),
+        ]:
+            add_path_edge_stone(name, center, size)
+
+        for idx, (center, orientation) in enumerate(
+            [
+                ((-212.0, 12.5), "east_west"), ((-212.0, -12.5), "east_west"),
+                ((-272.0, 20.8), "east_west"), ((-272.0, -20.8), "east_west"),
+                ((-336.0, 20.8), "east_west"), ((-336.0, -20.8), "east_west"),
+                ((122.0, 12.0), "east_west"), ((122.0, -12.0), "east_west"),
+                ((174.0, 12.0), "east_west"), ((174.0, -12.0), "east_west"),
+                ((-78.0, 124.0), "north_south"), ((78.0, 124.0), "north_south"),
+                ((-78.0, -124.0), "north_south"), ((78.0, -124.0), "north_south"),
+                ((-112.0, 88.0), "east_west"), ((112.0, -88.0), "east_west"),
+            ],
+            start=1,
+        ):
+            add_grounds_bench(f"public_grounds_bench_{idx:02d}", center, orientation)
+
+        cluster_centers = [
+            (-112.0, 68.0), (-112.0, -68.0), (-150.0, 68.0), (-150.0, -68.0),
+            (105.0, 64.0), (105.0, -64.0), (146.0, 64.0), (146.0, -64.0),
+            (-102.0, 84.0), (-102.0, -84.0), (-160.0, 84.0), (-160.0, -84.0),
+            (96.0, 80.0), (96.0, -80.0), (156.0, 80.0), (156.0, -80.0),
+            (-92.0, 36.0), (-92.0, -36.0), (92.0, 36.0), (92.0, -36.0),
+            (-64.0, 116.0), (64.0, 116.0), (-64.0, -116.0), (64.0, -116.0),
+        ]
+        for idx, center in enumerate(cluster_centers, start=1):
+            add_ornamental_planting_cluster(f"ornamental_public_planting_cluster_{idx:02d}", center)
 
     for way in ways:
         tags = way.get("tags", {})

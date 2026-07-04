@@ -357,6 +357,10 @@ REQUIRED_GROUNDS_DETAIL_KINDS = {
     "public_tree_allee",
     "public_walk_lamp",
     "low_plaza_wall",
+    "public_hedge",
+    "path_edge_stone",
+    "grounds_bench",
+    "ornamental_planting_cluster",
 }
 
 REQUIRED_STREETSCAPE_PROP_KINDS = {
@@ -711,13 +715,21 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         if not is_vec3(prop.get("center_m")):
             error(errors, f"streetscape prop {prop.get('name', '<unknown>')} has invalid center_m")
             break
-    if len(grounds_details) < 80:
-        error(errors, f"expected at least 80 public grounds detail records, got {len(grounds_details)}")
+    if len(grounds_details) < 165:
+        error(errors, f"expected at least 165 public grounds detail records, got {len(grounds_details)}")
     missing_grounds_kinds = sorted(REQUIRED_GROUNDS_DETAIL_KINDS - grounds_detail_kinds)
     if missing_grounds_kinds:
         error(errors, f"missing public grounds detail kinds: {', '.join(missing_grounds_kinds)}")
     if len(grounds_walk_lamps) < 18:
         error(errors, f"expected at least 18 public grounds walk lamps, got {len(grounds_walk_lamps)}")
+    if len([detail for detail in grounds_details if detail.get("kind") == "public_hedge"]) < 12:
+        error(errors, "expected at least 12 public hedge records")
+    if len([detail for detail in grounds_details if detail.get("kind") == "path_edge_stone"]) < 16:
+        error(errors, "expected at least 16 public path edge stone records")
+    if len([detail for detail in grounds_details if detail.get("kind") == "grounds_bench"]) < 16:
+        error(errors, "expected at least 16 public grounds bench records")
+    if len([detail for detail in grounds_details if detail.get("kind") == "ornamental_planting_cluster"]) < 24:
+        error(errors, "expected at least 24 ornamental planting cluster records")
     for detail in grounds_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"grounds detail {detail.get('name', '<unknown>')} has invalid center_m")
