@@ -72,6 +72,7 @@ The validator checks that:
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
 - the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, first-person setup marker, and import-report key
+- the Unreal project config still enables the scripting plugins, Nanite/navigation settings, and generated Capitol map editor/game defaults
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
@@ -156,6 +157,8 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, first-person collision/navigation setup, and metadata counts.
 
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
+
+`Config/DefaultEngine.ini` points both `EditorStartupMap` and `GameDefaultMap` at `/Game/CapitolMap/Maps/CapitolMap_Level`; run the import script once before relying on those startup-map defaults in a fresh checkout.
 
 ## Realism Pass
 

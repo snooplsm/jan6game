@@ -27,6 +27,9 @@ REPORT_PATH = DATA_DIR / "capitol_package_validation.json"
 MATERIAL_MANIFEST_PATH = ROOT / "unreal" / "material_realism_manifest.json"
 TEXTURE_MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
 UNREAL_IMPORTER_PATH = ROOT / "unreal" / "import_capitol_map.py"
+UPROJECT_PATH = ROOT / "CapitolMap.uproject"
+DEFAULT_ENGINE_PATH = ROOT / "Config" / "DefaultEngine.ini"
+DEFAULT_GAME_PATH = ROOT / "Config" / "DefaultGame.ini"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 
 EXPECTED_MESHES = {
@@ -163,6 +166,30 @@ REQUIRED_UNREAL_FIRST_PERSON_MARKERS = {
     "CapitolMap_PlayerStart_WestFront",
     "CapitolMap_NavMeshBounds_CentralCampus",
     "nanite_settings",
+}
+
+REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS = {
+    "CapitolMap.uproject": {
+        '"EngineAssociation": "5.8"',
+        '"PythonScriptPlugin"',
+        '"EditorScriptingUtilities"',
+    },
+    "Config/DefaultEngine.ini": {
+        "[/Script/EngineSettings.GameMapsSettings]",
+        "EditorStartupMap=/Game/CapitolMap/Maps/CapitolMap_Level",
+        "GameDefaultMap=/Game/CapitolMap/Maps/CapitolMap_Level",
+        "GlobalDefaultGameMode=/Script/Engine.GameModeBase",
+        "r.DefaultFeature.AutoExposure=False",
+        "r.DefaultFeature.MotionBlur=False",
+        "r.GenerateMeshDistanceFields=True",
+        "r.Nanite.ProjectEnabled=True",
+        "bAutoCreateNavigationData=True",
+        "bSpawnNavDataInNavBoundsLevel=True",
+    },
+    "Config/DefaultGame.ini": {
+        "ProjectName=Capitol Unreal Map",
+        "Public-data U.S. Capitol exterior and public-interior schematic map package.",
+    },
 }
 
 REQUIRED_ROOMS = {
@@ -1012,6 +1039,34 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     return summary
 
 
+def validate_unreal_project_config(errors: list[str]) -> dict[str, Any]:
+    config_paths = {
+        "CapitolMap.uproject": UPROJECT_PATH,
+        "Config/DefaultEngine.ini": DEFAULT_ENGINE_PATH,
+        "Config/DefaultGame.ini": DEFAULT_GAME_PATH,
+    }
+    summary: dict[str, Any] = {
+        "files": 0,
+        "required_markers": 0,
+        "missing": {},
+    }
+
+    for rel, path in config_paths.items():
+        if not path.exists():
+            error(errors, f"missing Unreal project config file: {path}")
+            summary["missing"][rel] = sorted(REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS.get(rel, set()))
+            continue
+        summary["files"] += 1
+        text = path.read_text(encoding="utf-8")
+        missing = sorted(marker for marker in REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS.get(rel, set()) if marker not in text)
+        summary["required_markers"] += len(REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS.get(rel, set())) - len(missing)
+        if missing:
+            summary["missing"][rel] = missing
+            error(errors, f"{rel} missing Unreal project config markers: {', '.join(missing)}")
+
+    return summary
+
+
 def main() -> int:
     errors: list[str] = []
     if not METADATA_PATH.exists():
@@ -1025,6 +1080,7 @@ def main() -> int:
     material_summary = validate_material_manifest(materials, errors)
     texture_summary = validate_texture_manifest(materials, errors)
     unreal_importer_summary = validate_unreal_importer(errors)
+    unreal_project_config_summary = validate_unreal_project_config(errors)
     mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
 
     report = {
@@ -1034,6 +1090,7 @@ def main() -> int:
         "materials": material_summary,
         "textures": texture_summary,
         "unreal_importer": unreal_importer_summary,
+        "unreal_project_config": unreal_project_config_summary,
         "meshes": mesh_stats,
         "errors": errors,
     }
@@ -1082,6 +1139,7 @@ def main() -> int:
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
     print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")
+    print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
 

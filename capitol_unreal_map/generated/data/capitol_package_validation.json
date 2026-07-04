@@ -75,6 +75,11 @@
       "first_person_markers": []
     }
   },
+  "unreal_project_config": {
+    "files": 3,
+    "required_markers": 15,
+    "missing": {}
+  },
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
