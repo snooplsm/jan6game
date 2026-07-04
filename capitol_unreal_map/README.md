@@ -74,7 +74,7 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 710,922 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 712,650 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
@@ -94,6 +94,7 @@ The current generated build contains:
 - 448 generic House floor seats
 - 100 generic Senate desks
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
+- 42 public chamber detail records for House/Senate rails, dais steps, gallery rails, aisle edge markers, desk arc markers, backdrop panels, and flag standards
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
 - 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - 5 flagpole banner visuals: American flag, two Trump 2024 campaign-style banners, a Save America campaign-style banner, and a Make America Great Again campaign-style banner
@@ -123,7 +124,7 @@ The viewer can toggle:
 - gameplay item props
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, office zones, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public interior, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, office zones, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 

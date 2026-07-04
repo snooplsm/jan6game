@@ -1693,6 +1693,128 @@ def add_wall_treatment(
     )
 
 
+def add_chamber_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    chamber: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "chamber": chamber,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_chamber_visual_detail",
+        "assignment": "Public visual detail only; not an operational seating, security, or staff-placement record.",
+    }
+    if size is not None:
+        record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+    records.append(record)
+
+
+def add_chamber_arc_strip(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    name: str,
+    chamber: str,
+    center: tuple[float, float],
+    radius: float,
+    start_deg: float,
+    end_deg: float,
+    width: float,
+    z: float,
+    material: str,
+    segments: int = 28,
+) -> None:
+    start = math.radians(start_deg)
+    end = math.radians(end_deg)
+    points = [
+        (
+            center[0] + radius * math.cos(start + (end - start) * idx / segments),
+            center[1] + radius * math.sin(start + (end - start) * idx / segments),
+        )
+        for idx in range(segments + 1)
+    ]
+    obj.add_polyline_strip(points, width, z, name, material)
+    midpoint = points[len(points) // 2]
+    add_chamber_detail_record(records, name, "desk_arc_marker", chamber, (midpoint[0], midpoint[1], z), (radius * 2.0, width))
+
+
+def add_chamber_realism_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    def rail(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.24, z, name, "BrassRail")
+        add_chamber_detail_record(records, name, "rostrum_rail", chamber, (center[0], center[1], z + 0.12), size)
+
+    def step(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.10, z, name, "StepStone")
+        add_chamber_detail_record(records, name, "dais_step", chamber, (center[0], center[1], z + 0.05), size)
+
+    def gallery_rail(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.72, z, name, "BrassRail")
+        add_chamber_detail_record(records, name, "gallery_rail", chamber, (center[0], center[1], z + 0.36), size)
+
+    def aisle(name: str, chamber: str, points: list[tuple[float, float]], z: float) -> None:
+        obj.add_polyline_strip(points, 0.12, z, name, "BrassRail")
+        mid = points[len(points) // 2]
+        add_chamber_detail_record(records, name, "aisle_edge", chamber, (mid[0], mid[1], z), None)
+
+    def backdrop_panel(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 2.1, z, name, "InteriorTrim")
+        add_chamber_detail_record(records, name, "backdrop_panel", chamber, (center[0], center[1], z + 1.05), size)
+
+    def flag_standard(name: str, chamber: str, x: float, y: float, z: float, flag_material: str) -> None:
+        obj.add_cylinder((x, y), 0.055, z, 2.3, f"{name}_pole", "BrassRail", segments=10)
+        obj.add_cylinder((x, y), 0.15, z + 2.3, 0.18, f"{name}_finial", "BrassRail", segments=12)
+        obj.add_box((x + 0.28, y), (0.55, 0.08), 0.68, z + 1.35, f"{name}_cloth_panel", flag_material)
+        add_chamber_detail_record(records, name, "flag_standard", chamber, (x, y, z + 1.15), (0.7, 0.18))
+
+    # House chamber public visual details.
+    rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
+    rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
+    rail("house_rostrum_right_brass_rail", "House Chamber", (7.25, -48.7), (0.16, 4.1), 5.42)
+    for idx, y in enumerate([-51.55, -52.05, -52.55], start=1):
+        step(f"house_rostrum_step_tread_{idx}", "House Chamber", (0.0, y), (15.6 - idx * 0.8, 0.32), 4.58 + idx * 0.08)
+    for idx, x in enumerate([-5.0, -3.0, -1.0, 1.0, 3.0, 5.0], start=1):
+        backdrop_panel(f"house_rostrum_backdrop_panel_{idx}", "House Chamber", (x, -46.45), (1.35, 0.12), 5.05)
+    gallery_rail("house_gallery_front_brass_rail", "House Chamber", (0.0, -95.15), (66.0, 0.16), 5.24)
+    gallery_rail("house_gallery_rear_brass_rail", "House Chamber", (0.0, -103.7), (66.0, 0.16), 5.54)
+    aisle("house_center_aisle_left_edge", "House Chamber", [(-0.82, -54.0), (-0.82, -95.0)], 4.62)
+    aisle("house_center_aisle_right_edge", "House Chamber", [(0.82, -54.0), (0.82, -95.0)], 4.62)
+    aisle("house_left_aisle_outer_edge", "House Chamber", [(-15.4, -56.0), (-28.4, -95.0)], 4.62)
+    aisle("house_right_aisle_outer_edge", "House Chamber", [(15.4, -56.0), (28.4, -95.0)], 4.62)
+    flag_standard("house_rostrum_us_flag_left", "House Chamber", -6.35, -46.95, 5.05, "MarkerBlue")
+    flag_standard("house_rostrum_us_flag_right", "House Chamber", 6.35, -46.95, 5.05, "ItemCloth")
+    add_chamber_arc_strip(obj, records, "house_front_desk_arc_marker", "House Chamber", (0.0, -50.5), 21.5, 214.0, 326.0, 0.10, 4.64, "BrassRail")
+    add_chamber_arc_strip(obj, records, "house_rear_desk_arc_marker", "House Chamber", (0.0, -50.5), 39.5, 218.0, 322.0, 0.10, 4.64, "BrassRail")
+
+    # Senate chamber public visual details.
+    rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
+    rail("senate_presiding_left_brass_rail", "Senate Chamber", (-6.0, 83.25), (0.16, 2.8), 5.36)
+    rail("senate_presiding_right_brass_rail", "Senate Chamber", (6.0, 83.25), (0.16, 2.8), 5.36)
+    for idx, y in enumerate([81.0, 80.55], start=1):
+        step(f"senate_presiding_step_tread_{idx}", "Senate Chamber", (0.0, y), (12.6 - idx * 0.6, 0.30), 4.58 + idx * 0.08)
+    for idx, x in enumerate([-4.2, -2.1, 0.0, 2.1, 4.2], start=1):
+        backdrop_panel(f"senate_presiding_backdrop_panel_{idx}", "Senate Chamber", (x, 85.15), (1.35, 0.12), 5.02)
+    gallery_rail("senate_gallery_front_brass_rail", "Senate Chamber", (0.0, 94.05), (52.0, 0.16), 5.22)
+    gallery_rail("senate_gallery_rear_brass_rail", "Senate Chamber", (0.0, 101.2), (52.0, 0.16), 5.52)
+    aisle("senate_center_aisle_left_edge", "Senate Chamber", [(-0.72, 62.0), (-0.72, 83.0)], 4.62)
+    aisle("senate_center_aisle_right_edge", "Senate Chamber", [(0.72, 62.0), (0.72, 83.0)], 4.62)
+    aisle("senate_left_aisle_outer_edge", "Senate Chamber", [(-9.45, 63.0), (-18.45, 82.0)], 4.62)
+    aisle("senate_right_aisle_outer_edge", "Senate Chamber", [(9.45, 63.0), (18.45, 82.0)], 4.62)
+    flag_standard("senate_presiding_us_flag_left", "Senate Chamber", -5.2, 84.55, 5.0, "MarkerBlue")
+    flag_standard("senate_presiding_us_flag_right", "Senate Chamber", 5.2, 84.55, 5.0, "ItemCloth")
+    add_chamber_arc_strip(obj, records, "senate_front_desk_arc_marker", "Senate Chamber", (0.0, 84.0), 12.2, 205.0, 335.0, 0.10, 4.64, "BrassRail")
+    add_chamber_arc_strip(obj, records, "senate_rear_desk_arc_marker", "Senate Chamber", (0.0, 84.0), 25.0, 209.0, 331.0, 0.10, 4.64, "BrassRail")
+
+    add_label(labels, "House and Senate chamber rails, dais steps, flags, and aisle trim - schematic", 0.0, -43.0, 7.7, "chamber_detail")
+
+
 def add_joint_session_layout(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
@@ -1996,6 +2118,7 @@ def build_interior() -> dict[str, Any]:
     public_art: list[dict[str, Any]] = []
     light_fixtures: list[dict[str, Any]] = []
     wall_treatments: list[dict[str, Any]] = []
+    chamber_details: list[dict[str, Any]] = []
 
     # Broad second-floor public schematic. North = +Y. East = +X.
     add_room(obj, rooms, labels, "Capitol second-floor public schematic footprint", (0.0, 0.0), (150.0, 190.0), "InteriorFloor", "floorplate", z=3.95, height=0.08, with_walls=True)
@@ -2036,6 +2159,7 @@ def build_interior() -> dict[str, Any]:
     build_senate_desks(obj, seats, labels)
     add_joint_session_layout(obj, labels, joint_session)
     seating_sections.extend(build_seating_sections(labels, seats, joint_session))
+    add_chamber_realism_details(obj, labels, chamber_details)
     public_art, light_fixtures = add_public_art_and_lighting(obj, labels)
 
     add_wall_treatment(obj, wall_treatments, "rotunda_wall_finish", "Rotunda", (0.0, 0.0), (29.5, 29.5), 10, 10, z=4.45)
@@ -2062,6 +2186,7 @@ def build_interior() -> dict[str, Any]:
         "public_art": public_art,
         "light_fixtures": light_fixtures,
         "wall_treatments": wall_treatments,
+        "chamber_details": chamber_details,
         "interior_notice": (
             "Public schematic only. It maps major public spaces and generic chamber seating. "
             "It does not include restricted security details, private office assignments, "
@@ -2318,6 +2443,7 @@ def main() -> None:
         f"{len(interior['public_art'])} public-art visuals,",
         f"{len(interior['light_fixtures'])} light fixtures,",
         f"{len(interior['wall_treatments'])} wall-treatment records,",
+        f"{len(interior['chamber_details'])} chamber detail records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
         f"{len(interior['seating'])} generic chamber seats/desks,",
         f"{len(gameplay['items'])} gameplay item props",

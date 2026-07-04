@@ -84,6 +84,7 @@ LABEL_COLORS = {
     "generic_office_zone": (175, 230, 205, 255),
     "seating": (246, 224, 153, 255),
     "seating_section": (244, 210, 136, 255),
+    "chamber_detail": (214, 184, 112, 255),
     "joint_session": (255, 190, 120, 255),
     "public_art": (236, 198, 116, 255),
     "lighting": (255, 220, 140, 255),

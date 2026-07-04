@@ -76,6 +76,16 @@ REQUIRED_SEATING_SECTIONS = {
     "joint_session_members_and_guests_backfill",
 }
 
+REQUIRED_CHAMBER_DETAIL_KINDS = {
+    "rostrum_rail",
+    "dais_step",
+    "gallery_rail",
+    "aisle_edge",
+    "backdrop_panel",
+    "flag_standard",
+    "desk_arc_marker",
+}
+
 REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Overview",
     "CapitolMap_Camera_WestFront_FirstPerson",
@@ -440,6 +450,28 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"seating section {section.get('id', '<unknown>')} assignment is not marked generic/public")
             break
 
+    chamber_details = interior.get("chamber_details", [])
+    chamber_detail_kinds = {detail.get("kind") for detail in chamber_details}
+    chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
+    summary["chamber_details"] = len(chamber_details)
+    summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
+    if len(chamber_details) < 34:
+        error(errors, f"expected at least 34 public chamber detail records, got {len(chamber_details)}")
+    missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
+    if missing_chamber_kinds:
+        error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
+    for chamber_name in ["House Chamber", "Senate Chamber"]:
+        if chamber_name not in chamber_detail_chambers:
+            error(errors, f"missing chamber details for {chamber_name}")
+    for detail in chamber_details[:12]:
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        assignment = detail.get("assignment", "").lower()
+        if "public visual" not in assignment or "operational" not in assignment:
+            error(errors, f"chamber detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     joint_session = interior.get("joint_session", [])
     joint_names = {item.get("name") for item in joint_session}
     summary["joint_session_records"] = len(joint_session)
@@ -673,6 +705,7 @@ def main() -> int:
     print(f"House seats: {metadata_summary.get('house_seats', 0):,}")
     print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
     print(f"Seating sections: {metadata_summary.get('seating_sections', 0):,}")
+    print(f"Chamber details: {metadata_summary.get('chamber_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")

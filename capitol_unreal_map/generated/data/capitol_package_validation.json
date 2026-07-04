@@ -23,6 +23,8 @@
     "seating_sections": 16,
     "regular_session_seating_sections": 7,
     "joint_session_seating_sections": 9,
+    "chamber_details": 42,
+    "chamber_detail_kinds": 7,
     "joint_session_records": 9,
     "public_art": 61,
     "light_fixtures": 29,
@@ -159,12 +161,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 28909,
-      "uvs": 87444,
-      "faces": 20774,
-      "faces_with_uvs": 20774,
-      "triangles": 45896,
-      "groups": 2960,
+      "vertices": 29805,
+      "uvs": 89172,
+      "faces": 21178,
+      "faces_with_uvs": 21178,
+      "triangles": 46816,
+      "groups": 3010,
       "materials": [
         "ArtFrameGold",
         "BrassRail",
@@ -179,6 +181,7 @@
         "InteriorFloor",
         "InteriorTrim",
         "InteriorWall",
+        "ItemCloth",
         "JointSessionZone",
         "LightFixtureMetal",
         "MarkerBlue",
@@ -210,7 +213,7 @@
         ],
         "max": [
           7521.0,
-          10084.25,
+          10128.0,
           925.0
         ]
       }
