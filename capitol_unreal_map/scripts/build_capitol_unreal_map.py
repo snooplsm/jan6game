@@ -650,6 +650,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "street_markers": [],
         "street_labels": [],
         "streetscape_props": [],
+        "grounds_details": [],
         "replaced_buildings": [],
     }
     streetlight_count = 0
@@ -724,6 +725,134 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         for stripe in range(4):
             sx = x + (stripe - 1.5) * 0.46
             roads.add_box((sx, y), (0.24, 2.35), 0.035, 0.14, f"{name}_stripe_{stripe+1}", "CrosswalkWhite")
+
+    def add_grounds_record(
+        name: str,
+        kind: str,
+        center: tuple[float, float, float],
+        size: tuple[float, float] | None = None,
+        public_accuracy: str = "approximate_public_grounds_visual",
+    ) -> None:
+        record: dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+            "public_accuracy": public_accuracy,
+        }
+        if size is not None:
+            record["size_m"] = [round(size[0], 3), round(size[1], 3)]
+        metadata["grounds_details"].append(record)
+
+    def add_grounds_box(
+        name: str,
+        kind: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+        material: str,
+    ) -> None:
+        roads.add_box(center, size, height, z, name, material)
+        add_grounds_record(name, kind, (center[0], center[1], z + height / 2.0), size)
+
+    def add_grounds_path(name: str, points: list[tuple[float, float]], width: float, material: str = "PlazaStone") -> None:
+        roads.add_polyline_strip(points, width, 0.165, name, material)
+        center = polyline_midpoint(points)
+        length = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:]))
+        add_grounds_record(name, "public_walk", (center[0], center[1], 0.18), (length, width))
+
+    def add_grounds_tree(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.16, 0.09, 1.85, f"{name}_trunk", "TreeTrunk", segments=10)
+        roads.add_cylinder((x, y), 0.92, 1.45, 0.90, f"{name}_lower_canopy", "TreeCanopy", segments=16)
+        roads.add_cylinder((x, y), 0.70, 2.05, 0.80, f"{name}_upper_canopy", "TreeCanopy", segments=16)
+        roads.add_cylinder((x, y), 1.02, 0.07, 0.16, f"{name}_planter_ring", "PlanterStone", segments=16)
+        add_grounds_record(name, "public_tree_allee", (x, y, 1.55), (2.1, 2.1))
+
+    def add_grounds_lamp(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.055, 0.10, 3.25, f"{name}_pole", "StreetLightPole", segments=10)
+        roads.add_cylinder((x, y), 0.16, 3.08, 0.32, f"{name}_glass", "StreetLightGlass", segments=12)
+        add_grounds_record(
+            name,
+            "public_walk_lamp",
+            (x, y, 1.75),
+            (0.36, 0.36),
+            public_accuracy="schematic_public_grounds_lighting",
+        )
+
+    def add_capitol_grounds_details() -> None:
+        # Broad public landscape shapes around the Capitol, authored as
+        # approximate visual context rather than survey-grade grounds design.
+        for name, center, size in [
+            ("west_north_lawn_panel", (-188.0, 58.0), (150.0, 74.0)),
+            ("west_south_lawn_panel", (-188.0, -58.0), (150.0, 74.0)),
+            ("east_north_lawn_panel", (145.0, 58.0), (112.0, 70.0)),
+            ("east_south_lawn_panel", (145.0, -58.0), (112.0, 70.0)),
+            ("north_public_lawn_panel", (0.0, 148.0), (156.0, 62.0)),
+            ("south_public_lawn_panel", (0.0, -148.0), (156.0, 62.0)),
+        ]:
+            add_grounds_box(name, "lawn_panel", center, size, 0.022, 0.026, "GroundGrass")
+
+        for name, points, width in [
+            ("west_axial_public_walk", [(-93.0, 0.0), (-174.0, 0.0), (-260.0, 0.0), (-352.0, 0.0)], 8.5),
+            ("east_axial_public_walk", [(93.0, 0.0), (145.0, 0.0), (205.0, 0.0)], 7.0),
+            ("north_public_crosswalk_path", [(-68.0, 119.0), (0.0, 124.0), (68.0, 119.0)], 4.4),
+            ("south_public_crosswalk_path", [(-68.0, -119.0), (0.0, -124.0), (68.0, -119.0)], 4.4),
+            ("northwest_diagonal_public_walk", [(-84.0, 48.0), (-156.0, 96.0), (-248.0, 126.0)], 4.0),
+            ("southwest_diagonal_public_walk", [(-84.0, -48.0), (-156.0, -96.0), (-248.0, -126.0)], 4.0),
+            ("northeast_diagonal_public_walk", [(84.0, 48.0), (130.0, 88.0), (184.0, 118.0)], 3.8),
+            ("southeast_diagonal_public_walk", [(84.0, -48.0), (130.0, -88.0), (184.0, -118.0)], 3.8),
+        ]:
+            add_grounds_path(name, points, width)
+
+        add_grounds_box("west_reflecting_pool_public_marker", "reflecting_pool", (-286.0, 0.0), (82.0, 30.0), 0.135, 0.04, "MarkerBlue")
+        for name, center, size in [
+            ("west_reflecting_pool_north_edge", (-286.0, 15.45), (84.0, 0.55)),
+            ("west_reflecting_pool_south_edge", (-286.0, -15.45), (84.0, 0.55)),
+            ("west_reflecting_pool_east_edge", (-244.75, 0.0), (0.55, 31.0)),
+            ("west_reflecting_pool_west_edge", (-327.25, 0.0), (0.55, 31.0)),
+        ]:
+            add_grounds_box(name, "pool_coping", center, size, 0.14, 0.10, "StepStone")
+
+        for idx, (x, y) in enumerate(
+            [(-112.0, 76.0), (-112.0, -76.0), (-150.0, 76.0), (-150.0, -76.0), (105.0, 72.0), (105.0, -72.0), (146.0, 72.0), (146.0, -72.0)],
+            start=1,
+        ):
+            add_grounds_box(f"formal_planting_bed_{idx:02d}_stone_edge", "formal_planting_bed", (x, y), (18.0, 5.2), 0.08, 0.16, "PlanterStone")
+            add_grounds_box(f"formal_planting_bed_{idx:02d}_grass_inset", "formal_planting_bed", (x, y), (16.6, 3.8), 0.18, 0.03, "GroundGrass")
+
+        tree_index = 1
+        for y in (-23.0, 23.0):
+            for x in [-338.0, -318.0, -298.0, -278.0, -258.0, -238.0, -218.0, -198.0, -178.0, -158.0, -138.0]:
+                add_grounds_tree(f"west_public_tree_allee_{tree_index:02d}", (x, y))
+                tree_index += 1
+        for y in (-26.0, 26.0):
+            for x in [112.0, 132.0, 152.0, 172.0, 192.0]:
+                add_grounds_tree(f"east_public_tree_allee_{tree_index:02d}", (x, y))
+                tree_index += 1
+        for x in (-72.0, 72.0):
+            for y in [-170.0, -150.0, -130.0, 130.0, 150.0, 170.0]:
+                add_grounds_tree(f"north_south_public_tree_allee_{tree_index:02d}", (x, y))
+                tree_index += 1
+
+        lamp_index = 1
+        for y in (-11.0, 11.0):
+            for x in [-340.0, -300.0, -260.0, -220.0, -180.0, -140.0]:
+                add_grounds_lamp(f"west_public_walk_lamp_{lamp_index:02d}", (x, y))
+                lamp_index += 1
+        for y in (-10.0, 10.0):
+            for x in [116.0, 156.0, 196.0]:
+                add_grounds_lamp(f"east_public_walk_lamp_{lamp_index:02d}", (x, y))
+                lamp_index += 1
+
+        for name, center, size in [
+            ("west_plaza_low_wall_north", (-84.0, 86.0), (52.0, 0.45)),
+            ("west_plaza_low_wall_south", (-84.0, -86.0), (52.0, 0.45)),
+            ("east_plaza_low_wall_north", (84.0, 86.0), (52.0, 0.45)),
+            ("east_plaza_low_wall_south", (84.0, -86.0), (52.0, 0.45)),
+        ]:
+            add_grounds_box(name, "low_plaza_wall", center, size, 0.12, 0.46, "StepStone")
 
     for way in ways:
         tags = way.get("tags", {})
@@ -909,6 +1038,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "tags": tags,
             }
         )
+
+    add_capitol_grounds_details()
 
     buildings.write(MESH_DIR / "capitol_exterior_buildings.obj", "capitol_materials.mtl")
     roads.write(MESH_DIR / "capitol_exterior_roads_bike_lanes_markers.obj", "capitol_materials.mtl")
@@ -2436,6 +2567,7 @@ def main() -> None:
         f"{len(exterior['curbs'])} curb edge records,",
         f"{len(exterior['street_markers'])} street markers,",
         f"{len(exterior['streetscape_props'])} streetscape props,",
+        f"{len(exterior['grounds_details'])} grounds details,",
         f"{len(landmark['elements'])} landmark detail elements,",
         f"{len(landmark['facade_details'])} facade/furniture details,",
         f"{len(interior['office_cells'])} generic office cells,",

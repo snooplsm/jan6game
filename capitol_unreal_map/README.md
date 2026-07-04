@@ -4,7 +4,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 
 It contains:
 
-- exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, and public streetscape props derived from OpenStreetMap
+- exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, public streetscape props, and authored public grounds details derived from OpenStreetMap context plus schematic visual markers
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
 - a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda, House Chamber, Senate Chamber, galleries, generic chamber seating, and a joint-session House Chamber visual layout
 - public-facing Capitol visual details including an authored Capitol landmark mesh, approximate revolving-door assemblies, layered pavilions, pediments, stone window surrounds, dentil/cornice courses, roof balustrades, dome drum and lantern detail, entry lamps, bollards, and benches
@@ -70,11 +70,11 @@ The validator checks that:
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
-- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
+- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, fictional gameplay item props, and generated viewpoints are present
 
 It writes `generated/data/capitol_package_validation.json`. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 712,650 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 731,150 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 129 PNG texture files, and a minimum generated texture dimension of 4096px.
 
@@ -88,6 +88,7 @@ The current generated build contains:
 - 608 lane-edge marking records
 - 880 street markers/crossings/traffic signals
 - 818 public streetscape prop records, including schematic streetlights, street-name signs, traffic-signal heads, and tree planters; the mesh also includes crosswalk striping and bike-lane marker posts
+- 101 authored public grounds detail records, including lawn panels, public walks, reflecting-pool marker, pool coping, formal planting beds, tree allees, walk lamps, and low plaza walls
 - Capitol visual massing details including dome, lantern, porticos, columns, steps, plaza, grounds, public-facing revolving-door visuals, facade windows, stone window surrounds, dentil/cornice courses, roof balustrades, pediment relief panels, entry lamps, bollards, and benches
 - 648 Capitol facade/furniture detail records
 - 60 generic public office/support visual cells
@@ -119,6 +120,7 @@ The viewer can toggle:
 
 - surrounding buildings
 - roads, bike lanes, traffic signals, crossing markers, and streetscape props
+- public grounds details
 - Capitol visual details, facade details, and public approach furniture
 - public interior schematic
 - gameplay item props
@@ -151,7 +153,7 @@ The current realism pass uses deterministic 4K procedural texture maps plus mate
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal.
 
-The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, Capitol facade windows, stone window surrounds, dentil courses, roof balustrades, dome balustrade posts, lantern windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
+The current mesh-detail pass adds public streetscape props, traffic-signal heads, crosswalk striping, tree planters, authored public grounds details, Capitol facade windows, stone window surrounds, dentil courses, roof balustrades, dome balustrade posts, lantern windows, entry lamps, bollards, and benches. The next visual-fidelity step is to replace procedural texture maps with curated real PBR texture sources where licensing permits and to add higher-fidelity modular meshes for chamber furniture, facade ornament, landscape planting, and public streetscape fixtures.
 
 The gameplay item pass is fictional and non-graphic. It adds abstract pickup/display props and gameplay metadata only; it does not model historical placement, public-safety guidance, or real-world weapon use or construction. Flagpole banner visuals are simple color-blocked game props, not exact merchandise replicas.
 

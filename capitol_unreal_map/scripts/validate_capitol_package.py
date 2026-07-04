@@ -86,6 +86,17 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "desk_arc_marker",
 }
 
+REQUIRED_GROUNDS_DETAIL_KINDS = {
+    "lawn_panel",
+    "public_walk",
+    "reflecting_pool",
+    "pool_coping",
+    "formal_planting_bed",
+    "public_tree_allee",
+    "public_walk_lamp",
+    "low_plaza_wall",
+}
+
 REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Overview",
     "CapitolMap_Camera_WestFront_FirstPerson",
@@ -340,6 +351,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["replaced_buildings"] = len(replaced_buildings)
     streetscape_props = exterior.get("streetscape_props", [])
     summary["streetscape_props"] = len(streetscape_props)
+    grounds_details = exterior.get("grounds_details", [])
+    grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
+    summary["grounds_details"] = len(grounds_details)
+    summary["grounds_detail_kinds"] = len(grounds_detail_kinds)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
     if summary["roads"] < 3000:
@@ -363,6 +378,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     for prop in streetscape_props[:12]:
         if not is_vec3(prop.get("center_m")):
             error(errors, f"streetscape prop {prop.get('name', '<unknown>')} has invalid center_m")
+            break
+    if len(grounds_details) < 80:
+        error(errors, f"expected at least 80 public grounds detail records, got {len(grounds_details)}")
+    missing_grounds_kinds = sorted(REQUIRED_GROUNDS_DETAIL_KINDS - grounds_detail_kinds)
+    if missing_grounds_kinds:
+        error(errors, f"missing public grounds detail kinds: {', '.join(missing_grounds_kinds)}")
+    for detail in grounds_details:
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"grounds detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        if "public" not in detail.get("public_accuracy", ""):
+            error(errors, f"grounds detail {detail.get('name', '<unknown>')} lacks public accuracy boundary")
             break
 
     landmark = metadata.get("landmark", {})
@@ -701,6 +728,7 @@ def main() -> int:
     print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
     print(f"Replaced OSM building footprints: {metadata_summary.get('replaced_buildings', 0):,}")
     print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
+    print(f"Grounds details: {metadata_summary.get('grounds_details', 0):,}")
     print(f"Facade/furniture details: {metadata_summary.get('facade_details', 0):,}")
     print(f"House seats: {metadata_summary.get('house_seats', 0):,}")
     print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
