@@ -202,6 +202,8 @@
     <div class="quick-links">
       <a class="quick-link" id="quickGroundsDetails" href="#grounds-details">Grounds Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
+      <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
+      <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
       <a class="quick-link" id="quickGameplayItems" href="#gameplay-items">Gameplay Items</a>
     </div>
 
@@ -217,6 +219,8 @@
       <button id="presetSenate">Senate</button>
       <button id="presetJoint">Joint Session</button>
       <button id="presetOffices">Offices</button>
+      <button id="presetFloorDetails">Floor Details</button>
+      <button id="presetCeilingDetails">Ceiling Details</button>
       <button id="presetGameplay">Gameplay Items</button>
     </div>
 
@@ -235,6 +239,8 @@
         <option value="visitor_gallery">Galleries</option>
         <option value="generic_office_zone">Office zones</option>
         <option value="office_detail">Office details</option>
+        <option value="floor_detail">Floor details</option>
+        <option value="ceiling_detail">Ceiling details</option>
         <option value="gameplay_item">Gameplay items</option>
         <option value="street_name">Streets</option>
         <option value="building">Buildings</option>
@@ -300,7 +306,7 @@
       }
     ];
 
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "office_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "office_detail", "floor_detail", "ceiling_detail"]);
 
     const state = {
       meshes: [],
@@ -384,6 +390,8 @@
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
+    document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
+    document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
 
     document.getElementById("quickGroundsDetails").addEventListener("click", (event) => {
@@ -394,6 +402,16 @@
     document.getElementById("quickOffices").addEventListener("click", (event) => {
       event.preventDefault();
       focusOfficesRoute();
+    });
+
+    document.getElementById("quickFloorDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusFloorDetailsRoute();
+    });
+
+    document.getElementById("quickCeilingDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusCeilingDetailsRoute();
     });
 
     document.getElementById("quickGameplayItems").addEventListener("click", (event) => {
@@ -570,6 +588,26 @@
           text: humanizeId(detail.name || detail.kind || "office_detail"),
           location: detail.center_m,
           category: "office_detail"
+        });
+      }
+      for (const detail of metadata.interior?.floor_details || []) {
+        const labelText = detail.area
+          ? `${humanizeId(detail.kind || "floor_detail")} - ${detail.area}`
+          : humanizeId(detail.name || detail.kind || "floor_detail");
+        labels.push({
+          text: labelText,
+          location: detail.center_m,
+          category: "floor_detail"
+        });
+      }
+      for (const detail of metadata.interior?.ceiling_details || []) {
+        const labelText = detail.room
+          ? `${humanizeId(detail.kind || "ceiling_detail")} - ${detail.room}`
+          : humanizeId(detail.name || detail.kind || "ceiling_detail");
+        labels.push({
+          text: labelText,
+          location: detail.center_m,
+          category: "ceiling_detail"
         });
       }
       for (const detail of metadata.exterior?.grounds_details || []) {
@@ -767,6 +805,50 @@
       focusOffices();
     }
 
+    function focusFloorDetails() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "floor_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "floor_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.62, 0.72, 34000, [0, 0, 520]);
+      statusEl.textContent = "Focused public floor finish details.";
+    }
+
+    function focusFloorDetailsRoute() {
+      if (window.location.hash !== "#floor-details") {
+        history.pushState(null, "", "#floor-details");
+      }
+      focusFloorDetails();
+    }
+
+    function focusCeilingDetails() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "ceiling_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "ceiling_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.62, 0.70, 36000, [0, 0, 820]);
+      statusEl.textContent = "Focused public ceiling and crown-trim details.";
+    }
+
+    function focusCeilingDetailsRoute() {
+      if (window.location.hash !== "#ceiling-details") {
+        history.pushState(null, "", "#ceiling-details");
+      }
+      focusCeilingDetails();
+    }
+
     function focusGameplayItems() {
       setMeshVisible("capitol_gameplay_items", true);
       state.labelsVisible = true;
@@ -797,6 +879,14 @@
       }
       if (route === "offices" || route === "office-details") {
         focusOffices();
+        return;
+      }
+      if (route === "floor-details" || route === "floor-finishes") {
+        focusFloorDetails();
+        return;
+      }
+      if (route === "ceiling-details" || route === "ceiling-finishes") {
+        focusCeilingDetails();
         return;
       }
       if (route === "gameplay-items" || route === "gameplay") {
