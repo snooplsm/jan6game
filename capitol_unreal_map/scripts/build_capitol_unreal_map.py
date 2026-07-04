@@ -1513,6 +1513,46 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box(center, (size[0] * 0.92, size[1] * 0.92), 0.22, z + 0.48, f"{name}_slightly_recessed_roof", "CapitolDome")
         add_facade_detail(name, "roof_parapet_and_recessed_roof", (center[0], center[1], z + 0.48))
 
+    def add_roof_articulation_volume(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+        kind: str = "roof_articulation_volume",
+    ) -> None:
+        obj.add_box(center, size, height, z, name, "CapitolStone")
+        obj.add_box(center, (size[0] * 0.92, size[1] * 0.88), 0.16, z + height, f"{name}_cap", "ColumnStone")
+        add_facade_detail(name, kind, (center[0], center[1], z + height / 2.0), {"size_m": [round(size[0], 3), round(size[1], 3)]})
+
+    def add_courtyard_notch_shadow(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        x, y = center
+        sx, sy = size
+        obj.add_box(center, size, 0.10, z, name, "DoorMetal")
+        obj.add_box((x, y + sy / 2.0), (sx + 0.42, 0.18), 0.18, z + 0.08, f"{name}_north_lip", "ColumnStone")
+        obj.add_box((x, y - sy / 2.0), (sx + 0.42, 0.18), 0.18, z + 0.08, f"{name}_south_lip", "ColumnStone")
+        add_facade_detail(name, "courtyard_notch_shadow", (center[0], center[1], z + 0.05), {"size_m": [round(size[0], 3), round(size[1], 3)]})
+
+    def add_roof_dormer(name: str, center: tuple[float, float], z: float, orientation: str) -> None:
+        x, y = center
+        if orientation == "east_west":
+            obj.add_box((x, y), (0.82, 1.18), 0.82, z, f"{name}_stone_body", "ColumnStone")
+            obj.add_box((x + (0.12 if x >= 0.0 else -0.12), y), (0.12, 0.72), 0.46, z + 0.18, f"{name}_dark_window", "FacadeWindow")
+            obj.add_pediment((x + (0.08 if x >= 0.0 else -0.08), y), 1.18, 0.74, z + 0.78, 0.34, f"{name}_little_pediment", "ColumnStone", "east_west")
+        else:
+            obj.add_box((x, y), (1.18, 0.82), 0.82, z, f"{name}_stone_body", "ColumnStone")
+            obj.add_box((x, y + (0.12 if y >= 0.0 else -0.12)), (0.72, 0.12), 0.46, z + 0.18, f"{name}_dark_window", "FacadeWindow")
+            obj.add_pediment((x, y + (0.08 if y >= 0.0 else -0.08)), 1.18, 0.74, z + 0.78, 0.34, f"{name}_little_pediment", "ColumnStone", "north_south")
+        add_facade_detail(name, "roof_dormer", (x, y, z + 0.5), {"orientation": orientation})
+
+    def add_roof_skylight_strip(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        x, y = center
+        sx, sy = size
+        obj.add_box(center, size, 0.08, z, f"{name}_glass", "DoorGlass")
+        obj.add_box((x, y + sy / 2.0), (sx + 0.18, 0.10), 0.10, z + 0.04, f"{name}_north_frame", "DoorMetal")
+        obj.add_box((x, y - sy / 2.0), (sx + 0.18, 0.10), 0.10, z + 0.04, f"{name}_south_frame", "DoorMetal")
+        add_facade_detail(name, "roof_skylight_strip", (center[0], center[1], z + 0.04), {"size_m": [round(size[0], 3), round(size[1], 3)]})
+
     def add_column_row(prefix: str, orientation: str, fixed: float, values: list[float], z_base: float, height: float) -> None:
         for idx, value in enumerate(values, start=1):
             center = (fixed, value) if orientation == "east_west" else (value, fixed)
@@ -1758,6 +1798,69 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_roof_cap(f"{wing_name}_main_roof", (0.0, y), (width + 2.0, depth + 2.0), 12.05)
         add_roof_cap(f"{wing_name}_center_pavilion_roof", (0.0, y), (28.0, depth + 10.0), 13.55)
         add_facade_detail(f"{wing_name}_articulated_pavilions", "wing_pavilion_massing", (0.0, y, 7.2))
+
+    roof_articulation_specs = [
+        ("central_roof_north_pavilion_riser", (0.0, 24.0), (48.0, 8.5), 18.06, 0.72),
+        ("central_roof_south_pavilion_riser", (0.0, -24.0), (48.0, 8.5), 18.06, 0.72),
+        ("central_roof_east_gallery_riser", (31.0, 0.0), (8.5, 48.0), 18.02, 0.66),
+        ("central_roof_west_gallery_riser", (-31.0, 0.0), (8.5, 48.0), 18.02, 0.66),
+        ("senate_roof_north_bar", (0.0, 88.8), (58.0, 6.4), 13.18, 0.58),
+        ("senate_roof_south_inner_bar", (0.0, 47.2), (58.0, 5.6), 12.76, 0.50),
+        ("house_roof_south_bar", (0.0, -90.0), (62.0, 6.4), 13.18, 0.58),
+        ("house_roof_north_inner_bar", (0.0, -47.0), (62.0, 5.6), 12.76, 0.50),
+        ("east_front_roof_layered_return", (57.2, 0.0), (7.8, 58.0), 14.52, 0.58),
+        ("west_front_roof_layered_return", (-57.2, 0.0), (7.8, 58.0), 14.52, 0.58),
+    ]
+    for name, center, size, z, height in roof_articulation_specs:
+        add_roof_articulation_volume(name, center, size, z, height)
+
+    wing_transition_specs = [
+        ("northwest_central_wing_transition_block", (-31.0, 40.5), (15.0, 13.5), 12.92, 1.15),
+        ("northeast_central_wing_transition_block", (31.0, 40.5), (15.0, 13.5), 12.92, 1.15),
+        ("southwest_central_wing_transition_block", (-31.0, -40.5), (15.0, 13.5), 12.92, 1.15),
+        ("southeast_central_wing_transition_block", (31.0, -40.5), (15.0, 13.5), 12.92, 1.15),
+        ("north_east_front_transition_block", (48.0, 40.0), (9.5, 16.0), 13.65, 0.95),
+        ("south_east_front_transition_block", (48.0, -40.0), (9.5, 16.0), 13.65, 0.95),
+        ("north_west_front_transition_block", (-48.0, 40.0), (9.5, 16.0), 13.65, 0.95),
+        ("south_west_front_transition_block", (-48.0, -40.0), (9.5, 16.0), 13.65, 0.95),
+    ]
+    for name, center, size, z, height in wing_transition_specs:
+        add_roof_articulation_volume(name, center, size, z, height, kind="wing_transition_block")
+
+    courtyard_shadow_specs = [
+        ("northwest_inner_courtyard_shadow", (-47.0, 43.0), (11.0, 15.0), 12.34),
+        ("northeast_inner_courtyard_shadow", (47.0, 43.0), (11.0, 15.0), 12.34),
+        ("southwest_inner_courtyard_shadow", (-47.0, -43.0), (11.0, 15.0), 12.34),
+        ("southeast_inner_courtyard_shadow", (47.0, -43.0), (11.0, 15.0), 12.34),
+        ("senate_west_roof_recess_shadow", (-24.0, 68.0), (11.5, 24.0), 13.18),
+        ("senate_east_roof_recess_shadow", (24.0, 68.0), (11.5, 24.0), 13.18),
+        ("house_west_roof_recess_shadow", (-26.0, -68.0), (12.0, 26.0), 13.18),
+        ("house_east_roof_recess_shadow", (26.0, -68.0), (12.0, 26.0), 13.18),
+    ]
+    for name, center, size, z in courtyard_shadow_specs:
+        add_courtyard_notch_shadow(name, center, size, z)
+
+    for side, x in (("east", 42.0), ("west", -42.0)):
+        for idx, y in enumerate([-27.0, -19.0, -11.0, -3.0, 5.0, 13.0, 21.0, 29.0], start=1):
+            add_roof_dormer(f"{side}_central_roof_dormer_{idx:02d}", (x, y), 18.52, "east_west")
+    for side, y in (("north", 83.8), ("south", -83.8)):
+        for idx, x in enumerate([-35.0, -25.0, -15.0, -5.0, 5.0, 15.0, 25.0, 35.0], start=1):
+            add_roof_dormer(f"{side}_wing_roof_dormer_{idx:02d}", (x, y), 13.68, "north_south")
+
+    skylight_specs = [
+        ("central_north_roof_skylight_strip", (0.0, 18.2), (24.0, 1.05), 18.94),
+        ("central_south_roof_skylight_strip", (0.0, -18.2), (24.0, 1.05), 18.94),
+        ("senate_west_roof_skylight_strip", (-25.0, 78.0), (14.0, 1.0), 14.02),
+        ("senate_east_roof_skylight_strip", (25.0, 78.0), (14.0, 1.0), 14.02),
+        ("house_west_roof_skylight_strip", (-27.0, -78.0), (14.0, 1.0), 14.02),
+        ("house_east_roof_skylight_strip", (27.0, -78.0), (14.0, 1.0), 14.02),
+        ("east_front_roof_skylight_strip", (56.0, 18.0), (1.0, 18.0), 15.18),
+        ("west_front_roof_skylight_strip", (-56.0, -18.0), (1.0, 18.0), 15.18),
+    ]
+    for name, center, size, z in skylight_specs:
+        add_roof_skylight_strip(name, center, size, z)
+
+    add_element("Articulated public roof silhouette and courtyard recesses", "landmark", (0.0, 0.0, 18.5))
 
     for side, x in (("east", 58.5), ("west", -58.5)):
         obj.add_box((x, 0.0), (17.0, 68.0), 13.7, 1.13, f"{side}_front_projecting_portico_block", "CapitolStone")

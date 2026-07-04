@@ -459,6 +459,11 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "public_approach_handrail",
     "public_door_surround",
     "roof_balustrade",
+    "roof_articulation_volume",
+    "wing_transition_block",
+    "courtyard_notch_shadow",
+    "roof_dormer",
+    "roof_skylight_strip",
     "dome_balustrade_posts",
     "dome_vertical_rib",
     "dome_drum_window_trim",
@@ -796,8 +801,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 1000:
-        error(errors, f"expected at least 1000 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 1200:
+        error(errors, f"expected at least 1200 public facade/furniture visual details, got {len(facade_details)}")
     missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
     if missing_facade_kinds:
         error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
@@ -819,6 +824,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 12 public door surround records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
         error(errors, "expected at least 6 public roof balustrade records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_articulation_volume"]) < 10:
+        error(errors, "expected at least 10 public roof articulation volume records")
+    if len([detail for detail in facade_details if detail.get("kind") == "wing_transition_block"]) < 8:
+        error(errors, "expected at least 8 public wing transition block records")
+    if len([detail for detail in facade_details if detail.get("kind") == "courtyard_notch_shadow"]) < 8:
+        error(errors, "expected at least 8 public courtyard/recess shadow records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_dormer"]) < 32:
+        error(errors, "expected at least 32 public roof dormer records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_skylight_strip"]) < 8:
+        error(errors, "expected at least 8 public roof skylight strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_vertical_rib"]) < 24:
         error(errors, "expected at least 24 dome vertical rib records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_window_trim"]) < 16:
