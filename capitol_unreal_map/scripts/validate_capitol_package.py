@@ -237,6 +237,18 @@ REQUIRED_GROUNDS_DETAIL_KINDS = {
     "low_plaza_wall",
 }
 
+REQUIRED_STREETSCAPE_PROP_KINDS = {
+    "streetlight",
+    "street_name_sign",
+    "traffic_signal_prop",
+    "tree_planter",
+    "road_stop_bar",
+    "lane_direction_arrow",
+    "bike_symbol",
+    "curb_ramp_visual",
+    "public_wayfinding_sign",
+}
+
 REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Overview",
     "CapitolMap_Camera_WestFront_FirstPerson",
@@ -496,7 +508,9 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     replaced_buildings = exterior.get("replaced_buildings", [])
     summary["replaced_buildings"] = len(replaced_buildings)
     streetscape_props = exterior.get("streetscape_props", [])
+    streetscape_prop_kinds = {prop.get("kind") for prop in streetscape_props}
     summary["streetscape_props"] = len(streetscape_props)
+    summary["streetscape_prop_kinds"] = len(streetscape_prop_kinds)
     grounds_details = exterior.get("grounds_details", [])
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
     grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
@@ -521,8 +535,21 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
-    if len(streetscape_props) < 650:
-        error(errors, f"expected at least 650 public streetscape props, got {len(streetscape_props)}")
+    if len(streetscape_props) < 870:
+        error(errors, f"expected at least 870 public streetscape props, got {len(streetscape_props)}")
+    missing_streetscape_kinds = sorted(REQUIRED_STREETSCAPE_PROP_KINDS - streetscape_prop_kinds)
+    if missing_streetscape_kinds:
+        error(errors, f"missing public streetscape prop kinds: {', '.join(missing_streetscape_kinds)}")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "road_stop_bar"]) < 12:
+        error(errors, "expected at least 12 public road stop-bar props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "lane_direction_arrow"]) < 12:
+        error(errors, "expected at least 12 public lane-direction arrow props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "bike_symbol"]) < 8:
+        error(errors, "expected at least 8 public bike-symbol props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "curb_ramp_visual"]) < 16:
+        error(errors, "expected at least 16 public curb-ramp visual props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "public_wayfinding_sign"]) < 8:
+        error(errors, "expected at least 8 public wayfinding sign props")
     for prop in streetscape_props[:12]:
         if not is_vec3(prop.get("center_m")):
             error(errors, f"streetscape prop {prop.get('name', '<unknown>')} has invalid center_m")

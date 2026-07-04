@@ -733,6 +733,124 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             sx = x + (stripe - 1.5) * 0.46
             roads.add_box((sx, y), (0.24, 2.35), 0.035, 0.14, f"{name}_stripe_{stripe+1}", "CrosswalkWhite")
 
+    def add_stop_bar(name: str, center: tuple[float, float], orientation: str) -> None:
+        size = (9.6, 0.44) if orientation == "east_west" else (0.44, 9.6)
+        roads.add_box(center, size, 0.035, 0.18, name, "LaneMarkingWhite")
+        add_streetscape_record(name, "road_stop_bar", (center[0], center[1], 0.22), extra={"orientation": orientation})
+
+    def add_lane_arrow(name: str, center: tuple[float, float], direction: str) -> None:
+        x, y = center
+        if direction in {"north", "south"}:
+            sign = 1.0 if direction == "north" else -1.0
+            roads.add_box((x, y - sign * 0.62), (0.36, 1.35), 0.035, 0.185, f"{name}_stem", "LaneMarkingWhite")
+            head = [(x, y + sign * 1.08), (x - 0.70, y + sign * 0.12), (x + 0.70, y + sign * 0.12)]
+        else:
+            sign = 1.0 if direction == "east" else -1.0
+            roads.add_box((x - sign * 0.62, y), (1.35, 0.36), 0.035, 0.185, f"{name}_stem", "LaneMarkingWhite")
+            head = [(x + sign * 1.08, y), (x + sign * 0.12, y - 0.70), (x + sign * 0.12, y + 0.70)]
+        roads.add_extruded_polygon(head, 0.185, 0.035, f"{name}_arrow_head", "LaneMarkingWhite")
+        add_streetscape_record(name, "lane_direction_arrow", (x, y, 0.22), extra={"direction": direction})
+
+    def add_bike_symbol(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        if orientation == "north_south":
+            wheel_a = (x, y - 0.72)
+            wheel_b = (x, y + 0.72)
+            roads.add_box((x, y), (0.14, 1.25), 0.032, 0.19, f"{name}_frame_bar", "LaneMarkingWhite")
+            roads.add_box((x, y + 1.18), (0.78, 0.12), 0.032, 0.19, f"{name}_handlebar", "LaneMarkingWhite")
+        else:
+            wheel_a = (x - 0.72, y)
+            wheel_b = (x + 0.72, y)
+            roads.add_box((x, y), (1.25, 0.14), 0.032, 0.19, f"{name}_frame_bar", "LaneMarkingWhite")
+            roads.add_box((x + 1.18, y), (0.12, 0.78), 0.032, 0.19, f"{name}_handlebar", "LaneMarkingWhite")
+        roads.add_ring(wheel_a, 0.34, 0.25, 0.19, 0.03, f"{name}_wheel_a", "LaneMarkingWhite", segments=18)
+        roads.add_ring(wheel_b, 0.34, 0.25, 0.19, 0.03, f"{name}_wheel_b", "LaneMarkingWhite", segments=18)
+        add_streetscape_record(name, "bike_symbol", (x, y, 0.22), extra={"orientation": orientation})
+
+    def add_curb_ramp_visual(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        size = (2.2, 1.3) if orientation == "east_west" else (1.3, 2.2)
+        roads.add_box(center, size, 0.045, 0.105, f"{name}_concrete_slope", "SidewalkConcrete")
+        roads.add_box(center, (size[0] * 0.62, size[1] * 0.36), 0.026, 0.155, f"{name}_tactile_panel", "LaneMarkingYellow")
+        add_streetscape_record(name, "curb_ramp_visual", (x, y, 0.16), extra={"orientation": orientation})
+
+    def add_public_wayfinding_sign(name: str, center: tuple[float, float], label: str, orientation: str) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.055, 0.10, 2.45, f"{name}_post", "StreetLightPole", segments=8)
+        panel_size = (2.2, 0.14) if orientation == "east_west" else (0.14, 2.2)
+        roads.add_box((x, y), panel_size, 0.78, 2.05, f"{name}_green_panel", "StreetSignGreen")
+        roads.add_box((x, y), (panel_size[0] * 0.72, panel_size[1] * 0.72), 0.12, 2.23, f"{name}_white_arrow_marker", "LaneMarkingWhite")
+        add_streetscape_record(name, "public_wayfinding_sign", (x, y, 1.55), extra={"label": label, "orientation": orientation})
+
+    def add_public_roadway_visual_details() -> None:
+        # Authored public-facing road markings for visual realism. These are
+        # schematic surface props, not traffic-control engineering plans.
+        for name, center, orientation in [
+            ("west_approach_stop_bar_north", (-222.0, 34.0), "east_west"),
+            ("west_approach_stop_bar_south", (-222.0, -34.0), "east_west"),
+            ("east_approach_stop_bar_north", (142.0, 34.0), "east_west"),
+            ("east_approach_stop_bar_south", (142.0, -34.0), "east_west"),
+            ("north_approach_stop_bar_west", (-54.0, 138.0), "north_south"),
+            ("north_approach_stop_bar_east", (54.0, 138.0), "north_south"),
+            ("south_approach_stop_bar_west", (-54.0, -138.0), "north_south"),
+            ("south_approach_stop_bar_east", (54.0, -138.0), "north_south"),
+            ("west_pool_stop_bar", (-336.0, 0.0), "north_south"),
+            ("east_plaza_stop_bar", (210.0, 0.0), "north_south"),
+            ("northwest_public_stop_bar", (-148.0, 112.0), "east_west"),
+            ("southwest_public_stop_bar", (-148.0, -112.0), "east_west"),
+        ]:
+            add_stop_bar(name, center, orientation)
+
+        for name, center, direction in [
+            ("west_approach_arrow_east_01", (-300.0, -8.0), "east"),
+            ("west_approach_arrow_east_02", (-240.0, -8.0), "east"),
+            ("west_approach_arrow_west_01", (-220.0, 8.0), "west"),
+            ("west_approach_arrow_west_02", (-280.0, 8.0), "west"),
+            ("east_approach_arrow_west_01", (130.0, 8.0), "west"),
+            ("east_approach_arrow_east_01", (172.0, -8.0), "east"),
+            ("north_approach_arrow_south_01", (-40.0, 168.0), "south"),
+            ("north_approach_arrow_south_02", (40.0, 168.0), "south"),
+            ("south_approach_arrow_north_01", (-40.0, -168.0), "north"),
+            ("south_approach_arrow_north_02", (40.0, -168.0), "north"),
+            ("northwest_curve_arrow_east", (-170.0, 92.0), "east"),
+            ("southwest_curve_arrow_east", (-170.0, -92.0), "east"),
+        ]:
+            add_lane_arrow(name, center, direction)
+
+        for name, center, orientation in [
+            ("west_bike_symbol_01", (-318.0, 18.0), "east_west"),
+            ("west_bike_symbol_02", (-278.0, 18.0), "east_west"),
+            ("west_bike_symbol_03", (-238.0, 18.0), "east_west"),
+            ("west_bike_symbol_04", (-198.0, 18.0), "east_west"),
+            ("east_bike_symbol_01", (124.0, -18.0), "east_west"),
+            ("east_bike_symbol_02", (164.0, -18.0), "east_west"),
+            ("north_bike_symbol_01", (-68.0, 150.0), "north_south"),
+            ("south_bike_symbol_01", (68.0, -150.0), "north_south"),
+        ]:
+            add_bike_symbol(name, center, orientation)
+
+        ramp_index = 1
+        for x, y, orientation in [
+            (-70.0, 119.0, "east_west"), (-34.0, 122.0, "east_west"), (34.0, 122.0, "east_west"), (70.0, 119.0, "east_west"),
+            (-70.0, -119.0, "east_west"), (-34.0, -122.0, "east_west"), (34.0, -122.0, "east_west"), (70.0, -119.0, "east_west"),
+            (-94.0, 48.0, "north_south"), (-160.0, 96.0, "north_south"), (-94.0, -48.0, "north_south"), (-160.0, -96.0, "north_south"),
+            (94.0, 48.0, "north_south"), (132.0, 88.0, "north_south"), (94.0, -48.0, "north_south"), (132.0, -88.0, "north_south"),
+        ]:
+            add_curb_ramp_visual(f"public_curb_ramp_{ramp_index:02d}", (x, y), orientation)
+            ramp_index += 1
+
+        for name, center, label, orientation in [
+            ("west_public_wayfinding_pool", (-245.0, -26.0), "Reflecting Pool / West Front", "east_west"),
+            ("west_public_wayfinding_capitol", (-138.0, 26.0), "Capitol / Visitor Orientation", "east_west"),
+            ("east_public_wayfinding_plaza", (156.0, 28.0), "East Plaza / Capitol", "east_west"),
+            ("north_public_wayfinding", (-74.0, 132.0), "North Public Walk", "east_west"),
+            ("south_public_wayfinding", (74.0, -132.0), "South Public Walk", "east_west"),
+            ("northwest_public_wayfinding", (-186.0, 118.0), "Public Walk / Streets", "east_west"),
+            ("southwest_public_wayfinding", (-186.0, -118.0), "Public Walk / Streets", "east_west"),
+            ("east_public_wayfinding_bike", (196.0, -28.0), "Bike Lane / Public Walk", "east_west"),
+        ]:
+            add_public_wayfinding_sign(name, center, label, orientation)
+
     def add_grounds_record(
         name: str,
         kind: str,
@@ -1055,6 +1173,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             }
         )
 
+    add_public_roadway_visual_details()
     add_capitol_grounds_details()
 
     buildings.write(MESH_DIR / "capitol_exterior_buildings.obj", "capitol_materials.mtl")
