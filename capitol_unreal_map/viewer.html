@@ -81,6 +81,27 @@
 
     button:hover { border-color: rgba(119, 183, 255, 0.55); }
 
+    .quick-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: -4px 0 10px;
+    }
+
+    .quick-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 8px;
+      border: 1px solid rgba(119, 183, 255, 0.32);
+      border-radius: 6px;
+      color: var(--accent);
+      text-decoration: none;
+      background: rgba(119, 183, 255, 0.08);
+    }
+
+    .quick-link:hover { border-color: rgba(119, 183, 255, 0.65); }
+
     input,
     select {
       min-width: 0;
@@ -177,6 +198,10 @@
   <aside class="panel">
     <h1>U.S. Capitol OBJ Viewer <span class="badge">local</span></h1>
     <p class="status" id="status">Loading generated assets...</p>
+
+    <div class="quick-links">
+      <a class="quick-link" id="quickGameplayItems" href="#gameplay-items">Gameplay Items</a>
+    </div>
 
     <div class="row">
       <button id="presetOverview">Overview</button>
@@ -349,7 +374,14 @@
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
-    document.getElementById("presetGameplay").onclick = () => focusGameplayItems();
+    document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
+
+    document.getElementById("quickGameplayItems").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusGameplayItemsRoute();
+    });
+
+    window.addEventListener("hashchange", applyHashRoute);
 
     document.getElementById("labelSearch").addEventListener("input", (event) => {
       state.labelQuery = event.target.value.trim().toLowerCase();
@@ -387,6 +419,7 @@
         renderLabelElements();
         updateStats();
         statusEl.textContent = "Loaded. Use the presets or orbit the scene.";
+        applyHashRoute();
       } catch (error) {
         console.error(error);
         statusEl.textContent = `Failed to load assets: ${error.message}`;
@@ -661,6 +694,20 @@
 
       setCamera(0.28, 0.58, 19000, [-12400, -12200, 520]);
       statusEl.textContent = "Focused gameplay item preview lane.";
+    }
+
+    function focusGameplayItemsRoute() {
+      if (window.location.hash !== "#gameplay-items") {
+        history.pushState(null, "", "#gameplay-items");
+      }
+      focusGameplayItems();
+    }
+
+    function applyHashRoute() {
+      const route = window.location.hash.replace(/^#/, "").toLowerCase();
+      if (route === "gameplay-items" || route === "gameplay") {
+        focusGameplayItems();
+      }
     }
 
     function setMeshVisible(meshId, visible) {

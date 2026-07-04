@@ -117,6 +117,12 @@ Then open:
 http://127.0.0.1:8765/viewer.html
 ```
 
+Gameplay item quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#gameplay-items
+```
+
 The viewer can toggle:
 
 - surrounding buildings
