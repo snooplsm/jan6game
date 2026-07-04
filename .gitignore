@@ -1,0 +1,18 @@
+.DS_Store
+**/.DS_Store
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Local unrelated workspace content.
+ryan/
+
+# Unreal-generated local/editor folders.
+capitol_unreal_map/Binaries/
+capitol_unreal_map/DerivedDataCache/
+capitol_unreal_map/Intermediate/
+capitol_unreal_map/Saved/
+capitol_unreal_map/.vs/
+
+# Generated only after a local Unreal Editor import run.
+capitol_unreal_map/generated/data/unreal_import_report.json

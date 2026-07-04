@@ -1,0 +1,509 @@
+{
+  "package": "capitol_unreal_map",
+  "texture_root": "generated/textures",
+  "sets": {
+    "asphalt": {
+      "style": "asphalt",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/asphalt_basecolor.png",
+      "normal": "generated/textures/asphalt_normal.png",
+      "roughness": "generated/textures/asphalt_roughness.png"
+    },
+    "bike_lane_green": {
+      "style": "worn_paint",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/bike_lane_green_basecolor.png",
+      "normal": "generated/textures/bike_lane_green_normal.png",
+      "roughness": "generated/textures/bike_lane_green_roughness.png"
+    },
+    "black_metal": {
+      "style": "brushed_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/black_metal_basecolor.png",
+      "normal": "generated/textures/black_metal_normal.png",
+      "roughness": "generated/textures/black_metal_roughness.png"
+    },
+    "blue_marker": {
+      "style": "worn_paint",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/blue_marker_basecolor.png",
+      "normal": "generated/textures/blue_marker_normal.png",
+      "roughness": "generated/textures/blue_marker_roughness.png"
+    },
+    "brass": {
+      "style": "brushed_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/brass_basecolor.png",
+      "normal": "generated/textures/brass_normal.png",
+      "roughness": "generated/textures/brass_roughness.png"
+    },
+    "cabinet_blue": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/cabinet_blue_basecolor.png",
+      "normal": "generated/textures/cabinet_blue_normal.png",
+      "roughness": "generated/textures/cabinet_blue_roughness.png"
+    },
+    "concrete": {
+      "style": "concrete",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/concrete_basecolor.png",
+      "normal": "generated/textures/concrete_normal.png",
+      "roughness": "generated/textures/concrete_roughness.png"
+    },
+    "court_black": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/court_black_basecolor.png",
+      "normal": "generated/textures/court_black_normal.png",
+      "roughness": "generated/textures/court_black_roughness.png"
+    },
+    "curb_concrete": {
+      "style": "concrete",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/curb_concrete_basecolor.png",
+      "normal": "generated/textures/curb_concrete_normal.png",
+      "roughness": "generated/textures/curb_concrete_roughness.png"
+    },
+    "dark_wood": {
+      "style": "wood",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/dark_wood_basecolor.png",
+      "normal": "generated/textures/dark_wood_normal.png",
+      "roughness": "generated/textures/dark_wood_roughness.png"
+    },
+    "diplomatic_purple": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/diplomatic_purple_basecolor.png",
+      "normal": "generated/textures/diplomatic_purple_normal.png",
+      "roughness": "generated/textures/diplomatic_purple_roughness.png"
+    },
+    "dome_painted": {
+      "style": "painted_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/dome_painted_basecolor.png",
+      "normal": "generated/textures/dome_painted_normal.png",
+      "roughness": "generated/textures/dome_painted_roughness.png"
+    },
+    "fixture_dark_metal": {
+      "style": "brushed_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/fixture_dark_metal_basecolor.png",
+      "normal": "generated/textures/fixture_dark_metal_normal.png",
+      "roughness": "generated/textures/fixture_dark_metal_roughness.png"
+    },
+    "gallery_dark": {
+      "style": "painted_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/gallery_dark_basecolor.png",
+      "normal": "generated/textures/gallery_dark_normal.png",
+      "roughness": "generated/textures/gallery_dark_roughness.png"
+    },
+    "gilded_frame": {
+      "style": "brushed_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/gilded_frame_basecolor.png",
+      "normal": "generated/textures/gilded_frame_normal.png",
+      "roughness": "generated/textures/gilded_frame_roughness.png"
+    },
+    "glass_blue": {
+      "style": "glass",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/glass_blue_basecolor.png",
+      "normal": "generated/textures/glass_blue_normal.png",
+      "roughness": "generated/textures/glass_blue_roughness.png"
+    },
+    "grass": {
+      "style": "grass",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/grass_basecolor.png",
+      "normal": "generated/textures/grass_normal.png",
+      "roughness": "generated/textures/grass_roughness.png"
+    },
+    "house_blue_fabric": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/house_blue_fabric_basecolor.png",
+      "normal": "generated/textures/house_blue_fabric_normal.png",
+      "roughness": "generated/textures/house_blue_fabric_roughness.png"
+    },
+    "house_carpet": {
+      "style": "carpet",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/house_carpet_basecolor.png",
+      "normal": "generated/textures/house_carpet_normal.png",
+      "roughness": "generated/textures/house_carpet_roughness.png"
+    },
+    "joint_zone": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/joint_zone_basecolor.png",
+      "normal": "generated/textures/joint_zone_normal.png",
+      "roughness": "generated/textures/joint_zone_roughness.png"
+    },
+    "leather_dark": {
+      "style": "leather",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/leather_dark_basecolor.png",
+      "normal": "generated/textures/leather_dark_normal.png",
+      "roughness": "generated/textures/leather_dark_roughness.png"
+    },
+    "limestone": {
+      "style": "stone",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/limestone_basecolor.png",
+      "normal": "generated/textures/limestone_normal.png",
+      "roughness": "generated/textures/limestone_roughness.png"
+    },
+    "limestone_light": {
+      "style": "stone",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/limestone_light_basecolor.png",
+      "normal": "generated/textures/limestone_light_normal.png",
+      "roughness": "generated/textures/limestone_light_roughness.png"
+    },
+    "limestone_weathered": {
+      "style": "stone",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/limestone_weathered_basecolor.png",
+      "normal": "generated/textures/limestone_weathered_normal.png",
+      "roughness": "generated/textures/limestone_weathered_roughness.png"
+    },
+    "office_floor": {
+      "style": "concrete",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/office_floor_basecolor.png",
+      "normal": "generated/textures/office_floor_normal.png",
+      "roughness": "generated/textures/office_floor_roughness.png"
+    },
+    "painting_canvas": {
+      "style": "canvas",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/painting_canvas_basecolor.png",
+      "normal": "generated/textures/painting_canvas_normal.png",
+      "roughness": "generated/textures/painting_canvas_roughness.png"
+    },
+    "plaza_stone": {
+      "style": "pavers",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/plaza_stone_basecolor.png",
+      "normal": "generated/textures/plaza_stone_normal.png",
+      "roughness": "generated/textures/plaza_stone_roughness.png"
+    },
+    "polished_wood": {
+      "style": "wood",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/polished_wood_basecolor.png",
+      "normal": "generated/textures/polished_wood_normal.png",
+      "roughness": "generated/textures/polished_wood_roughness.png"
+    },
+    "portrait_canvas": {
+      "style": "canvas",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/portrait_canvas_basecolor.png",
+      "normal": "generated/textures/portrait_canvas_normal.png",
+      "roughness": "generated/textures/portrait_canvas_roughness.png"
+    },
+    "press_green": {
+      "style": "fabric",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/press_green_basecolor.png",
+      "normal": "generated/textures/press_green_normal.png",
+      "roughness": "generated/textures/press_green_roughness.png"
+    },
+    "road_paint_white": {
+      "style": "worn_paint",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/road_paint_white_basecolor.png",
+      "normal": "generated/textures/road_paint_white_normal.png",
+      "roughness": "generated/textures/road_paint_white_roughness.png"
+    },
+    "road_paint_yellow": {
+      "style": "worn_paint",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/road_paint_yellow_basecolor.png",
+      "normal": "generated/textures/road_paint_yellow_normal.png",
+      "roughness": "generated/textures/road_paint_yellow_roughness.png"
+    },
+    "rotunda_floor": {
+      "style": "marble",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/rotunda_floor_basecolor.png",
+      "normal": "generated/textures/rotunda_floor_normal.png",
+      "roughness": "generated/textures/rotunda_floor_roughness.png"
+    },
+    "rotunda_wall": {
+      "style": "marble",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/rotunda_wall_basecolor.png",
+      "normal": "generated/textures/rotunda_wall_normal.png",
+      "roughness": "generated/textures/rotunda_wall_roughness.png"
+    },
+    "senate_carpet": {
+      "style": "carpet",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/senate_carpet_basecolor.png",
+      "normal": "generated/textures/senate_carpet_normal.png",
+      "roughness": "generated/textures/senate_carpet_roughness.png"
+    },
+    "senate_dark_fabric": {
+      "style": "leather",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/senate_dark_fabric_basecolor.png",
+      "normal": "generated/textures/senate_dark_fabric_normal.png",
+      "roughness": "generated/textures/senate_dark_fabric_roughness.png"
+    },
+    "statue_bronze": {
+      "style": "brushed_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/statue_bronze_basecolor.png",
+      "normal": "generated/textures/statue_bronze_normal.png",
+      "roughness": "generated/textures/statue_bronze_roughness.png"
+    },
+    "statue_marble": {
+      "style": "marble",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/statue_marble_basecolor.png",
+      "normal": "generated/textures/statue_marble_normal.png",
+      "roughness": "generated/textures/statue_marble_roughness.png"
+    },
+    "step_stone": {
+      "style": "worn_stone",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/step_stone_basecolor.png",
+      "normal": "generated/textures/step_stone_normal.png",
+      "roughness": "generated/textures/step_stone_roughness.png"
+    },
+    "street_sign_green": {
+      "style": "painted_metal",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/street_sign_green_basecolor.png",
+      "normal": "generated/textures/street_sign_green_normal.png",
+      "roughness": "generated/textures/street_sign_green_roughness.png"
+    },
+    "warm_light_glass": {
+      "style": "glass",
+      "size_px": [
+        512,
+        512
+      ],
+      "tileable": true,
+      "basecolor": "generated/textures/warm_light_glass_basecolor.png",
+      "normal": "generated/textures/warm_light_glass_normal.png",
+      "roughness": "generated/textures/warm_light_glass_roughness.png"
+    }
+  },
+  "materials": {
+    "BuildingGeneric": "limestone_weathered",
+    "BuildingCapitol": "limestone",
+    "CapitolStone": "limestone",
+    "CapitolDome": "dome_painted",
+    "ColumnStone": "limestone_light",
+    "StepStone": "step_stone",
+    "GroundGrass": "grass",
+    "PlazaStone": "plaza_stone",
+    "RoadAsphalt": "asphalt",
+    "LaneMarkingWhite": "road_paint_white",
+    "LaneMarkingYellow": "road_paint_yellow",
+    "SidewalkConcrete": "concrete",
+    "CurbConcrete": "curb_concrete",
+    "BikeLaneGreen": "bike_lane_green",
+    "BikeLanePost": "road_paint_white",
+    "CrosswalkWhite": "road_paint_white",
+    "SignalMarker": "road_paint_yellow",
+    "InteriorFloor": "rotunda_floor",
+    "InteriorWall": "rotunda_wall",
+    "InteriorTrim": "dark_wood",
+    "HouseCarpet": "house_carpet",
+    "SenateCarpet": "senate_carpet",
+    "DeskWood": "polished_wood",
+    "ChairLeather": "leather_dark",
+    "BrassRail": "brass",
+    "RotundaFloor": "rotunda_floor",
+    "RotundaWall": "rotunda_wall",
+    "HouseSeat": "house_blue_fabric",
+    "HouseDesk": "polished_wood",
+    "SenateDesk": "polished_wood",
+    "SenateChair": "senate_dark_fabric",
+    "PublicGallery": "gallery_dark",
+    "OfficeZone": "office_floor",
+    "MarkerBlue": "blue_marker",
+    "StreetSignGreen": "street_sign_green",
+    "DoorGlass": "glass_blue",
+    "DoorMetal": "black_metal",
+    "PresidentPodium": "dark_wood",
+    "JointSessionZone": "joint_zone",
+    "SupremeCourtZone": "court_black",
+    "CabinetZone": "cabinet_blue",
+    "DiplomaticZone": "diplomatic_purple",
+    "PressZone": "press_green",
+    "StatueMarble": "statue_marble",
+    "StatueBronze": "statue_bronze",
+    "ArtFrameGold": "gilded_frame",
+    "PaintingCanvas": "painting_canvas",
+    "PortraitCanvas": "portrait_canvas",
+    "WarmLightGlass": "warm_light_glass",
+    "LightFixtureMetal": "fixture_dark_metal"
+  }
+}

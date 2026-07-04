@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>U.S. Capitol Unreal Map OBJ Viewer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --panel: rgba(18, 20, 23, 0.88);
+      --line: rgba(255, 255, 255, 0.16);
+      --text: #f3f0e8;
+      --muted: #a9b0b8;
+      --accent: #77b7ff;
+      --ok: #7ee088;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      font: 13px/1.4 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: #0e1114;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 28%, #1d252c 0%, #0d1013 58%, #080a0c 100%);
+    }
+
+    .panel {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      width: min(380px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.42);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .status {
+      margin: 0 0 12px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      padding: 7px 9px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: rgba(119, 183, 255, 0.55); }
+
+    input,
+    select {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      padding: 7px 9px;
+      font: inherit;
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    .search-input { flex: 1 1 170px; }
+
+    .category-filter { flex: 1 1 150px; }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      color: var(--text);
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .section {
+      padding-top: 10px;
+      margin-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px 12px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stats strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .label-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .map-label {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      max-width: 220px;
+      padding: 3px 6px;
+      border-radius: 5px;
+      background: rgba(8, 10, 12, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fbf5df;
+      font-size: 11px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid rgba(126, 224, 136, 0.32);
+      border-radius: 999px;
+      color: var(--ok);
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="viewport"></canvas>
+  <div class="label-layer" id="labelLayer"></div>
+
+  <aside class="panel">
+    <h1>U.S. Capitol OBJ Viewer <span class="badge">local</span></h1>
+    <p class="status" id="status">Loading generated assets...</p>
+
+    <div class="row">
+      <button id="presetOverview">Overview</button>
+      <button id="presetCapitol">Capitol</button>
+      <button id="presetInterior">Interior</button>
+      <button id="presetRoads">Roads</button>
+      <button id="presetRotunda">Rotunda</button>
+      <button id="presetHouse">House</button>
+      <button id="presetSenate">Senate</button>
+      <button id="presetJoint">Joint Session</button>
+    </div>
+
+    <div class="row">
+      <input class="search-input" id="labelSearch" type="search" placeholder="Search labels" />
+      <select class="category-filter" id="categoryFilter">
+        <option value="">All labels</option>
+        <option value="major_public_space">Public spaces</option>
+        <option value="legislative_chamber">Chambers</option>
+        <option value="joint_session">Joint session</option>
+        <option value="seating">Seating</option>
+        <option value="seating_section">Seating sections</option>
+        <option value="visitor_gallery">Galleries</option>
+        <option value="generic_office_zone">Office zones</option>
+        <option value="street_name">Streets</option>
+        <option value="building">Buildings</option>
+      </select>
+      <button id="focusSearch">Focus</button>
+    </div>
+
+    <div class="section">
+      <label><input type="checkbox" data-mesh="capitol_exterior_buildings" checked /> Surrounding buildings</label>
+      <label><input type="checkbox" data-mesh="capitol_exterior_roads_bike_lanes_markers" checked /> Roads, bike lanes, street markers</label>
+      <label><input type="checkbox" data-mesh="capitol_landmark_visual_details" checked /> Capitol visual details</label>
+      <label><input type="checkbox" data-mesh="capitol_public_interior_schematic" checked /> Public interior schematic</label>
+      <label><input type="checkbox" id="labelsToggle" checked /> Labels</label>
+    </div>
+
+    <div class="section stats" id="stats">
+      <span>Meshes</span><strong>0</strong>
+      <span>Triangles</span><strong>0</strong>
+      <span>Labels</span><strong>0</strong>
+    </div>
+
+    <p class="hint">Mouse: drag to orbit, wheel to zoom, shift-drag to pan. This viewer reads the same OBJ/MTL assets intended for Unreal.</p>
+  </aside>
+
+  <script>
+    const canvas = document.getElementById("viewport");
+    const labelLayer = document.getElementById("labelLayer");
+    const statusEl = document.getElementById("status");
+    const statsEl = document.getElementById("stats");
+    const gl = canvas.getContext("webgl", { antialias: true });
+
+    if (!gl) {
+      statusEl.textContent = "WebGL is not available in this browser.";
+      throw new Error("WebGL unavailable");
+    }
+
+    const meshConfigs = [
+      {
+        id: "capitol_exterior_buildings",
+        obj: "generated/meshes/capitol_exterior_buildings.obj",
+        visible: true
+      },
+      {
+        id: "capitol_exterior_roads_bike_lanes_markers",
+        obj: "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
+        visible: true
+      },
+      {
+        id: "capitol_landmark_visual_details",
+        obj: "generated/meshes/capitol_landmark_visual_details.obj",
+        visible: true
+      },
+      {
+        id: "capitol_public_interior_schematic",
+        obj: "generated/meshes/capitol_public_interior_schematic.obj",
+        visible: true
+      }
+    ];
+
+    const state = {
+      meshes: [],
+      materials: new Map(),
+      labels: [],
+      labelsVisible: true,
+      labelQuery: "",
+      labelCategory: "",
+      yaw: 0.72,
+      pitch: 0.72,
+      distance: 180000,
+      target: [0, 0, 2200],
+      viewProj: mat4Identity(),
+      dragging: false,
+      panning: false,
+      lastX: 0,
+      lastY: 0
+    };
+
+    const vertexShaderSource = `
+      attribute vec3 aPosition;
+      attribute vec3 aNormal;
+      attribute vec3 aColor;
+      uniform mat4 uViewProj;
+      varying vec3 vColor;
+      void main() {
+        vec3 lightDir = normalize(vec3(0.35, 0.28, 0.89));
+        float lit = max(dot(normalize(aNormal), lightDir), 0.0);
+        vColor = aColor * (0.42 + 0.58 * lit);
+        gl_Position = uViewProj * vec4(aPosition, 1.0);
+      }
+    `;
+
+    const fragmentShaderSource = `
+      precision mediump float;
+      varying vec3 vColor;
+      void main() {
+        gl_FragColor = vec4(vColor, 1.0);
+      }
+    `;
+
+    const program = createProgram(vertexShaderSource, fragmentShaderSource);
+    const attribs = {
+      position: gl.getAttribLocation(program, "aPosition"),
+      normal: gl.getAttribLocation(program, "aNormal"),
+      color: gl.getAttribLocation(program, "aColor")
+    };
+    const uniforms = {
+      viewProj: gl.getUniformLocation(program, "uViewProj")
+    };
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+
+    window.addEventListener("resize", resize);
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", () => { state.dragging = false; });
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+
+    document.querySelectorAll("[data-mesh]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const mesh = state.meshes.find((item) => item.id === input.dataset.mesh);
+        if (mesh) mesh.visible = input.checked;
+      });
+    });
+
+    document.getElementById("labelsToggle").addEventListener("change", (event) => {
+      state.labelsVisible = event.target.checked;
+      labelLayer.style.display = state.labelsVisible ? "block" : "none";
+    });
+
+    document.getElementById("presetOverview").onclick = () => setCamera(0.72, 0.72, 180000, [0, 0, 2200]);
+    document.getElementById("presetCapitol").onclick = () => setCamera(0.85, 0.42, 62000, [0, 0, 9000]);
+    document.getElementById("presetInterior").onclick = () => setCamera(0.65, 0.70, 36000, [0, 0, 5200]);
+    document.getElementById("presetRoads").onclick = () => setCamera(0.2, 1.1, 210000, [0, 0, 800]);
+    document.getElementById("presetRotunda").onclick = () => setCamera(0.62, 0.64, 26000, [0, 0, 5600]);
+    document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
+    document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
+    document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
+
+    document.getElementById("labelSearch").addEventListener("input", (event) => {
+      state.labelQuery = event.target.value.trim().toLowerCase();
+    });
+
+    document.getElementById("categoryFilter").addEventListener("change", (event) => {
+      state.labelCategory = event.target.value;
+    });
+
+    document.getElementById("focusSearch").onclick = () => {
+      const match = state.labels.find((label) => labelPassesFilter(label));
+      if (match) focusLabel(match);
+    };
+
+    resize();
+    boot();
+    requestAnimationFrame(draw);
+
+    async function boot() {
+      try {
+        statusEl.textContent = "Loading materials...";
+        state.materials = parseMtl(await fetchText("generated/meshes/capitol_materials.mtl"));
+
+        for (const config of meshConfigs) {
+          statusEl.textContent = `Loading ${config.id}...`;
+          const text = await fetchText(config.obj);
+          const parsed = parseObj(text, state.materials);
+          const mesh = makeGpuMesh(config.id, parsed, config.visible);
+          state.meshes.push(mesh);
+        }
+
+        statusEl.textContent = "Loading metadata labels...";
+        const metadata = await fetchJson("generated/data/capitol_scene_metadata.json");
+        state.labels = buildLabels(metadata);
+        renderLabelElements();
+        updateStats();
+        statusEl.textContent = "Loaded. Use the presets or orbit the scene.";
+      } catch (error) {
+        console.error(error);
+        statusEl.textContent = `Failed to load assets: ${error.message}`;
+      }
+    }
+
+    async function fetchText(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${url}: ${response.status}`);
+      return response.text();
+    }
+
+    async function fetchJson(url) {
+      return JSON.parse(await fetchText(url));
+    }
+
+    function parseMtl(text) {
+      const materials = new Map();
+      let current = "Default";
+      materials.set(current, [0.72, 0.72, 0.72]);
+      for (const raw of text.split(/\r?\n/)) {
+        const line = raw.trim();
+        if (!line || line.startsWith("#")) continue;
+        const parts = line.split(/\s+/);
+        if (parts[0] === "newmtl") {
+          current = parts.slice(1).join(" ");
+          materials.set(current, [0.72, 0.72, 0.72]);
+        } else if (parts[0] === "Kd" && parts.length >= 4) {
+          materials.set(current, [Number(parts[1]), Number(parts[2]), Number(parts[3])]);
+        }
+      }
+      return materials;
+    }
+
+    function parseObj(text, materials) {
+      const sourceVertices = [[0, 0, 0]];
+      const positions = [];
+      const normals = [];
+      const colors = [];
+      let currentMaterial = "Default";
+      let triangleCount = 0;
+
+      for (const raw of text.split(/\r?\n/)) {
+        const line = raw.trim();
+        if (!line || line.startsWith("#")) continue;
+        const parts = line.split(/\s+/);
+        if (parts[0] === "v") {
+          sourceVertices.push([Number(parts[1]), Number(parts[2]), Number(parts[3])]);
+        } else if (parts[0] === "usemtl") {
+          currentMaterial = parts.slice(1).join(" ");
+        } else if (parts[0] === "f" && parts.length >= 4) {
+          const indexes = parts.slice(1).map((token) => {
+            const rawIndex = Number(token.split("/")[0]);
+            return rawIndex < 0 ? sourceVertices.length + rawIndex : rawIndex;
+          });
+          for (let i = 1; i < indexes.length - 1; i++) {
+            const a = sourceVertices[indexes[0]];
+            const b = sourceVertices[indexes[i]];
+            const c = sourceVertices[indexes[i + 1]];
+            if (!a || !b || !c) continue;
+            const normal = triangleNormal(a, b, c);
+            const color = materials.get(currentMaterial) || materials.get("Default") || [0.72, 0.72, 0.72];
+            pushVertex(positions, normals, colors, a, normal, color);
+            pushVertex(positions, normals, colors, b, normal, color);
+            pushVertex(positions, normals, colors, c, normal, color);
+            triangleCount += 1;
+          }
+        }
+      }
+
+      return {
+        positions: new Float32Array(positions),
+        normals: new Float32Array(normals),
+        colors: new Float32Array(colors),
+        triangleCount
+      };
+    }
+
+    function pushVertex(positions, normals, colors, position, normal, color) {
+      positions.push(position[0], position[1], position[2]);
+      normals.push(normal[0], normal[1], normal[2]);
+      colors.push(color[0], color[1], color[2]);
+    }
+
+    function triangleNormal(a, b, c) {
+      const ab = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+      const ac = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+      const normal = [
+        ab[1] * ac[2] - ab[2] * ac[1],
+        ab[2] * ac[0] - ab[0] * ac[2],
+        ab[0] * ac[1] - ab[1] * ac[0]
+      ];
+      const len = Math.hypot(normal[0], normal[1], normal[2]) || 1;
+      return [normal[0] / len, normal[1] / len, normal[2] / len];
+    }
+
+    function makeGpuMesh(id, parsed, visible) {
+      const positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, parsed.positions, gl.STATIC_DRAW);
+
+      const normalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, parsed.normals, gl.STATIC_DRAW);
+
+      const colorBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, parsed.colors, gl.STATIC_DRAW);
+
+      return {
+        id,
+        visible,
+        positionBuffer,
+        normalBuffer,
+        colorBuffer,
+        vertexCount: parsed.positions.length / 3,
+        triangleCount: parsed.triangleCount
+      };
+    }
+
+    function buildLabels(metadata) {
+      const labels = [];
+      for (const label of metadata.interior?.labels || []) {
+        labels.push({ text: label.text, location: label.location_m, category: label.category });
+      }
+      for (const label of metadata.exterior?.street_labels || []) {
+        labels.push({ text: label.text, location: label.location_m, category: "street_name" });
+      }
+      for (const label of metadata.landmark?.labels || []) {
+        labels.push({ text: label.text, location: label.location_m, category: label.category });
+      }
+      for (const building of metadata.exterior?.buildings || []) {
+        if (!building.name || building.name.startsWith("osm_way_")) continue;
+        const [x, y, z] = building.center_m;
+        if (Math.hypot(x, y) > 850) continue;
+        labels.push({ text: building.name, location: [x, y, Math.max(z * 2 + 4, 7)], category: "building" });
+      }
+      return labels;
+    }
+
+    function renderLabelElements() {
+      labelLayer.textContent = "";
+      for (const label of state.labels) {
+        const el = document.createElement("div");
+        el.className = "map-label";
+        el.textContent = label.text;
+        label.element = el;
+        labelLayer.appendChild(el);
+      }
+    }
+
+    function updateStats() {
+      const triangles = state.meshes.reduce((sum, mesh) => sum + mesh.triangleCount, 0);
+      statsEl.innerHTML = `
+        <span>Meshes</span><strong>${state.meshes.length}</strong>
+        <span>Triangles</span><strong>${triangles.toLocaleString()}</strong>
+        <span>Labels</span><strong>${state.labels.length.toLocaleString()}</strong>
+      `;
+    }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.floor(window.innerWidth * dpr);
+      const height = Math.floor(window.innerHeight * dpr);
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    function draw() {
+      resize();
+      gl.clearColor(0.05, 0.06, 0.07, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      const aspect = canvas.width / Math.max(canvas.height, 1);
+      const proj = mat4Perspective(Math.PI / 4, aspect, 10, 5000000);
+      const eye = cameraEye();
+      const view = mat4LookAt(eye, state.target, [0, 0, 1]);
+      state.viewProj = mat4Multiply(proj, view);
+
+      gl.useProgram(program);
+      gl.uniformMatrix4fv(uniforms.viewProj, false, state.viewProj);
+
+      for (const mesh of state.meshes) {
+        if (!mesh.visible) continue;
+        bindAttribute(attribs.position, mesh.positionBuffer);
+        bindAttribute(attribs.normal, mesh.normalBuffer);
+        bindAttribute(attribs.color, mesh.colorBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, mesh.vertexCount);
+      }
+
+      updateLabels();
+      requestAnimationFrame(draw);
+    }
+
+    function bindAttribute(location, buffer) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.enableVertexAttribArray(location);
+      gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+    }
+
+    function updateLabels() {
+      if (!state.labelsVisible) return;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const maxLabels = 360;
+      let shown = 0;
+      for (const label of state.labels) {
+        if (!labelPassesFilter(label)) {
+          label.element.style.display = "none";
+          continue;
+        }
+        const world = [label.location[0] * 100, label.location[1] * 100, label.location[2] * 100];
+        const projected = projectPoint(state.viewProj, world);
+        const visible = projected && projected.z > -1 && projected.z < 1 && shown < maxLabels;
+        if (!visible) {
+          label.element.style.display = "none";
+          continue;
+        }
+        const x = (projected.x * 0.5 + 0.5) * width;
+        const y = (1 - (projected.y * 0.5 + 0.5)) * height;
+        if (x < -80 || x > width + 80 || y < -40 || y > height + 40) {
+          label.element.style.display = "none";
+          continue;
+        }
+        label.element.style.display = "block";
+        label.element.style.left = `${x}px`;
+        label.element.style.top = `${y}px`;
+        shown += 1;
+      }
+    }
+
+    function labelPassesFilter(label) {
+      if (state.labelCategory && label.category !== state.labelCategory) return false;
+      if (!state.labelQuery) return true;
+      return label.text.toLowerCase().includes(state.labelQuery);
+    }
+
+    function focusLabel(label) {
+      const target = [
+        label.location[0] * 100,
+        label.location[1] * 100,
+        Math.max(label.location[2] * 100, 500)
+      ];
+      const closeInterior = new Set([
+        "major_public_space",
+        "legislative_chamber",
+        "joint_session",
+        "seating",
+        "visitor_gallery",
+        "generic_office_zone"
+      ]);
+      const distance = closeInterior.has(label.category) ? 22000 : 62000;
+      setCamera(0.58, 0.68, distance, target);
+    }
+
+    function onPointerDown(event) {
+      state.dragging = true;
+      state.panning = event.shiftKey || event.button === 1 || event.button === 2;
+      state.lastX = event.clientX;
+      state.lastY = event.clientY;
+      canvas.setPointerCapture(event.pointerId);
+    }
+
+    function onPointerMove(event) {
+      if (!state.dragging) return;
+      const dx = event.clientX - state.lastX;
+      const dy = event.clientY - state.lastY;
+      state.lastX = event.clientX;
+      state.lastY = event.clientY;
+
+      if (state.panning || event.shiftKey) {
+        const panScale = state.distance / 850;
+        const right = [Math.cos(state.yaw), Math.sin(state.yaw), 0];
+        const up = [0, 0, 1];
+        state.target[0] -= right[0] * dx * panScale;
+        state.target[1] -= right[1] * dx * panScale;
+        state.target[2] += up[2] * dy * panScale;
+      } else {
+        state.yaw -= dx * 0.006;
+        state.pitch = clamp(state.pitch + dy * 0.004, -0.05, 1.45);
+      }
+    }
+
+    function onWheel(event) {
+      event.preventDefault();
+      const factor = Math.exp(event.deltaY * 0.001);
+      state.distance = clamp(state.distance * factor, 1200, 900000);
+    }
+
+    function setCamera(yaw, pitch, distance, target) {
+      state.yaw = yaw;
+      state.pitch = pitch;
+      state.distance = distance;
+      state.target = target.slice();
+    }
+
+    function cameraEye() {
+      const cp = Math.cos(state.pitch);
+      return [
+        state.target[0] + state.distance * cp * Math.sin(state.yaw),
+        state.target[1] - state.distance * cp * Math.cos(state.yaw),
+        state.target[2] + state.distance * Math.sin(state.pitch)
+      ];
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function createProgram(vertexSource, fragmentSource) {
+      const vertex = compileShader(gl.VERTEX_SHADER, vertexSource);
+      const fragment = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+      const linked = gl.createProgram();
+      gl.attachShader(linked, vertex);
+      gl.attachShader(linked, fragment);
+      gl.linkProgram(linked);
+      if (!gl.getProgramParameter(linked, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(linked));
+      }
+      return linked;
+    }
+
+    function compileShader(type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader));
+      }
+      return shader;
+    }
+
+    function mat4Identity() {
+      return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    }
+
+    function mat4Perspective(fovy, aspect, near, far) {
+      const f = 1 / Math.tan(fovy / 2);
+      const nf = 1 / (near - far);
+      return new Float32Array([
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (far + near) * nf, -1,
+        0, 0, (2 * far * near) * nf, 0
+      ]);
+    }
+
+    function mat4LookAt(eye, center, up) {
+      const z = normalize([eye[0] - center[0], eye[1] - center[1], eye[2] - center[2]]);
+      const x = normalize(cross(up, z));
+      const y = cross(z, x);
+      return new Float32Array([
+        x[0], y[0], z[0], 0,
+        x[1], y[1], z[1], 0,
+        x[2], y[2], z[2], 0,
+        -dot(x, eye), -dot(y, eye), -dot(z, eye), 1
+      ]);
+    }
+
+    function mat4Multiply(a, b) {
+      const out = new Float32Array(16);
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          out[col * 4 + row] =
+            a[0 * 4 + row] * b[col * 4 + 0] +
+            a[1 * 4 + row] * b[col * 4 + 1] +
+            a[2 * 4 + row] * b[col * 4 + 2] +
+            a[3 * 4 + row] * b[col * 4 + 3];
+        }
+      }
+      return out;
+    }
+
+    function projectPoint(m, p) {
+      const x = m[0] * p[0] + m[4] * p[1] + m[8] * p[2] + m[12];
+      const y = m[1] * p[0] + m[5] * p[1] + m[9] * p[2] + m[13];
+      const z = m[2] * p[0] + m[6] * p[1] + m[10] * p[2] + m[14];
+      const w = m[3] * p[0] + m[7] * p[1] + m[11] * p[2] + m[15];
+      if (w <= 0.0001) return null;
+      return { x: x / w, y: y / w, z: z / w };
+    }
+
+    function normalize(v) {
+      const len = Math.hypot(v[0], v[1], v[2]) || 1;
+      return [v[0] / len, v[1] / len, v[2] / len];
+    }
+
+    function cross(a, b) {
+      return [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0]
+      ];
+    }
+
+    function dot(a, b) {
+      return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    }
+  </script>
+</body>
+</html>

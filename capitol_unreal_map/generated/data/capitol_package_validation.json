@@ -1,0 +1,188 @@
+{
+  "ok": true,
+  "root": "/Volumes/128gb/metahuman/capitol_unreal_map",
+  "metadata": {
+    "mesh_count": 4,
+    "buildings": 2525,
+    "roads": 3528,
+    "bike_lanes": 445,
+    "pedestrian_paths": 2533,
+    "curbs": 1216,
+    "lane_edge_markings": 608,
+    "street_markers": 880,
+    "landmark_elements": 18,
+    "revolving_door_visuals": 12,
+    "rooms": 15,
+    "house_seats": 448,
+    "senate_desks": 100,
+    "office_cells": 60,
+    "seating_sections": 16,
+    "regular_session_seating_sections": 7,
+    "joint_session_seating_sections": 9,
+    "joint_session_records": 9,
+    "public_art": 61,
+    "light_fixtures": 29,
+    "wall_treatments": 11,
+    "viewpoints": 5
+  },
+  "materials": {
+    "manifest_materials": 50,
+    "missing_manifest_materials": 0,
+    "extra_manifest_materials": 0
+  },
+  "textures": {
+    "texture_sets": 41,
+    "texture_material_bindings": 50,
+    "texture_files": 123
+  },
+  "meshes": [
+    {
+      "path": "generated/meshes/capitol_exterior_buildings.obj",
+      "vertices": 49296,
+      "faces": 29698,
+      "triangles": 88492,
+      "groups": 2525,
+      "materials": [
+        "BuildingCapitol",
+        "BuildingGeneric"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -72017.8061,
+          -84806.9156,
+          0.0
+        ],
+        "max": [
+          101951.5037,
+          93672.4404,
+          4712.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
+      "vertices": 138620,
+      "faces": 42307,
+      "triangles": 84614,
+      "groups": 8926,
+      "materials": [
+        "BikeLaneGreen",
+        "BikeLanePost",
+        "CrosswalkWhite",
+        "CurbConcrete",
+        "LaneMarkingWhite",
+        "LaneMarkingYellow",
+        "RoadAsphalt",
+        "SidewalkConcrete",
+        "SignalMarker"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -100473.656,
+          -111292.2521,
+          0.0
+        ],
+        "max": [
+          151793.6552,
+          114351.6042,
+          180.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_landmark_visual_details.obj",
+      "vertices": 3130,
+      "faces": 2214,
+      "triangles": 5732,
+      "groups": 107,
+      "materials": [
+        "CapitolDome",
+        "CapitolStone",
+        "ColumnStone",
+        "DoorGlass",
+        "DoorMetal",
+        "GroundGrass",
+        "PlazaStone",
+        "StepStone"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -21500.0,
+          -18000.0,
+          -6.0
+        ],
+        "max": [
+          21500.0,
+          18000.0,
+          6420.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_public_interior_schematic.obj",
+      "vertices": 28909,
+      "faces": 20774,
+      "triangles": 45896,
+      "groups": 2960,
+      "materials": [
+        "ArtFrameGold",
+        "BrassRail",
+        "CabinetZone",
+        "ChairLeather",
+        "ColumnStone",
+        "DeskWood",
+        "DiplomaticZone",
+        "HouseCarpet",
+        "HouseDesk",
+        "HouseSeat",
+        "InteriorFloor",
+        "InteriorTrim",
+        "InteriorWall",
+        "JointSessionZone",
+        "LightFixtureMetal",
+        "MarkerBlue",
+        "OfficeZone",
+        "PaintingCanvas",
+        "PortraitCanvas",
+        "PresidentPodium",
+        "PressZone",
+        "PublicGallery",
+        "RotundaFloor",
+        "RotundaWall",
+        "SenateCarpet",
+        "SenateChair",
+        "SenateDesk",
+        "StatueBronze",
+        "StatueMarble",
+        "StepStone",
+        "SupremeCourtZone",
+        "WarmLightGlass"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -7521.0,
+          -10382.0,
+          395.0
+        ],
+        "max": [
+          7521.0,
+          10084.25,
+          925.0
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,700 @@
+"""Import the generated Capitol map package into an Unreal level.
+
+Run from Unreal Editor:
+  Tools > Execute Python Script... > select this file
+
+The script imports generated OBJ meshes and places them at their authored
+centimeter coordinates. It also spawns labels, generated scene helpers, and
+camera viewpoints for the public exterior/interior schematic.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+from pathlib import Path
+from typing import Any
+
+import unreal
+
+
+PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+MESH_DIR = PACKAGE_ROOT / "generated" / "meshes"
+METADATA_PATH = PACKAGE_ROOT / "generated" / "data" / "capitol_scene_metadata.json"
+UNREAL_IMPORT_REPORT_PATH = PACKAGE_ROOT / "generated" / "data" / "unreal_import_report.json"
+MATERIAL_MANIFEST_PATH = PACKAGE_ROOT / "unreal" / "material_realism_manifest.json"
+DESTINATION_PATH = "/Game/CapitolMap/Generated"
+MATERIAL_DESTINATION_PATH = "/Game/CapitolMap/Materials"
+MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
+MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
+
+MESH_FILES = [
+    "capitol_exterior_buildings.obj",
+    "capitol_exterior_roads_bike_lanes_markers.obj",
+    "capitol_landmark_visual_details.obj",
+    "capitol_public_interior_schematic.obj",
+]
+
+DEFAULT_VIEWPOINTS = [
+    {
+        "label": "CapitolMap_Camera_Overview",
+        "location_m": [-190.0, -210.0, 120.0],
+        "target_m": [0.0, 0.0, 8.0],
+        "fov": 45.0,
+    },
+    {
+        "label": "CapitolMap_Camera_WestFront_FirstPerson",
+        "location_m": [-105.0, 0.0, 1.8],
+        "target_m": [0.0, 0.0, 5.0],
+        "fov": 78.0,
+    },
+    {
+        "label": "CapitolMap_Camera_Rotunda",
+        "location_m": [-23.0, -24.0, 7.5],
+        "target_m": [0.0, 0.0, 5.0],
+        "fov": 64.0,
+    },
+    {
+        "label": "CapitolMap_Camera_HouseChamber_JointSession",
+        "location_m": [0.0, -108.0, 12.0],
+        "target_m": [0.0, -60.0, 5.5],
+        "fov": 58.0,
+    },
+    {
+        "label": "CapitolMap_Camera_SenateChamber",
+        "location_m": [0.0, 108.0, 11.0],
+        "target_m": [0.0, 70.0, 5.5],
+        "fov": 58.0,
+    },
+]
+
+LABEL_COLORS = {
+    "major_public_space": (250, 245, 230, 255),
+    "legislative_chamber": (255, 214, 140, 255),
+    "visitor_gallery": (182, 218, 255, 255),
+    "generic_office_zone": (175, 230, 205, 255),
+    "seating": (246, 224, 153, 255),
+    "seating_section": (244, 210, 136, 255),
+    "joint_session": (255, 190, 120, 255),
+    "public_art": (236, 198, 116, 255),
+    "lighting": (255, 220, 140, 255),
+    "wall_treatment": (224, 196, 152, 255),
+    "landmark": (235, 235, 220, 255),
+    "street_name": (210, 230, 210, 255),
+    "building": (226, 226, 214, 255),
+}
+
+
+def log(message: str) -> None:
+    unreal.log(f"[CapitolMap] {message}")
+
+
+def set_property(obj: Any, name: str, value: Any) -> bool:
+    """Best-effort editor property assignment across UE Python versions."""
+    try:
+        obj.set_editor_property(name, value)
+        return True
+    except Exception:
+        return False
+
+
+def get_property(obj: Any, name: str) -> Any:
+    try:
+        return obj.get_editor_property(name)
+    except Exception:
+        return None
+
+
+def load_metadata() -> dict[str, Any]:
+    return json.loads(METADATA_PATH.read_text(encoding="utf-8"))
+
+
+def load_material_manifest() -> dict[str, Any]:
+    if not MATERIAL_MANIFEST_PATH.exists():
+        return {}
+    return json.loads(MATERIAL_MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def ensure_content_dirs() -> None:
+    for path in ["/Game/CapitolMap", DESTINATION_PATH, MATERIAL_DESTINATION_PATH, MAP_DESTINATION_PATH]:
+        try:
+            unreal.EditorAssetLibrary.make_directory(path)
+        except Exception as exc:
+            log(f"Could not create content directory {path}: {exc}")
+
+
+def prepare_level() -> None:
+    """Create or open the generated map level when the editor API supports it."""
+    ensure_content_dirs()
+    try:
+        if unreal.EditorAssetLibrary.does_asset_exist(MAP_ASSET_PATH):
+            if hasattr(unreal.EditorLevelLibrary, "load_level"):
+                unreal.EditorLevelLibrary.load_level(MAP_ASSET_PATH)
+                log(f"Loaded existing level {MAP_ASSET_PATH}")
+                return
+        if hasattr(unreal.EditorLevelLibrary, "new_level"):
+            unreal.EditorLevelLibrary.new_level(MAP_ASSET_PATH)
+            log(f"Created level {MAP_ASSET_PATH}")
+            return
+        log("Level creation API unavailable; using the currently open level")
+    except Exception as exc:
+        log(f"Level preparation skipped; using the currently open level: {exc}")
+
+
+def make_import_options() -> Any | None:
+    """Configure the OBJ/static-mesh import path when the FBX UI wrapper exists."""
+    try:
+        options = unreal.FbxImportUI()
+    except Exception as exc:
+        log(f"Using default OBJ import options: {exc}")
+        return None
+
+    set_property(options, "import_mesh", True)
+    set_property(options, "import_as_skeletal", False)
+    set_property(options, "import_materials", True)
+    set_property(options, "import_textures", False)
+    set_property(options, "automated_import_should_detect_type", False)
+
+    static_mesh_data = get_property(options, "static_mesh_import_data")
+    if static_mesh_data:
+        set_property(static_mesh_data, "combine_meshes", True)
+        set_property(static_mesh_data, "generate_lightmap_u_vs", True)
+        set_property(static_mesh_data, "auto_generate_collision", True)
+        set_property(static_mesh_data, "import_translation", unreal.Vector(0.0, 0.0, 0.0))
+        set_property(static_mesh_data, "import_rotation", unreal.Rotator(0.0, 0.0, 0.0))
+        set_property(static_mesh_data, "import_uniform_scale", 1.0)
+
+    return options
+
+
+def import_meshes() -> list[str]:
+    ensure_content_dirs()
+    options = make_import_options()
+    tasks = []
+    for mesh_name in MESH_FILES:
+        source_path = MESH_DIR / mesh_name
+        if not source_path.exists():
+            log(f"WARNING: source mesh missing: {source_path}")
+            continue
+        task = unreal.AssetImportTask()
+        task.filename = str(source_path)
+        task.destination_path = DESTINATION_PATH
+        task.automated = True
+        task.replace_existing = True
+        task.save = True
+        if options is not None:
+            task.options = options
+        tasks.append(task)
+
+    unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
+    imported = []
+    for mesh_name in MESH_FILES:
+        asset_path = f"{DESTINATION_PATH}/{Path(mesh_name).stem}"
+        if unreal.EditorAssetLibrary.does_asset_exist(asset_path):
+            imported.append(asset_path)
+            log(f"Imported {asset_path}")
+        else:
+            log(f"WARNING: expected imported asset missing: {asset_path}")
+    return imported
+
+
+def configure_static_mesh(asset_path: str) -> None:
+    asset = unreal.EditorAssetLibrary.load_asset(asset_path)
+    if not asset:
+        return
+
+    set_property(asset, "lod_group", "LargeProp")
+
+    body_setup = get_property(asset, "body_setup")
+    if body_setup and hasattr(unreal, "CollisionTraceFlag"):
+        set_property(
+            body_setup,
+            "collision_trace_flag",
+            unreal.CollisionTraceFlag.CTF_USE_COMPLEX_AS_SIMPLE,
+        )
+
+    nanite_settings = get_property(asset, "nanite_settings")
+    if nanite_settings:
+        set_property(nanite_settings, "enabled", True)
+        set_property(asset, "nanite_settings", nanite_settings)
+
+    try:
+        unreal.EditorAssetLibrary.save_asset(asset_path, only_if_is_dirty=False)
+    except Exception as exc:
+        log(f"Could not save configured mesh {asset_path}: {exc}")
+
+
+def asset_name_for_material(material_name: str) -> str:
+    safe = "".join(ch if ch.isalnum() else "_" for ch in material_name).strip("_")
+    return f"M_{safe or 'CapitolMaterial'}"
+
+
+def material_asset_path(material_name: str) -> str:
+    return f"{MATERIAL_DESTINATION_PATH}/{asset_name_for_material(material_name)}"
+
+
+def create_material_constant(material: Any, expression_class: Any, value: Any, x: int, y: int) -> Any | None:
+    if not hasattr(unreal, "MaterialEditingLibrary"):
+        return None
+    try:
+        expression = unreal.MaterialEditingLibrary.create_material_expression(material, expression_class, x, y)
+        if expression is not None:
+            set_property(expression, "constant", value)
+        return expression
+    except Exception:
+        return None
+
+
+def connect_material_property(expression: Any, output_name: str, property_name: str) -> None:
+    if expression is None or not hasattr(unreal, "MaterialEditingLibrary") or not hasattr(unreal, "MaterialProperty"):
+        return
+    material_property = getattr(unreal.MaterialProperty, property_name, None)
+    if material_property is None:
+        return
+    try:
+        unreal.MaterialEditingLibrary.connect_material_property(expression, output_name, material_property)
+    except Exception:
+        pass
+
+
+def configure_unreal_material(material: Any, spec: dict[str, Any]) -> None:
+    color = spec.get("base_color", [0.72, 0.72, 0.72])
+    roughness = float(spec.get("roughness", 0.75))
+    metallic = float(spec.get("metallic", 0.0))
+    specular = float(spec.get("specular", 0.3))
+
+    if hasattr(unreal, "MaterialExpressionConstant3Vector"):
+        color_expr = create_material_constant(
+            material,
+            unreal.MaterialExpressionConstant3Vector,
+            unreal.LinearColor(float(color[0]), float(color[1]), float(color[2]), 1.0),
+            -520,
+            -120,
+        )
+        connect_material_property(color_expr, "", "MP_BASE_COLOR")
+
+    if hasattr(unreal, "MaterialExpressionScalarParameter"):
+        # Parameters make the generated material easier to tune by hand later.
+        settings = [
+            ("Roughness", roughness, "MP_ROUGHNESS", -260, -40),
+            ("Metallic", metallic, "MP_METALLIC", -260, 80),
+            ("Specular", specular, "MP_SPECULAR", -260, 200),
+        ]
+        for parameter_name, value, property_name, x, y in settings:
+            expr = create_material_constant(material, unreal.MaterialExpressionScalarParameter, value, x, y)
+            if expr is not None:
+                set_property(expr, "parameter_name", parameter_name)
+            connect_material_property(expr, "", property_name)
+    elif hasattr(unreal, "MaterialExpressionConstant"):
+        settings = [
+            (roughness, "MP_ROUGHNESS", -260, -40),
+            (metallic, "MP_METALLIC", -260, 80),
+            (specular, "MP_SPECULAR", -260, 200),
+        ]
+        for value, property_name, x, y in settings:
+            expr = create_material_constant(material, unreal.MaterialExpressionConstant, value, x, y)
+            connect_material_property(expr, "", property_name)
+
+    opacity = spec.get("opacity")
+    if opacity is not None:
+        set_property(material, "blend_mode", getattr(unreal.BlendMode, "BLEND_TRANSLUCENT", None))
+        if hasattr(unreal, "MaterialExpressionConstant"):
+            opacity_expr = create_material_constant(material, unreal.MaterialExpressionConstant, float(opacity), -260, 320)
+            connect_material_property(opacity_expr, "", "MP_OPACITY")
+
+    if hasattr(unreal, "MaterialEditingLibrary"):
+        try:
+            unreal.MaterialEditingLibrary.layout_material_expressions(material)
+            unreal.MaterialEditingLibrary.recompile_material(material)
+        except Exception:
+            pass
+
+
+def create_or_update_materials() -> dict[str, str]:
+    manifest = load_material_manifest()
+    if not manifest:
+        log("Material realism manifest missing or empty; using imported OBJ materials")
+        return {}
+
+    ensure_content_dirs()
+    asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
+    created: dict[str, str] = {}
+    for material_name, spec in manifest.items():
+        asset_path = material_asset_path(material_name)
+        material = unreal.EditorAssetLibrary.load_asset(asset_path)
+        if not material:
+            try:
+                material = asset_tools.create_asset(
+                    asset_name_for_material(material_name),
+                    MATERIAL_DESTINATION_PATH,
+                    unreal.Material,
+                    unreal.MaterialFactoryNew(),
+                )
+            except Exception as exc:
+                log(f"Could not create material {material_name}: {exc}")
+                continue
+        if material:
+            configure_unreal_material(material, spec)
+            try:
+                unreal.EditorAssetLibrary.save_asset(asset_path, only_if_is_dirty=False)
+            except Exception:
+                pass
+            created[material_name] = asset_path
+    log(f"Prepared {len(created)} realism material assets")
+    return created
+
+
+def slot_name(slot: Any) -> str:
+    try:
+        return str(slot.material_slot_name)
+    except Exception:
+        try:
+            return str(slot.get_editor_property("material_slot_name"))
+        except Exception:
+            return ""
+
+
+def apply_realism_materials(asset_path: str, material_assets: dict[str, str]) -> None:
+    if not material_assets:
+        return
+    mesh = unreal.EditorAssetLibrary.load_asset(asset_path)
+    if not mesh:
+        return
+    slots = get_property(mesh, "static_materials") or []
+    changed = False
+    for index, slot in enumerate(slots):
+        name = slot_name(slot)
+        realism_path = material_assets.get(name)
+        if not realism_path:
+            continue
+        material = unreal.EditorAssetLibrary.load_asset(realism_path)
+        if not material:
+            continue
+        try:
+            mesh.set_material(index, material)
+            changed = True
+        except Exception as exc:
+            log(f"Could not assign {realism_path} to {asset_path} slot {name}: {exc}")
+    if changed:
+        try:
+            unreal.EditorAssetLibrary.save_asset(asset_path, only_if_is_dirty=False)
+        except Exception:
+            pass
+
+
+def actor_folder(actor: Any) -> str:
+    try:
+        return str(actor.get_folder_path())
+    except Exception:
+        return ""
+
+
+def clear_generated_level_actors() -> None:
+    """Remove actors spawned by previous runs so the importer is repeatable."""
+    try:
+        actors = unreal.EditorLevelLibrary.get_all_level_actors()
+    except Exception as exc:
+        log(f"Could not inspect existing level actors: {exc}")
+        return
+
+    removed = 0
+    for actor in actors:
+        label = actor.get_actor_label()
+        folder = actor_folder(actor)
+        generated_folder = folder == "CapitolMap" or folder.startswith("CapitolMap/")
+        generated_label = label.startswith("CapitolMap_") or (label.startswith("Label_") and generated_folder)
+        if generated_folder or generated_label:
+            try:
+                unreal.EditorLevelLibrary.destroy_actor(actor)
+                removed += 1
+            except Exception as exc:
+                log(f"Could not remove generated actor {label}: {exc}")
+    if removed:
+        log(f"Removed {removed} previously generated CapitolMap actors")
+
+
+def configure_static_mesh_component(component: Any) -> None:
+    if not component:
+        return
+    if hasattr(unreal, "CollisionEnabled"):
+        set_property(component, "collision_enabled", unreal.CollisionEnabled.QUERY_AND_PHYSICS)
+    set_property(component, "can_ever_affect_navigation", True)
+    if hasattr(unreal, "ComponentMobility"):
+        set_property(component, "mobility", unreal.ComponentMobility.STATIC)
+
+
+def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -> None:
+    for asset_path in asset_paths:
+        configure_static_mesh(asset_path)
+        apply_realism_materials(asset_path, material_assets)
+        asset = unreal.EditorAssetLibrary.load_asset(asset_path)
+        if not asset:
+            continue
+        actor = unreal.EditorLevelLibrary.spawn_actor_from_object(asset, unreal.Vector(0, 0, 0))
+        if actor:
+            actor.set_actor_label(f"CapitolMap_{Path(asset_path).name}")
+            actor.set_folder_path("CapitolMap/Meshes")
+            configure_static_mesh_component(actor.get_component_by_class(unreal.StaticMeshComponent))
+
+
+def spawn_scene_setup() -> None:
+    """Add basic lighting and first-person spawn helpers."""
+    try:
+        directional = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.DirectionalLight,
+            unreal.Vector(-18000, -22000, 38000),
+            unreal.Rotator(-42, -34, 0),
+        )
+        if directional:
+            directional.set_actor_label("CapitolMap_DirectionalLight")
+            directional.set_folder_path("CapitolMap/SceneSetup")
+            component = directional.get_component_by_class(unreal.DirectionalLightComponent)
+            if component:
+                component.set_editor_property("intensity", 4.2)
+    except Exception as exc:
+        log(f"Lighting setup skipped: {exc}")
+
+    try:
+        sky = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.SkyLight,
+            unreal.Vector(0, 0, 8000),
+        )
+        if sky:
+            sky.set_actor_label("CapitolMap_SkyLight")
+            sky.set_folder_path("CapitolMap/SceneSetup")
+            component = sky.get_component_by_class(unreal.SkyLightComponent)
+            if component:
+                component.set_editor_property("intensity", 0.75)
+    except Exception as exc:
+        log(f"Sky light setup skipped: {exc}")
+
+    try:
+        player_start = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.PlayerStart,
+            unreal.Vector(-9000, 0, 120),
+            unreal.Rotator(0, 0, 0),
+        )
+        if player_start:
+            player_start.set_actor_label("CapitolMap_PlayerStart_WestFront")
+            player_start.set_folder_path("CapitolMap/SceneSetup")
+    except Exception as exc:
+        log(f"PlayerStart setup skipped: {exc}")
+
+    spawn_camera_viewpoints()
+    spawn_navigation_bounds()
+    spawn_metadata_lights()
+
+
+def to_unreal_vector(location_m: list[float]) -> unreal.Vector:
+    x, y, z = location_m
+    return unreal.Vector(x * 100.0, y * 100.0, z * 100.0)
+
+
+def look_at_rotation(location_m: list[float], target_m: list[float]) -> unreal.Rotator:
+    dx = target_m[0] - location_m[0]
+    dy = target_m[1] - location_m[1]
+    dz = target_m[2] - location_m[2]
+    horizontal = max(math.hypot(dx, dy), 0.001)
+    yaw = math.degrees(math.atan2(dy, dx))
+    pitch = math.degrees(math.atan2(dz, horizontal))
+    return unreal.Rotator(pitch, yaw, 0.0)
+
+
+def spawn_camera_viewpoints() -> None:
+    try:
+        viewpoints = load_metadata().get("viewpoints") or DEFAULT_VIEWPOINTS
+    except Exception as exc:
+        log(f"Using fallback camera viewpoints: {exc}")
+        viewpoints = DEFAULT_VIEWPOINTS
+
+    for viewpoint in viewpoints:
+        try:
+            camera = unreal.EditorLevelLibrary.spawn_actor_from_class(
+                unreal.CameraActor,
+                to_unreal_vector(viewpoint["location_m"]),
+                look_at_rotation(viewpoint["location_m"], viewpoint["target_m"]),
+            )
+            if not camera:
+                continue
+            camera.set_actor_label(viewpoint["label"])
+            camera.set_folder_path("CapitolMap/Viewpoints")
+            component = camera.get_component_by_class(unreal.CameraComponent)
+            if component:
+                set_property(component, "field_of_view", viewpoint["fov"])
+        except Exception as exc:
+            log(f"Camera viewpoint skipped ({viewpoint['label']}): {exc}")
+
+
+def spawn_navigation_bounds() -> None:
+    """Add a broad nav bounds volume for first-person/pawn testing."""
+    if not hasattr(unreal, "NavMeshBoundsVolume"):
+        log("Navigation bounds skipped: NavMeshBoundsVolume unavailable")
+        return
+    try:
+        volume = unreal.EditorLevelLibrary.spawn_actor_from_class(
+            unreal.NavMeshBoundsVolume,
+            unreal.Vector(0.0, 0.0, 2500.0),
+            unreal.Rotator(0.0, 0.0, 0.0),
+        )
+        if not volume:
+            return
+        volume.set_actor_label("CapitolMap_NavMeshBounds_CentralCampus")
+        volume.set_folder_path("CapitolMap/SceneSetup")
+        volume.set_actor_scale3d(unreal.Vector(750.0, 750.0, 45.0))
+    except Exception as exc:
+        log(f"Navigation bounds setup skipped: {exc}")
+
+
+def spawn_metadata_lights() -> None:
+    try:
+        fixtures = load_metadata().get("interior", {}).get("light_fixtures", [])
+    except Exception as exc:
+        log(f"Lighting metadata skipped: {exc}")
+        return
+    for fixture in fixtures:
+        try:
+            light = unreal.EditorLevelLibrary.spawn_actor_from_class(
+                unreal.PointLight,
+                to_unreal_vector(fixture["center_m"]),
+            )
+            if not light:
+                continue
+            light.set_actor_label(f"CapitolMap_Light_{fixture['name']}")
+            light.set_folder_path("CapitolMap/Lighting")
+            component = light.get_component_by_class(unreal.PointLightComponent)
+            if component:
+                set_property(component, "intensity", float(fixture.get("intensity", 650.0)))
+                set_property(component, "attenuation_radius", float(fixture.get("attenuation_radius_m", 7.0)) * 100.0)
+                color = fixture.get("color", [1.0, 0.82, 0.52])
+                set_property(component, "light_color", unreal.Color(int(color[0] * 255), int(color[1] * 255), int(color[2] * 255), 255))
+        except Exception as exc:
+            log(f"Light fixture skipped ({fixture.get('name', '<unknown>')}): {exc}")
+
+
+def label_color(category: str) -> unreal.Color:
+    rgba = LABEL_COLORS.get(category, LABEL_COLORS.get("landmark", (245, 245, 235, 255)))
+    return unreal.Color(*rgba)
+
+
+def label_folder(category: str) -> str:
+    if category in {"street_name", "building"}:
+        return "CapitolMap/Labels/Exterior"
+    if category in {"landmark"}:
+        return "CapitolMap/Labels/Landmark"
+    return "CapitolMap/Labels/Interior"
+
+
+def spawn_text_label(text: str, location_m: list[float], category: str) -> None:
+    actor = unreal.EditorLevelLibrary.spawn_actor_from_class(
+        unreal.TextRenderActor,
+        to_unreal_vector(location_m),
+        unreal.Rotator(0.0, 0.0, 0.0),
+    )
+    if not actor:
+        return
+    safe_label = "".join(ch if ch.isalnum() else "_" for ch in text[:54]).strip("_")
+    actor.set_actor_label(f"Label_{safe_label}")
+    actor.set_folder_path(label_folder(category))
+
+    component = actor.get_component_by_class(unreal.TextRenderComponent)
+    if not component:
+        return
+    component.set_text(text)
+    component.set_world_size(90.0 if category == "major_public_space" else 65.0)
+    if hasattr(unreal, "HorizontalTextAligment"):
+        component.set_horizontal_alignment(unreal.HorizontalTextAligment.EHTA_CENTER)
+    if hasattr(unreal, "VerticalTextAligment"):
+        component.set_vertical_alignment(unreal.VerticalTextAligment.EVRTA_TEXT_CENTER)
+    component.set_text_render_color(label_color(category))
+
+
+def spawn_metadata_labels() -> None:
+    data = load_metadata()
+
+    # Public interior labels are intentionally sparse and semantic.
+    for label in data["interior"]["labels"]:
+        spawn_text_label(label["text"], label["location_m"], label["category"])
+
+    for label in data.get("landmark", {}).get("labels", []):
+        spawn_text_label(label["text"], label["location_m"], label["category"])
+
+    for label in data.get("exterior", {}).get("street_labels", []):
+        location = label["location_m"]
+        if abs(location[0]) < 450 and abs(location[1]) < 450:
+            spawn_text_label(label["text"], location, "street_name")
+
+    # Add exterior building labels for named nearby buildings only; anonymous
+    # building footprints remain unlabeled to avoid clutter.
+    for building in data["exterior"]["buildings"]:
+        name = building.get("name", "")
+        if not name or name.startswith("osm_way_"):
+            continue
+        center = building["center_m"]
+        location = [center[0], center[1], max(center[2] * 2.0 + 3.0, 6.0)]
+        spawn_text_label(name, location, "building")
+
+
+def save_generated_level() -> None:
+    """Save the generated level and imported assets when possible."""
+    try:
+        if hasattr(unreal.EditorLevelLibrary, "save_current_level"):
+            unreal.EditorLevelLibrary.save_current_level()
+            log("Saved current level")
+        elif hasattr(unreal, "EditorLoadingAndSavingUtils"):
+            unreal.EditorLoadingAndSavingUtils.save_dirty_packages(True, True)
+            log("Saved dirty packages")
+        else:
+            log("Save API unavailable; save the generated level manually")
+    except Exception as exc:
+        log(f"Could not save generated level automatically: {exc}")
+
+
+def write_unreal_import_report(imported: list[str], material_assets: dict[str, str]) -> None:
+    try:
+        data = load_metadata()
+        report = {
+            "ok": True,
+            "map_asset_path": MAP_ASSET_PATH,
+            "import_destination": DESTINATION_PATH,
+            "material_destination": MATERIAL_DESTINATION_PATH,
+            "imported_assets": imported,
+            "material_assets": material_assets,
+            "mesh_count": len(imported),
+            "material_count": len(material_assets),
+            "metadata_counts": {
+                "buildings": len(data.get("exterior", {}).get("buildings", [])),
+                "roads": len(data.get("exterior", {}).get("roads", [])),
+                "bike_lanes": len(data.get("exterior", {}).get("bike_lanes", [])),
+                "street_markers": len(data.get("exterior", {}).get("street_markers", [])),
+                "rooms": len(data.get("interior", {}).get("rooms", [])),
+                "seating": len(data.get("interior", {}).get("seating", [])),
+                "office_cells": len(data.get("interior", {}).get("office_cells", [])),
+                "joint_session": len(data.get("interior", {}).get("joint_session", [])),
+                "viewpoints": len(data.get("viewpoints", [])),
+            },
+        }
+        UNREAL_IMPORT_REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        log(f"Wrote Unreal import report: {UNREAL_IMPORT_REPORT_PATH}")
+    except Exception as exc:
+        log(f"Could not write Unreal import report: {exc}")
+
+
+def main() -> None:
+    if not METADATA_PATH.exists():
+        raise RuntimeError(f"Missing metadata: {METADATA_PATH}")
+
+    log(f"Package root: {PACKAGE_ROOT}")
+    prepare_level()
+    clear_generated_level_actors()
+    imported = import_meshes()
+    material_assets = create_or_update_materials()
+    spawn_mesh_actors(imported, material_assets)
+    spawn_scene_setup()
+    spawn_metadata_labels()
+    save_generated_level()
+    write_unreal_import_report(imported, material_assets)
+    log(f"Done. Check {MAP_ASSET_PATH} and the CapitolMap folders in the World Outliner.")
+
+
+if __name__ == "__main__":
+    main()

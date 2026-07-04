@@ -1,0 +1,502 @@
+#!/usr/bin/env python3
+"""Validate generated Capitol map assets before Unreal import.
+
+This is a structural package check, not a substitute for opening the level in
+Unreal Editor. It verifies that metadata, OBJ meshes, and MTL materials agree
+with the public-data map package contract.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+import sys
+from pathlib import Path
+from typing import Any
+
+
+ROOT = Path(__file__).resolve().parents[1]
+MESH_DIR = ROOT / "generated" / "meshes"
+DATA_DIR = ROOT / "generated" / "data"
+METADATA_PATH = DATA_DIR / "capitol_scene_metadata.json"
+MTL_PATH = MESH_DIR / "capitol_materials.mtl"
+REPORT_PATH = DATA_DIR / "capitol_package_validation.json"
+MATERIAL_MANIFEST_PATH = ROOT / "unreal" / "material_realism_manifest.json"
+TEXTURE_MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
+
+EXPECTED_MESHES = {
+    "generated/meshes/capitol_exterior_buildings.obj",
+    "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
+    "generated/meshes/capitol_landmark_visual_details.obj",
+    "generated/meshes/capitol_public_interior_schematic.obj",
+}
+
+REQUIRED_ROOMS = {
+    "Rotunda",
+    "National Statuary Hall",
+    "Old Senate Chamber",
+    "House Chamber",
+    "Senate Chamber",
+    "House galleries",
+    "Senate galleries",
+}
+
+REQUIRED_JOINT_SESSION = {
+    "president_address_podium",
+    "speaker_chair_joint_session",
+    "vice_president_chair_joint_session",
+    "senate_floor_block",
+    "cabinet_floor_block",
+    "supreme_court_block",
+    "diplomatic_corps_block",
+    "press_pool_block",
+    "members_and_guests_backfill",
+}
+
+REQUIRED_SEATING_SECTIONS = {
+    "house_representatives_floor_generic",
+    "house_rostrum_speaker_clerks_press",
+    "house_public_gallery",
+    "senate_desks_left_generic_block",
+    "senate_desks_right_generic_block",
+    "senate_presiding_officer_clerks",
+    "senate_public_gallery",
+    "joint_session_president_address_podium",
+    "joint_session_speaker_chair_joint_session",
+    "joint_session_vice_president_chair_joint_session",
+    "joint_session_senate_floor_block",
+    "joint_session_cabinet_floor_block",
+    "joint_session_supreme_court_block",
+    "joint_session_diplomatic_corps_block",
+    "joint_session_press_pool_block",
+    "joint_session_members_and_guests_backfill",
+}
+
+REQUIRED_VIEWPOINTS = {
+    "CapitolMap_Camera_Overview",
+    "CapitolMap_Camera_WestFront_FirstPerson",
+    "CapitolMap_Camera_Rotunda",
+    "CapitolMap_Camera_HouseChamber_JointSession",
+    "CapitolMap_Camera_SenateChamber",
+}
+
+
+def error(errors: list[str], message: str) -> None:
+    errors.append(message)
+
+
+def is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and math.isfinite(float(value))
+
+
+def is_vec3(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 3 and all(is_number(item) for item in value)
+
+
+def parse_mtl(path: Path, errors: list[str]) -> set[str]:
+    if not path.exists():
+        error(errors, f"missing MTL file: {path}")
+        return set()
+
+    materials: set[str] = set()
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if parts[0] == "newmtl":
+            if len(parts) < 2:
+                error(errors, f"{path}:{lineno}: empty material name")
+            else:
+                materials.add(" ".join(parts[1:]))
+        elif parts[0] in {"Kd", "Ka", "Ks"}:
+            parsed = parse_floatish(parts[1:])
+            if len(parts) != 4 or parsed is None:
+                error(errors, f"{path}:{lineno}: malformed {parts[0]} color")
+        elif parts[0] == "d":
+            parsed = parse_floatish(parts[1:])
+            if len(parts) != 2 or parsed is None:
+                error(errors, f"{path}:{lineno}: malformed alpha")
+
+    if not materials:
+        error(errors, f"no materials defined in {path}")
+    return materials
+
+
+def parse_floatish(values: list[str]) -> list[float] | None:
+    try:
+        parsed = [float(value) for value in values]
+    except ValueError:
+        return None
+    if not all(math.isfinite(value) for value in parsed):
+        return None
+    return parsed
+
+
+def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, Any]:
+    stats: dict[str, Any] = {
+        "path": str(path.relative_to(ROOT)),
+        "vertices": 0,
+        "faces": 0,
+        "triangles": 0,
+        "groups": 0,
+        "materials": [],
+        "mtllibs": [],
+        "bbox_cm": None,
+    }
+    if not path.exists():
+        error(errors, f"missing OBJ file: {path}")
+        return stats
+
+    material_refs: set[str] = set()
+    min_xyz = [math.inf, math.inf, math.inf]
+    max_xyz = [-math.inf, -math.inf, -math.inf]
+
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        kind = parts[0]
+        if kind == "v":
+            if len(parts) < 4:
+                error(errors, f"{path}:{lineno}: malformed vertex")
+                continue
+            parsed = parse_floatish(parts[1:4])
+            if parsed is None:
+                error(errors, f"{path}:{lineno}: nonnumeric vertex")
+                continue
+            stats["vertices"] += 1
+            for axis in range(3):
+                min_xyz[axis] = min(min_xyz[axis], parsed[axis])
+                max_xyz[axis] = max(max_xyz[axis], parsed[axis])
+        elif kind == "f":
+            if len(parts) < 4:
+                error(errors, f"{path}:{lineno}: face has fewer than 3 vertices")
+                continue
+            face_indexes = []
+            for token in parts[1:]:
+                index_token = token.split("/")[0]
+                try:
+                    raw_index = int(index_token)
+                except ValueError:
+                    error(errors, f"{path}:{lineno}: invalid face index {token!r}")
+                    continue
+                if raw_index == 0:
+                    error(errors, f"{path}:{lineno}: OBJ index 0 is invalid")
+                    continue
+                resolved = raw_index if raw_index > 0 else stats["vertices"] + raw_index + 1
+                if resolved < 1 or resolved > stats["vertices"]:
+                    error(errors, f"{path}:{lineno}: face index {raw_index} outside 1..{stats['vertices']}")
+                    continue
+                face_indexes.append(resolved)
+            if len(face_indexes) >= 3:
+                stats["faces"] += 1
+                stats["triangles"] += len(face_indexes) - 2
+        elif kind == "usemtl":
+            if len(parts) < 2:
+                error(errors, f"{path}:{lineno}: empty usemtl")
+                continue
+            material_refs.add(" ".join(parts[1:]))
+        elif kind == "mtllib":
+            stats["mtllibs"].append(" ".join(parts[1:]))
+        elif kind == "g":
+            stats["groups"] += 1
+
+    missing_materials = sorted(material_refs - materials)
+    if missing_materials:
+        error(errors, f"{path}: undefined materials: {', '.join(missing_materials)}")
+    if stats["vertices"] <= 0:
+        error(errors, f"{path}: no vertices")
+    if stats["faces"] <= 0:
+        error(errors, f"{path}: no faces")
+    if "capitol_materials.mtl" not in stats["mtllibs"]:
+        error(errors, f"{path}: missing mtllib capitol_materials.mtl")
+
+    stats["materials"] = sorted(material_refs)
+    if all(math.isfinite(value) for value in min_xyz + max_xyz):
+        stats["bbox_cm"] = {"min": min_xyz, "max": max_xyz}
+    return stats
+
+
+def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
+
+    if metadata.get("package") != "capitol_unreal_map":
+        error(errors, "metadata package name is not capitol_unreal_map")
+
+    coordinate_system = metadata.get("coordinate_system", {})
+    if coordinate_system.get("obj_units") != "centimeters":
+        error(errors, "metadata coordinate_system.obj_units must be centimeters")
+    origin = coordinate_system.get("origin", {})
+    if not is_number(origin.get("lat")) or not is_number(origin.get("lon")):
+        error(errors, "metadata origin lat/lon missing or invalid")
+
+    meshes = set(metadata.get("meshes", []))
+    summary["mesh_count"] = len(meshes)
+    if meshes != EXPECTED_MESHES:
+        error(errors, f"metadata meshes mismatch: expected {sorted(EXPECTED_MESHES)}, got {sorted(meshes)}")
+    for rel in meshes:
+        if not (ROOT / rel).exists():
+            error(errors, f"metadata mesh does not exist: {rel}")
+
+    exterior = metadata.get("exterior", {})
+    summary["buildings"] = len(exterior.get("buildings", []))
+    summary["roads"] = len(exterior.get("roads", []))
+    summary["bike_lanes"] = len(exterior.get("bike_lanes", []))
+    summary["pedestrian_paths"] = len(exterior.get("pedestrian_paths", []))
+    summary["curbs"] = len(exterior.get("curbs", []))
+    summary["lane_edge_markings"] = len(exterior.get("lane_edge_markings", []))
+    summary["street_markers"] = len(exterior.get("street_markers", []))
+    if summary["buildings"] < 2000:
+        error(errors, "expected at least 2000 surrounding building footprints")
+    if summary["roads"] < 3000:
+        error(errors, "expected at least 3000 roads/paths")
+    if summary["bike_lanes"] < 300:
+        error(errors, "expected at least 300 bike/cycleway features")
+    if summary["pedestrian_paths"] < 2000:
+        error(errors, "expected at least 2000 pedestrian paths/footways")
+    if summary["curbs"] < 1000:
+        error(errors, "expected at least 1000 curb edge records")
+    if summary["lane_edge_markings"] < 500:
+        error(errors, "expected at least 500 lane edge marking records")
+    if summary["street_markers"] < 500:
+        error(errors, "expected at least 500 street markers/crossings/signals")
+
+    landmark = metadata.get("landmark", {})
+    elements = landmark.get("elements", [])
+    summary["landmark_elements"] = len(elements)
+    revolving = [item for item in elements if "revolving door" in item.get("name", "").lower()]
+    summary["revolving_door_visuals"] = len(revolving)
+    if len(elements) < 18:
+        error(errors, "expected at least 18 Capitol landmark detail elements")
+    if len(revolving) < 12:
+        error(errors, "expected at least 12 public-facing revolving-door visual elements")
+
+    interior = metadata.get("interior", {})
+    rooms = interior.get("rooms", [])
+    room_names = {room.get("name") for room in rooms}
+    summary["rooms"] = len(rooms)
+    missing_rooms = sorted(REQUIRED_ROOMS - room_names)
+    if missing_rooms:
+        error(errors, f"missing required public interior rooms: {', '.join(missing_rooms)}")
+
+    seating = interior.get("seating", [])
+    house_seats = [seat for seat in seating if seat.get("chamber") == "House Chamber"]
+    senate_desks = [seat for seat in seating if seat.get("chamber") == "Senate Chamber"]
+    summary["house_seats"] = len(house_seats)
+    summary["senate_desks"] = len(senate_desks)
+    if len(house_seats) != 448:
+        error(errors, f"expected 448 generic House seats, got {len(house_seats)}")
+    if len(senate_desks) != 100:
+        error(errors, f"expected 100 generic Senate desks, got {len(senate_desks)}")
+    for seat in seating:
+        if not is_vec3(seat.get("location_m")):
+            error(errors, f"seat {seat.get('id', '<unknown>')} has invalid location_m")
+            break
+        assignment = seat.get("assignment", "").lower()
+        if "generic" not in assignment and "unassigned" not in assignment:
+            error(errors, f"seat {seat.get('id', '<unknown>')} assignment is not marked generic/unassigned")
+            break
+
+    office_cells = interior.get("office_cells", [])
+    summary["office_cells"] = len(office_cells)
+    if len(office_cells) != 60:
+        error(errors, f"expected 60 generic office/support cells, got {len(office_cells)}")
+
+    seating_sections = interior.get("seating_sections", [])
+    section_ids = {section.get("id") for section in seating_sections}
+    summary["seating_sections"] = len(seating_sections)
+    summary["regular_session_seating_sections"] = len(
+        [section for section in seating_sections if section.get("mode") == "regular_session"]
+    )
+    summary["joint_session_seating_sections"] = len(
+        [section for section in seating_sections if section.get("mode") == "joint_session"]
+    )
+    missing_sections = sorted(REQUIRED_SEATING_SECTIONS - section_ids)
+    if missing_sections:
+        error(errors, f"missing seating sections: {', '.join(missing_sections)}")
+    if summary["regular_session_seating_sections"] != 7:
+        error(errors, f"expected 7 regular-session seating sections, got {summary['regular_session_seating_sections']}")
+    if summary["joint_session_seating_sections"] != 9:
+        error(errors, f"expected 9 joint-session seating sections, got {summary['joint_session_seating_sections']}")
+    for section in seating_sections:
+        if not is_vec3(section.get("center_m")):
+            error(errors, f"seating section {section.get('id', '<unknown>')} has invalid center_m")
+            break
+        assignment = section.get("assignment", "").lower()
+        if "generic" not in assignment and "not an operational" not in assignment and "public visual" not in assignment:
+            error(errors, f"seating section {section.get('id', '<unknown>')} assignment is not marked generic/public")
+            break
+
+    joint_session = interior.get("joint_session", [])
+    joint_names = {item.get("name") for item in joint_session}
+    summary["joint_session_records"] = len(joint_session)
+    missing_joint = sorted(REQUIRED_JOINT_SESSION - joint_names)
+    if missing_joint:
+        error(errors, f"missing joint-session visual records: {', '.join(missing_joint)}")
+
+    public_art = interior.get("public_art", [])
+    light_fixtures = interior.get("light_fixtures", [])
+    wall_treatments = interior.get("wall_treatments", [])
+    summary["public_art"] = len(public_art)
+    summary["light_fixtures"] = len(light_fixtures)
+    summary["wall_treatments"] = len(wall_treatments)
+    if len(public_art) < 55:
+        error(errors, f"expected at least 55 public-art visuals, got {len(public_art)}")
+    if len(light_fixtures) < 25:
+        error(errors, f"expected at least 25 public light fixtures, got {len(light_fixtures)}")
+    if len(wall_treatments) < 10:
+        error(errors, f"expected at least 10 wall-treatment records, got {len(wall_treatments)}")
+    for record in public_art[:5] + light_fixtures[:5] + wall_treatments[:5]:
+        if not is_vec3(record.get("center_m")):
+            error(errors, f"interior detail {record.get('name', '<unknown>')} has invalid center_m")
+            break
+
+    notice = interior.get("interior_notice", "")
+    if "Public schematic only" not in notice or "restricted" not in notice:
+        error(errors, "interior_notice must state public schematic and restricted-detail boundary")
+
+    viewpoints = metadata.get("viewpoints", [])
+    viewpoint_labels = {item.get("label") for item in viewpoints}
+    summary["viewpoints"] = len(viewpoints)
+    missing_viewpoints = sorted(REQUIRED_VIEWPOINTS - viewpoint_labels)
+    if missing_viewpoints:
+        error(errors, f"missing required viewpoints: {', '.join(missing_viewpoints)}")
+    for viewpoint in viewpoints:
+        if not is_vec3(viewpoint.get("location_m")) or not is_vec3(viewpoint.get("target_m")):
+            error(errors, f"viewpoint {viewpoint.get('label', '<unknown>')} has invalid location/target")
+            break
+        if not is_number(viewpoint.get("fov")):
+            error(errors, f"viewpoint {viewpoint.get('label', '<unknown>')} has invalid fov")
+            break
+
+    return summary
+
+
+def validate_material_manifest(materials: set[str], errors: list[str]) -> dict[str, Any]:
+    summary = {"manifest_materials": 0, "missing_manifest_materials": 0, "extra_manifest_materials": 0}
+    if not MATERIAL_MANIFEST_PATH.exists():
+        error(errors, f"missing Unreal material realism manifest: {MATERIAL_MANIFEST_PATH}")
+        return summary
+
+    manifest = json.loads(MATERIAL_MANIFEST_PATH.read_text(encoding="utf-8"))
+    manifest_materials = set(manifest)
+    missing = sorted(materials - manifest_materials)
+    extra = sorted(manifest_materials - materials)
+    summary["manifest_materials"] = len(manifest_materials)
+    summary["missing_manifest_materials"] = len(missing)
+    summary["extra_manifest_materials"] = len(extra)
+    if missing:
+        error(errors, f"material realism manifest missing MTL materials: {', '.join(missing)}")
+    if extra:
+        error(errors, f"material realism manifest has materials not in MTL: {', '.join(extra)}")
+
+    for name, spec in manifest.items():
+        color = spec.get("base_color")
+        if not isinstance(color, list) or len(color) != 3 or not all(is_number(item) for item in color):
+            error(errors, f"material {name} has invalid base_color")
+            break
+        for key in ("roughness", "metallic", "specular"):
+            value = spec.get(key)
+            if not is_number(value) or not (0.0 <= float(value) <= 1.0):
+                error(errors, f"material {name} has invalid {key}")
+                break
+        opacity = spec.get("opacity")
+        if opacity is not None and (not is_number(opacity) or not (0.0 <= float(opacity) <= 1.0)):
+            error(errors, f"material {name} has invalid opacity")
+            break
+    return summary
+
+
+def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[str, Any]:
+    summary = {"texture_sets": 0, "texture_material_bindings": 0, "texture_files": 0}
+    if not TEXTURE_MANIFEST_PATH.exists():
+        error(errors, f"missing material texture manifest: {TEXTURE_MANIFEST_PATH}")
+        return summary
+    manifest = json.loads(TEXTURE_MANIFEST_PATH.read_text(encoding="utf-8"))
+    sets = manifest.get("sets", {})
+    bindings = manifest.get("materials", {})
+    summary["texture_sets"] = len(sets)
+    summary["texture_material_bindings"] = len(bindings)
+    missing_bindings = sorted(materials - set(bindings))
+    if missing_bindings:
+        error(errors, f"texture manifest missing material bindings: {', '.join(missing_bindings)}")
+    for set_name, spec in sets.items():
+        for key in ("basecolor", "normal", "roughness"):
+            rel = spec.get(key)
+            if not rel:
+                error(errors, f"texture set {set_name} missing {key}")
+                continue
+            path = ROOT / rel
+            if not path.exists():
+                error(errors, f"texture file missing: {rel}")
+            elif path.stat().st_size < 256:
+                error(errors, f"texture file too small: {rel}")
+            summary["texture_files"] += 1
+    if summary["texture_sets"] < 35:
+        error(errors, f"expected at least 35 generated texture sets, got {summary['texture_sets']}")
+    return summary
+
+
+def main() -> int:
+    errors: list[str] = []
+    if not METADATA_PATH.exists():
+        error(errors, f"missing metadata: {METADATA_PATH}")
+        metadata: dict[str, Any] = {}
+    else:
+        metadata = json.loads(METADATA_PATH.read_text(encoding="utf-8"))
+
+    materials = parse_mtl(MTL_PATH, errors)
+    metadata_summary = validate_metadata(metadata, errors)
+    material_summary = validate_material_manifest(materials, errors)
+    texture_summary = validate_texture_manifest(materials, errors)
+    mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
+
+    report = {
+        "ok": not errors,
+        "root": str(ROOT),
+        "metadata": metadata_summary,
+        "materials": material_summary,
+        "textures": texture_summary,
+        "meshes": mesh_stats,
+        "errors": errors,
+    }
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+    if errors:
+        print(f"Capitol package validation FAILED with {len(errors)} error(s).")
+        for item in errors:
+            print(f"- {item}")
+        print(f"Wrote report: {REPORT_PATH}")
+        return 1
+
+    triangles = sum(int(mesh["triangles"]) for mesh in mesh_stats)
+    vertices = sum(int(mesh["vertices"]) for mesh in mesh_stats)
+    print("Capitol package validation OK")
+    print(f"Meshes: {len(mesh_stats)}")
+    print(f"Vertices: {vertices:,}")
+    print(f"Triangles: {triangles:,}")
+    print(f"Buildings: {metadata_summary.get('buildings', 0):,}")
+    print(f"Roads/paths: {metadata_summary.get('roads', 0):,}")
+    print(f"Bike features: {metadata_summary.get('bike_lanes', 0):,}")
+    print(f"Pedestrian paths: {metadata_summary.get('pedestrian_paths', 0):,}")
+    print(f"Curbs: {metadata_summary.get('curbs', 0):,}")
+    print(f"Lane edge markings: {metadata_summary.get('lane_edge_markings', 0):,}")
+    print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
+    print(f"House seats: {metadata_summary.get('house_seats', 0):,}")
+    print(f"Senate desks: {metadata_summary.get('senate_desks', 0):,}")
+    print(f"Seating sections: {metadata_summary.get('seating_sections', 0):,}")
+    print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
+    print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
+    print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")
+    print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
+    print(f"Texture sets: {texture_summary.get('texture_sets', 0):,}")
+    print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
+    print(f"Wrote report: {REPORT_PATH}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

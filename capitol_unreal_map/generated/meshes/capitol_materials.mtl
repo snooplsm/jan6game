@@ -1,0 +1,349 @@
+newmtl BuildingGeneric
+Kd 0.720 0.720 0.700
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl BuildingCapitol
+Kd 0.900 0.880 0.820
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl CapitolStone
+Kd 0.860 0.840 0.780
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl CapitolDome
+Kd 0.820 0.820 0.780
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ColumnStone
+Kd 0.900 0.880 0.820
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl StepStone
+Kd 0.620 0.600 0.560
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl GroundGrass
+Kd 0.160 0.320 0.120
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PlazaStone
+Kd 0.580 0.560 0.500
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl RoadAsphalt
+Kd 0.045 0.048 0.052
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl LaneMarkingWhite
+Kd 0.960 0.960 0.900
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl LaneMarkingYellow
+Kd 0.950 0.780 0.140
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl SidewalkConcrete
+Kd 0.560 0.560 0.530
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl CurbConcrete
+Kd 0.740 0.740 0.700
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl BikeLaneGreen
+Kd 0.040 0.340 0.160
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl BikeLanePost
+Kd 0.900 0.900 0.820
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl CrosswalkWhite
+Kd 0.920 0.920 0.880
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl SignalMarker
+Kd 0.950 0.750 0.100
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl InteriorFloor
+Kd 0.620 0.560 0.480
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl InteriorWall
+Kd 0.820 0.780 0.690
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl InteriorTrim
+Kd 0.550 0.430 0.280
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl HouseCarpet
+Kd 0.080 0.130 0.350
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl SenateCarpet
+Kd 0.360 0.060 0.060
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl DeskWood
+Kd 0.300 0.160 0.070
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ChairLeather
+Kd 0.080 0.070 0.055
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl BrassRail
+Kd 0.820 0.630 0.240
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl RotundaFloor
+Kd 0.780 0.680 0.500
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl RotundaWall
+Kd 0.880 0.840 0.740
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl HouseSeat
+Kd 0.120 0.230 0.550
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl HouseDesk
+Kd 0.280 0.180 0.100
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl SenateDesk
+Kd 0.340 0.180 0.080
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl SenateChair
+Kd 0.120 0.110 0.100
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PublicGallery
+Kd 0.240 0.280 0.300
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl OfficeZone
+Kd 0.460 0.530 0.620
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl MarkerBlue
+Kd 0.100 0.350 0.950
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl StreetSignGreen
+Kd 0.030 0.240 0.100
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl DoorGlass
+Kd 0.480 0.720 0.880
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 0.550
+illum 2
+
+newmtl DoorMetal
+Kd 0.180 0.200 0.210
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PresidentPodium
+Kd 0.180 0.090 0.035
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl JointSessionZone
+Kd 0.420 0.360 0.260
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl SupremeCourtZone
+Kd 0.180 0.180 0.180
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl CabinetZone
+Kd 0.080 0.160 0.320
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl DiplomaticZone
+Kd 0.240 0.160 0.300
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PressZone
+Kd 0.160 0.200 0.200
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl StatueMarble
+Kd 0.780 0.740 0.660
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl StatueBronze
+Kd 0.360 0.240 0.120
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl ArtFrameGold
+Kd 0.780 0.560 0.160
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PaintingCanvas
+Kd 0.420 0.280 0.180
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl PortraitCanvas
+Kd 0.240 0.180 0.140
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
+
+newmtl WarmLightGlass
+Kd 1.000 0.820 0.480
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 0.720
+illum 2
+
+newmtl LightFixtureMetal
+Kd 0.180 0.150 0.110
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 1.000
+illum 2
