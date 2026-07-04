@@ -333,6 +333,9 @@ def main() -> None:
     manifest = {
         "package": "capitol_unreal_map",
         "texture_root": "generated/textures",
+        "source_type": "deterministic_procedural_local",
+        "external_texture_sources": [],
+        "realism_note": "Generated locally from procedural noise, colors, and height-derived maps. These are 4K placeholder PBR-style maps, not scanned or photogrammetry material textures.",
         "target_size_px": [SIZE, SIZE],
         "png_compression_level": PNG_COMPRESSION_LEVEL,
         "sets": sets,

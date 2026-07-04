@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Capitol Texture Preview</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0f12;
+      --surface: #151a1f;
+      --surface-2: #101419;
+      --line: rgba(255, 255, 255, 0.14);
+      --text: #f2efe7;
+      --muted: #a9b0b8;
+      --accent: #7db7ff;
+      --warn: #f4c56f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font: 13px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(12, 15, 18, 0.94);
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0 0 9px;
+      font-size: 17px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input,
+    select,
+    button {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      padding: 7px 9px;
+      font: inherit;
+    }
+
+    button { cursor: pointer; }
+    button:hover { border-color: rgba(125, 183, 255, 0.55); }
+    input::placeholder { color: var(--muted); }
+
+    .search { width: min(320px, 100%); }
+    .statline { color: var(--muted); }
+    .warn { color: var(--warn); }
+
+    main {
+      padding: 16px 18px 30px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .summary-item {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 68px;
+    }
+
+    .summary-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .summary-item strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 650;
+      word-break: break-word;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 14px;
+    }
+
+    .texture-set {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .set-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .set-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .set-meta {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .maps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+    }
+
+    figure {
+      margin: 0;
+      min-width: 0;
+      background: #0b0e11;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: #050607;
+    }
+
+    figcaption {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 7px;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    figcaption a {
+      color: var(--accent);
+      text-decoration: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .material-list {
+      padding: 9px 11px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .material-list strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .empty {
+      display: none;
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .maps { grid-template-columns: 1fr; }
+      header { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Capitol Texture Preview</h1>
+    <div class="toolbar">
+      <input id="search" class="search" type="search" placeholder="Search material or texture set" />
+      <select id="styleFilter">
+        <option value="">All styles</option>
+      </select>
+      <button id="clearSearch">Clear</button>
+      <span class="statline" id="status">Loading texture manifest...</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary" id="summary"></section>
+    <section class="grid" id="grid"></section>
+    <p class="empty" id="empty">No texture sets match the current filter.</p>
+  </main>
+
+  <script>
+    const manifestUrl = "generated/data/material_texture_manifest.json";
+    const grid = document.getElementById("grid");
+    const summary = document.getElementById("summary");
+    const status = document.getElementById("status");
+    const search = document.getElementById("search");
+    const styleFilter = document.getElementById("styleFilter");
+    const clearSearch = document.getElementById("clearSearch");
+    const empty = document.getElementById("empty");
+
+    let records = [];
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[character]));
+    }
+
+    function summarize(manifest) {
+      const sets = Object.values(manifest.sets || {});
+      const textureCount = sets.length * 3;
+      const size = manifest.target_size_px || ["?", "?"];
+      const items = [
+        ["Texture Sets", sets.length],
+        ["PNG Maps", textureCount],
+        ["Target Size", `${size[0]} x ${size[1]}`],
+        ["Source", manifest.source_type || "unspecified"],
+        ["External Sources", (manifest.external_texture_sources || []).length || "none"],
+        ["Note", manifest.realism_note || "No provenance note."]
+      ];
+      summary.innerHTML = items.map(([label, value]) => `
+        <div class="summary-item">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function materialBindings(manifest) {
+      const bindings = {};
+      for (const [material, setName] of Object.entries(manifest.materials || {})) {
+        if (!bindings[setName]) bindings[setName] = [];
+        bindings[setName].push(material);
+      }
+      return bindings;
+    }
+
+    function mapFigure(kind, path) {
+      return `
+        <figure>
+          <img src="${escapeHtml(path)}" alt="${escapeHtml(kind)} texture map" loading="lazy" decoding="async" />
+          <figcaption>
+            <span>${escapeHtml(kind)}</span>
+            <a href="${escapeHtml(path)}" target="_blank" rel="noopener">open</a>
+          </figcaption>
+        </figure>
+      `;
+    }
+
+    function render() {
+      const query = search.value.trim().toLowerCase();
+      const style = styleFilter.value;
+      const filtered = records.filter(record => {
+        const text = `${record.name} ${record.style} ${record.materials.join(" ")}`.toLowerCase();
+        return (!query || text.includes(query)) && (!style || record.style === style);
+      });
+
+      grid.innerHTML = filtered.map(record => `
+        <article class="texture-set">
+          <div class="set-header">
+            <div>
+              <h2 class="set-name">${escapeHtml(record.name)}</h2>
+              <div class="set-meta">${escapeHtml(record.style)} / ${record.size[0]}x${record.size[1]} / tileable ${record.tileable ? "yes" : "no"}</div>
+            </div>
+          </div>
+          <div class="maps">
+            ${mapFigure("basecolor", record.basecolor)}
+            ${mapFigure("normal", record.normal)}
+            ${mapFigure("roughness", record.roughness)}
+          </div>
+          <div class="material-list"><strong>Materials:</strong> ${escapeHtml(record.materials.join(", ") || "none")}</div>
+        </article>
+      `).join("");
+
+      status.textContent = `${filtered.length} of ${records.length} texture sets shown`;
+      empty.style.display = filtered.length ? "none" : "block";
+    }
+
+    async function init() {
+      try {
+        const response = await fetch(manifestUrl);
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        const manifest = await response.json();
+        const bindings = materialBindings(manifest);
+        records = Object.entries(manifest.sets || {}).map(([name, spec]) => ({
+          name,
+          style: spec.style || "unknown",
+          size: spec.size_px || ["?", "?"],
+          tileable: Boolean(spec.tileable),
+          basecolor: spec.basecolor,
+          normal: spec.normal,
+          roughness: spec.roughness,
+          materials: bindings[name] || []
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        const styles = [...new Set(records.map(record => record.style))].sort();
+        for (const style of styles) {
+          const option = document.createElement("option");
+          option.value = style;
+          option.textContent = style;
+          styleFilter.appendChild(option);
+        }
+
+        summarize(manifest);
+        render();
+      } catch (error) {
+        status.innerHTML = `<span class="warn">Failed to load manifest: ${escapeHtml(error.message)}</span>`;
+      }
+    }
+
+    search.addEventListener("input", render);
+    styleFilter.addEventListener("change", render);
+    clearSearch.addEventListener("click", () => {
+      search.value = "";
+      styleFilter.value = "";
+      render();
+    });
+
+    init();
+  </script>
+</body>
+</html>
