@@ -249,6 +249,13 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "public_wayfinding_sign",
 }
 
+REQUIRED_BUILDING_DETAIL_KINDS = {
+    "surrounding_building_roofline",
+    "surrounding_building_facade_window",
+    "surrounding_building_public_entry_marker",
+    "surrounding_building_rooftop_detail",
+}
+
 REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Overview",
     "CapitolMap_Camera_WestFront_FirstPerson",
@@ -507,6 +514,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["street_markers"] = len(exterior.get("street_markers", []))
     replaced_buildings = exterior.get("replaced_buildings", [])
     summary["replaced_buildings"] = len(replaced_buildings)
+    building_details = exterior.get("building_details", [])
+    building_detail_kinds = {detail.get("kind") for detail in building_details}
+    summary["building_details"] = len(building_details)
+    summary["building_detail_kinds"] = len(building_detail_kinds)
     streetscape_props = exterior.get("streetscape_props", [])
     streetscape_prop_kinds = {prop.get("kind") for prop in streetscape_props}
     summary["streetscape_props"] = len(streetscape_props)
@@ -535,6 +546,26 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
+    if len(building_details) < 520:
+        error(errors, f"expected at least 520 surrounding building visual detail records, got {len(building_details)}")
+    missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
+    if missing_building_detail_kinds:
+        error(errors, f"missing surrounding building detail kinds: {', '.join(missing_building_detail_kinds)}")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roofline"]) < 35:
+        error(errors, "expected at least 35 surrounding building roofline records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_facade_window"]) < 360:
+        error(errors, "expected at least 360 surrounding building facade-window records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_public_entry_marker"]) < 35:
+        error(errors, "expected at least 35 surrounding building public-entry marker records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_rooftop_detail"]) < 60:
+        error(errors, "expected at least 60 surrounding building rooftop-detail records")
+    for detail in building_details[:12]:
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"building detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        if "public" not in detail.get("public_accuracy", ""):
+            error(errors, f"building detail {detail.get('name', '<unknown>')} lacks public accuracy boundary")
+            break
     if len(streetscape_props) < 870:
         error(errors, f"expected at least 870 public streetscape props, got {len(streetscape_props)}")
     missing_streetscape_kinds = sorted(REQUIRED_STREETSCAPE_PROP_KINDS - streetscape_prop_kinds)
@@ -1031,6 +1062,7 @@ def main() -> int:
     print(f"Lane edge markings: {metadata_summary.get('lane_edge_markings', 0):,}")
     print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
     print(f"Replaced OSM building footprints: {metadata_summary.get('replaced_buildings', 0):,}")
+    print(f"Surrounding building details: {metadata_summary.get('building_details', 0):,}")
     print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
     print(f"Grounds details: {metadata_summary.get('grounds_details', 0):,}")
     print(f"Grounds walk lamps: {metadata_summary.get('grounds_walk_lamps', 0):,}")

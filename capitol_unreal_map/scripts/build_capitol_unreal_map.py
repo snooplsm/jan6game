@@ -657,6 +657,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "street_markers": [],
         "street_labels": [],
         "streetscape_props": [],
+        "building_details": [],
         "grounds_details": [],
         "replaced_buildings": [],
     }
@@ -685,6 +686,106 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         if extra:
             record.update(extra)
         metadata["streetscape_props"].append(record)
+
+    def add_building_detail_record(
+        name: str,
+        kind: str,
+        building_id: int,
+        building_name: str,
+        center: tuple[float, float, float],
+        extra: dict[str, Any] | None = None,
+    ) -> None:
+        record: dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "building_id": building_id,
+            "building_name": building_name,
+            "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+            "public_accuracy": "approximate_public_surrounding_building_visual",
+        }
+        if extra:
+            record.update(extra)
+        metadata["building_details"].append(record)
+
+    def building_detail_building_count(kind: str) -> int:
+        return len({detail.get("building_id") for detail in metadata["building_details"] if detail.get("kind") == kind})
+
+    def add_surrounding_building_visuals(
+        way_id: int,
+        name: str,
+        points: list[tuple[float, float]],
+        height: float,
+        center: tuple[float, float],
+    ) -> None:
+        if building_detail_building_count("surrounding_building_roofline") >= 40:
+            return
+        cx, cy = center
+        if math.hypot(cx, cy) > 780.0:
+            return
+        min_x = min(point[0] for point in points)
+        max_x = max(point[0] for point in points)
+        min_y = min(point[1] for point in points)
+        max_y = max(point[1] for point in points)
+        width = max_x - min_x
+        depth = max_y - min_y
+        if height < 5.5 or width < 4.0 or depth < 4.0:
+            return
+
+        safe_prefix = f"surrounding_building_{way_id}"
+        roof_z = height + 0.08
+        buildings.add_box(((min_x + max_x) / 2.0, max_y), (width, 0.20), 0.18, roof_z, f"{safe_prefix}_north_roofline", "StepStone")
+        buildings.add_box(((min_x + max_x) / 2.0, min_y), (width, 0.20), 0.18, roof_z, f"{safe_prefix}_south_roofline", "StepStone")
+        buildings.add_box((max_x, (min_y + max_y) / 2.0), (0.20, depth), 0.18, roof_z, f"{safe_prefix}_east_roofline", "StepStone")
+        buildings.add_box((min_x, (min_y + max_y) / 2.0), (0.20, depth), 0.18, roof_z, f"{safe_prefix}_west_roofline", "StepStone")
+        add_building_detail_record(
+            f"{safe_prefix}_roofline",
+            "surrounding_building_roofline",
+            way_id,
+            name,
+            (cx, cy, roof_z + 0.09),
+            {"size_m": [round(width, 3), round(depth, 3)]},
+        )
+
+        rows = max(1, min(3, int(height // 4.0)))
+        cols_x = max(2, min(5, int(width // 7.0)))
+        cols_y = max(2, min(5, int(depth // 7.0)))
+        for row in range(rows):
+            z = min(height - 1.45, 2.1 + row * 3.1)
+            if z <= 1.2:
+                continue
+            for col in range(cols_x):
+                x = min_x + width * (col + 0.5) / cols_x
+                for face_name, y_face in (("north", max_y + 0.05), ("south", min_y - 0.05)):
+                    window_name = f"{safe_prefix}_{face_name}_window_r{row+1:02d}_c{col+1:02d}"
+                    buildings.add_box((x, y_face), (1.12, 0.08), 0.92, z, window_name, "FacadeWindow")
+                    add_building_detail_record(window_name, "surrounding_building_facade_window", way_id, name, (x, y_face, z + 0.46), {"face": face_name})
+            for col in range(cols_y):
+                y = min_y + depth * (col + 0.5) / cols_y
+                for face_name, x_face in (("east", max_x + 0.05), ("west", min_x - 0.05)):
+                    window_name = f"{safe_prefix}_{face_name}_window_r{row+1:02d}_c{col+1:02d}"
+                    buildings.add_box((x_face, y), (0.08, 1.12), 0.92, z, window_name, "FacadeWindow")
+                    add_building_detail_record(window_name, "surrounding_building_facade_window", way_id, name, (x_face, y, z + 0.46), {"face": face_name})
+
+        if abs(cx) >= abs(cy):
+            x_face = min_x - 0.06 if cx > 0 else max_x + 0.06
+            y = cy
+            entry_size = (0.10, min(2.2, depth * 0.32))
+            face = "west" if cx > 0 else "east"
+        else:
+            y = min_y - 0.06 if cy > 0 else max_y + 0.06
+            x_face = cx
+            entry_size = (min(2.2, width * 0.32), 0.10)
+            face = "south" if cy > 0 else "north"
+        entry_name = f"{safe_prefix}_public_entry_marker"
+        buildings.add_box((x_face, y), entry_size, 1.85, 0.12, entry_name, "DoorGlass")
+        add_building_detail_record(entry_name, "surrounding_building_public_entry_marker", way_id, name, (x_face, y, 1.05), {"face": face})
+
+        for unit_index, (ox, oy) in enumerate([(-0.18, -0.12), (0.20, 0.16)], start=1):
+            unit_center = (cx + width * ox, cy + depth * oy)
+            unit_size = (max(0.8, min(3.8, width * 0.22)), max(0.65, min(2.4, depth * 0.18)))
+            unit_name = f"{safe_prefix}_rooftop_detail_{unit_index}"
+            buildings.add_box(unit_center, unit_size, 0.55, height + 0.18, unit_name, "BuildingGeneric")
+            add_building_detail_record(unit_name, "surrounding_building_rooftop_detail", way_id, name, (unit_center[0], unit_center[1], height + 0.46))
 
     def add_streetlight(name: str, point: tuple[float, float], side_sign: float) -> None:
         x, y = point
@@ -1014,6 +1115,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             else:
                 material = "BuildingCapitol" if is_capitol else "BuildingGeneric"
                 buildings.add_extruded_polygon(points, 0.0, height, f"building_{name}_{way['id']}", material)
+                add_surrounding_building_visuals(way["id"], name, points, height, (cx, cy))
                 metadata["buildings"].append(
                     {
                         "id": way["id"],
@@ -3042,6 +3144,7 @@ def main() -> None:
         f"{len(exterior['pedestrian_paths'])} pedestrian paths,",
         f"{len(exterior['curbs'])} curb edge records,",
         f"{len(exterior['street_markers'])} street markers,",
+        f"{len(exterior['building_details'])} building visual details,",
         f"{len(exterior['streetscape_props'])} streetscape props,",
         f"{len(exterior['grounds_details'])} grounds details,",
         f"{len(landmark['elements'])} landmark detail elements,",

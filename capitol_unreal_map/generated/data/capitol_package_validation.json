@@ -11,6 +11,8 @@
     "lane_edge_markings": 608,
     "street_markers": 880,
     "replaced_buildings": 1,
+    "building_details": 982,
+    "building_detail_kinds": 4,
     "streetscape_props": 874,
     "streetscape_prop_kinds": 9,
     "grounds_details": 101,
@@ -76,15 +78,18 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 49002,
-      "uvs": 147006,
-      "faces": 29549,
-      "faces_with_uvs": 29549,
-      "triangles": 87908,
-      "groups": 2524,
+      "vertices": 57818,
+      "uvs": 173454,
+      "faces": 36161,
+      "faces_with_uvs": 36161,
+      "triangles": 101132,
+      "groups": 3626,
       "materials": [
         "BuildingCapitol",
-        "BuildingGeneric"
+        "BuildingGeneric",
+        "DoorGlass",
+        "FacadeWindow",
+        "StepStone"
       ],
       "mtllibs": [
         "capitol_materials.mtl"
