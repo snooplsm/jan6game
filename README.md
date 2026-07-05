@@ -1,5 +1,9 @@
 # jan6game
 
+## Completely agentic build of a January 6th Riot Game for now, I will intervene shortly.
+
+### Currently creating a map from scratch as well as periodically generating avatars.
+
 Unreal-ready public/schematic U.S. Capitol map assets and supporting tools.
 
 Main package:
