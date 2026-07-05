@@ -2243,6 +2243,12 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.21, f"{name}_green_lens", "TrafficSignalGreen")
         for hood_index, z in enumerate([3.95, 3.58, 3.21], start=1):
             roads.add_box((x, y - 0.205), (0.26, 0.08), 0.055, z + 0.10, f"{name}_signal_louver_hood_{hood_index}", "TrafficSignalHousing")
+        roads.add_box((x - arm_sign * 0.18, y - 0.13), (0.34, 0.075), 0.48, 2.28, f"{name}_ped_countdown_housing", "TrafficSignalHousing")
+        roads.add_box((x - arm_sign * 0.18, y - 0.18), (0.20, 0.040), 0.12, 2.54, f"{name}_walk_icon_face", "LaneMarkingWhite")
+        roads.add_box((x - arm_sign * 0.18, y - 0.185), (0.18, 0.035), 0.08, 2.36, f"{name}_countdown_digit_bar_top", "TrafficSignalYellow")
+        roads.add_box((x - arm_sign * 0.18, y - 0.185), (0.12, 0.035), 0.08, 2.23, f"{name}_countdown_digit_bar_bottom", "TrafficSignalYellow")
+        roads.add_box((x + arm_sign * 0.16, y + 0.11), (0.20, 0.075), 0.28, 1.05, f"{name}_pushbutton_plate", "TrafficSignalHousing")
+        roads.add_cylinder((x + arm_sign * 0.16, y + 0.155), 0.040, 1.19, 0.025, f"{name}_pushbutton_marker", "SignalMarker", segments=8)
         add_streetscape_record(name, "traffic_signal_prop", (x, y, 2.5))
         add_streetscape_record(
             f"{name}_mast_arm_detail",
@@ -2255,6 +2261,18 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             "traffic_signal_backplate",
             (x, y + 0.075, 3.70),
             extra={"louver_hoods": 3},
+        )
+        add_streetscape_record(
+            f"{name}_ped_countdown_detail",
+            "traffic_signal_pedestrian_countdown",
+            (x - arm_sign * 0.18, y - 0.13, 2.52),
+            extra={"generic_face": "walk_icon_and_countdown_bars", "arm_sign": arm_sign},
+        )
+        add_streetscape_record(
+            f"{name}_pushbutton_detail",
+            "traffic_signal_pushbutton_plate",
+            (x + arm_sign * 0.16, y + 0.12, 1.19),
+            extra={"generic_button_marker": True, "arm_sign": arm_sign},
         )
 
     def add_crosswalk_stripes(name: str, point: tuple[float, float]) -> None:

@@ -1197,6 +1197,8 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "traffic_signal_prop",
     "traffic_signal_mast_arm",
     "traffic_signal_backplate",
+    "traffic_signal_pedestrian_countdown",
+    "traffic_signal_pushbutton_plate",
     "tree_planter",
     "road_stop_bar",
     "lane_direction_arrow",
@@ -1903,6 +1905,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 135 historical-source public traffic-signal mast-arm props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_backplate"]) < 135:
         error(errors, "expected at least 135 historical-source public traffic-signal backplate props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_pedestrian_countdown"]) < 135:
+        error(errors, "expected at least 135 historical-source public traffic-signal pedestrian countdown props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_pushbutton_plate"]) < 135:
+        error(errors, "expected at least 135 historical-source public traffic-signal pushbutton plate props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "lane_direction_arrow"]) < 12:
         error(errors, "expected at least 12 public lane-direction arrow props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "bike_symbol"]) < 8:
