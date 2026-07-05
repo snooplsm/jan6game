@@ -5201,6 +5201,55 @@ def add_public_circulation_details(
         obj.add_cylinder((x, y), radius * 0.58, z + 0.052, 0.026, f"{name}_stone_center", "RotundaFloor", segments=32)
         add_public_circulation_record(records, name, "public_floor_medallion", area, (x, y, z + 0.045), (radius * 2.0, radius * 2.0))
 
+    def transition_size(width: float, depth: float, orientation: str) -> tuple[float, float]:
+        if orientation == "east_west":
+            return (depth, width)
+        return (width, depth)
+
+    def transition_component_center(
+        center: tuple[float, float],
+        along_offset: float,
+        normal_offset: float,
+        orientation: str,
+    ) -> tuple[float, float]:
+        x, y = center
+        if orientation == "east_west":
+            return (x + normal_offset, y + along_offset)
+        return (x + along_offset, y + normal_offset)
+
+    def public_transition_surround(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        surround_size = transition_size(width + 0.72, 0.20, orientation)
+        mosaic_size = transition_size(width * 0.78, 0.34, orientation)
+        header_size = transition_size(width + 0.96, 0.18, orientation)
+        obj.add_box(center, surround_size, 0.18, 6.92, f"{name}_architrave_header_band", "ArtFrameGold")
+        add_public_circulation_record(records, f"{name}_arch_surround", "public_transition_arch_surround", area, (x, y, 7.01), surround_size)
+
+        for side, along_offset in [("left", -width / 2.0 - 0.28), ("right", width / 2.0 + 0.28)]:
+            reveal_center = transition_component_center(center, along_offset, 0.0, orientation)
+            reveal_size = transition_size(0.22, 0.18, orientation)
+            obj.add_box(reveal_center, reveal_size, 2.05, 4.86, f"{name}_{side}_reveal_panel", "InteriorTrim")
+            obj.add_box(reveal_center, transition_size(0.34, 0.24, orientation), 0.12, 6.84, f"{name}_{side}_reveal_cap", "BrassRail")
+            add_public_circulation_record(records, f"{name}_{side}_reveal_panel", "public_transition_reveal_panel", area, (reveal_center[0], reveal_center[1], 5.89), reveal_size)
+
+        keystone_center = transition_component_center(center, 0.0, 0.0, orientation)
+        keystone_size = transition_size(0.54, 0.24, orientation)
+        obj.add_box(keystone_center, keystone_size, 0.34, 7.18, f"{name}_keystone_block", "BrassRail")
+        add_public_circulation_record(records, f"{name}_keystone_block", "public_transition_keystone", area, (x, y, 7.35), keystone_size)
+
+        obj.add_box(center, mosaic_size, 0.038, z + 0.075, f"{name}_floor_mosaic_band", "ArtFrameGold")
+        obj.add_box(center, transition_size(width * 0.42, 0.10, orientation), 0.044, z + 0.12, f"{name}_floor_mosaic_center_line", "BrassRail")
+        add_public_circulation_record(records, f"{name}_floor_mosaic_band", "public_transition_floor_mosaic", area, (x, y, z + 0.095), mosaic_size)
+
+        obj.add_box(center, header_size, 0.075, 7.32, f"{name}_upper_lintel_shadow", "DoorMetal")
+        add_public_circulation_record(records, f"{name}_upper_lintel_shadow", "public_transition_lintel_shadow", area, (x, y, 7.36), header_size)
+
     corridor("east_west_public_axis_band", "Rotunda / east-west public approach", [(-68.0, 0.0), (-22.0, 0.0), (22.0, 0.0), (68.0, 0.0)], 5.2)
     corridor("rotunda_to_house_public_band", "Rotunda to House Chamber public orientation", [(0.0, -12.0), (0.0, -38.0), (0.0, -52.0)], 4.6)
     corridor("rotunda_to_senate_public_band", "Rotunda to Senate Chamber public orientation", [(0.0, 12.0), (0.0, 38.0), (0.0, 52.0)], 4.6)
@@ -5221,6 +5270,7 @@ def add_public_circulation_details(
     ]:
         threshold(name, area, center, size)
         portal(f"{name}_portal", area, center, width, orientation)
+        public_transition_surround(f"{name}_public_transition", area, center, width, orientation)
 
     for name, area, center, text in [
         ("rotunda_orientation_sign_west", "Rotunda", (-11.2, -3.8), "Rotunda / west public orientation"),

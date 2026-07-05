@@ -534,6 +534,11 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "public_corridor_pilaster",
     "public_corridor_sconce",
     "public_floor_medallion",
+    "public_transition_arch_surround",
+    "public_transition_reveal_panel",
+    "public_transition_keystone",
+    "public_transition_floor_mosaic",
+    "public_transition_lintel_shadow",
 }
 
 REQUIRED_SIGNAGE_DETAIL_KINDS = {
@@ -1429,8 +1434,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
     summary["circulation_details"] = len(circulation_details)
     summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
-    if len(circulation_details) < 100:
-        error(errors, f"expected at least 100 public circulation detail records, got {len(circulation_details)}")
+    if len(circulation_details) < 150:
+        error(errors, f"expected at least 150 public circulation detail records, got {len(circulation_details)}")
     missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
     if missing_circulation_kinds:
         error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
@@ -1442,6 +1447,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 20 public corridor sconce records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_floor_medallion"]) < 8:
         error(errors, "expected at least 8 public floor medallion records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_arch_surround"]) < 8:
+        error(errors, "expected at least 8 public transition arch-surround records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_reveal_panel"]) < 16:
+        error(errors, "expected at least 16 public transition reveal-panel records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_keystone"]) < 8:
+        error(errors, "expected at least 8 public transition keystone records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_floor_mosaic"]) < 8:
+        error(errors, "expected at least 8 public transition floor-mosaic records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_lintel_shadow"]) < 8:
+        error(errors, "expected at least 8 public transition lintel-shadow records")
     for detail in circulation_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} has invalid center_m")
