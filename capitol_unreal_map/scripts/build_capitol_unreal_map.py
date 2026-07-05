@@ -5374,12 +5374,30 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         if orientation == "east_west":
             obj.add_box((x, y), (0.82, 1.18), 0.82, z, f"{name}_stone_body", "ColumnStone")
             obj.add_box((x + (0.12 if x >= 0.0 else -0.12), y), (0.12, 0.72), 0.46, z + 0.18, f"{name}_dark_window", "FacadeWindow")
+            for side_index, y_offset in enumerate([-0.50, 0.50], start=1):
+                obj.add_box((x, y + y_offset), (0.46, 0.070), 0.62, z + 0.08, f"{name}_side_cheek_{side_index}", "ColumnStone")
+            obj.add_box((x + (0.19 if x >= 0.0 else -0.19), y - 0.14), (0.055, 0.20), 0.30, z + 0.34, f"{name}_window_glass_highlight", "DoorGlass")
             obj.add_pediment((x + (0.08 if x >= 0.0 else -0.08), y), 1.18, 0.74, z + 0.78, 0.34, f"{name}_little_pediment", "ColumnStone", "east_west")
         else:
             obj.add_box((x, y), (1.18, 0.82), 0.82, z, f"{name}_stone_body", "ColumnStone")
             obj.add_box((x, y + (0.12 if y >= 0.0 else -0.12)), (0.72, 0.12), 0.46, z + 0.18, f"{name}_dark_window", "FacadeWindow")
+            for side_index, x_offset in enumerate([-0.50, 0.50], start=1):
+                obj.add_box((x + x_offset, y), (0.070, 0.46), 0.62, z + 0.08, f"{name}_side_cheek_{side_index}", "ColumnStone")
+            obj.add_box((x - 0.14, y + (0.19 if y >= 0.0 else -0.19)), (0.20, 0.055), 0.30, z + 0.34, f"{name}_window_glass_highlight", "DoorGlass")
             obj.add_pediment((x, y + (0.08 if y >= 0.0 else -0.08)), 1.18, 0.74, z + 0.78, 0.34, f"{name}_little_pediment", "ColumnStone", "north_south")
         add_facade_detail(name, "roof_dormer", (x, y, z + 0.5), {"orientation": orientation})
+        add_facade_detail(
+            f"{name}_side_cheeks",
+            "roof_dormer_side_cheek",
+            (x, y, z + 0.39),
+            {"orientation": orientation, "count": 2, "public_accuracy": "schematic_public_roof_silhouette"},
+        )
+        add_facade_detail(
+            f"{name}_window_glass_highlight",
+            "roof_dormer_glass_highlight",
+            (x, y, z + 0.49),
+            {"orientation": orientation, "public_accuracy": "schematic_public_roof_silhouette"},
+        )
 
     def add_roof_skylight_strip(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         x, y = center
@@ -7081,6 +7099,24 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 kind,
                 (cx, cy, z + z_offset + height / 2.0),
                 {"orientation": orientation, "span_m": round(layer_span, 3)},
+            )
+
+        face_sign = 1.0 if (cx if orientation == "east_west" else cy) >= 0.0 else -1.0
+        seam_specs = [("architrave_frieze", z + 0.315), ("frieze_cornice", z + 0.775)]
+        for seam_label, seam_z in seam_specs:
+            if orientation == "east_west":
+                seam_center = (cx + face_sign * 0.42, cy)
+                seam_size = (0.070, span * 0.93)
+            else:
+                seam_center = (cx, cy + face_sign * 0.42)
+                seam_size = (span * 0.93, 0.070)
+            name = f"{prefix}_{seam_label}_shadow_seam"
+            obj.add_box(seam_center, seam_size, 0.055, seam_z, name, "StoneGrimeOverlay")
+            add_facade_detail(
+                name,
+                "portico_entablature_shadow_seam",
+                (seam_center[0], seam_center[1], seam_z + 0.028),
+                {"orientation": orientation, "length_m": round(max(seam_size), 3), "public_accuracy": "generic_public_facade_depth"},
             )
 
         panel_count = 10 if span >= 55.0 else 8
