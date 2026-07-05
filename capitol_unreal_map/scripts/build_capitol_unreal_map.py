@@ -910,8 +910,12 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         x, y = point
         lamp_x = x + side_sign * 0.62
         roads.add_cylinder((x, y), 0.075, 0.10, 5.1, f"{name}_pole", "StreetLightPole", segments=10)
+        roads.add_cylinder((x, y), 0.18, 0.08, 0.08, f"{name}_flanged_base", "BollardMetal", segments=12)
+        roads.add_cylinder((x, y), 0.095, 4.36, 0.12, f"{name}_upper_collar", "BrassRail", segments=10)
         roads.add_box((x + side_sign * 0.30, y), (0.62, 0.10), 0.08, 5.05, f"{name}_arm", "StreetLightPole")
+        roads.add_box((x + side_sign * 0.52, y), (0.30, 0.18), 0.10, 4.88, f"{name}_lamp_hood", "LightFixtureMetal")
         roads.add_cylinder((lamp_x, y), 0.18, 4.62, 0.34, f"{name}_warm_glass", "StreetLightGlass", segments=12)
+        roads.add_cylinder((lamp_x, y), 0.20, 4.56, 0.045, f"{name}_lower_lens_trim", "BrassRail", segments=12)
         add_streetscape_record(
             name,
             "streetlight",
@@ -922,6 +926,12 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "attenuation_radius_m": 9.0,
                 "color": [1.0, 0.82, 0.55],
             },
+        )
+        add_streetscape_record(
+            f"{name}_fixture_detail",
+            "streetlight_fixture_detail",
+            (x + side_sign * 0.42, y, 4.78),
+            extra={"side_sign": side_sign, "fixture_parts": ["flanged_base", "upper_collar", "lamp_hood", "lens_trim"]},
         )
 
     def add_tree(name: str, point: tuple[float, float]) -> None:
@@ -936,16 +946,43 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         x, y = point
         roads.add_cylinder((x, y), 0.045, 0.10, 2.15, f"{name}_post", "StreetLightPole", segments=8)
         roads.add_box((x, y), (1.55, 0.12), 0.44, 1.92, f"{name}_blade", "StreetSignGreen")
+        for stroke_index, (offset, width) in enumerate([(-0.42, 0.34), (-0.12, 0.24), (0.18, 0.30), (0.46, 0.18)], start=1):
+            roads.add_box((x + offset, y - 0.075), (width, 0.026), 0.035, 2.13, f"{name}_abstract_text_stroke_{stroke_index}", "LaneMarkingWhite")
         add_streetscape_record(name, "street_name_sign", (x, y, 1.45), extra={"label": text[:80]})
+        add_streetscape_record(
+            f"{name}_text_strokes",
+            "street_name_sign_text_strokes",
+            (x, y - 0.075, 2.15),
+            extra={"stroke_count": 4, "label_source": text[:80]},
+        )
 
     def add_traffic_signal(name: str, point: tuple[float, float]) -> None:
         x, y = point
+        arm_sign = 1.0 if x < 0.0 else -1.0
         roads.add_cylinder((x, y), 0.07, 0.08, 4.05, f"{name}_pole", "StreetLightPole", segments=10)
+        roads.add_cylinder((x, y), 0.17, 0.08, 0.08, f"{name}_base_flange", "BollardMetal", segments=12)
+        roads.add_box((x + arm_sign * 0.72, y), (1.44, 0.09), 0.09, 4.02, f"{name}_mast_arm", "StreetLightPole")
+        roads.add_box((x + arm_sign * 1.36, y), (0.16, 0.44), 0.10, 3.86, f"{name}_hanging_bracket", "StreetLightPole")
+        roads.add_box((x, y + 0.075), (0.55, 0.08), 1.42, 2.98, f"{name}_signal_backplate", "TrafficSignalHousing")
         roads.add_box((x, y), (0.44, 0.28), 1.24, 3.05, f"{name}_signal_head", "TrafficSignalHousing")
         roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.95, f"{name}_red_lens", "TrafficSignalRed")
         roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.58, f"{name}_yellow_lens", "TrafficSignalYellow")
         roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.21, f"{name}_green_lens", "TrafficSignalGreen")
+        for hood_index, z in enumerate([3.95, 3.58, 3.21], start=1):
+            roads.add_box((x, y - 0.205), (0.26, 0.08), 0.055, z + 0.10, f"{name}_signal_louver_hood_{hood_index}", "TrafficSignalHousing")
         add_streetscape_record(name, "traffic_signal_prop", (x, y, 2.5))
+        add_streetscape_record(
+            f"{name}_mast_arm_detail",
+            "traffic_signal_mast_arm",
+            (x + arm_sign * 0.72, y, 4.06),
+            extra={"arm_sign": arm_sign},
+        )
+        add_streetscape_record(
+            f"{name}_backplate_detail",
+            "traffic_signal_backplate",
+            (x, y + 0.075, 3.70),
+            extra={"louver_hoods": 3},
+        )
 
     def add_crosswalk_stripes(name: str, point: tuple[float, float]) -> None:
         x, y = point
@@ -1027,15 +1064,39 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             panel_size = (3.2, 0.10)
             roof_size = (3.6, 1.2)
             post_offsets = [(-1.45, -0.42), (1.45, -0.42), (-1.45, 0.42), (1.45, 0.42)]
+            bench_size = (2.45, 0.28)
+            bench_center = (x, y + 0.32)
+            ad_size = (0.70, 0.08)
+            ad_center = (x - 1.05, y - 0.07)
         else:
             panel_size = (0.10, 3.2)
             roof_size = (1.2, 3.6)
             post_offsets = [(-0.42, -1.45), (-0.42, 1.45), (0.42, -1.45), (0.42, 1.45)]
+            bench_size = (0.28, 2.45)
+            bench_center = (x + 0.32, y)
+            ad_size = (0.08, 0.70)
+            ad_center = (x - 0.07, y - 1.05)
         for idx, (dx, dy) in enumerate(post_offsets, start=1):
             roads.add_cylinder((x + dx, y + dy), 0.055, 0.10, 2.15, f"{name}_post_{idx:02d}", "StreetLightPole", segments=8)
         roads.add_box((x, y), panel_size, 1.28, 0.42, f"{name}_glass_back_panel", "DoorGlass")
         roads.add_box((x, y), roof_size, 0.10, 2.24, f"{name}_flat_roof", "DoorMetal")
+        roads.add_box(bench_center, bench_size, 0.14, 0.48, f"{name}_bench_seat", "BenchWood")
+        roads.add_box(bench_center, (bench_size[0] * 0.94, bench_size[1] * 0.94), 0.08, 0.62, f"{name}_bench_back", "BenchWood")
+        roads.add_box(ad_center, ad_size, 0.72, 1.04, f"{name}_route_ad_panel", "MarkerBlue")
+        roads.add_box(ad_center, (ad_size[0] * 0.70, ad_size[1] * 0.70), 0.05, 1.58, f"{name}_route_ad_text_marker", "LaneMarkingWhite")
         add_streetscape_record(name, "public_bus_stop_shelter", (x, y, 1.35), extra={"orientation": orientation})
+        add_streetscape_record(
+            f"{name}_bench_detail",
+            "bus_stop_shelter_bench",
+            (bench_center[0], bench_center[1], 0.64),
+            extra={"orientation": orientation},
+        )
+        add_streetscape_record(
+            f"{name}_route_panel_detail",
+            "bus_stop_route_panel",
+            (ad_center[0], ad_center[1], 1.40),
+            extra={"orientation": orientation},
+        )
 
     def add_public_hydrant(name: str, center: tuple[float, float]) -> None:
         x, y = center
@@ -1081,10 +1142,19 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     def add_bike_lane_delineator_post(name: str, center: tuple[float, float]) -> None:
         x, y = center
+        roads.add_cylinder((x, y), 0.18, 0.10, 0.05, f"{name}_rubber_base", "TrafficSignalHousing", segments=12)
+        for bolt_index, (dx, dy) in enumerate([(-0.08, -0.08), (-0.08, 0.08), (0.08, -0.08), (0.08, 0.08)], start=1):
+            roads.add_cylinder((x + dx, y + dy), 0.022, 0.155, 0.018, f"{name}_base_bolt_{bolt_index}", "DoorMetal", segments=8)
         roads.add_cylinder((x, y), 0.055, 0.14, 0.86, f"{name}_flex_post", "BikeLanePost", segments=10)
         roads.add_box((x, y), (0.18, 0.035), 0.045, 0.58, f"{name}_reflective_band_low", "LaneMarkingWhite")
         roads.add_box((x, y), (0.18, 0.035), 0.045, 0.86, f"{name}_reflective_band_high", "LaneMarkingWhite")
         add_streetscape_record(name, "bike_lane_delineator_post", (x, y, 0.58))
+        add_streetscape_record(
+            f"{name}_base_plate_detail",
+            "bike_lane_delineator_base_plate",
+            (x, y, 0.16),
+            extra={"bolt_count": 4},
+        )
 
     def add_pedestrian_signal_marker(name: str, center: tuple[float, float], orientation: str) -> None:
         x, y = center
@@ -1167,6 +1237,10 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         x, y = center
         grate_size = (1.20, 0.36) if orientation == "east_west" else (0.36, 1.20)
         roads.add_box(center, grate_size, 0.038, 0.212, f"{name}_dark_recess", "RoadCrackSealant")
+        inlet_size = (1.32, 0.12) if orientation == "east_west" else (0.12, 1.32)
+        inlet_center = (x, y + 0.28) if orientation == "east_west" else (x + 0.28, y)
+        roads.add_box(inlet_center, inlet_size, 0.12, 0.185, f"{name}_curb_inlet_throat", "RoadCrackSealant")
+        roads.add_box(inlet_center, (inlet_size[0] * 1.10, inlet_size[1] * 1.10), 0.035, 0.315, f"{name}_curb_inlet_stone_lip", "CurbConcrete")
         for slat_index, offset in enumerate([-0.36, -0.12, 0.12, 0.36], start=1):
             if orientation == "east_west":
                 slat_center = (x + offset, y)
@@ -1176,6 +1250,12 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 slat_size = (0.30, 0.040)
             roads.add_box(slat_center, slat_size, 0.022, 0.252, f"{name}_slat_{slat_index:02d}", "DoorMetal")
         add_streetscape_record(name, "storm_drain_grate", (x, y, 0.246), extra={"orientation": orientation, "size_m": grate_size})
+        add_streetscape_record(
+            f"{name}_curb_inlet",
+            "storm_drain_curb_inlet",
+            (inlet_center[0], inlet_center[1], 0.275),
+            extra={"orientation": orientation, "size_m": inlet_size},
+        )
 
     def add_public_utility_box(name: str, center: tuple[float, float], orientation: str) -> None:
         x, y = center
