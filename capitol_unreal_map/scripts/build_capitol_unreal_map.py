@@ -823,6 +823,39 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             {"size_m": [round(width, 3), round(depth, 3)]},
         )
 
+        coping_z = height + 0.32
+        buildings.add_box(((min_x + max_x) / 2.0, max_y + 0.04), (width + 0.16, 0.16), 0.10, coping_z, f"{safe_prefix}_north_parapet_coping", "StepStone")
+        buildings.add_box(((min_x + max_x) / 2.0, min_y - 0.04), (width + 0.16, 0.16), 0.10, coping_z, f"{safe_prefix}_south_parapet_coping", "StepStone")
+        buildings.add_box((max_x + 0.04, (min_y + max_y) / 2.0), (0.16, depth + 0.16), 0.10, coping_z, f"{safe_prefix}_east_parapet_coping", "StepStone")
+        buildings.add_box((min_x - 0.04, (min_y + max_y) / 2.0), (0.16, depth + 0.16), 0.10, coping_z, f"{safe_prefix}_west_parapet_coping", "StepStone")
+        add_building_detail_record(
+            f"{safe_prefix}_parapet_coping",
+            "surrounding_building_parapet_coping",
+            way_id,
+            name,
+            (cx, cy, coping_z + 0.05),
+            {"size_m": [round(width, 3), round(depth, 3)]},
+        )
+
+        corner_specs = [
+            ("northwest", min_x - 0.03, max_y + 0.03, (0.22, 0.22)),
+            ("northeast", max_x + 0.03, max_y + 0.03, (0.22, 0.22)),
+            ("southwest", min_x - 0.03, min_y - 0.03, (0.22, 0.22)),
+            ("southeast", max_x + 0.03, min_y - 0.03, (0.22, 0.22)),
+        ]
+        pilaster_height = max(2.2, height - 0.82)
+        for corner_name, corner_x, corner_y, corner_size in corner_specs:
+            pier_name = f"{safe_prefix}_{corner_name}_corner_pier"
+            buildings.add_box((corner_x, corner_y), corner_size, pilaster_height, 0.20, pier_name, "StepStone")
+            add_building_detail_record(
+                pier_name,
+                "surrounding_building_corner_pier",
+                way_id,
+                name,
+                (corner_x, corner_y, 0.20 + pilaster_height / 2.0),
+                {"corner": corner_name},
+            )
+
         rows = max(1, min(3, int(height // 4.0)))
         cols_x = max(2, min(5, int(width // 7.0)))
         cols_y = max(2, min(5, int(depth // 7.0)))
@@ -836,12 +869,30 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     window_name = f"{safe_prefix}_{face_name}_window_r{row+1:02d}_c{col+1:02d}"
                     buildings.add_box((x, y_face), (1.12, 0.08), 0.92, z, window_name, "FacadeWindow")
                     add_building_detail_record(window_name, "surrounding_building_facade_window", way_id, name, (x, y_face, z + 0.46), {"face": face_name})
+                    sill_name = f"{window_name}_sill"
+                    lintel_name = f"{window_name}_lintel"
+                    mullion_name = f"{window_name}_mullion"
+                    buildings.add_box((x, y_face), (1.34, 0.11), 0.07, z - 0.13, sill_name, "StepStone")
+                    buildings.add_box((x, y_face), (1.34, 0.11), 0.08, z + 0.94, lintel_name, "StepStone")
+                    buildings.add_box((x, y_face), (0.055, 0.10), 0.78, z + 0.07, mullion_name, "DoorMetal")
+                    add_building_detail_record(sill_name, "surrounding_building_window_sill", way_id, name, (x, y_face, z - 0.095), {"face": face_name})
+                    add_building_detail_record(lintel_name, "surrounding_building_window_lintel", way_id, name, (x, y_face, z + 0.98), {"face": face_name})
+                    add_building_detail_record(mullion_name, "surrounding_building_window_mullion", way_id, name, (x, y_face, z + 0.46), {"face": face_name})
             for col in range(cols_y):
                 y = min_y + depth * (col + 0.5) / cols_y
                 for face_name, x_face in (("east", max_x + 0.05), ("west", min_x - 0.05)):
                     window_name = f"{safe_prefix}_{face_name}_window_r{row+1:02d}_c{col+1:02d}"
                     buildings.add_box((x_face, y), (0.08, 1.12), 0.92, z, window_name, "FacadeWindow")
                     add_building_detail_record(window_name, "surrounding_building_facade_window", way_id, name, (x_face, y, z + 0.46), {"face": face_name})
+                    sill_name = f"{window_name}_sill"
+                    lintel_name = f"{window_name}_lintel"
+                    mullion_name = f"{window_name}_mullion"
+                    buildings.add_box((x_face, y), (0.11, 1.34), 0.07, z - 0.13, sill_name, "StepStone")
+                    buildings.add_box((x_face, y), (0.11, 1.34), 0.08, z + 0.94, lintel_name, "StepStone")
+                    buildings.add_box((x_face, y), (0.10, 0.055), 0.78, z + 0.07, mullion_name, "DoorMetal")
+                    add_building_detail_record(sill_name, "surrounding_building_window_sill", way_id, name, (x_face, y, z - 0.095), {"face": face_name})
+                    add_building_detail_record(lintel_name, "surrounding_building_window_lintel", way_id, name, (x_face, y, z + 0.98), {"face": face_name})
+                    add_building_detail_record(mullion_name, "surrounding_building_window_mullion", way_id, name, (x_face, y, z + 0.46), {"face": face_name})
 
         if abs(cx) >= abs(cy):
             x_face = min_x - 0.06 if cx > 0 else max_x + 0.06
@@ -856,6 +907,47 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         entry_name = f"{safe_prefix}_public_entry_marker"
         buildings.add_box((x_face, y), entry_size, 1.85, 0.12, entry_name, "DoorGlass")
         add_building_detail_record(entry_name, "surrounding_building_public_entry_marker", way_id, name, (x_face, y, 1.05), {"face": face})
+
+        frame_name = f"{safe_prefix}_public_entry_frame"
+        transom_name = f"{safe_prefix}_public_entry_transom"
+        threshold_name = f"{safe_prefix}_public_entry_threshold_step"
+        pull_name = f"{safe_prefix}_public_entry_pull_bar"
+        seam_name = f"{safe_prefix}_public_entry_center_seam"
+        if face in {"east", "west"}:
+            header_size = (0.16, entry_size[1] + 0.46)
+            jamb_size = (0.16, 0.12)
+            transom_size = (0.12, entry_size[1] * 0.84)
+            threshold_size = (0.74, entry_size[1] + 0.62)
+            pull_size = (0.08, 0.12)
+            seam_size = (0.08, 0.035)
+            side_offsets = [(0.0, -entry_size[1] / 2.0 - 0.17), (0.0, entry_size[1] / 2.0 + 0.17)]
+            sill_center = (x_face, y)
+        else:
+            header_size = (entry_size[0] + 0.46, 0.16)
+            jamb_size = (0.12, 0.16)
+            transom_size = (entry_size[0] * 0.84, 0.12)
+            threshold_size = (entry_size[0] + 0.62, 0.74)
+            pull_size = (0.12, 0.08)
+            seam_size = (0.035, 0.08)
+            side_offsets = [(-entry_size[0] / 2.0 - 0.17, 0.0), (entry_size[0] / 2.0 + 0.17, 0.0)]
+            sill_center = (x_face, y)
+        buildings.add_box(sill_center, header_size, 0.16, 1.98, f"{frame_name}_header", "StepStone")
+        for side_index, (dx, dy) in enumerate(side_offsets, start=1):
+            buildings.add_box((x_face + dx, y + dy), jamb_size, 1.98, 0.10, f"{frame_name}_side_{side_index}", "StepStone")
+        buildings.add_box((x_face, y), transom_size, 0.34, 1.72, transom_name, "DoorGlass")
+        buildings.add_box((x_face, y), threshold_size, 0.10, 0.04, threshold_name, "StepStone")
+        buildings.add_box((x_face, y), seam_size, 1.48, 0.28, seam_name, "DoorMetal")
+        for pull_index, pull_offset in enumerate([-0.28, 0.28], start=1):
+            if face in {"east", "west"}:
+                pull_center = (x_face, y + pull_offset)
+            else:
+                pull_center = (x_face + pull_offset, y)
+            buildings.add_box(pull_center, pull_size, 0.82, 0.62, f"{pull_name}_{pull_index}", "BrassRail")
+        add_building_detail_record(frame_name, "surrounding_building_entry_frame", way_id, name, (x_face, y, 1.12), {"face": face})
+        add_building_detail_record(transom_name, "surrounding_building_entry_transom", way_id, name, (x_face, y, 1.89), {"face": face})
+        add_building_detail_record(threshold_name, "surrounding_building_entry_threshold", way_id, name, (x_face, y, 0.09), {"face": face})
+        add_building_detail_record(pull_name, "surrounding_building_entry_pull_bar", way_id, name, (x_face, y, 1.03), {"face": face, "count": 2})
+        add_building_detail_record(seam_name, "surrounding_building_entry_center_seam", way_id, name, (x_face, y, 1.02), {"face": face})
 
         awning_name = f"{safe_prefix}_public_entry_awning"
         sign_name = f"{safe_prefix}_wall_sign"
@@ -890,7 +982,16 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             unit_size = (max(0.8, min(3.8, width * 0.22)), max(0.65, min(2.4, depth * 0.18)))
             unit_name = f"{safe_prefix}_rooftop_detail_{unit_index}"
             buildings.add_box(unit_center, unit_size, 0.55, height + 0.18, unit_name, "BuildingGeneric")
+            hatch_name = f"{unit_name}_access_hatch_lid"
+            buildings.add_box((unit_center[0] + unit_size[0] * 0.18, unit_center[1] - unit_size[1] * 0.18), (unit_size[0] * 0.44, unit_size[1] * 0.36), 0.045, height + 0.77, hatch_name, "DoorMetal")
             add_building_detail_record(unit_name, "surrounding_building_rooftop_detail", way_id, name, (unit_center[0], unit_center[1], height + 0.46))
+            add_building_detail_record(
+                hatch_name,
+                "surrounding_building_roof_access_hatch",
+                way_id,
+                name,
+                (unit_center[0] + unit_size[0] * 0.18, unit_center[1] - unit_size[1] * 0.18, height + 0.79),
+            )
 
         for unit_index, (ox, oy) in enumerate([(0.10, -0.28), (-0.28, 0.22)], start=1):
             unit_center = (cx + width * ox, cy + depth * oy)
@@ -898,12 +999,45 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             unit_name = f"{safe_prefix}_rooftop_mechanical_{unit_index}"
             buildings.add_box(unit_center, unit_size, 0.42, height + 0.76, unit_name, "DoorMetal")
             buildings.add_cylinder(unit_center, max(0.18, min(unit_size) * 0.24), height + 1.20, 0.055, f"{unit_name}_fan_cap", "FacadeWindow", segments=12)
+            for louver_index, louver_z in enumerate([height + 0.90, height + 1.02, height + 1.14], start=1):
+                buildings.add_box((unit_center[0], unit_center[1] - unit_size[1] * 0.52), (unit_size[0] * 0.72, 0.055), 0.032, louver_z, f"{unit_name}_louver_{louver_index}", "RoadCrackSealant")
+            pipe_center = (unit_center[0] + unit_size[0] * 0.45, unit_center[1] + unit_size[1] * 0.42)
+            stack_name = f"{unit_name}_pipe_stack"
+            vent_cap_name = f"{unit_name}_gooseneck_vent_cap"
+            buildings.add_cylinder(pipe_center, 0.09, height + 0.76, 0.78, stack_name, "DoorMetal", segments=10)
+            buildings.add_box((pipe_center[0], pipe_center[1] + 0.09), (0.28, 0.11), 0.10, height + 1.47, vent_cap_name, "DoorMetal")
             add_building_detail_record(
                 unit_name,
                 "surrounding_building_rooftop_mechanical",
                 way_id,
                 name,
                 (unit_center[0], unit_center[1], height + 0.97),
+            )
+            add_building_detail_record(
+                f"{unit_name}_louvers",
+                "surrounding_building_rooftop_louver",
+                way_id,
+                name,
+                (unit_center[0], unit_center[1] - unit_size[1] * 0.52, height + 1.02),
+                {"count": 3},
+            )
+            add_building_detail_record(stack_name, "surrounding_building_roof_pipe_stack", way_id, name, (pipe_center[0], pipe_center[1], height + 1.15))
+            add_building_detail_record(vent_cap_name, "surrounding_building_roof_vent_cap", way_id, name, (pipe_center[0], pipe_center[1] + 0.09, height + 1.52))
+
+        conduit_specs = [
+            ("north_south", (cx - width * 0.22, cy), (0.08, max(1.4, min(depth * 0.46, 5.2)))),
+            ("east_west", (cx, cy + depth * 0.24), (max(1.4, min(width * 0.46, 5.2)), 0.08)),
+        ]
+        for conduit_index, (orientation, conduit_center, conduit_size) in enumerate(conduit_specs, start=1):
+            conduit_name = f"{safe_prefix}_roof_conduit_run_{conduit_index}"
+            buildings.add_box(conduit_center, conduit_size, 0.045, height + 0.96, conduit_name, "DoorMetal")
+            add_building_detail_record(
+                conduit_name,
+                "surrounding_building_roof_conduit",
+                way_id,
+                name,
+                (conduit_center[0], conduit_center[1], height + 0.985),
+                {"orientation": orientation, "size_m": [round(conduit_size[0], 3), round(conduit_size[1], 3)]},
             )
 
     def add_streetlight(name: str, point: tuple[float, float], side_sign: float) -> None:
