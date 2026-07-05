@@ -1337,6 +1337,7 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "lane_direction_arrow",
     "bike_symbol",
     "curb_ramp_visual",
+    "curb_ramp_edge_detail",
     "public_wayfinding_sign",
     "public_bike_rack",
     "public_trash_receptacle",
@@ -2152,6 +2153,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public bike-symbol props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "curb_ramp_visual"]) < 16:
         error(errors, "expected at least 16 public curb-ramp visual props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "curb_ramp_edge_detail"]) < 16:
+        error(errors, "expected at least 16 public curb-ramp edge-detail props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_wayfinding_sign"]) < 8:
         error(errors, "expected at least 8 public wayfinding sign props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_bike_rack"]) < 12:

@@ -2779,7 +2779,23 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         size = (2.2, 1.3) if orientation == "east_west" else (1.3, 2.2)
         roads.add_box(center, size, 0.045, 0.105, f"{name}_concrete_slope", "SidewalkConcrete")
         roads.add_box(center, (size[0] * 0.62, size[1] * 0.36), 0.026, 0.155, f"{name}_tactile_panel", "LaneMarkingYellow")
+        if orientation == "east_west":
+            roads.add_box((x, y - size[1] * 0.48), (size[0] * 0.86, 0.055), 0.026, 0.162, f"{name}_curb_lip_strip", "StepStone")
+            roads.add_box((x, y + size[1] * 0.36), (size[0] * 0.68, 0.038), 0.020, 0.166, f"{name}_landing_joint", "StepStone")
+            roads.add_box((x - size[0] * 0.46, y), (0.040, size[1] * 0.82), 0.020, 0.164, f"{name}_left_wing_seam", "StepStone")
+            roads.add_box((x + size[0] * 0.46, y), (0.040, size[1] * 0.82), 0.020, 0.164, f"{name}_right_wing_seam", "StepStone")
+        else:
+            roads.add_box((x - size[0] * 0.48, y), (0.055, size[1] * 0.86), 0.026, 0.162, f"{name}_curb_lip_strip", "StepStone")
+            roads.add_box((x + size[0] * 0.36, y), (0.038, size[1] * 0.68), 0.020, 0.166, f"{name}_landing_joint", "StepStone")
+            roads.add_box((x, y - size[1] * 0.46), (size[0] * 0.82, 0.040), 0.020, 0.164, f"{name}_left_wing_seam", "StepStone")
+            roads.add_box((x, y + size[1] * 0.46), (size[0] * 0.82, 0.040), 0.020, 0.164, f"{name}_right_wing_seam", "StepStone")
         add_streetscape_record(name, "curb_ramp_visual", (x, y, 0.16), extra={"orientation": orientation})
+        add_streetscape_record(
+            f"{name}_edge_detail",
+            "curb_ramp_edge_detail",
+            (x, y, 0.17),
+            extra={"orientation": orientation, "parts": ["curb_lip_strip", "landing_joint", "side_wing_seams"]},
+        )
 
     def add_public_wayfinding_sign(name: str, center: tuple[float, float], label: str, orientation: str) -> None:
         x, y = center
