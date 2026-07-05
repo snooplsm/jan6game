@@ -1,45 +1,36 @@
 # Jan6Game Prototype
 
-Unreal prototype assets for a public-data Capitol environment and fictional MetaHuman-style character references.
+Unreal prototype assets for a historical public Capitol environment and fictional MetaHuman-style character references.
 
-## Preview
-
-Representative fictional MetaHuman reference:
+## MetaHuman Preview
 
 <p align="center">
   <a href="ryan/generated_people_corrected/images/person_050_front.png">
-    <img src="ryan/generated_people_corrected/images/person_050_front.png" alt="Fictional MetaHuman-style front portrait reference, person 050" width="380">
+    <img src="ryan/generated_people_corrected/images/person_050_front.png" alt="Fictional MetaHuman-style front portrait reference, person 050" width="360">
   </a>
 </p>
 
-## Contents
+## What's Here
 
-- `capitol_unreal_map/` - Unreal 5.8 Capitol map package, generated OBJ meshes, 4K procedural textures, metadata, browser viewer, and import script.
-- `ryan/generated_people_corrected/` - fictional character reference portraits, prompts, roster metadata, and distribution notes.
+- `capitol_unreal_map/` - Unreal 5.8 map package with generated OBJ meshes, 4K procedural textures, metadata, viewer, and import helpers.
+- `ryan/generated_people_corrected/` - fictional portrait references, prompts, roster metadata, and distribution notes.
 - `ryan/exports/` - early head-proxy and texture experiments.
 
-## Capitol Map
+## Map Scope
 
-The map uses Jan 6-era public exterior context from historical OpenStreetMap data at `2021-01-06T17:00:00Z`. Interior work is public-only and schematic: major public rooms, the Rotunda, chambers, galleries, generic offices, and broad seating zones. It avoids restricted details, security-sensitive layouts, and person-specific assignments.
+The Capitol map targets a Jan 6 / late-2020 public map state. The current generated package uses a historical OpenStreetMap snapshot at `2021-01-06T17:00:00Z`, plus public reference data for visual-only detail.
 
-Detailed package notes live in `capitol_unreal_map/README.md`.
+Interior areas are public-only and schematic: major public rooms, the Rotunda, chambers, galleries, generic offices, and broad seating zones. The package avoids restricted layouts, security-sensitive details, and person-specific assignments.
+
+Detailed map notes are in `capitol_unreal_map/README.md`.
 
 ## Setup
 
-Large generated meshes and 4K texture PNGs are tracked with Git LFS:
+Large generated meshes and 4K texture PNGs use Git LFS:
 
 ```bash
 git lfs install
 git lfs pull
-```
-
-## Rebuild
-
-```bash
-python3 capitol_unreal_map/scripts/fetch_osm_historical_capitol.py
-python3 capitol_unreal_map/scripts/generate_material_textures.py
-python3 capitol_unreal_map/scripts/build_capitol_unreal_map.py
-python3 capitol_unreal_map/scripts/validate_capitol_package.py
 ```
 
 ## View The Map
@@ -51,9 +42,18 @@ python3 -m http.server 8765
 
 Open `http://127.0.0.1:8765/viewer.html`.
 
+## Rebuild
+
+```bash
+python3 capitol_unreal_map/scripts/fetch_osm_historical_capitol.py
+python3 capitol_unreal_map/scripts/generate_material_textures.py
+python3 capitol_unreal_map/scripts/build_capitol_unreal_map.py
+python3 capitol_unreal_map/scripts/validate_capitol_package.py
+```
+
 ## Character References
 
-The generated people are fictional portrait references for character creation. Roster notes and distribution metadata are in:
+The generated people are fictional references for character creation:
 
 - `ryan/generated_people_corrected/manifest.csv`
 - `ryan/generated_people_corrected/distribution_notes.md`
