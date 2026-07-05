@@ -8664,6 +8664,72 @@ def add_wall_art_visual(
             record["source_title"] = metadata["title"]
         records.append(record)
     if metadata and metadata.get("title"):
+        corner_width = min(width * 0.11, 0.46)
+        corner_height = min(height * 0.10, 0.30)
+        panel_top_z = z + height / 2.0
+        panel_bottom_z = z - height / 2.0
+        for corner_name, lateral_sign, corner_bottom_z in [
+            ("upper_left", -1.0, panel_top_z - corner_height * 1.12),
+            ("upper_right", 1.0, panel_top_z - corner_height * 1.12),
+            ("lower_left", -1.0, panel_bottom_z + corner_height * 0.12),
+            ("lower_right", 1.0, panel_bottom_z + corner_height * 0.12),
+        ]:
+            if facing_axis == "x":
+                corner_center = (x, y + lateral_sign * (width / 2.0 - corner_width / 2.0), corner_bottom_z + corner_height / 2.0)
+                corner_size = (0.22, corner_width)
+            else:
+                corner_center = (x + lateral_sign * (width / 2.0 - corner_width / 2.0), y, corner_bottom_z + corner_height / 2.0)
+                corner_size = (corner_width, 0.22)
+            obj.add_box(
+                (corner_center[0], corner_center[1]),
+                corner_size,
+                corner_height,
+                corner_bottom_z,
+                f"{name}_{corner_name}_frame_corner_block",
+                "ArtFrameGold",
+            )
+            records.append(
+                {
+                    "name": f"{name}_{corner_name}_frame_corner_block",
+                    "type": "historical_painting_frame_corner_block",
+                    "location": location,
+                    "center_m": [round(corner_center[0], 3), round(corner_center[1], 3), round(corner_center[2], 3)],
+                    "size_m": [round(corner_width, 3), round(corner_height, 3)],
+                    "title": metadata["title"],
+                    "artist": metadata.get("artist", ""),
+                    "public_accuracy": "named_public_rotunda_painting_schematic_detail",
+                    "assignment": "Generic frame corner detail for a public Rotunda painting marker; not an exact artwork reconstruction.",
+                }
+            )
+        if facing_axis == "x":
+            rail_center = (x, y, panel_top_z + 0.32)
+            rail_size = (0.18, width * 0.82)
+            light_center = (x, y, panel_top_z + 0.52)
+            light_size = (0.20, min(width * 0.56, 1.45))
+        else:
+            rail_center = (x, y, panel_top_z + 0.32)
+            rail_size = (width * 0.82, 0.18)
+            light_center = (x, y, panel_top_z + 0.52)
+            light_size = (min(width * 0.56, 1.45), 0.20)
+        obj.add_box((rail_center[0], rail_center[1]), rail_size, 0.08, rail_center[2] - 0.04, f"{name}_hanging_rail", "ArtFrameGold")
+        obj.add_box((light_center[0], light_center[1]), light_size, 0.10, light_center[2] - 0.05, f"{name}_picture_light_bar", "WarmLightGlass")
+        for suffix, detail_type, center_value, size_value in [
+            ("hanging_rail", "historical_painting_hanging_rail", rail_center, rail_size),
+            ("picture_light_bar", "historical_painting_picture_light_bar", light_center, light_size),
+        ]:
+            records.append(
+                {
+                    "name": f"{name}_{suffix}",
+                    "type": detail_type,
+                    "location": location,
+                    "center_m": [round(center_value[0], 3), round(center_value[1], 3), round(center_value[2], 3)],
+                    "size_m": [round(size_value[0], 3), round(size_value[1], 3)],
+                    "title": metadata["title"],
+                    "artist": metadata.get("artist", ""),
+                    "public_accuracy": "named_public_rotunda_painting_schematic_detail",
+                    "assignment": "Generic visible hanging/picture-light detail for a public Rotunda painting marker; not an exact fixture inventory.",
+                }
+            )
         records.append(
             {
                 "name": f"{name}_named_title_plaque",

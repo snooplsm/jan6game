@@ -1216,6 +1216,9 @@ REQUIRED_PUBLIC_ART_TYPES = {
     "statue_surface_detail",
     "historical_painting_panel",
     "historical_painting_title_plaque",
+    "historical_painting_frame_corner_block",
+    "historical_painting_hanging_rail",
+    "historical_painting_picture_light_bar",
     "rotunda_frieze_relief_panel",
     "public_hall_art_panel",
     "historic_chamber_art_panel",
@@ -3470,8 +3473,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["light_fixture_details"] = len(light_fixture_details)
     summary["light_fixture_detail_kinds"] = len(light_fixture_detail_kinds)
     summary["wall_treatments"] = len(wall_treatments)
-    if len(public_art) < 540:
-        error(errors, f"expected at least 540 public-art visuals, got {len(public_art)}")
+    if len(public_art) < 590:
+        error(errors, f"expected at least 590 public-art visuals, got {len(public_art)}")
     missing_art_types = sorted(REQUIRED_PUBLIC_ART_TYPES - public_art_types)
     if missing_art_types:
         error(errors, f"missing public-art visual types: {', '.join(missing_art_types)}")
@@ -3497,6 +3500,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 Rotunda historical painting panel records")
     if len([record for record in public_art if record.get("type") == "historical_painting_title_plaque"]) < 8:
         error(errors, "expected at least 8 Rotunda historical painting title-plaque records")
+    if len([record for record in public_art if record.get("type") == "historical_painting_frame_corner_block"]) < 32:
+        error(errors, "expected at least 32 Rotunda historical painting frame-corner records")
+    if len([record for record in public_art if record.get("type") == "historical_painting_hanging_rail"]) < 8:
+        error(errors, "expected at least 8 Rotunda historical painting hanging-rail records")
+    if len([record for record in public_art if record.get("type") == "historical_painting_picture_light_bar"]) < 8:
+        error(errors, "expected at least 8 Rotunda historical painting picture-light bar records")
     rotunda_painting_titles = {
         record.get("title")
         for record in public_art
