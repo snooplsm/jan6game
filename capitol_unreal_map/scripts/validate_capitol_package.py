@@ -1200,6 +1200,10 @@ REQUIRED_CEILING_DETAIL_KINDS = {
     "ceiling_material_variation_panel",
     "beveled_ceiling_trim_profile",
     "coffer_recess_shadow",
+    "generic_ceiling_sprinkler_head",
+    "generic_ceiling_smoke_detector_disc",
+    "generic_ceiling_air_diffuser",
+    "generic_ceiling_access_panel",
 }
 
 REQUIRED_FLOOR_DETAIL_KINDS = {
@@ -3035,8 +3039,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ceiling_detail_kinds = {detail.get("kind") for detail in ceiling_details}
     summary["ceiling_details"] = len(ceiling_details)
     summary["ceiling_detail_kinds"] = len(ceiling_detail_kinds)
-    if len(ceiling_details) < 770:
-        error(errors, f"expected at least 770 public ceiling detail records, got {len(ceiling_details)}")
+    if len(ceiling_details) < 870:
+        error(errors, f"expected at least 870 public ceiling detail records, got {len(ceiling_details)}")
     missing_ceiling_kinds = sorted(REQUIRED_CEILING_DETAIL_KINDS - ceiling_detail_kinds)
     if missing_ceiling_kinds:
         error(errors, f"missing public ceiling detail kinds: {', '.join(missing_ceiling_kinds)}")
@@ -3062,6 +3066,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 220 public beveled ceiling trim-profile records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "coffer_recess_shadow"]) < 120:
         error(errors, "expected at least 120 public coffer recess-shadow records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "generic_ceiling_sprinkler_head"]) < 40:
+        error(errors, "expected at least 40 generic public ceiling sprinkler-head records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "generic_ceiling_smoke_detector_disc"]) < 20:
+        error(errors, "expected at least 20 generic public ceiling smoke-detector disc records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "generic_ceiling_air_diffuser"]) < 20:
+        error(errors, "expected at least 20 generic public ceiling air-diffuser records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "generic_ceiling_access_panel"]) < 20:
+        error(errors, "expected at least 20 generic public ceiling access-panel records")
     for detail in ceiling_details:
         if not detail.get("room"):
             error(errors, f"ceiling detail {detail.get('name', '<unknown>')} is missing room")

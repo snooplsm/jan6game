@@ -8572,6 +8572,47 @@ def add_coffered_ceiling(
             obj.add_box((x, slat_y), (0.70, 0.028), 0.032, z + 0.215, f"{vent_name}_slat_{slat+1}", "BrassRail")
         add_interior_ceiling_detail_record(records, vent_name, "ceiling_vent_grille", room, (x, y, z + 0.197), vent_size)
 
+    utility_offsets = [(-0.18, -0.34), (0.18, -0.34), (-0.18, 0.34), (0.18, 0.34)]
+    for index, (ox, oy) in enumerate(utility_offsets, start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        sprinkler_name = f"{name}_generic_sprinkler_head_{index:02d}"
+        obj.add_cylinder((x, y), 0.075, z + 0.235, 0.032, sprinkler_name, "BrassRail", segments=12)
+        obj.add_cylinder((x, y), 0.035, z + 0.270, 0.035, f"{sprinkler_name}_center_pin", "DoorMetal", segments=8)
+        add_interior_ceiling_detail_record(records, sprinkler_name, "generic_ceiling_sprinkler_head", room, (x, y, z + 0.251), (0.15, 0.15))
+
+    detector_offsets = [(-0.36, 0.0), (0.36, 0.0)]
+    for index, (ox, oy) in enumerate(detector_offsets, start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        detector_name = f"{name}_generic_smoke_detector_disc_{index:02d}"
+        obj.add_cylinder((x, y), 0.18, z + 0.230, 0.045, detector_name, "LaneMarkingWhite", segments=20)
+        obj.add_ring((x, y), 0.135, 0.115, z + 0.278, 0.020, f"{detector_name}_inner_ring", "DoorMetal", segments=16)
+        add_interior_ceiling_detail_record(records, detector_name, "generic_ceiling_smoke_detector_disc", room, (x, y, z + 0.253), (0.36, 0.36))
+
+    diffuser_offsets = [(0.0, -0.36), (0.0, 0.36)]
+    for index, (ox, oy) in enumerate(diffuser_offsets, start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        diffuser_name = f"{name}_square_air_diffuser_{index:02d}"
+        diffuser_size = (0.58, 0.58)
+        obj.add_box((x, y), diffuser_size, 0.028, z + 0.226, diffuser_name, "LightFixtureMetal")
+        for ring_index, scale in enumerate([0.72, 0.48], start=1):
+            obj.add_box((x, y), (diffuser_size[0] * scale, 0.030), 0.034, z + 0.258 + ring_index * 0.006, f"{diffuser_name}_horizontal_bar_{ring_index}", "BrassRail")
+            obj.add_box((x, y), (0.030, diffuser_size[1] * scale), 0.034, z + 0.258 + ring_index * 0.006, f"{diffuser_name}_vertical_bar_{ring_index}", "BrassRail")
+        add_interior_ceiling_detail_record(records, diffuser_name, "generic_ceiling_air_diffuser", room, (x, y, z + 0.240), diffuser_size)
+
+    access_panel_offsets = [(-0.42, 0.22), (0.42, -0.22)]
+    for index, (ox, oy) in enumerate(access_panel_offsets, start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        panel_name = f"{name}_generic_access_panel_{index:02d}"
+        panel_size = (0.72, 0.46)
+        obj.add_box((x, y), panel_size, 0.020, z + 0.218, panel_name, "InteriorTrim")
+        obj.add_box((x, y), (panel_size[0] * 0.90, 0.030), 0.026, z + 0.247, f"{panel_name}_hinge_line", "DoorMetal")
+        obj.add_box((x + panel_size[0] * 0.32, y), (0.050, 0.050), 0.030, z + 0.252, f"{panel_name}_pull_dot", "BrassRail")
+        add_interior_ceiling_detail_record(records, panel_name, "generic_ceiling_access_panel", room, (x, y, z + 0.228), panel_size)
+
 
 def add_public_interior_ceiling_details(
     obj: ObjWriter,
