@@ -1277,6 +1277,85 @@ def parse_height(
     return estimate_missing_building_height(tags, way_id, name, footprint_area, footprint_span, is_capitol)
 
 
+def building_height_accuracy_record(
+    height_source: str,
+    height_m: float,
+    footprint_area_m2: float,
+    footprint_span_m: float,
+    tags: dict[str, str],
+    has_height_provenance: bool,
+) -> dict[str, Any]:
+    """Classify height evidence so first-person visual audits can target weak estimates."""
+    source_records: dict[str, dict[str, Any]] = {
+        "explicit_height_tag": {
+            "height_accuracy_tier": "source_tag",
+            "height_confidence": 0.95,
+            "height_accuracy_note": "Explicit OSM/DCGIS height tag used directly after unit parsing and sanity clamping.",
+        },
+        "dcgis_rooftop_ground_delta_estimate": {
+            "height_accuracy_tier": "public_elevation_delta",
+            "height_confidence": 0.82,
+            "height_accuracy_note": (
+                "Public DCGIS rooftop and ground elevation points matched the footprint; treated as a "
+                "source-backed visual height estimate."
+            ),
+        },
+        "building_levels_estimate": {
+            "height_accuracy_tier": "level_count_estimate",
+            "height_confidence": 0.62,
+            "height_accuracy_note": "OSM building:levels converted with a conservative 3.4m-per-level visual estimate.",
+        },
+        "footprint_type_area_estimate": {
+            "height_accuracy_tier": "heuristic_visual_estimate",
+            "height_confidence": 0.38,
+            "height_accuracy_note": (
+                "No clean explicit, level-count, or DCGIS elevation match is available; height is a deterministic "
+                "footprint/type/area visual estimate."
+            ),
+        },
+        "capitol_osm_placeholder_replaced": {
+            "height_accuracy_tier": "replaced_by_authored_landmark",
+            "height_confidence": 0.1,
+            "height_accuracy_note": "Original OSM footprint is not extruded; the authored Capitol landmark mesh carries the public height target.",
+        },
+    }
+    record = dict(
+        source_records.get(
+            height_source,
+            {
+                "height_accuracy_tier": "unknown",
+                "height_confidence": 0.2,
+                "height_accuracy_note": "Unrecognized height source; inspect before using for realism-critical comparisons.",
+            },
+        )
+    )
+    review_priority = 0
+    review_reasons: list[str] = []
+    if height_source == "footprint_type_area_estimate":
+        review_priority += 3
+        review_reasons.append("heuristic_height")
+    elif height_source == "building_levels_estimate":
+        review_priority += 1
+        review_reasons.append("level_count_height")
+    if footprint_area_m2 >= 900.0:
+        review_priority += 2
+        review_reasons.append("large_footprint")
+    if footprint_span_m >= 70.0:
+        review_priority += 1
+        review_reasons.append("large_span")
+    if height_m >= 24.0 and height_source not in {"explicit_height_tag", "dcgis_rooftop_ground_delta_estimate"}:
+        review_priority += 1
+        review_reasons.append("tall_estimate")
+    if tags.get("name") or tags.get("official_name"):
+        review_priority += 1
+        review_reasons.append("named_building")
+    if has_height_provenance:
+        review_reasons.append("source_feature_ids_recorded")
+    record["height_review_priority"] = review_priority
+    record["height_review_reasons"] = review_reasons
+    return record
+
+
 def road_width(tags: dict[str, str]) -> float:
     highway = tags.get("highway", "")
     widths = {
@@ -1467,6 +1546,25 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             "dcgis_rooftop_points": dcgis_elevation_model.get("rooftop_point_count", 0),
             "dcgis_ground_points": dcgis_elevation_model.get("ground_point_count", 0),
             "dcgis_matched_buildings": 0,
+            "source_backed_buildings": 0,
+            "level_count_estimated_buildings": 0,
+            "heuristic_estimated_buildings": 0,
+            "height_accuracy_tiers": {},
+            "height_review_targets": [],
+            "next_public_height_source_candidate": {
+                "title": "Buildings 3D Scene - 2024",
+                "item_id": "6e4d654b86f043f799e63c04a3f190ca",
+                "item_url": "https://opendata.dc.gov/maps/6e4d654b86f043f799e63c04a3f190ca/about",
+                "scene_service_url": (
+                    "https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/"
+                    "3D_Buildings_2024_Maximum_Height_Web_Scene_WSL1/SceneServer"
+                ),
+                "note": (
+                    "Public DC 2024 lidar-derived 3D building maximum-height source. It is an I3S scene "
+                    "service with compact MAX_Z attributes and multi-GB Collada download options; use it "
+                    "for the next source-backed replacement pass after validating feature-ID/footprint matches."
+                ),
+            },
             "dcgis_note": (
                 "DCGIS elevation points are public 1999 planimetrics. They are used conservatively only "
                 "when rooftop points fall inside the current OSM footprint and nearby ground points produce "
@@ -3595,6 +3693,14 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 material = "BuildingCapitol" if is_capitol else "BuildingGeneric"
                 buildings.add_extruded_polygon(points, 0.0, height, f"building_{name}_{way['id']}", material)
                 add_surrounding_building_visuals(way["id"], name, points, height, (cx, cy))
+                height_accuracy = building_height_accuracy_record(
+                    height_source,
+                    height,
+                    footprint_area,
+                    footprint_span,
+                    tags,
+                    bool(height_provenance),
+                )
                 building_record = {
                     "id": way["id"],
                     "name": name,
@@ -3605,6 +3711,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
                     "tags": tags,
                 }
+                building_record.update(height_accuracy)
                 if height_provenance:
                     building_record["height_provenance"] = height_provenance
                 metadata["buildings"].append(building_record)
@@ -3890,6 +3997,52 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     add_public_roadway_visual_details()
     add_capitol_grounds_details()
     metadata["height_model"]["dcgis_matched_buildings"] = dcgis_height_match_count
+    height_source_counts: dict[str, int] = {}
+    height_accuracy_tiers: dict[str, int] = {}
+    for building in metadata["buildings"]:
+        height_source = building.get("height_source", "missing")
+        height_source_counts[height_source] = height_source_counts.get(height_source, 0) + 1
+        tier = building.get("height_accuracy_tier", "missing")
+        height_accuracy_tiers[tier] = height_accuracy_tiers.get(tier, 0) + 1
+    metadata["height_model"]["height_source_counts"] = dict(sorted(height_source_counts.items()))
+    metadata["height_model"]["height_accuracy_tiers"] = dict(sorted(height_accuracy_tiers.items()))
+    metadata["height_model"]["source_backed_buildings"] = (
+        height_source_counts.get("explicit_height_tag", 0)
+        + height_source_counts.get("dcgis_rooftop_ground_delta_estimate", 0)
+    )
+    metadata["height_model"]["level_count_estimated_buildings"] = height_source_counts.get("building_levels_estimate", 0)
+    metadata["height_model"]["heuristic_estimated_buildings"] = height_source_counts.get("footprint_type_area_estimate", 0)
+    review_candidates = [
+        building
+        for building in metadata["buildings"]
+        if building.get("height_review_priority", 0) >= 4
+        and building.get("height_source") in {"footprint_type_area_estimate", "building_levels_estimate"}
+    ]
+    review_candidates.sort(
+        key=lambda building: (
+            building.get("height_review_priority", 0),
+            building.get("footprint_area_m2", 0.0),
+            building.get("footprint_span_m", 0.0),
+            building.get("height_m", 0.0),
+        ),
+        reverse=True,
+    )
+    metadata["height_model"]["height_review_targets"] = [
+        {
+            "id": building.get("id"),
+            "name": building.get("name"),
+            "height_m": building.get("height_m"),
+            "height_source": building.get("height_source"),
+            "height_accuracy_tier": building.get("height_accuracy_tier"),
+            "height_confidence": building.get("height_confidence"),
+            "height_review_priority": building.get("height_review_priority"),
+            "height_review_reasons": building.get("height_review_reasons", []),
+            "footprint_area_m2": building.get("footprint_area_m2"),
+            "footprint_span_m": building.get("footprint_span_m"),
+            "center_m": building.get("center_m"),
+        }
+        for building in review_candidates[:40]
+    ]
 
     buildings.write(MESH_DIR / "capitol_exterior_buildings.obj", "capitol_materials.mtl")
     roads.write(MESH_DIR / "capitol_exterior_roads_bike_lanes_markers.obj", "capitol_materials.mtl")

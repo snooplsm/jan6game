@@ -1654,6 +1654,11 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         "dcgis_rooftop_points": height_model.get("dcgis_rooftop_points"),
         "dcgis_ground_points": height_model.get("dcgis_ground_points"),
         "dcgis_matched_buildings": height_model.get("dcgis_matched_buildings"),
+        "source_backed_buildings": height_model.get("source_backed_buildings"),
+        "level_count_estimated_buildings": height_model.get("level_count_estimated_buildings"),
+        "heuristic_estimated_buildings": height_model.get("heuristic_estimated_buildings"),
+        "height_accuracy_tiers": height_model.get("height_accuracy_tiers"),
+        "height_review_targets": len(height_model.get("height_review_targets", [])),
     }
     summary["building_details"] = len(building_details)
     summary["building_detail_kinds"] = len(building_detail_kinds)
@@ -1722,6 +1727,30 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 2000 DCGIS ground elevation points in exterior height model")
     if (height_model.get("dcgis_matched_buildings") or 0) != building_height_sources.get("dcgis_rooftop_ground_delta_estimate", 0):
         error(errors, "height_model.dcgis_matched_buildings must match DCGIS height-source count")
+    expected_source_backed = (
+        building_height_sources.get("explicit_height_tag", 0)
+        + building_height_sources.get("dcgis_rooftop_ground_delta_estimate", 0)
+    )
+    if (height_model.get("source_backed_buildings") or 0) != expected_source_backed:
+        error(errors, "height_model.source_backed_buildings must match explicit plus DCGIS height-source count")
+    if (height_model.get("level_count_estimated_buildings") or 0) != building_height_sources.get("building_levels_estimate", 0):
+        error(errors, "height_model.level_count_estimated_buildings must match building-level height-source count")
+    if (height_model.get("heuristic_estimated_buildings") or 0) != building_height_sources.get("footprint_type_area_estimate", 0):
+        error(errors, "height_model.heuristic_estimated_buildings must match footprint/type/area height-source count")
+    height_accuracy_counts = Counter(building.get("height_accuracy_tier", "missing") for building in buildings)
+    if "missing" in height_accuracy_counts:
+        error(errors, "expected every surrounding building to include height_accuracy_tier")
+    if any(not is_number(building.get("height_confidence")) for building in buildings):
+        error(errors, "expected every surrounding building to include numeric height_confidence")
+    if any(not is_number(building.get("height_review_priority")) for building in buildings):
+        error(errors, "expected every surrounding building to include numeric height_review_priority")
+    if dict(sorted(height_accuracy_counts.items())) != height_model.get("height_accuracy_tiers"):
+        error(errors, "height_model.height_accuracy_tiers must match per-building height_accuracy_tier counts")
+    if len(height_model.get("height_review_targets", [])) < 20:
+        error(errors, "expected at least 20 high-priority height review targets in height_model")
+    next_height_source = height_model.get("next_public_height_source_candidate", {})
+    if "3D_Buildings_2024_Maximum_Height_Web_Scene_WSL1/SceneServer" not in next_height_source.get("scene_service_url", ""):
+        error(errors, "expected height_model to record the public DC 2024 3D building-height source candidate")
     for building in buildings:
         if building.get("height_source") == "dcgis_rooftop_ground_delta_estimate" and not building.get("height_provenance"):
             error(errors, f"DCGIS height-matched building {building.get('name', '<unknown>')} missing height_provenance")

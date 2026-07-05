@@ -20,7 +20,17 @@
     "height_model": {
       "dcgis_rooftop_points": 2360,
       "dcgis_ground_points": 2307,
-      "dcgis_matched_buildings": 930
+      "dcgis_matched_buildings": 930,
+      "source_backed_buildings": 952,
+      "level_count_estimated_buildings": 123,
+      "heuristic_estimated_buildings": 1449,
+      "height_accuracy_tiers": {
+        "heuristic_visual_estimate": 1449,
+        "level_count_estimate": 123,
+        "public_elevation_delta": 930,
+        "source_tag": 22
+      },
+      "height_review_targets": 40
     },
     "building_details": 8064,
     "building_detail_kinds": 34,
