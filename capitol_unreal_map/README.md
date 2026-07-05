@@ -10,6 +10,9 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Chamber top-down preview: `http://127.0.0.1:8765/viewer.html#chambers-top`
 - House Chamber plan preview: `http://127.0.0.1:8765/viewer.html#house-plan`
 - Senate Chamber plan preview: `http://127.0.0.1:8765/viewer.html#senate-plan`
+- Public chamber role-zone preview: `http://127.0.0.1:8765/viewer.html#role-zones`
+- House public gallery preview: `http://127.0.0.1:8765/viewer.html#house-gallery`
+- Senate public gallery preview: `http://127.0.0.1:8765/viewer.html#senate-gallery`
 - Gameplay item preview: `http://127.0.0.1:8765/viewer.html#gameplay-items`
 - Grounds detail preview: `http://127.0.0.1:8765/viewer.html#grounds-details`
 - Capitol facade/roof detail preview: `http://127.0.0.1:8765/viewer.html#facade-details`
@@ -258,7 +261,25 @@ Senate Chamber plan quick link:
 http://127.0.0.1:8765/viewer.html#senate-plan
 ```
 
-These routes keep only the public interior schematic visible, move the camera to a near-vertical plan-review view over the selected chamber, and filter labels to the selected chamber.
+Public chamber role-zone quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#role-zones
+```
+
+House public gallery quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#house-gallery
+```
+
+Senate public gallery quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#senate-gallery
+```
+
+These routes keep only the public interior schematic visible, move the camera to a near-vertical plan-review view over the selected chamber or gallery, and filter labels to the selected public chamber/generic role-zone layer. The role-zone route is non-person-specific and uses only generic public seating/role blocks.
 
 The viewer can toggle:
 
@@ -271,7 +292,7 @@ The viewer can toggle:
 - basecolor texture preview
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
@@ -296,7 +317,7 @@ For Unreal full-interior inspection, use `CapitolMap_Camera_Interior_Cutaway` an
 
 For Unreal full-interior top-down inspection, use `CapitolMap_Camera_PublicInterior_TopDown` with the same `CapitolMap_HideForInteriorCutaway` hidden actors.
 
-For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide actors in `CapitolMap/Meshes/HideForInteriorTopDown` or tagged `CapitolMap_HideForInteriorTopDown`. The public interior mesh is foldered under `CapitolMap/Meshes/InteriorTopDownVisible` and tagged `CapitolMap_VisibleForInteriorTopDown`.
+For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide actors in `CapitolMap/Meshes/HideForInteriorTopDown` or tagged `CapitolMap_HideForInteriorTopDown`. The public interior mesh is foldered under `CapitolMap/Meshes/InteriorTopDownVisible` and tagged `CapitolMap_VisibleForInteriorTopDown`. For generic public seating/role overlays, use `CapitolMap_Camera_ChamberRoleZones_TopDown`; for gallery inspection use `CapitolMap_Camera_HouseGallery_TopDown` or `CapitolMap_Camera_SenateGallery_TopDown`.
 
 `Config/DefaultEngine.ini` points both `EditorStartupMap` and `GameDefaultMap` at `/Game/CapitolMap/Maps/CapitolMap_Level`; run the import script once before relying on those startup-map defaults in a fresh checkout.
 
@@ -321,6 +342,9 @@ Generated camera viewpoints:
 - `CapitolMap_Camera_Chambers_TopDown`
 - `CapitolMap_Camera_HouseChamber_TopDown`
 - `CapitolMap_Camera_SenateChamber_TopDown`
+- `CapitolMap_Camera_ChamberRoleZones_TopDown`
+- `CapitolMap_Camera_HouseGallery_TopDown`
+- `CapitolMap_Camera_SenateGallery_TopDown`
 - `CapitolMap_Camera_Interior_Cutaway`
 - `CapitolMap_Camera_PublicInterior_TopDown`
 - `CapitolMap_Camera_GameplayItems`

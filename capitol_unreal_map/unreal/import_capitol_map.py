@@ -414,6 +414,24 @@ DEFAULT_VIEWPOINTS = [
         "fov": 44.0,
     },
     {
+        "label": "CapitolMap_Camera_ChamberRoleZones_TopDown",
+        "location_m": [0.0, -6.0, 118.0],
+        "target_m": [0.0, -6.0, 5.25],
+        "fov": 42.0,
+    },
+    {
+        "label": "CapitolMap_Camera_HouseGallery_TopDown",
+        "location_m": [0.0, -101.0, 68.0],
+        "target_m": [0.0, -101.0, 5.4],
+        "fov": 38.0,
+    },
+    {
+        "label": "CapitolMap_Camera_SenateGallery_TopDown",
+        "location_m": [0.0, 97.0, 68.0],
+        "target_m": [0.0, 97.0, 5.4],
+        "fov": 38.0,
+    },
+    {
         "label": "CapitolMap_Camera_Interior_Cutaway",
         "location_m": [0.0, -8.0, 120.0],
         "target_m": [0.0, 0.0, 5.2],

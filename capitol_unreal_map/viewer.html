@@ -222,6 +222,9 @@
       <a class="quick-link" id="quickChambersTop" href="#chambers-top">Chambers Top</a>
       <a class="quick-link" id="quickHousePlan" href="#house-plan">House Plan</a>
       <a class="quick-link" id="quickSenatePlan" href="#senate-plan">Senate Plan</a>
+      <a class="quick-link" id="quickRoleZones" href="#role-zones">Role Zones</a>
+      <a class="quick-link" id="quickHouseGallery" href="#house-gallery">House Gallery</a>
+      <a class="quick-link" id="quickSenateGallery" href="#senate-gallery">Senate Gallery</a>
     </div>
 
     <div class="row">
@@ -242,6 +245,9 @@
       <button id="presetChambersTop">Chambers Top</button>
       <button id="presetHousePlan">House Plan</button>
       <button id="presetSenatePlan">Senate Plan</button>
+      <button id="presetRoleZones">Role Zones</button>
+      <button id="presetHouseGallery">House Gallery</button>
+      <button id="presetSenateGallery">Senate Gallery</button>
       <button id="presetOffices">Offices</button>
       <button id="presetSignageDetails">Signage</button>
       <button id="presetDoorDetails">Doors</button>
@@ -343,7 +349,7 @@
     ];
 
     const VIEWER_TEXTURE_MAX_SIZE = 1024;
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "wall_finish_detail", "floor_detail", "ceiling_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "wall_finish_detail", "floor_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
 
     const state = {
@@ -459,6 +465,9 @@
     document.getElementById("presetChambersTop").onclick = () => focusChambersTopRoute();
     document.getElementById("presetHousePlan").onclick = () => focusHousePlanRoute();
     document.getElementById("presetSenatePlan").onclick = () => focusSenatePlanRoute();
+    document.getElementById("presetRoleZones").onclick = () => focusRoleZonesRoute();
+    document.getElementById("presetHouseGallery").onclick = () => focusHouseGalleryRoute();
+    document.getElementById("presetSenateGallery").onclick = () => focusSenateGalleryRoute();
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
     document.getElementById("presetSignageDetails").onclick = () => focusSignageDetailsRoute();
     document.getElementById("presetDoorDetails").onclick = () => focusDoorDetailsRoute();
@@ -541,6 +550,21 @@
     document.getElementById("quickSenatePlan").addEventListener("click", (event) => {
       event.preventDefault();
       focusSenatePlanRoute();
+    });
+
+    document.getElementById("quickRoleZones").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusRoleZonesRoute();
+    });
+
+    document.getElementById("quickHouseGallery").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusHouseGalleryRoute();
+    });
+
+    document.getElementById("quickSenateGallery").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusSenateGalleryRoute();
     });
 
     document.getElementById("quickGameplayItems").addEventListener("click", (event) => {
@@ -911,6 +935,49 @@
           category: "ceiling_detail"
         });
       }
+      const roleOverlayKinds = new Set([
+        "public_role_zone_floor_overlay",
+        "public_role_zone_label_plaque",
+        "public_role_zone_boundary"
+      ]);
+      const chamberDetailLabelKinds = new Set([
+        "gallery_rail",
+        "gallery_bench",
+        "gallery_divider",
+        "gallery_edge_trim",
+        "gallery_stanchion",
+        "gallery_support_column",
+        "gallery_tread_nosing",
+        "desk_arc_marker",
+        "row_marker_plaque",
+        "dais_step",
+        "rostrum_rail",
+        "rostrum_desk",
+        "rostrum_microphone_cluster",
+        "public_display_board"
+      ]);
+      for (const detail of metadata.interior?.chamber_details || []) {
+        if (!detail.center_m) continue;
+        const kind = detail.kind || "chamber_detail";
+        const labelText = detail.label
+          ? detail.label
+          : `${humanizeId(kind)} - ${humanizeId(detail.name || "chamber_detail")}`;
+        if (roleOverlayKinds.has(kind)) {
+          labels.push({
+            text: labelText,
+            location: detail.center_m,
+            category: "chamber_role_overlay"
+          });
+          continue;
+        }
+        if (chamberDetailLabelKinds.has(kind)) {
+          labels.push({
+            text: labelText,
+            location: detail.center_m,
+            category: "chamber_detail"
+          });
+        }
+      }
       for (const detail of metadata.exterior?.grounds_details || []) {
         labels.push({
           text: humanizeId(detail.name || detail.kind || "grounds_detail"),
@@ -1079,6 +1146,8 @@
         "joint_session",
         "seating",
         "visitor_gallery",
+        "chamber_detail",
+        "chamber_role_overlay",
         "generic_office_zone",
         "office_detail",
         "door_detail",
@@ -1467,6 +1536,84 @@
       focusSenatePlan();
     }
 
+    function focusRoleZones() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "chamber_role_overlay";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "chamber_role_overlay";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.0, 1.545, 56000, [0, -600, 640]);
+      statusEl.textContent = "Public chamber role-zone plan with exterior and roof meshes hidden; zones are generic and non-person-specific.";
+    }
+
+    function focusRoleZonesRoute() {
+      if (window.location.hash !== "#role-zones") {
+        history.pushState(null, "", "#role-zones");
+      }
+      focusRoleZones();
+    }
+
+    function focusHouseGallery() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "chamber_detail";
+      state.labelQuery = "house gallery";
+      document.getElementById("categoryFilter").value = "chamber_detail";
+      document.getElementById("labelSearch").value = "house gallery";
+
+      setCamera(0.0, 1.535, 22000, [0, -10100, 640]);
+      statusEl.textContent = "House public gallery inspection with exterior and roof meshes hidden.";
+    }
+
+    function focusHouseGalleryRoute() {
+      if (window.location.hash !== "#house-gallery") {
+        history.pushState(null, "", "#house-gallery");
+      }
+      focusHouseGallery();
+    }
+
+    function focusSenateGallery() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "chamber_detail";
+      state.labelQuery = "senate gallery";
+      document.getElementById("categoryFilter").value = "chamber_detail";
+      document.getElementById("labelSearch").value = "senate gallery";
+
+      setCamera(0.0, 1.535, 22000, [0, 9700, 640]);
+      statusEl.textContent = "Senate public gallery inspection with exterior and roof meshes hidden.";
+    }
+
+    function focusSenateGalleryRoute() {
+      if (window.location.hash !== "#senate-gallery") {
+        history.pushState(null, "", "#senate-gallery");
+      }
+      focusSenateGallery();
+    }
+
     function applyHashRoute() {
       const route = window.location.hash.replace(/^#/, "").toLowerCase();
       if (route === "grounds-details" || route === "grounds") {
@@ -1527,6 +1674,18 @@
       }
       if (route === "senate-plan" || route === "senate-chamber-plan" || route === "senate-top") {
         focusSenatePlan();
+        return;
+      }
+      if (route === "role-zones" || route === "chamber-role-zones" || route === "where-everyone-sits") {
+        focusRoleZones();
+        return;
+      }
+      if (route === "house-gallery" || route === "house-public-gallery") {
+        focusHouseGallery();
+        return;
+      }
+      if (route === "senate-gallery" || route === "senate-public-gallery") {
+        focusSenateGallery();
         return;
       }
       if (route === "gameplay-items" || route === "game-play-items" || route === "gameplay") {
