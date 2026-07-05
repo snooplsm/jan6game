@@ -5644,6 +5644,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         height: float,
         width: float,
         depth: float,
+        material: str = "ColumnStone",
     ) -> None:
         radial = (math.cos(angle), math.sin(angle))
         tangent = (-math.sin(angle), math.cos(angle))
@@ -5655,13 +5656,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (cx + tangent[0] * width / 2.0 + radial[0] * depth / 2.0, cy + tangent[1] * width / 2.0 + radial[1] * depth / 2.0),
             (cx - tangent[0] * width / 2.0 + radial[0] * depth / 2.0, cy - tangent[1] * width / 2.0 + radial[1] * depth / 2.0),
         ]
-        obj.add_extruded_polygon(points, dome_z(z), dome_height(height), name, "ColumnStone")
+        obj.add_extruded_polygon(points, dome_z(z), dome_height(height), name, material)
 
     def add_dome_window_trim(index: int, angle: float, radius: float) -> None:
+        add_radial_trim_bar(f"dome_drum_window_glass_pane_{index:02d}", angle, radius - 0.18, 0.0, 22.70, 1.26, 0.76, 0.09, "DoorGlass")
         add_radial_trim_bar(f"dome_drum_window_trim_{index:02d}_left_jamb", angle, radius, -0.45, 22.55, 1.62, 0.12, 0.28)
         add_radial_trim_bar(f"dome_drum_window_trim_{index:02d}_right_jamb", angle, radius, 0.45, 22.55, 1.62, 0.12, 0.28)
         add_radial_trim_bar(f"dome_drum_window_trim_{index:02d}_lintel", angle, radius, 0.0, 24.08, 0.14, 1.04, 0.30)
         add_radial_trim_bar(f"dome_drum_window_trim_{index:02d}_sill", angle, radius, 0.0, 22.40, 0.14, 0.98, 0.30)
+        add_facade_detail(
+            f"dome_drum_window_glass_pane_{index:02d}",
+            "dome_drum_window_glass_pane",
+            ((radius - 0.18) * math.cos(angle), (radius - 0.18) * math.sin(angle), dome_z(23.33)),
+            {"radial_index": index},
+        )
         add_facade_detail(
             f"dome_drum_window_trim_{index:02d}",
             "dome_drum_window_trim",
@@ -5749,12 +5757,46 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"radial_index": index, "segments": len(segments_spec)},
         )
 
+    def add_dome_shell_weathering_details() -> None:
+        for index in range(32):
+            angle = math.tau * (index + 0.18) / 32.0
+            z = 36.35 + (index % 4) * 2.9
+            height = 1.65 + (index % 5) * 0.28
+            radius = dome_shell_radius(z + height / 2.0) + 0.43
+            name = f"dome_shell_rain_streak_{index+1:02d}"
+            add_radial_trim_bar(name, angle, radius, 0.0, z, height, 0.055, 0.085, "StoneGrimeOverlay")
+            add_facade_detail(
+                name,
+                "dome_shell_rain_streak",
+                (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + height / 2.0)),
+                {"angle_degrees": round(math.degrees(angle), 2), "public_accuracy": "generic_public_dome_weathering"},
+            )
+        for index in range(24):
+            angle = math.tau * (index + 0.5) / 24.0
+            for seam_index, (z, height, width) in enumerate([(35.95, 1.10, 0.040), (44.75, 0.92, 0.036)], start=1):
+                radius = dome_shell_radius(z + height / 2.0) + 0.39
+                name = f"dome_shell_panel_shadow_seam_{index+1:02d}_{seam_index:02d}"
+                add_radial_trim_bar(name, angle, radius, 0.0, z, height, width, 0.070, "RoadCrackSealant")
+                add_facade_detail(
+                    name,
+                    "dome_shell_panel_shadow_seam",
+                    (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + height / 2.0)),
+                    {"angle_degrees": round(math.degrees(angle), 2), "public_accuracy": "generic_public_dome_panel_relief"},
+                )
+
     def add_lantern_window_trim(index: int, angle: float) -> None:
         radius = 4.78
+        add_radial_trim_bar(f"dome_lantern_window_glass_pane_{index:02d}", angle, radius - 0.16, 0.0, 56.10, 1.86, 0.58, 0.07, "DoorGlass")
         add_radial_trim_bar(f"dome_lantern_window_trim_{index:02d}_left_jamb", angle, radius, -0.36, 56.02, 2.05, 0.075, 0.20)
         add_radial_trim_bar(f"dome_lantern_window_trim_{index:02d}_right_jamb", angle, radius, 0.36, 56.02, 2.05, 0.075, 0.20)
         add_radial_trim_bar(f"dome_lantern_window_trim_{index:02d}_lintel", angle, radius, 0.0, 58.10, 0.11, 0.82, 0.22)
         add_radial_trim_bar(f"dome_lantern_window_trim_{index:02d}_sill", angle, radius, 0.0, 55.86, 0.11, 0.78, 0.22)
+        add_facade_detail(
+            f"dome_lantern_window_glass_pane_{index:02d}",
+            "lantern_window_glass_pane",
+            ((radius - 0.16) * math.cos(angle), (radius - 0.16) * math.sin(angle), dome_z(57.03)),
+            {"radial_index": index},
+        )
         add_facade_detail(
             f"dome_lantern_window_trim_{index:02d}",
             "lantern_window_trim",
@@ -7016,6 +7058,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 panel_width,
             )
     add_dome_shell((0.0, 0.0), 18.0, 34.0, 22.0, "capitol_dome_approximate_shell", "CapitolDome", segments=72, rings=10)
+    add_dome_shell_weathering_details()
     add_dome_cylinder((0.0, 0.0), 4.2, 55.5, 5.2, "dome_lantern_cylinder", "ColumnStone", segments=32)
     for idx in range(16):
         angle = math.tau * idx / 16.0

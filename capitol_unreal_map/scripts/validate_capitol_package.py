@@ -2315,14 +2315,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 96 dome shell panel frame records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_window_trim"]) < 16:
         error(errors, "expected at least 16 dome drum window trim records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_window_glass_pane"]) < 16:
+        error(errors, "expected at least 16 dome drum window glass pane records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_spandrel_panel"]) < 16:
         error(errors, "expected at least 16 dome drum spandrel panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_lateral_band"]) < 4:
         error(errors, "expected at least 4 dome lateral band records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_rain_streak"]) < 32:
+        error(errors, "expected at least 32 dome shell rain-streak weathering records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_shadow_seam"]) < 48:
+        error(errors, "expected at least 48 dome shell panel shadow seam records")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_column"]) < 16:
         error(errors, "expected at least 16 lantern column records")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_trim"]) < 8:
         error(errors, "expected at least 8 lantern window trim records")
+    if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_glass_pane"]) < 8:
+        error(errors, "expected at least 8 lantern window glass pane records")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_balustrade"]) < 1:
         error(errors, "expected public lantern balustrade record")
     if len([detail for detail in facade_details if detail.get("kind") == "statue_of_freedom_silhouette"]) < 1:
