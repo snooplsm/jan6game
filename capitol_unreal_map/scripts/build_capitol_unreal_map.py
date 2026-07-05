@@ -4895,6 +4895,25 @@ def add_chamber_realism_details(
         obj.add_box(center, (size[0] * 0.72, size[1] * 0.72), 0.055, z + 0.16, f"{name}_inlay", "BrassRail")
         add_chamber_detail_record(records, name, "chamber_upper_wall_frieze_panel", chamber, (x, y, z + 0.09), size)
 
+    def chamber_ceiling_cove(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        x, y = center
+        obj.add_box(center, size, 0.16, z, f"{name}_cove_band", "InteriorTrim")
+        obj.add_box(center, (size[0] * 0.88, size[1] * 0.88), 0.055, z + 0.14, f"{name}_brass_bead", "BrassRail")
+        add_chamber_detail_record(records, name, "chamber_ceiling_cove_molding", chamber, (x, y, z + 0.08), size)
+
+    def balcony_underside_coffer(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        x, y = center
+        obj.add_box(center, size, 0.060, z, f"{name}_recessed_panel", "InteriorTrim")
+        obj.add_box(center, (size[0] * 0.74, size[1] * 0.74), 0.035, z - 0.035, f"{name}_inner_shadow", "DoorMetal")
+        add_chamber_detail_record(records, name, "balcony_underside_coffer", chamber, (x, y, z + 0.03), size)
+
+    def chamber_public_light_globe(name: str, chamber: str, center: tuple[float, float], z: float) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.032, z, 0.44, f"{name}_stem", "LightFixtureMetal", segments=8)
+        obj.add_cylinder((x, y), 0.15, z - 0.14, 0.20, f"{name}_warm_globe", "WarmLightGlass", segments=14)
+        obj.add_cylinder((x, y), 0.18, z + 0.40, 0.05, f"{name}_ceiling_canopy", "BrassRail", segments=14)
+        add_chamber_detail_record(records, name, "chamber_public_light_globe", chamber, (x, y, z + 0.10), (0.36, 0.36))
+
     # House chamber public visual details.
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
@@ -4978,8 +4997,18 @@ def add_chamber_realism_details(
     for side, x in [("west", -30.95), ("east", 30.95)]:
         for panel_index, y in enumerate([-55.0, -60.0, -65.0, -70.0, -75.0, -80.0, -85.0, -90.0], start=1):
             chamber_upper_wall_frieze(f"house_{side}_upper_wall_frieze_{panel_index:02d}", "House Chamber", (x, y), (0.14, 1.92), 6.98)
+            chamber_ceiling_cove(f"house_{side}_ceiling_cove_{panel_index:02d}", "House Chamber", (x, y), (0.18, 1.98), 7.30)
     for panel_index, x in enumerate([-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], start=1):
         chamber_upper_wall_frieze(f"house_rear_upper_wall_frieze_{panel_index:02d}", "House Chamber", (x, -104.02), (2.80, 0.14), 7.02)
+        chamber_ceiling_cove(f"house_rear_ceiling_cove_{panel_index:02d}", "House Chamber", (x, -104.08), (2.86, 0.18), 7.34)
+    for rail_name, y in [("front", -94.72), ("rear", -103.96)]:
+        for coffer_index, x in enumerate([-29.5, -23.0, -16.5, -10.0, -3.5, 3.5, 10.0, 16.5, 23.0, 29.5], start=1):
+            balcony_underside_coffer(f"house_gallery_{rail_name}_underside_coffer_{coffer_index:02d}", "House Chamber", (x, y), (3.70, 0.30), 5.42)
+    for side, x in [("west", -29.2), ("east", 29.2)]:
+        for light_index, y in enumerate([-58.0, -66.0, -74.0, -82.0, -90.0], start=1):
+            chamber_public_light_globe(f"house_{side}_upper_light_globe_{light_index:02d}", "House Chamber", (x, y), 7.05)
+    for light_index, x in enumerate([-24.0, -12.0, 0.0, 12.0, 24.0], start=1):
+        chamber_public_light_globe(f"house_rear_gallery_light_globe_{light_index:02d}", "House Chamber", (x, -101.8), 7.10)
 
     # Senate chamber public visual details.
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
@@ -5064,10 +5093,20 @@ def add_chamber_realism_details(
     for side, x in [("west", -23.95), ("east", 23.95)]:
         for panel_index, y in enumerate([62.0, 66.5, 71.0, 75.5, 80.0, 84.5], start=1):
             chamber_upper_wall_frieze(f"senate_{side}_upper_wall_frieze_{panel_index:02d}", "Senate Chamber", (x, y), (0.13, 1.66), 6.86)
+            chamber_ceiling_cove(f"senate_{side}_ceiling_cove_{panel_index:02d}", "Senate Chamber", (x, y), (0.17, 1.72), 7.18)
     for panel_index, x in enumerate([-21.0, -14.0, -7.0, 0.0, 7.0, 14.0, 21.0], start=1):
         chamber_upper_wall_frieze(f"senate_rear_upper_wall_frieze_{panel_index:02d}", "Senate Chamber", (x, 101.86), (2.45, 0.13), 6.94)
+        chamber_ceiling_cove(f"senate_rear_ceiling_cove_{panel_index:02d}", "Senate Chamber", (x, 101.92), (2.51, 0.17), 7.24)
+    for rail_name, y in [("front", 93.62), ("rear", 101.50)]:
+        for coffer_index, x in enumerate([-22.5, -16.0, -9.5, -3.2, 3.2, 9.5, 16.0, 22.5], start=1):
+            balcony_underside_coffer(f"senate_gallery_{rail_name}_underside_coffer_{coffer_index:02d}", "Senate Chamber", (x, y), (3.45, 0.28), 5.38)
+    for side, x in [("west", -22.6), ("east", 22.6)]:
+        for light_index, y in enumerate([64.0, 72.0, 80.0, 86.0], start=1):
+            chamber_public_light_globe(f"senate_{side}_upper_light_globe_{light_index:02d}", "Senate Chamber", (x, y), 6.92)
+    for light_index, x in enumerate([-18.0, -9.0, 0.0, 9.0, 18.0], start=1):
+        chamber_public_light_globe(f"senate_rear_gallery_light_globe_{light_index:02d}", "Senate Chamber", (x, 99.8), 7.02)
 
-    add_label(labels, "House and Senate chamber rails, dais steps, flags, aisle trim, wall panels, gallery trim, and sconces - schematic", 0.0, -43.0, 7.7, "chamber_detail")
+    add_label(labels, "House and Senate chamber rails, dais steps, flags, aisle trim, wall panels, gallery trim, cove molding, and lights - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
 
 def add_public_circulation_record(
