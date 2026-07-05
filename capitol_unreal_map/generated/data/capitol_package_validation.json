@@ -123,6 +123,12 @@
     "required_markers": 225,
     "missing": []
   },
+  "landmark_height": {
+    "mesh": "generated/meshes/capitol_landmark_visual_details.obj",
+    "public_height_target_m": 87.78,
+    "max_z_m": 87.78,
+    "tolerance_m": 0.35
+  },
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
@@ -220,12 +226,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 117222,
-      "uvs": 362948,
-      "faces": 88548,
-      "faces_with_uvs": 88548,
-      "triangles": 185852,
-      "groups": 12214,
+      "vertices": 117250,
+      "uvs": 363032,
+      "faces": 88564,
+      "faces_with_uvs": 88564,
+      "triangles": 185904,
+      "groups": 12215,
       "materials": [
         "BenchWood",
         "BollardMetal",
@@ -261,7 +267,7 @@
         "max": [
           21500.0,
           18000.0,
-          6825.0
+          8778.0
         ]
       }
     },

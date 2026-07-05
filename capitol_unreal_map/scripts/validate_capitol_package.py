@@ -33,6 +33,9 @@ DEFAULT_ENGINE_PATH = ROOT / "Config" / "DefaultEngine.ini"
 DEFAULT_GAME_PATH = ROOT / "Config" / "DefaultGame.ini"
 VIEWER_PATH = ROOT / "viewer.html"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
+CAPITOL_PUBLIC_HEIGHT_TARGET_M = 87.78
+LANDMARK_HEIGHT_TOLERANCE_M = 0.35
+LANDMARK_MESH_REL = "generated/meshes/capitol_landmark_visual_details.obj"
 
 REQUIRED_PHOTOREAL_TEXTURE_FEATURES = {
     "tileable_4k_basecolor_normal_roughness_ao",
@@ -3184,6 +3187,42 @@ def validate_viewer_contract(errors: list[str]) -> dict[str, Any]:
     return summary
 
 
+def validate_landmark_height_contract(metadata: dict[str, Any], mesh_stats: list[dict[str, Any]], errors: list[str]) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "mesh": LANDMARK_MESH_REL,
+        "public_height_target_m": CAPITOL_PUBLIC_HEIGHT_TARGET_M,
+        "max_z_m": None,
+        "tolerance_m": LANDMARK_HEIGHT_TOLERANCE_M,
+    }
+    profile = metadata.get("landmark", {}).get("height_profile", {})
+    declared_target = profile.get("public_height_target_m")
+    if not is_number(declared_target):
+        error(errors, "landmark.height_profile.public_height_target_m is missing or non-numeric")
+    elif abs(float(declared_target) - CAPITOL_PUBLIC_HEIGHT_TARGET_M) > 0.05:
+        error(
+            errors,
+            f"landmark public height target expected {CAPITOL_PUBLIC_HEIGHT_TARGET_M:.2f}m, got {float(declared_target):.2f}m",
+        )
+    summary["public_height_target_m"] = round(float(declared_target), 2) if is_number(declared_target) else CAPITOL_PUBLIC_HEIGHT_TARGET_M
+
+    landmark_mesh = next((mesh for mesh in mesh_stats if mesh.get("path") == LANDMARK_MESH_REL), None)
+    if landmark_mesh is None:
+        error(errors, f"missing landmark mesh stats for {LANDMARK_MESH_REL}")
+        return summary
+
+    bbox = landmark_mesh.get("bbox_cm")
+    if not isinstance(bbox, dict) or not isinstance(bbox.get("max"), list) or len(bbox["max"]) < 3:
+        error(errors, f"{LANDMARK_MESH_REL} missing bounding-box stats")
+        return summary
+
+    max_z_m = float(bbox["max"][2]) / 100.0
+    summary["max_z_m"] = round(max_z_m, 3)
+    target = float(summary["public_height_target_m"])
+    if abs(max_z_m - target) > LANDMARK_HEIGHT_TOLERANCE_M:
+        error(errors, f"{LANDMARK_MESH_REL} max Z {max_z_m:.2f}m does not match public target {target:.2f}m")
+    return summary
+
+
 def main() -> int:
     errors: list[str] = []
     if not METADATA_PATH.exists():
@@ -3200,6 +3239,7 @@ def main() -> int:
     unreal_project_config_summary = validate_unreal_project_config(errors)
     viewer_summary = validate_viewer_contract(errors)
     mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
+    landmark_height_summary = validate_landmark_height_contract(metadata, mesh_stats, errors)
 
     report = {
         "ok": not errors,
@@ -3210,6 +3250,7 @@ def main() -> int:
         "unreal_importer": unreal_importer_summary,
         "unreal_project_config": unreal_project_config_summary,
         "viewer": viewer_summary,
+        "landmark_height": landmark_height_summary,
         "meshes": mesh_stats,
         "errors": errors,
     }
@@ -3275,6 +3316,7 @@ def main() -> int:
     print(f"Unreal importer inspection markers: {unreal_importer_summary.get('inspection_markers', 0):,}")
     print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")
     print(f"Viewer markers: {viewer_summary.get('required_markers', 0):,}")
+    print(f"Landmark public height target: {landmark_height_summary.get('max_z_m')}m / {landmark_height_summary.get('public_height_target_m')}m")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
 

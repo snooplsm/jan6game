@@ -2661,6 +2661,53 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     labels: list[dict[str, Any]] = []
     elements: list[dict[str, Any]] = []
     facade_details: list[dict[str, Any]] = []
+    capitol_public_height_m = 87.78
+    statue_of_freedom_height_m = 5.94
+    dome_remap_base_z = 17.90
+    dome_stack_source_top_z = 66.10
+    statue_base_z = capitol_public_height_m - statue_of_freedom_height_m
+    dome_z_scale = (statue_base_z - dome_remap_base_z) / (dome_stack_source_top_z - dome_remap_base_z)
+
+    def dome_z(source_z: float) -> float:
+        return dome_remap_base_z + (source_z - dome_remap_base_z) * dome_z_scale
+
+    def dome_height(source_height: float) -> float:
+        return source_height * dome_z_scale
+
+    def add_dome_cylinder(
+        center: tuple[float, float],
+        radius: float,
+        z: float,
+        height: float,
+        name: str,
+        material: str,
+        segments: int = 64,
+    ) -> None:
+        obj.add_cylinder(center, radius, dome_z(z), dome_height(height), name, material, segments=segments)
+
+    def add_dome_ring(
+        center: tuple[float, float],
+        outer_radius: float,
+        inner_radius: float,
+        z: float,
+        height: float,
+        name: str,
+        material: str,
+        segments: int = 72,
+    ) -> None:
+        obj.add_ring(center, outer_radius, inner_radius, dome_z(z), dome_height(height), name, material, segments=segments)
+
+    def add_dome_shell(
+        center: tuple[float, float],
+        radius: float,
+        z: float,
+        height: float,
+        name: str,
+        material: str,
+        segments: int = 72,
+        rings: int = 10,
+    ) -> None:
+        obj.add_dome(center, radius, dome_z(z), dome_height(height), name, material, segments=segments, rings=rings)
 
     def add_element(name: str, category: str, center: tuple[float, float, float]) -> None:
         elements.append(
@@ -3921,7 +3968,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (cx + tangent[0] * width / 2.0 + radial[0] * depth / 2.0, cy + tangent[1] * width / 2.0 + radial[1] * depth / 2.0),
             (cx - tangent[0] * width / 2.0 + radial[0] * depth / 2.0, cy - tangent[1] * width / 2.0 + radial[1] * depth / 2.0),
         ]
-        obj.add_extruded_polygon(points, z, height, name, "ColumnStone")
+        obj.add_extruded_polygon(points, dome_z(z), dome_height(height), name, "ColumnStone")
 
     def add_dome_window_trim(index: int, angle: float, radius: float) -> None:
         add_radial_trim_bar(f"dome_drum_window_trim_{index:02d}_left_jamb", angle, radius, -0.45, 22.55, 1.62, 0.12, 0.28)
@@ -3931,7 +3978,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             f"dome_drum_window_trim_{index:02d}",
             "dome_drum_window_trim",
-            (radius * math.cos(angle), radius * math.sin(angle), 23.35),
+            (radius * math.cos(angle), radius * math.sin(angle), dome_z(23.35)),
             {"radial_index": index},
         )
 
@@ -3954,7 +4001,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             name,
             "dome_shell_panel_frame",
-            (radius * math.cos(angle), radius * math.sin(angle), z + panel_height / 2.0),
+            (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + panel_height / 2.0)),
             {"angle_degrees": round(math.degrees(angle), 2), "size_m": [round(panel_width, 3), round(panel_height, 3)]},
         )
 
@@ -3964,7 +4011,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             name,
             "dome_drum_spandrel_panel",
-            (radius * math.cos(angle), radius * math.sin(angle), z + 0.17),
+            (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + 0.17)),
             {"angle_degrees": round(math.degrees(angle), 2)},
         )
 
@@ -3978,7 +4025,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             f"dome_drum_arcade_bay_{index:02d}",
             "dome_drum_arcade_bay",
-            (radius * math.cos(angle), radius * math.sin(angle), 23.25),
+            (radius * math.cos(angle), radius * math.sin(angle), dome_z(23.25)),
             {"angle_degrees": round(math.degrees(angle), 2)},
         )
 
@@ -4011,7 +4058,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             f"dome_curved_rib_{index:02d}",
             "dome_curved_rib",
-            (mid_radius * math.cos(angle), mid_radius * math.sin(angle), 43.8),
+            (mid_radius * math.cos(angle), mid_radius * math.sin(angle), dome_z(43.8)),
             {"radial_index": index, "segments": len(segments_spec)},
         )
 
@@ -4024,19 +4071,26 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             f"dome_lantern_window_trim_{index:02d}",
             "lantern_window_trim",
-            (radius * math.cos(angle), radius * math.sin(angle), 57.08),
+            (radius * math.cos(angle), radius * math.sin(angle), dome_z(57.08)),
             {"radial_index": index},
         )
 
     def add_statue_of_freedom_silhouette() -> None:
-        obj.add_cylinder((0.0, 0.0), 0.42, 66.12, 0.34, "statue_of_freedom_round_base", "StatueBronze", segments=16)
-        obj.add_cylinder((0.0, 0.0), 0.24, 66.44, 1.20, "statue_of_freedom_body_silhouette", "StatueBronze", segments=12)
-        obj.add_cylinder((0.0, 0.0), 0.16, 67.62, 0.22, "statue_of_freedom_head_silhouette", "StatueBronze", segments=12)
-        obj.add_box((0.0, 0.0), (1.08, 0.11), 0.12, 67.22, "statue_of_freedom_arm_silhouette", "StatueBronze")
-        obj.add_box((-0.38, 0.0), (0.12, 0.10), 0.88, 67.12, "statue_of_freedom_left_drape_silhouette", "StatueBronze")
-        obj.add_box((0.38, 0.0), (0.12, 0.10), 0.88, 67.12, "statue_of_freedom_right_drape_silhouette", "StatueBronze")
-        obj.add_cylinder((0.0, 0.0), 0.09, 67.83, 0.42, "statue_of_freedom_plume_silhouette", "StatueBronze", segments=10)
-        add_facade_detail("statue_of_freedom_silhouette", "statue_of_freedom_silhouette", (0.0, 0.0, 67.20))
+        base_z = statue_base_z
+        obj.add_cylinder((0.0, 0.0), 0.56, base_z - 0.28, 0.28, "statue_of_freedom_round_base", "StatueBronze", segments=16)
+        obj.add_cylinder((0.0, 0.0), 0.38, base_z, 0.42, "statue_of_freedom_pedestal_silhouette", "StatueBronze", segments=14)
+        obj.add_cylinder((0.0, 0.0), 0.30, base_z + 0.36, 3.90, "statue_of_freedom_body_silhouette", "StatueBronze", segments=12)
+        obj.add_cylinder((0.0, 0.0), 0.20, base_z + 4.23, 0.48, "statue_of_freedom_head_silhouette", "StatueBronze", segments=12)
+        obj.add_box((0.0, 0.0), (1.68, 0.13), 0.18, base_z + 3.18, "statue_of_freedom_arm_silhouette", "StatueBronze")
+        obj.add_box((-0.44, 0.0), (0.16, 0.12), 3.06, base_z + 1.18, "statue_of_freedom_left_drape_silhouette", "StatueBronze")
+        obj.add_box((0.44, 0.0), (0.16, 0.12), 3.06, base_z + 1.18, "statue_of_freedom_right_drape_silhouette", "StatueBronze")
+        obj.add_cylinder((0.0, 0.0), 0.10, capitol_public_height_m - 0.52, 0.52, "statue_of_freedom_plume_silhouette", "StatueBronze", segments=10)
+        add_facade_detail(
+            "statue_of_freedom_silhouette",
+            "statue_of_freedom_silhouette",
+            (0.0, 0.0, base_z + statue_of_freedom_height_m / 2.0),
+            {"public_height_target_m": round(capitol_public_height_m, 2)},
+        )
 
     def add_revolving_door(name: str, center: tuple[float, float], facade: str) -> None:
         x, y = center
@@ -5122,49 +5176,49 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_bench(f"east_public_bench_{idx:02d}", (86.0, x * 0.55))
         add_bench(f"west_public_bench_{idx:02d}", (-86.0, x * 0.55))
 
-    obj.add_cylinder((0.0, 0.0), 20.5, 17.9, 1.2, "dome_base_octagonal_plinth", "ColumnStone", segments=32)
-    obj.add_cylinder((0.0, 0.0), 18.0, 18.0, 16.0, "dome_drum_cylinder", "CapitolDome", segments=96)
-    obj.add_ring((0.0, 0.0), 18.4, 17.8, 20.6, 0.55, "dome_lower_balustrade_ring", "ColumnStone", segments=96)
-    obj.add_ring((0.0, 0.0), 16.2, 15.7, 30.8, 0.45, "dome_upper_balustrade_ring", "ColumnStone", segments=96)
+    add_dome_cylinder((0.0, 0.0), 20.5, 17.9, 1.2, "dome_base_octagonal_plinth", "ColumnStone", segments=32)
+    add_dome_cylinder((0.0, 0.0), 18.0, 18.0, 16.0, "dome_drum_cylinder", "CapitolDome", segments=96)
+    add_dome_ring((0.0, 0.0), 18.4, 17.8, 20.6, 0.55, "dome_lower_balustrade_ring", "ColumnStone", segments=96)
+    add_dome_ring((0.0, 0.0), 16.2, 15.7, 30.8, 0.45, "dome_upper_balustrade_ring", "ColumnStone", segments=96)
     for idx in range(48):
         angle = math.tau * idx / 48.0
-        obj.add_cylinder((18.1 * math.cos(angle), 18.1 * math.sin(angle)), 0.11, 20.72, 0.78, f"dome_lower_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
-        obj.add_cylinder((15.95 * math.cos(angle), 15.95 * math.sin(angle)), 0.09, 30.92, 0.64, f"dome_upper_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
-    add_facade_detail("dome_lower_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, 21.1), {"count": 48})
-    add_facade_detail("dome_upper_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, 31.24), {"count": 48})
+        add_dome_cylinder((18.1 * math.cos(angle), 18.1 * math.sin(angle)), 0.11, 20.72, 0.78, f"dome_lower_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
+        add_dome_cylinder((15.95 * math.cos(angle), 15.95 * math.sin(angle)), 0.09, 30.92, 0.64, f"dome_upper_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
+    add_facade_detail("dome_lower_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(21.1)), {"count": 48})
+    add_facade_detail("dome_upper_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(31.24)), {"count": 48})
     for idx in range(32):
         angle = math.tau * idx / 32.0
         px = 18.1 * math.cos(angle)
         py = 18.1 * math.sin(angle)
-        obj.add_cylinder((px, py), 0.18, 19.0, 10.4, f"dome_drum_pilaster_{idx+1:02d}", "ColumnStone", segments=10)
+        add_dome_cylinder((px, py), 0.18, 19.0, 10.4, f"dome_drum_pilaster_{idx+1:02d}", "ColumnStone", segments=10)
         add_dome_drum_arcade_bay(idx + 1, angle)
         if idx % 2 == 0:
             wx = 17.85 * math.cos(angle)
             wy = 17.85 * math.sin(angle)
             add_dome_window_trim(idx // 2 + 1, angle, 18.02)
-            obj.add_cylinder((wx, wy), 0.30, 22.8, 1.25, f"dome_drum_dark_window_{idx//2+1:02d}", "FacadeWindow", segments=10)
+            add_dome_cylinder((wx, wy), 0.30, 22.8, 1.25, f"dome_drum_dark_window_{idx//2+1:02d}", "FacadeWindow", segments=10)
             add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx//2+1:02d}", angle, 25.25)
     for idx in range(24):
         angle = math.tau * idx / 24.0
         px = 12.2 * math.cos(angle)
         py = 12.2 * math.sin(angle)
-        obj.add_cylinder((px, py), 0.10, 34.5, 16.5, f"dome_vertical_rib_{idx+1:02d}", "ColumnStone", segments=8)
+        add_dome_cylinder((px, py), 0.10, 34.5, 16.5, f"dome_vertical_rib_{idx+1:02d}", "ColumnStone", segments=8)
         add_dome_curved_rib(idx + 1, angle)
         add_facade_detail(
             f"dome_vertical_rib_{idx+1:02d}",
             "dome_vertical_rib",
-            (px, py, 42.75),
+            (px, py, dome_z(42.75)),
             {"radial_index": idx + 1},
         )
     for band_index, (outer_radius, inner_radius, z) in enumerate(
         [(18.0, 17.70, 37.8), (16.9, 16.55, 42.6), (14.55, 14.20, 47.4), (11.50, 11.18, 51.2)],
         start=1,
     ):
-        obj.add_ring((0.0, 0.0), outer_radius, inner_radius, z, 0.16, f"dome_lateral_stone_band_{band_index}", "ColumnStone", segments=96)
+        add_dome_ring((0.0, 0.0), outer_radius, inner_radius, z, 0.16, f"dome_lateral_stone_band_{band_index}", "ColumnStone", segments=96)
         add_facade_detail(
             f"dome_lateral_stone_band_{band_index}",
             "dome_lateral_band",
-            (0.0, 0.0, z + 0.08),
+            (0.0, 0.0, dome_z(z + 0.08)),
             {"band_index": band_index},
         )
     for row_index, (z, panel_height, panel_width) in enumerate(
@@ -5180,33 +5234,44 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 panel_height,
                 panel_width,
             )
-    obj.add_dome((0.0, 0.0), 18.0, 34.0, 22.0, "capitol_dome_approximate_shell", "CapitolDome", segments=72, rings=10)
-    obj.add_cylinder((0.0, 0.0), 4.2, 55.5, 5.2, "dome_lantern_cylinder", "ColumnStone", segments=32)
+    add_dome_shell((0.0, 0.0), 18.0, 34.0, 22.0, "capitol_dome_approximate_shell", "CapitolDome", segments=72, rings=10)
+    add_dome_cylinder((0.0, 0.0), 4.2, 55.5, 5.2, "dome_lantern_cylinder", "ColumnStone", segments=32)
     for idx in range(16):
         angle = math.tau * idx / 16.0
-        obj.add_cylinder((4.45 * math.cos(angle), 4.45 * math.sin(angle)), 0.10, 55.55, 4.48, f"dome_lantern_column_{idx+1:02d}", "ColumnStone", segments=10)
-        obj.add_cylinder((4.58 * math.cos(angle), 4.58 * math.sin(angle)), 0.055, 59.88, 0.70, f"dome_lantern_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
+        add_dome_cylinder((4.45 * math.cos(angle), 4.45 * math.sin(angle)), 0.10, 55.55, 4.48, f"dome_lantern_column_{idx+1:02d}", "ColumnStone", segments=10)
+        add_dome_cylinder((4.58 * math.cos(angle), 4.58 * math.sin(angle)), 0.055, 59.88, 0.70, f"dome_lantern_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
         add_facade_detail(
             f"dome_lantern_column_{idx+1:02d}",
             "lantern_column",
-            (4.45 * math.cos(angle), 4.45 * math.sin(angle), 57.79),
+            (4.45 * math.cos(angle), 4.45 * math.sin(angle), dome_z(57.79)),
             {"radial_index": idx + 1},
         )
-    obj.add_ring((0.0, 0.0), 4.72, 4.44, 60.45, 0.16, "dome_lantern_balustrade_ring", "ColumnStone", segments=64)
-    add_facade_detail("dome_lantern_balustrade", "lantern_balustrade", (0.0, 0.0, 60.28), {"count": 16})
+    add_dome_ring((0.0, 0.0), 4.72, 4.44, 60.45, 0.16, "dome_lantern_balustrade_ring", "ColumnStone", segments=64)
+    add_facade_detail("dome_lantern_balustrade", "lantern_balustrade", (0.0, 0.0, dome_z(60.28)), {"count": 16})
     for idx in range(8):
         angle = math.tau * idx / 8.0
-        obj.add_cylinder((4.28 * math.cos(angle), 4.28 * math.sin(angle)), 0.16, 56.25, 1.7, f"dome_lantern_dark_window_{idx+1:02d}", "FacadeWindow", segments=8)
+        add_dome_cylinder((4.28 * math.cos(angle), 4.28 * math.sin(angle)), 0.16, 56.25, 1.7, f"dome_lantern_dark_window_{idx+1:02d}", "FacadeWindow", segments=8)
         add_lantern_window_trim(idx + 1, angle)
-    add_facade_detail("dome_lantern_dark_window_ring", "lantern_window", (0.0, 0.0, 57.1), {"count": 8})
-    obj.add_dome((0.0, 0.0), 4.2, 60.2, 4.0, "dome_lantern_cap", "CapitolDome", segments=32, rings=5)
-    obj.add_cylinder((0.0, 0.0), 0.18, 64.0, 2.1, "dome_lantern_finial", "ColumnStone", segments=12)
+    add_facade_detail("dome_lantern_dark_window_ring", "lantern_window", (0.0, 0.0, dome_z(57.1)), {"count": 8})
+    add_dome_shell((0.0, 0.0), 4.2, 60.2, 4.0, "dome_lantern_cap", "CapitolDome", segments=32, rings=5)
+    add_dome_cylinder((0.0, 0.0), 0.18, 64.0, 2.1, "dome_lantern_finial", "ColumnStone", segments=12)
     add_statue_of_freedom_silhouette()
-    add_facade_detail("dome_lantern_finial", "dome_finial", (0.0, 0.0, 65.05))
-    add_element("Capitol Dome / lantern visual massing", "landmark", (0.0, 0.0, 49.0))
+    add_facade_detail("dome_lantern_finial", "dome_finial", (0.0, 0.0, dome_z(65.05)))
+    add_element("Capitol Dome / lantern visual massing", "landmark", (0.0, 0.0, dome_z(49.0)))
 
     obj.write(MESH_DIR / "capitol_landmark_visual_details.obj", "capitol_materials.mtl")
-    return {"elements": elements, "labels": labels, "facade_details": facade_details}
+    return {
+        "elements": elements,
+        "labels": labels,
+        "facade_details": facade_details,
+        "height_profile": {
+            "public_height_target_m": round(capitol_public_height_m, 2),
+            "target_source": "public Architect of the Capitol 288 ft height fact converted to meters",
+            "dome_remap_base_m": round(dome_remap_base_z, 2),
+            "dome_vertical_scale": round(dome_z_scale, 5),
+            "statue_of_freedom_height_m": round(statue_of_freedom_height_m, 2),
+        },
+    }
 
 
 def add_label(labels: list[dict[str, Any]], name: str, x: float, y: float, z: float, category: str) -> None:
