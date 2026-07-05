@@ -216,6 +216,7 @@
       <a class="quick-link" id="quickWallFinishDetails" href="#wall-finish-details">Wall Finish</a>
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
+      <a class="quick-link" id="quickInteriorOnly" href="#interior-only">Interior Only</a>
       <a class="quick-link" id="quickChambersTop" href="#chambers-top">Chambers Top</a>
     </div>
 
@@ -223,6 +224,7 @@
       <button id="presetOverview">Overview</button>
       <button id="presetCapitol">Capitol</button>
       <button id="presetInterior">Interior</button>
+      <button id="presetInteriorOnly">Interior Only</button>
       <button id="presetRoads">Roads</button>
       <button id="presetGrounds">Grounds</button>
       <button id="presetGroundsDetails">Grounds Details</button>
@@ -405,6 +407,7 @@
     document.getElementById("presetOverview").onclick = () => setCamera(0.72, 0.72, 180000, [0, 0, 2200]);
     document.getElementById("presetCapitol").onclick = () => setCamera(0.85, 0.42, 62000, [0, 0, 9000]);
     document.getElementById("presetInterior").onclick = () => setCamera(0.65, 0.70, 36000, [0, 0, 5200]);
+    document.getElementById("presetInteriorOnly").onclick = () => focusInteriorOnlyRoute();
     document.getElementById("presetRoads").onclick = () => setCamera(0.2, 1.1, 210000, [0, 0, 800]);
     document.getElementById("presetGrounds").onclick = () => setCamera(-0.72, 0.58, 82000, [-25000, 0, 1200]);
     document.getElementById("presetGroundsDetails").onclick = () => focusGroundsDetailsRoute();
@@ -466,6 +469,11 @@
     document.getElementById("quickCeilingDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusCeilingDetailsRoute();
+    });
+
+    document.getElementById("quickInteriorOnly").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusInteriorOnlyRoute();
     });
 
     document.getElementById("quickChambersTop").addEventListener("click", (event) => {
@@ -1095,6 +1103,32 @@
       focusGameplayItems();
     }
 
+    function focusInteriorOnly() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.58, 1.12, 52000, [0, 0, 900]);
+      statusEl.textContent = "Interior-only view with exterior, roof, roads, and gameplay meshes hidden.";
+    }
+
+    function focusInteriorOnlyRoute() {
+      if (window.location.hash !== "#interior-only") {
+        history.pushState(null, "", "#interior-only");
+      }
+      focusInteriorOnly();
+    }
+
     function focusChambersTop() {
       setMeshVisible("capitol_exterior_buildings", false);
       setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
@@ -1157,6 +1191,10 @@
       }
       if (route === "ceiling-details" || route === "ceiling-finishes") {
         focusCeilingDetails();
+        return;
+      }
+      if (route === "interior-only" || route === "interior-cutaway" || route === "cutaway") {
+        focusInteriorOnly();
         return;
       }
       if (route === "chambers-top" || route === "chamber-top" || route === "top-chambers") {
