@@ -248,6 +248,25 @@ class ObjWriter:
         ]
         self.add_extruded_polygon(corners, z, height, name, material)
 
+    def add_oriented_box(
+        self,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        height: float,
+        z: float,
+        angle_rad: float,
+        name: str,
+        material: str,
+    ) -> None:
+        cx, cy = center
+        sx, sy = size[0] / 2.0, size[1] / 2.0
+        ca = math.cos(angle_rad)
+        sa = math.sin(angle_rad)
+        corners = []
+        for lx, ly in [(-sx, -sy), (sx, -sy), (sx, sy), (-sx, sy)]:
+            corners.append((cx + lx * ca - ly * sa, cy + lx * sa + ly * ca))
+        self.add_extruded_polygon(corners, z, height, name, material)
+
     def add_extruded_polygon(
         self,
         points: list[tuple[float, float]],
@@ -1874,11 +1893,63 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"size_m": [round(size[0], 3), round(size[1], 3)]},
         )
 
+    def add_exterior_column_ornament(
+        prefix: str,
+        center: tuple[float, float],
+        radius: float,
+        z_base: float,
+        height: float,
+        orientation: str,
+    ) -> None:
+        obj.add_cylinder(center, radius * 1.34, z_base - 0.12, 0.16, f"{prefix}_round_plinth", "ColumnStone", segments=24)
+        obj.add_ring(center, radius * 1.24, radius * 0.92, z_base + 0.08, 0.20, f"{prefix}_base_torus", "ColumnStone", segments=24)
+        obj.add_ring(center, radius * 1.18, radius * 0.90, z_base + height - 0.32, 0.22, f"{prefix}_capital_torus", "ColumnStone", segments=24)
+        obj.add_box(center, (radius * 2.65, radius * 2.65), 0.18, z_base + height - 0.02, f"{prefix}_square_abacus", "ColumnStone")
+
+        flute_count = 12
+        flute_height = max(0.5, height - 1.24)
+        for flute_index in range(flute_count):
+            angle = math.tau * flute_index / flute_count
+            flute_center = (
+                center[0] + (radius + 0.035) * math.cos(angle),
+                center[1] + (radius + 0.035) * math.sin(angle),
+            )
+            obj.add_oriented_box(
+                flute_center,
+                (0.050, radius * 0.30),
+                flute_height,
+                z_base + 0.58,
+                angle + math.pi / 2.0,
+                f"{prefix}_flute_shadow_{flute_index + 1:02d}",
+                "StepStone",
+            )
+
+        add_facade_detail(
+            f"{prefix}_column_base",
+            "exterior_column_base",
+            (center[0], center[1], z_base + 0.10),
+            {"orientation": orientation, "radius_m": round(radius, 3)},
+        )
+        add_facade_detail(
+            f"{prefix}_column_capital",
+            "exterior_column_capital",
+            (center[0], center[1], z_base + height - 0.12),
+            {"orientation": orientation, "radius_m": round(radius, 3)},
+        )
+        add_facade_detail(
+            f"{prefix}_column_fluting",
+            "exterior_column_fluting",
+            (center[0], center[1], z_base + height / 2.0),
+            {"orientation": orientation, "flute_count": flute_count},
+        )
+
     def add_column_row(prefix: str, orientation: str, fixed: float, values: list[float], z_base: float, height: float) -> None:
         for idx, value in enumerate(values, start=1):
             center = (fixed, value) if orientation == "east_west" else (value, fixed)
-            obj.add_cylinder(center, 0.46, z_base, height, f"{prefix}_column_{idx:02d}", "ColumnStone", segments=18)
-            add_facade_detail(f"{prefix}_column_{idx:02d}", "exterior_column", (center[0], center[1], z_base + height / 2.0))
+            name = f"{prefix}_column_{idx:02d}"
+            obj.add_cylinder(center, 0.46, z_base, height, name, "ColumnStone", segments=18)
+            add_exterior_column_ornament(name, center, 0.46, z_base, height, orientation)
+            add_facade_detail(name, "exterior_column", (center[0], center[1], z_base + height / 2.0))
 
     def add_dentil_row(prefix: str, orientation: str, fixed: float, values: list[float], z: float) -> None:
         for idx, value in enumerate(values, start=1):
@@ -2420,7 +2491,11 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 "east_west",
             )
         for idx, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
-            obj.add_cylinder((x * 0.92, y), 0.62, 0.2, 13.5, f"{side}_portico_column_{idx}", "ColumnStone", segments=20)
+            column_center = (x * 0.92, y)
+            column_name = f"{side}_portico_column_{idx}"
+            obj.add_cylinder(column_center, 0.62, 0.2, 13.5, column_name, "ColumnStone", segments=20)
+            add_exterior_column_ornament(column_name, column_center, 0.62, 0.2, 13.5, "east_west")
+            add_facade_detail(column_name, "exterior_column", (column_center[0], column_center[1], 6.95))
         add_element(f"{side.title()} front steps and colonnade", "landmark", (x, 0.0, 3.0))
         for door_index, y in enumerate([-9.0, 0.0, 9.0], start=1):
             add_revolving_door(f"{side}_front_{door_index}", (x * 0.86, y), side)
