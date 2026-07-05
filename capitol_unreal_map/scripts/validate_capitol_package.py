@@ -934,6 +934,8 @@ REQUIRED_CEILING_DETAIL_KINDS = {
     "light_fixture_glass_dome",
     "ceiling_vent_grille",
     "ceiling_material_variation_panel",
+    "beveled_ceiling_trim_profile",
+    "coffer_recess_shadow",
 }
 
 REQUIRED_FLOOR_DETAIL_KINDS = {
@@ -2359,8 +2361,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ceiling_detail_kinds = {detail.get("kind") for detail in ceiling_details}
     summary["ceiling_details"] = len(ceiling_details)
     summary["ceiling_detail_kinds"] = len(ceiling_detail_kinds)
-    if len(ceiling_details) < 425:
-        error(errors, f"expected at least 425 public ceiling detail records, got {len(ceiling_details)}")
+    if len(ceiling_details) < 770:
+        error(errors, f"expected at least 770 public ceiling detail records, got {len(ceiling_details)}")
     missing_ceiling_kinds = sorted(REQUIRED_CEILING_DETAIL_KINDS - ceiling_detail_kinds)
     if missing_ceiling_kinds:
         error(errors, f"missing public ceiling detail kinds: {', '.join(missing_ceiling_kinds)}")
@@ -2382,6 +2384,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 40 public ceiling vent grille records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_material_variation_panel"]) < 40:
         error(errors, "expected at least 40 public ceiling material-variation panel records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "beveled_ceiling_trim_profile"]) < 220:
+        error(errors, "expected at least 220 public beveled ceiling trim-profile records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "coffer_recess_shadow"]) < 120:
+        error(errors, "expected at least 120 public coffer recess-shadow records")
     for detail in ceiling_details:
         if not detail.get("room"):
             error(errors, f"ceiling detail {detail.get('name', '<unknown>')} is missing room")

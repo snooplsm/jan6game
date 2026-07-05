@@ -5855,7 +5855,7 @@ def add_coffered_ceiling(
     ]
     for side, detail_center, detail_size in crown_specs:
         detail_name = f"{name}_{side}_crown_molding"
-        obj.add_box(detail_center, detail_size, crown_height, z, detail_name, "ArtFrameGold")
+        obj.add_beveled_box(detail_center, detail_size, crown_height, z, detail_name, "ArtFrameGold", 0.018)
         add_interior_ceiling_detail_record(
             records,
             detail_name,
@@ -5864,17 +5864,29 @@ def add_coffered_ceiling(
             (detail_center[0], detail_center[1], z + crown_height / 2.0),
             detail_size,
         )
+        add_interior_ceiling_detail_record(
+            records,
+            f"{detail_name}_beveled_profile",
+            "beveled_ceiling_trim_profile",
+            room,
+            (detail_center[0], detail_center[1], z + crown_height / 2.0),
+            detail_size,
+        )
 
     for col in range(1, columns):
         x = cx - sx / 2.0 + sx * col / columns
         detail_name = f"{name}_vertical_ceiling_beam_{col:02d}"
-        obj.add_box((x, cy), (beam_width, sy * 0.94), beam_height, z + 0.02, detail_name, "InteriorTrim")
-        add_interior_ceiling_detail_record(records, detail_name, "ceiling_grid_beam", room, (x, cy, z + 0.08), (beam_width, sy * 0.94))
+        detail_size = (beam_width, sy * 0.94)
+        obj.add_beveled_box((x, cy), detail_size, beam_height, z + 0.02, detail_name, "InteriorTrim", 0.012)
+        add_interior_ceiling_detail_record(records, detail_name, "ceiling_grid_beam", room, (x, cy, z + 0.08), detail_size)
+        add_interior_ceiling_detail_record(records, f"{detail_name}_beveled_profile", "beveled_ceiling_trim_profile", room, (x, cy, z + 0.08), detail_size)
     for row in range(1, rows):
         y = cy - sy / 2.0 + sy * row / rows
         detail_name = f"{name}_horizontal_ceiling_beam_{row:02d}"
-        obj.add_box((cx, y), (sx * 0.94, beam_width), beam_height, z + 0.02, detail_name, "InteriorTrim")
-        add_interior_ceiling_detail_record(records, detail_name, "ceiling_grid_beam", room, (cx, y, z + 0.08), (sx * 0.94, beam_width))
+        detail_size = (sx * 0.94, beam_width)
+        obj.add_beveled_box((cx, y), detail_size, beam_height, z + 0.02, detail_name, "InteriorTrim", 0.012)
+        add_interior_ceiling_detail_record(records, detail_name, "ceiling_grid_beam", room, (cx, y, z + 0.08), detail_size)
+        add_interior_ceiling_detail_record(records, f"{detail_name}_beveled_profile", "beveled_ceiling_trim_profile", room, (cx, y, z + 0.08), detail_size)
 
     cell_w = sx / columns
     cell_h = sy / rows
@@ -5884,8 +5896,13 @@ def add_coffered_ceiling(
             py = cy - sy / 2.0 + cell_h * (row + 0.5)
             detail_name = f"{name}_coffer_panel_r{row+1:02d}_c{col+1:02d}"
             panel_size = (cell_w * 0.70, cell_h * 0.66)
-            obj.add_box((px, py), panel_size, 0.035, z + 0.10, detail_name, "RotundaWall")
+            obj.add_beveled_box((px, py), panel_size, 0.035, z + 0.10, detail_name, "RotundaWall", 0.022)
+            shadow_name = f"{detail_name}_recess_shadow"
+            shadow_size = (panel_size[0] * 0.84, panel_size[1] * 0.80)
+            obj.add_beveled_box((px, py), shadow_size, 0.016, z + 0.084, shadow_name, "DoorMetal", 0.016)
             add_interior_ceiling_detail_record(records, detail_name, "coffer_panel", room, (px, py, z + 0.118), panel_size)
+            add_interior_ceiling_detail_record(records, f"{detail_name}_beveled_profile", "beveled_ceiling_trim_profile", room, (px, py, z + 0.118), panel_size)
+            add_interior_ceiling_detail_record(records, shadow_name, "coffer_recess_shadow", room, (px, py, z + 0.092), shadow_size)
 
     variation_material = "PublicGallery" if "galler" in room.lower() else ("RotundaWall" if "Statuary" in room or "Old Senate" in room else "InteriorWall")
     for index, (ox, oy) in enumerate([(-0.28, -0.24), (0.28, -0.24), (-0.28, 0.24), (0.28, 0.24)], start=1):
