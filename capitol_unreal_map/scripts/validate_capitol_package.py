@@ -413,6 +413,10 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "gallery_divider",
     "balcony_fascia",
     "desk_surface_marker",
+    "aisle_step_light",
+    "row_marker_plaque",
+    "rostrum_microphone_cluster",
+    "gallery_stanchion",
 }
 
 REQUIRED_OFFICE_DETAIL_KINDS = {
@@ -1070,8 +1074,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 140:
-        error(errors, f"expected at least 140 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 235:
+        error(errors, f"expected at least 235 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1092,6 +1096,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 4 public balcony fascia records")
     if len([detail for detail in chamber_details if detail.get("kind") == "desk_surface_marker"]) < 10:
         error(errors, "expected at least 10 public desk surface marker records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "aisle_step_light"]) < 36:
+        error(errors, "expected at least 36 public chamber aisle step-light records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "row_marker_plaque"]) < 24:
+        error(errors, "expected at least 24 public chamber row-marker plaque records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_microphone_cluster"]) < 7:
+        error(errors, "expected at least 7 public rostrum microphone-cluster records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_stanchion"]) < 32:
+        error(errors, "expected at least 32 public gallery stanchion records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")

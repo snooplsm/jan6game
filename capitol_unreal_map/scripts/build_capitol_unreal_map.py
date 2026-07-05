@@ -3454,6 +3454,36 @@ def add_chamber_realism_details(
         obj.add_box(center, size, 0.035, z, name, "BrassRail")
         add_chamber_detail_record(records, name, "desk_surface_marker", chamber, (center[0], center[1], z + 0.018), size)
 
+    def aisle_step_light(name: str, chamber: str, center: tuple[float, float], z: float, orientation: str) -> None:
+        if orientation == "east_west":
+            size = (0.36, 0.10)
+        else:
+            size = (0.10, 0.36)
+        obj.add_box(center, size, 0.045, z, f"{name}_warm_lens", "WarmLightGlass")
+        obj.add_box(center, (size[0] * 1.18, size[1] * 1.18), 0.026, z - 0.012, f"{name}_metal_trim", "LightFixtureMetal")
+        add_chamber_detail_record(records, name, "aisle_step_light", chamber, (center[0], center[1], z + 0.022), size)
+
+    def row_marker_plaque(name: str, chamber: str, center: tuple[float, float], orientation: str, z: float) -> None:
+        size = (0.64, 0.08) if orientation == "east_west" else (0.08, 0.64)
+        obj.add_box(center, size, 0.20, z, f"{name}_brass_plate", "BrassRail")
+        obj.add_box(center, (size[0] * 0.64, size[1] * 0.64), 0.035, z + 0.16, f"{name}_dark_letter_bar", "DoorMetal")
+        add_chamber_detail_record(records, name, "row_marker_plaque", chamber, (center[0], center[1], z + 0.10), size)
+
+    def rostrum_microphone_cluster(name: str, chamber: str, center: tuple[float, float], z: float, count: int) -> None:
+        x, y = center
+        for idx in range(count):
+            offset = (idx - (count - 1) / 2.0) * 0.18
+            obj.add_cylinder((x + offset, y), 0.028, z, 0.32, f"{name}_stem_{idx+1:02d}", "DoorMetal", segments=8)
+            obj.add_cylinder((x + offset, y + 0.04), 0.050, z + 0.30, 0.08, f"{name}_head_{idx+1:02d}", "LightFixtureMetal", segments=8)
+        add_chamber_detail_record(records, name, "rostrum_microphone_cluster", chamber, (x, y, z + 0.18), (0.18 * count, 0.20))
+
+    def gallery_stanchion(name: str, chamber: str, center: tuple[float, float], z: float) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.12, z, 0.07, f"{name}_round_base", "DoorMetal", segments=12)
+        obj.add_cylinder((x, y), 0.045, z + 0.05, 0.66, f"{name}_post", "BrassRail", segments=10)
+        obj.add_cylinder((x, y), 0.085, z + 0.70, 0.08, f"{name}_cap", "BrassRail", segments=10)
+        add_chamber_detail_record(records, name, "gallery_stanchion", chamber, (x, y, z + 0.38), (0.24, 0.24))
+
     # House chamber public visual details.
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
@@ -3484,11 +3514,18 @@ def add_chamber_realism_details(
         start=1,
     ):
         desk_surface_marker(f"house_floor_row_surface_marker_{row_index:02d}", "House Chamber", (0.0, y), (width, 0.08), 4.98)
+    for idx, y in enumerate([-58.0, -62.0, -66.0, -70.0, -74.0, -78.0, -82.0, -86.0, -90.0, -94.0], start=1):
+        aisle_step_light(f"house_center_aisle_step_light_left_{idx:02d}", "House Chamber", (-1.02, y), 4.67, "east_west")
+        aisle_step_light(f"house_center_aisle_step_light_right_{idx:02d}", "House Chamber", (1.02, y), 4.67, "east_west")
+    for idx, y in enumerate([-61.0, -66.5, -72.0, -77.5, -83.0, -88.5, -94.0], start=1):
+        row_marker_plaque(f"house_left_row_marker_plaque_{idx:02d}", "House Chamber", (-31.0, y), "north_south", 4.93)
+        row_marker_plaque(f"house_right_row_marker_plaque_{idx:02d}", "House Chamber", (31.0, y), "north_south", 4.93)
     for idx, (x, y, sx, sy) in enumerate(
         [(0.0, -48.7, 3.8, 0.92), (-3.2, -49.8, 2.2, 0.72), (3.2, -49.8, 2.2, 0.72), (0.0, -52.1, 5.4, 0.72)],
         start=1,
     ):
         rostrum_desk(f"house_rostrum_generic_desk_{idx}", "House Chamber", (x, y), (sx, sy), 5.02)
+        rostrum_microphone_cluster(f"house_rostrum_microphone_cluster_{idx}", "House Chamber", (x, y - sy * 0.22), 5.50, 3)
     for row_index, y in enumerate([-96.4, -98.4, -100.4, -102.4], start=1):
         for col_index, x in enumerate([-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], start=1):
             gallery_bench(
@@ -3499,6 +3536,9 @@ def add_chamber_realism_details(
                 4.98 + row_index * 0.14,
                 "east_west",
             )
+    for idx, x in enumerate([-32.0, -24.0, -16.0, -8.0, 8.0, 16.0, 24.0, 32.0], start=1):
+        gallery_stanchion(f"house_gallery_front_stanchion_{idx:02d}", "House Chamber", (x, -94.55), 5.28)
+        gallery_stanchion(f"house_gallery_rear_stanchion_{idx:02d}", "House Chamber", (x, -103.35), 5.60)
 
     # Senate chamber public visual details.
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
@@ -3530,11 +3570,18 @@ def add_chamber_realism_details(
         start=1,
     ):
         desk_surface_marker(f"senate_floor_row_surface_marker_{row_index:02d}", "Senate Chamber", (0.0, y), (width, 0.08), 4.98)
+    for idx, y in enumerate([63.5, 66.8, 70.1, 73.4, 76.7, 80.0, 83.3, 86.6], start=1):
+        aisle_step_light(f"senate_center_aisle_step_light_left_{idx:02d}", "Senate Chamber", (-0.92, y), 4.67, "east_west")
+        aisle_step_light(f"senate_center_aisle_step_light_right_{idx:02d}", "Senate Chamber", (0.92, y), 4.67, "east_west")
+    for idx, y in enumerate([65.0, 69.0, 73.0, 77.0, 81.0], start=1):
+        row_marker_plaque(f"senate_left_row_marker_plaque_{idx:02d}", "Senate Chamber", (-22.4, y), "north_south", 4.93)
+        row_marker_plaque(f"senate_right_row_marker_plaque_{idx:02d}", "Senate Chamber", (22.4, y), "north_south", 4.93)
     for idx, (x, y, sx, sy) in enumerate(
         [(0.0, 83.75, 3.2, 0.82), (-2.8, 82.7, 2.0, 0.66), (2.8, 82.7, 2.0, 0.66)],
         start=1,
     ):
         rostrum_desk(f"senate_presiding_generic_desk_{idx}", "Senate Chamber", (x, y), (sx, sy), 4.98)
+        rostrum_microphone_cluster(f"senate_presiding_microphone_cluster_{idx}", "Senate Chamber", (x, y + sy * 0.22), 5.44, 3)
     for row_index, y in enumerate([94.8, 96.6, 98.4, 100.2], start=1):
         for col_index, x in enumerate([-21.0, -14.0, -7.0, 0.0, 7.0, 14.0, 21.0], start=1):
             gallery_bench(
@@ -3545,6 +3592,9 @@ def add_chamber_realism_details(
                 4.96 + row_index * 0.14,
                 "east_west",
             )
+    for idx, x in enumerate([-24.5, -17.5, -10.5, -3.5, 3.5, 10.5, 17.5, 24.5], start=1):
+        gallery_stanchion(f"senate_gallery_front_stanchion_{idx:02d}", "Senate Chamber", (x, 93.55), 5.26)
+        gallery_stanchion(f"senate_gallery_rear_stanchion_{idx:02d}", "Senate Chamber", (x, 101.00), 5.58)
 
     add_label(labels, "House and Senate chamber rails, dais steps, flags, and aisle trim - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
