@@ -7166,6 +7166,82 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     {"orientation": orientation, "width_m": round(width, 3), "height_m": round(height, 3)},
                 )
 
+    def add_primary_facade_bay_depths(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        values: list[float],
+        z_base: float,
+        bay_width: float,
+        bay_height: float,
+    ) -> None:
+        face_sign = 1.0 if fixed >= 0.0 else -1.0
+        recess_offset = face_sign * 0.66
+        frame_offset = face_sign * 0.82
+        for bay_index, value in enumerate(values, start=1):
+            name = f"{prefix}_primary_facade_bay_{bay_index:02d}"
+            if orientation == "east_west":
+                recess_center = (fixed + recess_offset, value)
+                frame_center = (fixed + frame_offset, value)
+                recess_size = (0.070, bay_width)
+                side_size = (0.38, 0.22)
+                cap_size = (0.42, bay_width + 0.54)
+                side_centers = [
+                    (frame_center[0], value - bay_width / 2.0 - 0.11),
+                    (frame_center[0], value + bay_width / 2.0 + 0.11),
+                ]
+                cap_centers = [frame_center, frame_center]
+            else:
+                recess_center = (value, fixed + recess_offset)
+                frame_center = (value, fixed + frame_offset)
+                recess_size = (bay_width, 0.070)
+                side_size = (0.22, 0.38)
+                cap_size = (bay_width + 0.54, 0.42)
+                side_centers = [
+                    (value - bay_width / 2.0 - 0.11, frame_center[1]),
+                    (value + bay_width / 2.0 + 0.11, frame_center[1]),
+                ]
+                cap_centers = [frame_center, frame_center]
+
+            obj.add_box(recess_center, recess_size, bay_height, z_base, f"{name}_deep_shadow_backplane", "DoorMetal")
+            for side_index, side_center in enumerate(side_centers, start=1):
+                obj.add_box(side_center, side_size, bay_height + 0.34, z_base - 0.16, f"{name}_stone_side_return_{side_index:02d}", "ColumnStone")
+            obj.add_box(cap_centers[0], cap_size, 0.28, z_base + bay_height + 0.05, f"{name}_projecting_lintel", "ColumnStone")
+            obj.add_box(cap_centers[1], cap_size, 0.20, z_base - 0.18, f"{name}_projecting_sill", "ColumnStone")
+            obj.add_box(recess_center, recess_size, 0.12, z_base + bay_height * 0.48, f"{name}_mid_bay_shadow_band", "StoneGrimeOverlay")
+
+            add_facade_detail(
+                f"{name}_deep_shadow_backplane",
+                "primary_facade_bay_recess_depth",
+                (recess_center[0], recess_center[1], z_base + bay_height / 2.0),
+                {
+                    "orientation": orientation,
+                    "bay_width_m": round(bay_width, 3),
+                    "bay_height_m": round(bay_height, 3),
+                    "public_accuracy": "large_component_schematic_facade_depth",
+                },
+            )
+            add_facade_detail(
+                f"{name}_stone_side_returns",
+                "primary_facade_bay_side_return",
+                (frame_center[0], frame_center[1], z_base + bay_height / 2.0),
+                {
+                    "orientation": orientation,
+                    "count": 2,
+                    "public_accuracy": "large_component_schematic_facade_depth",
+                },
+            )
+            add_facade_detail(
+                f"{name}_horizontal_caps",
+                "primary_facade_bay_lintel_sill",
+                (frame_center[0], frame_center[1], z_base + bay_height / 2.0),
+                {
+                    "orientation": orientation,
+                    "count": 2,
+                    "public_accuracy": "large_component_schematic_facade_depth",
+                },
+            )
+
     def add_arcade_shadow_bays(
         prefix: str,
         orientation: str,
@@ -7921,6 +7997,21 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_facade_recess_panel("central_west_public_depth", "east_west", -39.10, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], [3.10, 6.55, 10.00], 1.75, 1.75)
     add_facade_recess_panel("north_wing_public_depth", "north_south", 101.95, [-36.0, -27.0, -18.0, -9.0, 9.0, 18.0, 27.0, 36.0], [3.05, 6.35, 9.65], 2.05, 1.82)
     add_facade_recess_panel("south_wing_public_depth", "north_south", -101.95, [-36.0, -27.0, -18.0, -9.0, 9.0, 18.0, 27.0, 36.0], [3.05, 6.35, 9.65], 2.05, 1.82)
+
+    primary_facade_bay_specs = [
+        ("central_east", "east_west", 39.55, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], 1.82, 3.35, 11.30),
+        ("central_west", "east_west", -39.55, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], 1.82, 3.35, 11.30),
+        ("central_north", "north_south", 30.10, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 1.82, 3.55, 11.30),
+        ("central_south", "north_south", -30.10, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 1.82, 3.55, 11.30),
+        ("east_front_portico", "east_west", 67.70, [-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], 1.70, 3.25, 11.85),
+        ("west_front_portico", "east_west", -67.70, [-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], 1.70, 3.25, 11.85),
+        ("senate_north_front", "north_south", 102.20, [-36.0, -27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0, 36.0], 1.68, 3.50, 9.95),
+        ("house_south_front", "north_south", -102.20, [-36.0, -27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0, 36.0], 1.68, 3.50, 9.95),
+        ("senate_inner_south", "north_south", 39.05, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 1.68, 3.35, 9.70),
+        ("house_inner_north", "north_south", -38.05, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 1.68, 3.35, 9.70),
+    ]
+    for args in primary_facade_bay_specs:
+        add_primary_facade_bay_depths(*args)
 
     ashlar_z_levels = [2.35, 3.55, 4.75, 5.95, 7.15, 8.35, 9.55, 10.75, 11.95]
     front_ashlar_z_levels = [2.25, 3.48, 4.71, 5.94, 7.17, 8.40, 9.63, 10.86, 12.09]

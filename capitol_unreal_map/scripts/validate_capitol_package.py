@@ -1562,6 +1562,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_beveled_massing",
     "facade_recess_shadow_panel",
     "facade_arcade_shadow_bay",
+    "primary_facade_bay_recess_depth",
+    "primary_facade_bay_side_return",
+    "primary_facade_bay_lintel_sill",
     "facade_corner_quoin_block",
     "attic_window_band",
     "cornice_shadow_reveal",
@@ -2421,6 +2424,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 130 public facade recess shadow panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_arcade_shadow_bay"]) < 24:
         error(errors, "expected at least 24 public facade arcade shadow bay records")
+    if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_recess_depth"]) < 76:
+        error(errors, "expected at least 76 large-component primary facade bay recess-depth records")
+    if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_side_return"]) < 76:
+        error(errors, "expected at least 76 large-component primary facade bay side-return records")
+    if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_lintel_sill"]) < 76:
+        error(errors, "expected at least 76 large-component primary facade bay lintel/sill records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_corner_quoin_block"]) < 200:
         error(errors, "expected at least 200 public facade corner quoin block records")
     if len([detail for detail in facade_details if detail.get("kind") == "attic_window_band"]) < 76:

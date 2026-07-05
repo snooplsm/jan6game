@@ -24,6 +24,20 @@ Interior areas are public-only and schematic: major public rooms, the Rotunda, c
 
 Detailed map notes are in `capitol_unreal_map/README.md`.
 
+## Asset And Data Sources
+
+Use these as source/reference inputs for replacing blocky geometry with authored Unreal-ready assets:
+
+- [DC Open Data](https://opendata.dc.gov/) - public footprints, planimetrics, roads, curbs, sidewalks, fixtures, and streetscape source data.
+- [OpenStreetMap historical extracts](https://overpass-api.de/) - target-era roads, paths, bike lanes, names, and surrounding building footprints.
+- [USGS 3DEP / National Map](https://apps.nationalmap.gov/lidar-explorer/) - lidar/elevation reference for terrain, roof heights, and broad massing checks.
+- [Library of Congress HABS/HAER/HALS](https://www.loc.gov/pictures/collection/hh/) - public-domain measured drawings and photos for hand-modeling Capitol architectural detail.
+- [Overture Maps Buildings](https://docs.overturemaps.org/guides/buildings/) - broad building-footprint/context data for surrounding city massing.
+- [Cesium for Unreal](https://cesium.com/platform/cesium-for-unreal/) with Google Photorealistic 3D Tiles - streamed photogrammetry reference/background context, subject to Google/Cesium terms.
+- [ArcGIS Maps SDK for Unreal Engine](https://developers.arcgis.com/unreal-engine/) - streamed basemaps, elevation, and 3D GIS layers for Unreal context/reference.
+
+For shipped assets, prefer public-domain or openly licensed geometry, textures, and reference. Treat streamed photogrammetry tiles as reference/context unless the license explicitly allows extraction and redistribution.
+
 ## Setup
 
 Large generated meshes and 4K texture PNGs use Git LFS:
