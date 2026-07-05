@@ -3893,6 +3893,19 @@ def add_public_art_and_lighting(
         add_light_fixture(obj, lights, f"house_gallery_sconce_{idx:02d}", "sconce", "House galleries", (x, -100.9), 6.85, 440.0, 5.4)
         add_light_fixture(obj, lights, f"senate_gallery_sconce_{idx:02d}", "sconce", "Senate galleries", (x * 0.78, 98.8), 6.85, 420.0, 5.2)
 
+    transition_light_specs = [
+        ("west_public_approach_transition_light", "West terrace public orientation marker", (-55.0, 0.0), 6.92, 520.0, 5.8),
+        ("east_public_approach_transition_light", "East public approach / visitor circulation", (55.0, 0.0), 6.92, 520.0, 5.8),
+        ("statuary_transition_light", "Rotunda / National Statuary Hall", (16.2, -15.8), 6.96, 460.0, 5.2),
+        ("old_senate_transition_light", "Rotunda / Old Senate Chamber", (16.2, 15.8), 6.96, 460.0, 5.2),
+        ("house_transition_light", "Rotunda / House Chamber orientation", (0.0, -51.0), 7.00, 560.0, 6.0),
+        ("senate_transition_light", "Rotunda / Senate Chamber orientation", (0.0, 51.0), 7.00, 540.0, 5.8),
+        ("house_gallery_transition_light", "House Chamber / public gallery", (0.0, -91.0), 6.92, 430.0, 5.0),
+        ("senate_gallery_transition_light", "Senate Chamber / public gallery", (0.0, 89.0), 6.92, 420.0, 5.0),
+    ]
+    for name, location, center, z, intensity, radius in transition_light_specs:
+        add_light_fixture(obj, lights, name, "pendant", location, center, z, intensity, radius)
+
     for idx, x in enumerate([20.0, 28.0, 36.0], start=1):
         add_light_fixture(obj, lights, f"statuary_hall_pendant_{idx:02d}", "pendant", "National Statuary Hall", (x, -30.0), 7.8, 720.0, 7.0)
         add_light_fixture(obj, lights, f"old_senate_chamber_pendant_{idx:02d}", "pendant", "Old Senate Chamber", (x, 30.0), 7.8, 680.0, 6.5)
@@ -5396,6 +5409,35 @@ def add_public_circulation_details(
         obj.add_box(center, header_size, 0.075, 7.32, f"{name}_upper_lintel_shadow", "DoorMetal")
         add_public_circulation_record(records, f"{name}_upper_lintel_shadow", "public_transition_lintel_shadow", area, (x, y, 7.36), header_size)
 
+    def threshold_material_variation(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        insert_size = transition_size(width * 0.58, 0.28, orientation)
+        edge_size = transition_size(width * 0.72, 0.055, orientation)
+        glow_size = transition_size(width * 0.82, 0.52, orientation)
+        obj.add_box(center, insert_size, 0.030, z + 0.155, f"{name}_marble_threshold_insert", "RotundaFloor")
+        add_public_circulation_record(records, f"{name}_marble_threshold_insert", "public_threshold_marble_insert", area, (x, y, z + 0.170), insert_size)
+
+        for edge_index, normal_offset in enumerate([-0.20, 0.20], start=1):
+            edge_center = transition_component_center(center, 0.0, normal_offset, orientation)
+            obj.add_box(edge_center, edge_size, 0.026, z + 0.190, f"{name}_brass_threshold_edge_{edge_index}", "BrassRail")
+            add_public_circulation_record(
+                records,
+                f"{name}_brass_threshold_edge_{edge_index}",
+                "public_threshold_brass_edge",
+                area,
+                (edge_center[0], edge_center[1], z + 0.205),
+                edge_size,
+            )
+
+        obj.add_box(center, glow_size, 0.018, z + 0.218, f"{name}_warm_transition_light_pool", "WarmLightGlass")
+        add_public_circulation_record(records, f"{name}_warm_transition_light_pool", "public_transition_light_pool", area, (x, y, z + 0.227), glow_size)
+
     corridor("east_west_public_axis_band", "Rotunda / east-west public approach", [(-68.0, 0.0), (-22.0, 0.0), (22.0, 0.0), (68.0, 0.0)], 5.2)
     corridor("rotunda_to_house_public_band", "Rotunda to House Chamber public orientation", [(0.0, -12.0), (0.0, -38.0), (0.0, -52.0)], 4.6)
     corridor("rotunda_to_senate_public_band", "Rotunda to Senate Chamber public orientation", [(0.0, 12.0), (0.0, 38.0), (0.0, 52.0)], 4.6)
@@ -5417,6 +5459,7 @@ def add_public_circulation_details(
         threshold(name, area, center, size)
         portal(f"{name}_portal", area, center, width, orientation)
         public_transition_surround(f"{name}_public_transition", area, center, width, orientation)
+        threshold_material_variation(f"{name}_material_variation", area, center, width, orientation)
 
     for name, area, center, text in [
         ("rotunda_orientation_sign_west", "Rotunda", (-11.2, -3.8), "Rotunda / west public orientation"),
@@ -5933,6 +5976,21 @@ def add_public_interior_furnishing_details(
         start=1,
     ):
         add_display_case(f"public_interior_display_case_{index:02d}", area, center, orientation)
+
+    for index, (center, orientation, area) in enumerate(
+        [
+            ((-50.5, 4.8), "north_south", "West terrace public orientation marker"),
+            ((50.5, -4.8), "north_south", "East public approach / visitor circulation"),
+            ((12.8, -12.0), "east_west", "Rotunda / National Statuary Hall"),
+            ((12.8, 12.0), "east_west", "Rotunda / Old Senate Chamber"),
+            ((-4.8, -48.2), "east_west", "Rotunda / House Chamber orientation"),
+            ((4.8, 48.2), "east_west", "Rotunda / Senate Chamber orientation"),
+            ((-10.5, -91.7), "east_west", "House Chamber / public gallery"),
+            ((10.5, 89.7), "east_west", "Senate Chamber / public gallery"),
+        ],
+        start=1,
+    ):
+        add_display_case(f"public_transition_exhibit_case_{index:02d}", area, center, orientation)
 
     for index, (center, orientation, area) in enumerate(
         [

@@ -588,6 +588,9 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "public_transition_keystone",
     "public_transition_floor_mosaic",
     "public_transition_lintel_shadow",
+    "public_threshold_marble_insert",
+    "public_threshold_brass_edge",
+    "public_transition_light_pool",
 }
 
 REQUIRED_SIGNAGE_DETAIL_KINDS = {
@@ -1506,8 +1509,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
     summary["circulation_details"] = len(circulation_details)
     summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
-    if len(circulation_details) < 150:
-        error(errors, f"expected at least 150 public circulation detail records, got {len(circulation_details)}")
+    if len(circulation_details) < 185:
+        error(errors, f"expected at least 185 public circulation detail records, got {len(circulation_details)}")
     missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
     if missing_circulation_kinds:
         error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
@@ -1529,6 +1532,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public transition floor-mosaic records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_lintel_shadow"]) < 8:
         error(errors, "expected at least 8 public transition lintel-shadow records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_threshold_marble_insert"]) < 8:
+        error(errors, "expected at least 8 public threshold marble-insert records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_threshold_brass_edge"]) < 16:
+        error(errors, "expected at least 16 public threshold brass-edge records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_light_pool"]) < 8:
+        error(errors, "expected at least 8 public transition light-pool records")
     for detail in circulation_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} has invalid center_m")
@@ -1624,15 +1633,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     furnishing_detail_kinds = {detail.get("kind") for detail in furnishing_details}
     summary["furnishing_details"] = len(furnishing_details)
     summary["furnishing_detail_kinds"] = len(furnishing_detail_kinds)
-    if len(furnishing_details) < 125:
-        error(errors, f"expected at least 125 public furnishing detail records, got {len(furnishing_details)}")
+    if len(furnishing_details) < 138:
+        error(errors, f"expected at least 138 public furnishing detail records, got {len(furnishing_details)}")
     missing_furnishing_kinds = sorted(REQUIRED_FURNISHING_DETAIL_KINDS - furnishing_detail_kinds)
     if missing_furnishing_kinds:
         error(errors, f"missing public furnishing detail kinds: {', '.join(missing_furnishing_kinds)}")
     if len([detail for detail in furnishing_details if detail.get("kind") == "public_bench"]) < 24:
         error(errors, "expected at least 24 public interior bench records")
-    if len([detail for detail in furnishing_details if detail.get("kind") == "display_case"]) < 16:
-        error(errors, "expected at least 16 public display case records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "display_case"]) < 24:
+        error(errors, "expected at least 24 public display case records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "information_lectern"]) < 10:
         error(errors, "expected at least 10 public information lectern records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "waste_receptacle"]) < 16:
@@ -1858,8 +1867,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 Rotunda frieze relief panel records")
     if len([record for record in public_art if record.get("type") == "portrait_panel"]) < 18:
         error(errors, "expected at least 18 public portrait panel records")
-    if len(light_fixtures) < 55:
-        error(errors, f"expected at least 55 public light fixtures, got {len(light_fixtures)}")
+    if len(light_fixtures) < 63:
+        error(errors, f"expected at least 63 public light fixtures, got {len(light_fixtures)}")
     if len(wall_treatments) < 10:
         error(errors, f"expected at least 10 wall-treatment records, got {len(wall_treatments)}")
     for record in public_art[:5] + light_fixtures[:5] + wall_treatments[:5]:
