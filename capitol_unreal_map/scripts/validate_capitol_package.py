@@ -534,9 +534,13 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
 
 REQUIRED_BUILDING_DETAIL_KINDS = {
     "surrounding_building_roofline",
+    "surrounding_building_cornice_band",
     "surrounding_building_facade_window",
     "surrounding_building_public_entry_marker",
+    "surrounding_building_awning",
+    "surrounding_building_wall_sign",
     "surrounding_building_rooftop_detail",
+    "surrounding_building_rooftop_mechanical",
 }
 
 REQUIRED_VIEWPOINTS = {
@@ -849,19 +853,27 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
-    if len(building_details) < 520:
-        error(errors, f"expected at least 520 surrounding building visual detail records, got {len(building_details)}")
+    if len(building_details) < 1100:
+        error(errors, f"expected at least 1100 surrounding building visual detail records, got {len(building_details)}")
     missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
     if missing_building_detail_kinds:
         error(errors, f"missing surrounding building detail kinds: {', '.join(missing_building_detail_kinds)}")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roofline"]) < 35:
         error(errors, "expected at least 35 surrounding building roofline records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_cornice_band"]) < 35:
+        error(errors, "expected at least 35 surrounding building cornice-band records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_facade_window"]) < 360:
         error(errors, "expected at least 360 surrounding building facade-window records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_public_entry_marker"]) < 35:
         error(errors, "expected at least 35 surrounding building public-entry marker records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_awning"]) < 35:
+        error(errors, "expected at least 35 surrounding building awning records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_wall_sign"]) < 35:
+        error(errors, "expected at least 35 surrounding building wall-sign records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_rooftop_detail"]) < 60:
         error(errors, "expected at least 60 surrounding building rooftop-detail records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_rooftop_mechanical"]) < 70:
+        error(errors, "expected at least 70 surrounding building rooftop-mechanical records")
     for detail in building_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"building detail {detail.get('name', '<unknown>')} has invalid center_m")

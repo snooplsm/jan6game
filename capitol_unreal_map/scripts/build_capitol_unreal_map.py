@@ -746,6 +746,20 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             {"size_m": [round(width, 3), round(depth, 3)]},
         )
 
+        cornice_z = max(2.4, height - 0.44)
+        buildings.add_box(((min_x + max_x) / 2.0, max_y + 0.035), (width, 0.14), 0.16, cornice_z, f"{safe_prefix}_north_cornice_band", "StepStone")
+        buildings.add_box(((min_x + max_x) / 2.0, min_y - 0.035), (width, 0.14), 0.16, cornice_z, f"{safe_prefix}_south_cornice_band", "StepStone")
+        buildings.add_box((max_x + 0.035, (min_y + max_y) / 2.0), (0.14, depth), 0.16, cornice_z, f"{safe_prefix}_east_cornice_band", "StepStone")
+        buildings.add_box((min_x - 0.035, (min_y + max_y) / 2.0), (0.14, depth), 0.16, cornice_z, f"{safe_prefix}_west_cornice_band", "StepStone")
+        add_building_detail_record(
+            f"{safe_prefix}_cornice_band",
+            "surrounding_building_cornice_band",
+            way_id,
+            name,
+            (cx, cy, cornice_z + 0.08),
+            {"size_m": [round(width, 3), round(depth, 3)]},
+        )
+
         rows = max(1, min(3, int(height // 4.0)))
         cols_x = max(2, min(5, int(width // 7.0)))
         cols_y = max(2, min(5, int(depth // 7.0)))
@@ -780,12 +794,54 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         buildings.add_box((x_face, y), entry_size, 1.85, 0.12, entry_name, "DoorGlass")
         add_building_detail_record(entry_name, "surrounding_building_public_entry_marker", way_id, name, (x_face, y, 1.05), {"face": face})
 
+        awning_name = f"{safe_prefix}_public_entry_awning"
+        sign_name = f"{safe_prefix}_wall_sign"
+        sign_material = "StreetSignGreen" if way_id % 2 else "MarkerBlue"
+        if face in {"east", "west"}:
+            awning_size = (0.44, max(1.4, min(3.0, entry_size[1] * 1.22)))
+            sign_size = (0.08, max(0.95, min(2.2, entry_size[1] * 0.88)))
+        else:
+            awning_size = (max(1.4, min(3.0, entry_size[0] * 1.22)), 0.44)
+            sign_size = (max(0.95, min(2.2, entry_size[0] * 0.88)), 0.08)
+        buildings.add_box((x_face, y), awning_size, 0.18, 2.05, awning_name, "DoorMetal")
+        buildings.add_box((x_face, y), sign_size, 0.38, 2.42, sign_name, sign_material)
+        add_building_detail_record(
+            awning_name,
+            "surrounding_building_awning",
+            way_id,
+            name,
+            (x_face, y, 2.14),
+            {"face": face},
+        )
+        add_building_detail_record(
+            sign_name,
+            "surrounding_building_wall_sign",
+            way_id,
+            name,
+            (x_face, y, 2.61),
+            {"face": face, "material": sign_material},
+        )
+
         for unit_index, (ox, oy) in enumerate([(-0.18, -0.12), (0.20, 0.16)], start=1):
             unit_center = (cx + width * ox, cy + depth * oy)
             unit_size = (max(0.8, min(3.8, width * 0.22)), max(0.65, min(2.4, depth * 0.18)))
             unit_name = f"{safe_prefix}_rooftop_detail_{unit_index}"
             buildings.add_box(unit_center, unit_size, 0.55, height + 0.18, unit_name, "BuildingGeneric")
             add_building_detail_record(unit_name, "surrounding_building_rooftop_detail", way_id, name, (unit_center[0], unit_center[1], height + 0.46))
+
+        for unit_index, (ox, oy) in enumerate([(0.10, -0.28), (-0.28, 0.22)], start=1):
+            unit_center = (cx + width * ox, cy + depth * oy)
+            unit_size = (max(0.72, min(2.7, width * 0.16)), max(0.58, min(1.85, depth * 0.14)))
+            unit_name = f"{safe_prefix}_rooftop_mechanical_{unit_index}"
+            buildings.add_box(unit_center, unit_size, 0.42, height + 0.76, unit_name, "DoorMetal")
+            buildings.add_cylinder(unit_center, max(0.18, min(unit_size) * 0.24), height + 1.20, 0.055, f"{unit_name}_fan_cap", "FacadeWindow", segments=12)
+            add_building_detail_record(
+                unit_name,
+                "surrounding_building_rooftop_mechanical",
+                way_id,
+                name,
+                (unit_center[0], unit_center[1], height + 0.97),
+            )
 
     def add_streetlight(name: str, point: tuple[float, float], side_sign: float) -> None:
         x, y = point
