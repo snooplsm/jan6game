@@ -116,7 +116,7 @@ def main() -> None:
         "back_done",
     ]
     with out_path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         for idx, record in enumerate(ordered, start=1):
             writer.writerow(
