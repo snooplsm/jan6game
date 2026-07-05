@@ -9221,6 +9221,17 @@ def add_public_interior_surface_aging_details(
                 add_wall_patch(f"{prefix}_corner_grime_streak_{corner_index:02d}", "wall_corner_grime_streak", area, (x, y), (0.34, 0.052), 4.54, 0.82)
             else:
                 add_wall_patch(f"{prefix}_corner_grime_streak_{corner_index:02d}", "wall_corner_grime_streak", area, (x, y), (0.052, 0.34), 4.54, 0.82)
+        sill_width = min(max(sx * 0.14 + 0.42, 2.05), 3.82)
+        add_wall_patch(f"{prefix}_north_window_sill_dust_shadow", "window_sill_dust_shadow", area, (cx - sx * 0.22, north_y - 0.038), (sill_width, 0.044), 5.42, 0.055)
+        add_wall_patch(f"{prefix}_south_window_sill_dust_shadow", "window_sill_dust_shadow", area, (cx + sx * 0.22, south_y + 0.038), (sill_width, 0.044), 5.42, 0.055)
+        add_wall_patch(f"{prefix}_north_radiator_heat_stain", "radiator_heat_stain", area, (cx - sx * 0.22, north_y - 0.036), (sill_width * 0.78, 0.040), 5.05, 0.30)
+        add_wall_patch(f"{prefix}_south_radiator_heat_stain", "radiator_heat_stain", area, (cx + sx * 0.22, south_y + 0.036), (sill_width * 0.78, 0.040), 5.05, 0.30)
+        add_wall_patch(f"{prefix}_north_contact_smudge", "wall_contact_smudge", area, (cx + sx * 0.12, north_y - 0.040), (sx * 0.16, 0.040), 5.52, 0.18)
+        add_wall_patch(f"{prefix}_south_contact_smudge", "wall_contact_smudge", area, (cx - sx * 0.12, south_y + 0.040), (sx * 0.16, 0.040), 5.50, 0.18)
+        add_wall_patch(f"{prefix}_east_contact_smudge", "wall_contact_smudge", area, (east_x - 0.040, cy - sy * 0.12), (0.040, sy * 0.16), 5.50, 0.18)
+        add_wall_patch(f"{prefix}_west_contact_smudge", "wall_contact_smudge", area, (west_x + 0.040, cy + sy * 0.12), (0.040, sy * 0.16), 5.52, 0.18)
+        add_floor_patch(f"{prefix}_north_floor_mop_streak", "floor_mop_streak", area, (cx - sx * 0.16, north_y - 0.55), (sx * 0.22, 0.16), floor_z + 0.036, "FloorWear", 2.5)
+        add_floor_patch(f"{prefix}_south_floor_mop_streak", "floor_mop_streak", area, (cx + sx * 0.16, south_y + 0.55), (sx * 0.22, 0.16), floor_z + 0.036, "FloorWear", -2.5)
 
     threshold_tracks = [
         ("west_public_approach_surface_track", "West terrace public orientation marker", (-55.0, 0.0), (1.10, 7.0), 4.57, 0.0),
@@ -9235,6 +9246,13 @@ def add_public_interior_surface_aging_details(
     for name, area, center, size, z, angle in threshold_tracks:
         add_floor_patch(name, "threshold_dirt_track", area, center, size, z, "FloorWear", angle)
         add_floor_patch(f"{name}_offset", "threshold_dirt_track", area, (center[0] + size[0] * 0.13, center[1] - size[1] * 0.08), (size[0] * 0.58, size[1] * 0.30), z + 0.014, "FloorWear", angle + 2.0)
+        if size[0] < size[1]:
+            smudge_center = (center[0] - 0.055, center[1] + size[1] * 0.22)
+            smudge_size = (0.050, min(1.10, size[1] * 0.20))
+        else:
+            smudge_center = (center[0] + size[0] * 0.22, center[1] - 0.055)
+            smudge_size = (min(1.10, size[0] * 0.20), 0.050)
+        add_wall_patch(f"{name}_public_hand_smudge", "door_pull_smudge", area, smudge_center, smudge_size, 5.28, 0.24)
 
     for index, x in enumerate([value * 3.2 for value in range(-7, 8)], start=1):
         add_floor_patch(f"house_member_desk_edge_wear_patch_{index:02d}", "desk_edge_wear_patch", "House Chamber", (x, -70.0 + (index % 4 - 1.5) * 4.3), (0.72, 0.18), 5.015, "FloorWear", -4.0 + index % 5)
@@ -9261,7 +9279,7 @@ def add_public_interior_surface_aging_details(
     for name, area, center, size, z in brass_specs:
         add_floor_patch(name, "brass_tarnish_patch", area, center, size, z, "FloorWear")
 
-    add_label(labels, "Layered public surface aging: dust, scuffs, contact shadows, and tarnish", -18.0, -10.0, 5.6, "surface_aging_detail")
+    add_label(labels, "Layered public surface aging: dust, scuffs, smudges, mop streaks, heat stains, contact shadows, and tarnish", -18.0, -10.0, 5.6, "surface_aging_detail")
 
 
 def add_chamber_detail_record(

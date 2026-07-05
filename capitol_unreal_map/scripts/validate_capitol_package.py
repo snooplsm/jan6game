@@ -1251,6 +1251,11 @@ REQUIRED_SURFACE_AGING_DETAIL_KINDS = {
     "chair_leather_scuff_patch",
     "gallery_seat_rub_shadow",
     "brass_tarnish_patch",
+    "window_sill_dust_shadow",
+    "radiator_heat_stain",
+    "wall_contact_smudge",
+    "floor_mop_streak",
+    "door_pull_smudge",
 }
 
 REQUIRED_GROUNDS_DETAIL_KINDS = {
@@ -3202,8 +3207,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     surface_aging_detail_kinds = {detail.get("kind") for detail in surface_aging_details}
     summary["surface_aging_details"] = len(surface_aging_details)
     summary["surface_aging_detail_kinds"] = len(surface_aging_detail_kinds)
-    if len(surface_aging_details) < 190:
-        error(errors, f"expected at least 190 public surface-aging detail records, got {len(surface_aging_details)}")
+    if len(surface_aging_details) < 305:
+        error(errors, f"expected at least 305 public surface-aging detail records, got {len(surface_aging_details)}")
     missing_surface_aging_kinds = sorted(REQUIRED_SURFACE_AGING_DETAIL_KINDS - surface_aging_detail_kinds)
     if missing_surface_aging_kinds:
         error(errors, f"missing public surface-aging detail kinds: {', '.join(missing_surface_aging_kinds)}")
@@ -3221,6 +3226,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 20 public gallery seat rub-shadow records")
     if len([detail for detail in surface_aging_details if detail.get("kind") == "brass_tarnish_patch"]) < 7:
         error(errors, "expected at least 7 public brass tarnish-patch records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "window_sill_dust_shadow"]) < 22:
+        error(errors, "expected at least 22 public window-sill dust shadow records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "radiator_heat_stain"]) < 22:
+        error(errors, "expected at least 22 public radiator heat-stain records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "wall_contact_smudge"]) < 44:
+        error(errors, "expected at least 44 public wall contact-smudge records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "floor_mop_streak"]) < 22:
+        error(errors, "expected at least 22 public floor mop-streak records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "door_pull_smudge"]) < 8:
+        error(errors, "expected at least 8 public door pull-smudge records")
     for detail in surface_aging_details:
         if not detail.get("area"):
             error(errors, f"surface-aging detail {detail.get('name', '<unknown>')} is missing area")
