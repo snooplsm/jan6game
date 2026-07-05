@@ -5248,6 +5248,105 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"size_m": [round(size[0], 3), round(size[1], 3)]},
         )
 
+    def add_public_plaza_surface_details() -> None:
+        def plaza_detail(
+            name: str,
+            kind: str,
+            center: tuple[float, float],
+            size: tuple[float, float],
+            z: float,
+            material: str,
+            extra: dict[str, Any] | None = None,
+        ) -> None:
+            obj.add_box(center, size, 0.018, z, name, material)
+            metadata = {
+                "size_m": [round(size[0], 3), round(size[1], 3)],
+                "public_accuracy": "schematic_public_plaza_surface_detail",
+            }
+            if extra:
+                metadata.update(extra)
+            add_facade_detail(name, kind, (center[0], center[1], z + 0.009), metadata)
+
+        def paver_grid(prefix: str, center: tuple[float, float], size: tuple[float, float], columns: int, rows: int) -> None:
+            cx, cy = center
+            sx, sy = size
+            for col in range(1, columns):
+                x = cx - sx / 2.0 + sx * col / columns
+                plaza_detail(
+                    f"{prefix}_vertical_paver_joint_{col:02d}",
+                    "public_plaza_paver_joint",
+                    (x, cy),
+                    (0.040, sy),
+                    0.112,
+                    "RoadCrackSealant",
+                    {"orientation": "north_south", "panel": prefix},
+                )
+            for row in range(1, rows):
+                y = cy - sy / 2.0 + sy * row / rows
+                plaza_detail(
+                    f"{prefix}_horizontal_paver_joint_{row:02d}",
+                    "public_plaza_paver_joint",
+                    (cx, y),
+                    (sx, 0.040),
+                    0.112,
+                    "RoadCrackSealant",
+                    {"orientation": "east_west", "panel": prefix},
+                )
+
+        plaza_panels = [
+            ("west_front_public_plaza", (-70.0, 0.0), (30.0, 154.0), 4, 14),
+            ("east_front_public_plaza", (70.0, 0.0), (30.0, 154.0), 4, 14),
+            ("north_public_plaza", (0.0, 86.0), (154.0, 24.0), 14, 3),
+            ("south_public_plaza", (0.0, -86.0), (154.0, 24.0), 14, 3),
+        ]
+        for prefix, center, size, columns, rows in plaza_panels:
+            paver_grid(prefix, center, size, columns, rows)
+
+        expansion_specs = [
+            ("west_front_plaza_expansion_seam_north", (-70.0, 38.5), (30.0, 0.085), "east_west"),
+            ("west_front_plaza_expansion_seam_center", (-70.0, 0.0), (30.0, 0.085), "east_west"),
+            ("west_front_plaza_expansion_seam_south", (-70.0, -38.5), (30.0, 0.085), "east_west"),
+            ("east_front_plaza_expansion_seam_north", (70.0, 38.5), (30.0, 0.085), "east_west"),
+            ("east_front_plaza_expansion_seam_center", (70.0, 0.0), (30.0, 0.085), "east_west"),
+            ("east_front_plaza_expansion_seam_south", (70.0, -38.5), (30.0, 0.085), "east_west"),
+            ("north_plaza_expansion_seam_west", (-38.5, 86.0), (0.085, 24.0), "north_south"),
+            ("north_plaza_expansion_seam_center", (0.0, 86.0), (0.085, 24.0), "north_south"),
+            ("north_plaza_expansion_seam_east", (38.5, 86.0), (0.085, 24.0), "north_south"),
+            ("south_plaza_expansion_seam_west", (-38.5, -86.0), (0.085, 24.0), "north_south"),
+            ("south_plaza_expansion_seam_center", (0.0, -86.0), (0.085, 24.0), "north_south"),
+            ("south_plaza_expansion_seam_east", (38.5, -86.0), (0.085, 24.0), "north_south"),
+        ]
+        for name, center, size, orientation in expansion_specs:
+            plaza_detail(name, "public_plaza_expansion_seam", center, size, 0.126, "RoadCrackSealant", {"orientation": orientation})
+
+        for panel_index, (prefix, center, size, _columns, _rows) in enumerate(plaza_panels, start=1):
+            cx, cy = center
+            sx, sy = size
+            for patch_index in range(8):
+                x_offset = ((patch_index % 4) - 1.5) * sx * 0.18
+                y_offset = ((patch_index // 4) - 0.5) * sy * 0.32
+                patch_center = (cx + x_offset, cy + y_offset)
+                patch_size = (min(3.2, sx * 0.18), min(1.6, sy * 0.11))
+                plaza_detail(
+                    f"{prefix}_stone_tone_variation_patch_{patch_index+1:02d}",
+                    "public_plaza_stone_tone_patch",
+                    patch_center,
+                    patch_size,
+                    0.118 + panel_index * 0.001,
+                    "StoneGrimeOverlay",
+                    {"panel": prefix, "variation_index": patch_index + 1},
+                )
+
+        drain_specs = []
+        for index, y in enumerate([-54.0, -18.0, 18.0, 54.0], start=1):
+            drain_specs.append((f"west_front_plaza_linear_drain_slot_{index:02d}", (-86.0, y), (0.10, 2.8), "north_south"))
+            drain_specs.append((f"east_front_plaza_linear_drain_slot_{index:02d}", (86.0, y), (0.10, 2.8), "north_south"))
+        for index, x in enumerate([-44.0, 0.0, 44.0], start=1):
+            drain_specs.append((f"north_plaza_linear_drain_slot_{index:02d}", (x, 105.6), (2.8, 0.10), "east_west"))
+            drain_specs.append((f"south_plaza_linear_drain_slot_{index:02d}", (x, -105.6), (2.8, 0.10), "east_west"))
+        for name, center, size, orientation in drain_specs:
+            plaza_detail(name, "public_plaza_linear_drain_slot", center, size, 0.132, "RoadCrackSealant", {"orientation": orientation})
+
     def add_step_edge_chip_shadow(
         name: str,
         center: tuple[float, float],
@@ -6202,6 +6301,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     obj.add_box((0.0, 0.0), (430.0, 360.0), 0.08, -0.06, "capitol_campus_ground_plane", "GroundGrass")
     obj.add_box((0.0, 0.0), (185.0, 165.0), 0.10, 0.0, "capitol_plaza_walkable_stone_plane", "PlazaStone")
+    add_public_plaza_surface_details()
 
     # Public visual massing: layered wings, pavilions, porticos, roof caps,
     # columns, dome, and lantern. Dimensions are approximate for visual

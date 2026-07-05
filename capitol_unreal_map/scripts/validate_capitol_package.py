@@ -1428,6 +1428,10 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "public_entry_lamp",
     "public_facade_sconce",
     "facade_uplight",
+    "public_plaza_paver_joint",
+    "public_plaza_expansion_seam",
+    "public_plaza_stone_tone_patch",
+    "public_plaza_linear_drain_slot",
     "plaza_wear_patch",
     "facade_arch_window_trim",
     "facade_window_keystone",
@@ -2243,6 +2247,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public facade sconce records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_uplight"]) < 24:
         error(errors, "expected at least 24 public facade uplight records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_plaza_paver_joint"]) < 60:
+        error(errors, "expected at least 60 public plaza paver-joint records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_plaza_expansion_seam"]) < 12:
+        error(errors, "expected at least 12 public plaza expansion-seam records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_plaza_stone_tone_patch"]) < 32:
+        error(errors, "expected at least 32 public plaza stone tone-patch records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_plaza_linear_drain_slot"]) < 14:
+        error(errors, "expected at least 14 public plaza linear drain-slot records")
     if len([detail for detail in facade_details if detail.get("kind") == "plaza_wear_patch"]) < 30:
         error(errors, "expected at least 30 public plaza wear patch records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_arch_window_trim"]) < 112:
