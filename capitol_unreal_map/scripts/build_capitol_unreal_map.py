@@ -1624,6 +1624,44 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             obj.add_box((cx, y), (sx * 0.84, 0.08), 0.035, z, name, "StepStone")
             add_facade_detail(name, "roof_surface_joint", (cx, y, z + 0.018), {"axis": "y", "length_m": round(sx * 0.84, 3)})
 
+    def add_facade_weathering_stains(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        positions: list[float],
+        z_levels: list[float],
+        base_height: float,
+        base_width: float,
+    ) -> None:
+        face_offset = 0.32 if fixed >= 0.0 else -0.32
+        for level_index, z_level in enumerate(z_levels, start=1):
+            for idx, value in enumerate(positions, start=1):
+                height = base_height * (0.78 + ((idx + level_index) % 3) * 0.16)
+                width = base_width * (0.86 + ((idx + level_index) % 2) * 0.22)
+                if orientation == "east_west":
+                    center = (fixed + face_offset, value)
+                    size = (0.045, width)
+                else:
+                    center = (value, fixed + face_offset)
+                    size = (width, 0.045)
+                name = f"{prefix}_weathering_stain_l{level_index:02d}_{idx:02d}"
+                obj.add_box(center, size, height, z_level, name, "BuildingGeneric")
+                add_facade_detail(
+                    name,
+                    "facade_weathering_stain",
+                    (center[0], center[1], z_level + height / 2.0),
+                    {"orientation": orientation, "height_m": round(height, 3), "width_m": round(width, 3)},
+                )
+
+    def add_plaza_wear_patch(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.026, z, name, "StepStone")
+        add_facade_detail(
+            name,
+            "plaza_wear_patch",
+            (center[0], center[1], z + 0.013),
+            {"size_m": [round(size[0], 3), round(size[1], 3)]},
+        )
+
     def add_column_row(prefix: str, orientation: str, fixed: float, values: list[float], z_base: float, height: float) -> None:
         for idx, value in enumerate(values, start=1):
             center = (fixed, value) if orientation == "east_west" else (value, fixed)
@@ -2028,6 +2066,11 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_facade_vertical_stone_joints("senate_north_front", "north_south", 101.8, [-36.0, -28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0, 36.0], 2.0, 9.7)
     add_facade_vertical_stone_joints("house_south_front", "north_south", -101.8, [-36.0, -28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0, 36.0], 2.0, 9.7)
 
+    add_facade_weathering_stains("east_front", "east_west", 67.35, [-27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0], [5.0, 8.4, 11.8], 0.92, 0.86)
+    add_facade_weathering_stains("west_front", "east_west", -67.35, [-27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0], [5.0, 8.4, 11.8], 0.92, 0.86)
+    add_facade_weathering_stains("senate_north", "north_south", 101.95, [-33.0, -24.0, -15.0, -6.0, 6.0, 15.0, 24.0, 33.0], [4.8, 8.15, 10.95], 0.84, 0.78)
+    add_facade_weathering_stains("house_south", "north_south", -101.95, [-33.0, -24.0, -15.0, -6.0, 6.0, 15.0, 24.0, 33.0], [4.8, 8.15, 10.95], 0.84, 0.78)
+
     front_pilaster_values = [value * 5.0 for value in range(-7, 8)]
     wing_pilaster_values = [value * 5.6 for value in range(-8, 9)]
     add_facade_pilaster_line("east_front_public_rhythm", "east_west", 64.1, front_pilaster_values, 1.2, 12.6)
@@ -2122,6 +2165,27 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         for lamp_index, x in enumerate([-18.0, -6.0, 6.0, 18.0], start=1):
             add_public_entry_lamp(f"{side}_wing_lamp_{lamp_index}", (x, y * 0.95))
         add_approach_handrails(f"{side}_wing_approach_handrail", "north_south", (0.0, y * 0.985), 10.0, (-24.5, 24.5))
+
+    for side, x in (("east", 76.0), ("west", -76.0)):
+        for patch_index, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
+            add_plaza_wear_patch(f"{side}_front_step_wear_patch_{patch_index:02d}", (x, y), (2.8, 1.15), 0.62)
+    for side, y in (("north", 105.0), ("south", -105.0)):
+        for patch_index, x in enumerate([-18.0, -9.0, 0.0, 9.0, 18.0], start=1):
+            add_plaza_wear_patch(f"{side}_wing_step_wear_patch_{patch_index:02d}", (x, y), (2.2, 1.05), 0.52)
+    for patch_index, (x, y, sx, sy) in enumerate(
+        [
+            (-42.0, -18.0, 5.0, 2.0),
+            (-42.0, 18.0, 5.0, 2.0),
+            (42.0, -18.0, 5.0, 2.0),
+            (42.0, 18.0, 5.0, 2.0),
+            (-18.0, -42.0, 2.0, 5.0),
+            (18.0, -42.0, 2.0, 5.0),
+            (-18.0, 42.0, 2.0, 5.0),
+            (18.0, 42.0, 2.0, 5.0),
+        ],
+        start=1,
+    ):
+        add_plaza_wear_patch(f"public_plaza_wear_patch_{patch_index:02d}", (x, y), (sx, sy), 0.13)
 
     for idx, y in enumerate([value * 8.0 for value in range(-7, 8)], start=1):
         add_plaza_bollard(f"east_plaza_bollard_{idx:02d}", (78.0, y))
