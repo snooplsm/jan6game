@@ -1016,6 +1016,65 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box((x, y), (0.64, 0.12), 0.12, 0.46, f"{name}_side_nozzles", "TrafficSignalYellow")
         add_streetscape_record(name, "public_hydrant_marker", (x, y, 0.48))
 
+    def add_crosswalk_ladder_marking(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        if orientation == "east_west":
+            roads.add_box((x, y - 1.54), (7.8, 0.16), 0.032, 0.205, f"{name}_near_edge", "CrosswalkWhite")
+            roads.add_box((x, y + 1.54), (7.8, 0.16), 0.032, 0.205, f"{name}_far_edge", "CrosswalkWhite")
+            for stripe_index, offset in enumerate([-2.55, -1.53, -0.51, 0.51, 1.53, 2.55], start=1):
+                roads.add_box((x + offset, y), (0.28, 2.62), 0.032, 0.205, f"{name}_ladder_stripe_{stripe_index:02d}", "CrosswalkWhite")
+            size = (7.8, 3.25)
+        else:
+            roads.add_box((x - 1.54, y), (0.16, 7.8), 0.032, 0.205, f"{name}_near_edge", "CrosswalkWhite")
+            roads.add_box((x + 1.54, y), (0.16, 7.8), 0.032, 0.205, f"{name}_far_edge", "CrosswalkWhite")
+            for stripe_index, offset in enumerate([-2.55, -1.53, -0.51, 0.51, 1.53, 2.55], start=1):
+                roads.add_box((x, y + offset), (2.62, 0.28), 0.032, 0.205, f"{name}_ladder_stripe_{stripe_index:02d}", "CrosswalkWhite")
+            size = (3.25, 7.8)
+        add_streetscape_record(name, "crosswalk_ladder_marking", (x, y, 0.225), extra={"orientation": orientation, "size_m": size})
+
+    def add_tactile_warning_surface(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        panel_size = (1.25, 0.78) if orientation == "east_west" else (0.78, 1.25)
+        roads.add_box(center, panel_size, 0.022, 0.182, f"{name}_yellow_panel", "LaneMarkingYellow")
+        x_offsets = [-0.42, -0.14, 0.14, 0.42] if orientation == "east_west" else [-0.22, 0.0, 0.22]
+        y_offsets = [-0.22, 0.0, 0.22] if orientation == "east_west" else [-0.42, -0.14, 0.14, 0.42]
+        dot_index = 1
+        for dx in x_offsets:
+            for dy in y_offsets:
+                roads.add_cylinder((x + dx, y + dy), 0.035, 0.205, 0.025, f"{name}_raised_dot_{dot_index:02d}", "SignalMarker", segments=8)
+                dot_index += 1
+        add_streetscape_record(name, "tactile_warning_surface", (x, y, 0.215), extra={"orientation": orientation, "dot_count": dot_index - 1})
+
+    def add_sidewalk_expansion_joint(name: str, center: tuple[float, float], length: float, orientation: str) -> None:
+        x, y = center
+        size = (0.045, length) if orientation == "north_south" else (length, 0.045)
+        roads.add_box(center, size, 0.018, 0.185, name, "StepStone")
+        add_streetscape_record(name, "sidewalk_expansion_joint", (x, y, 0.195), extra={"orientation": orientation, "length_m": round(length, 3)})
+
+    def add_bike_lane_delineator_post(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.055, 0.14, 0.86, f"{name}_flex_post", "BikeLanePost", segments=10)
+        roads.add_box((x, y), (0.18, 0.035), 0.045, 0.58, f"{name}_reflective_band_low", "LaneMarkingWhite")
+        roads.add_box((x, y), (0.18, 0.035), 0.045, 0.86, f"{name}_reflective_band_high", "LaneMarkingWhite")
+        add_streetscape_record(name, "bike_lane_delineator_post", (x, y, 0.58))
+
+    def add_pedestrian_signal_marker(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.055, 0.10, 2.85, f"{name}_pushbutton_pole", "StreetLightPole", segments=8)
+        if orientation == "east_west":
+            signal_size = (0.42, 0.14)
+            button_size = (0.24, 0.10)
+            offset = (0.0, 0.11)
+        else:
+            signal_size = (0.14, 0.42)
+            button_size = (0.10, 0.24)
+            offset = (0.11, 0.0)
+        roads.add_box((x, y), signal_size, 0.52, 2.62, f"{name}_walk_signal_housing", "TrafficSignalHousing")
+        roads.add_box((x + offset[0], y + offset[1]), (signal_size[0] * 0.55, signal_size[1] * 0.55), 0.045, 2.85, f"{name}_walk_icon_marker", "LaneMarkingWhite")
+        roads.add_box((x, y), button_size, 0.18, 1.22, f"{name}_push_button_box", "TrafficSignalHousing")
+        roads.add_cylinder((x + offset[0], y + offset[1]), 0.045, 1.40, 0.025, f"{name}_button_marker", "SignalMarker", segments=8)
+        add_streetscape_record(name, "pedestrian_signal_marker", (x, y, 1.75), extra={"orientation": orientation})
+
     def add_public_roadway_visual_details() -> None:
         # Authored public-facing road markings for visual realism. These are
         # schematic surface props, not traffic-control engineering plans.
@@ -1072,6 +1131,65 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         ]:
             add_curb_ramp_visual(f"public_curb_ramp_{ramp_index:02d}", (x, y), orientation)
             ramp_index += 1
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-70.0, 114.8, "east_west"), (-34.0, 117.8, "east_west"), (34.0, 117.8, "east_west"), (70.0, 114.8, "east_west"),
+                (-70.0, -114.8, "east_west"), (-34.0, -117.8, "east_west"), (34.0, -117.8, "east_west"), (70.0, -114.8, "east_west"),
+                (-89.8, 48.0, "north_south"), (-155.8, 96.0, "north_south"), (-89.8, -48.0, "north_south"), (-155.8, -96.0, "north_south"),
+                (89.8, 48.0, "north_south"), (127.8, 88.0, "north_south"), (89.8, -48.0, "north_south"), (127.8, -88.0, "north_south"),
+            ],
+            start=1,
+        ):
+            add_tactile_warning_surface(f"public_tactile_warning_surface_{idx:02d}", (x, y), orientation)
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-222.0, 41.0, "east_west"), (-222.0, -41.0, "east_west"), (142.0, 41.0, "east_west"), (142.0, -41.0, "east_west"),
+                (-54.0, 145.0, "north_south"), (54.0, 145.0, "north_south"), (-54.0, -145.0, "north_south"), (54.0, -145.0, "north_south"),
+                (-148.0, 119.0, "east_west"), (-148.0, -119.0, "east_west"), (-336.0, 7.0, "north_south"), (210.0, 7.0, "north_south"),
+            ],
+            start=1,
+        ):
+            add_crosswalk_ladder_marking(f"public_crosswalk_ladder_marking_{idx:02d}", (x, y), orientation)
+
+        joint_specs = [
+            ("west_approach_north_sidewalk", [(-336.0, 31.6), (-300.0, 31.6), (-264.0, 31.6), (-228.0, 31.6), (-192.0, 31.6), (-156.0, 31.6)], "north_south", 2.20),
+            ("west_approach_south_sidewalk", [(-336.0, -31.6), (-300.0, -31.6), (-264.0, -31.6), (-228.0, -31.6), (-192.0, -31.6), (-156.0, -31.6)], "north_south", 2.20),
+            ("east_approach_north_sidewalk", [(116.0, 31.6), (148.0, 31.6), (180.0, 31.6), (212.0, 31.6)], "north_south", 2.20),
+            ("east_approach_south_sidewalk", [(116.0, -31.6), (148.0, -31.6), (180.0, -31.6), (212.0, -31.6)], "north_south", 2.20),
+            ("north_approach_west_sidewalk", [(-62.0, 112.0), (-62.0, 142.0), (-62.0, 172.0), (-62.0, 202.0)], "east_west", 2.20),
+            ("north_approach_east_sidewalk", [(62.0, 112.0), (62.0, 142.0), (62.0, 172.0), (62.0, 202.0)], "east_west", 2.20),
+            ("south_approach_west_sidewalk", [(-62.0, -112.0), (-62.0, -142.0), (-62.0, -172.0), (-62.0, -202.0)], "east_west", 2.20),
+            ("south_approach_east_sidewalk", [(62.0, -112.0), (62.0, -142.0), (62.0, -172.0), (62.0, -202.0)], "east_west", 2.20),
+        ]
+        joint_index = 1
+        for prefix, centers, orientation, length in joint_specs:
+            for center in centers:
+                add_sidewalk_expansion_joint(f"{prefix}_expansion_joint_{joint_index:02d}", center, length, orientation)
+                joint_index += 1
+
+        delineator_centers = (
+            [(-340.0 + step * 12.0, 20.9) for step in range(18)]
+            + [(-340.0 + step * 12.0, -20.9) for step in range(18)]
+            + [(110.0 + step * 12.0, 20.9) for step in range(10)]
+            + [(110.0 + step * 12.0, -20.9) for step in range(10)]
+            + [(-74.0, 112.0 + step * 12.0) for step in range(8)]
+            + [(74.0, -196.0 + step * 12.0) for step in range(8)]
+        )
+        for idx, center in enumerate(delineator_centers, start=1):
+            add_bike_lane_delineator_post(f"public_bike_lane_delineator_{idx:03d}", center)
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-226.0, 41.0, "east_west"), (-226.0, -41.0, "east_west"), (146.0, 41.0, "east_west"), (146.0, -41.0, "east_west"),
+                (-58.0, 142.0, "north_south"), (58.0, 142.0, "north_south"), (-58.0, -142.0, "north_south"), (58.0, -142.0, "north_south"),
+                (-152.0, 116.0, "east_west"), (-152.0, -116.0, "east_west"), (-332.0, 6.0, "north_south"), (214.0, 6.0, "north_south"),
+                (-94.0, 52.0, "north_south"), (94.0, 52.0, "north_south"), (-94.0, -52.0, "north_south"), (94.0, -52.0, "north_south"),
+            ],
+            start=1,
+        ):
+            add_pedestrian_signal_marker(f"public_pedestrian_signal_marker_{idx:02d}", (x, y), orientation)
 
         for name, center, label, orientation in [
             ("west_public_wayfinding_pool", (-245.0, -26.0), "Reflecting Pool / West Front", "east_west"),

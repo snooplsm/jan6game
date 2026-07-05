@@ -595,6 +595,11 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "public_trash_receptacle",
     "public_bus_stop_shelter",
     "public_hydrant_marker",
+    "crosswalk_ladder_marking",
+    "tactile_warning_surface",
+    "sidewalk_expansion_joint",
+    "bike_lane_delineator_post",
+    "pedestrian_signal_marker",
 }
 
 REQUIRED_BUILDING_DETAIL_KINDS = {
@@ -970,8 +975,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         if "public" not in detail.get("public_accuracy", ""):
             error(errors, f"building detail {detail.get('name', '<unknown>')} lacks public accuracy boundary")
             break
-    if len(streetscape_props) < 925:
-        error(errors, f"expected at least 925 public streetscape props, got {len(streetscape_props)}")
+    if len(streetscape_props) < 1075:
+        error(errors, f"expected at least 1075 public streetscape props, got {len(streetscape_props)}")
     missing_streetscape_kinds = sorted(REQUIRED_STREETSCAPE_PROP_KINDS - streetscape_prop_kinds)
     if missing_streetscape_kinds:
         error(errors, f"missing public streetscape prop kinds: {', '.join(missing_streetscape_kinds)}")
@@ -993,6 +998,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public bus-stop shelter props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_hydrant_marker"]) < 16:
         error(errors, "expected at least 16 public hydrant-marker props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "crosswalk_ladder_marking"]) < 12:
+        error(errors, "expected at least 12 public crosswalk ladder-marking props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "tactile_warning_surface"]) < 16:
+        error(errors, "expected at least 16 public tactile warning-surface props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "sidewalk_expansion_joint"]) < 32:
+        error(errors, "expected at least 32 public sidewalk expansion-joint props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "bike_lane_delineator_post"]) < 64:
+        error(errors, "expected at least 64 public bike-lane delineator posts")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "pedestrian_signal_marker"]) < 16:
+        error(errors, "expected at least 16 public pedestrian signal-marker props")
     for prop in streetscape_props[:12]:
         if not is_vec3(prop.get("center_m")):
             error(errors, f"streetscape prop {prop.get('name', '<unknown>')} has invalid center_m")
