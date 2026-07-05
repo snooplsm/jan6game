@@ -62,6 +62,9 @@ MATERIAL_GRAPH_FEATURES = {
     "metallic_property": "MP_METALLIC",
     "specular_property": "MP_SPECULAR",
     "opacity_property": "MP_OPACITY",
+    "clear_coat_property": "MP_CLEAR_COAT",
+    "clear_coat_roughness_property": "MP_CLEAR_COAT_ROUGHNESS",
+    "supports_clear_coat_shading": True,
     "uses_texture_samples": True,
     "uses_tangent_space_normals": True,
     "two_sided_by_default": True,
@@ -670,10 +673,14 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
     roughness = float(spec.get("roughness", 0.75))
     metallic = float(spec.get("metallic", 0.0))
     specular = float(spec.get("specular", 0.3))
+    clear_coat = spec.get("clear_coat")
+    clear_coat_roughness = spec.get("clear_coat_roughness")
     texture_set = texture_set or {}
     set_property(material, "two_sided", True)
     set_property(material, "use_material_attributes", False)
     set_property(material, "tangent_space_normal", True)
+    if clear_coat is not None and float(clear_coat) > 0.0:
+        set_enum_property(material, "shading_model", "MaterialShadingModel", ["MSM_CLEAR_COAT"])
 
     if hasattr(unreal, "MaterialEditingLibrary"):
         try:
@@ -748,6 +755,10 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
         ]
         if roughness_sample is None:
             settings.insert(0, ("Roughness", roughness, "MP_ROUGHNESS", -260, -40))
+        if clear_coat is not None:
+            settings.append(("ClearCoat", float(clear_coat), "MP_CLEAR_COAT", -260, 320))
+        if clear_coat_roughness is not None:
+            settings.append(("ClearCoatRoughness", float(clear_coat_roughness), "MP_CLEAR_COAT_ROUGHNESS", -260, 440))
         for parameter_name, value, property_name, x, y in settings:
             expr = create_material_constant(material, unreal.MaterialExpressionScalarParameter, value, x, y)
             if expr is not None:
@@ -760,6 +771,10 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
         ]
         if roughness_sample is None:
             settings.insert(0, (roughness, "MP_ROUGHNESS", -260, -40))
+        if clear_coat is not None:
+            settings.append((float(clear_coat), "MP_CLEAR_COAT", -260, 320))
+        if clear_coat_roughness is not None:
+            settings.append((float(clear_coat_roughness), "MP_CLEAR_COAT_ROUGHNESS", -260, 440))
         for value, property_name, x, y in settings:
             expr = create_material_constant(material, unreal.MaterialExpressionConstant, value, x, y)
             connect_material_property(expr, "", property_name)
@@ -829,6 +844,9 @@ def build_material_texture_features(
             "normal": bool(texture_set.get("normal")),
             "roughness": bool(texture_set.get("roughness")),
             "opacity": spec.get("opacity"),
+            "clear_coat": spec.get("clear_coat"),
+            "clear_coat_roughness": spec.get("clear_coat_roughness"),
+            "shading_model": "MSM_CLEAR_COAT" if spec.get("clear_coat") else "MSM_DEFAULT_LIT",
             "two_sided": True,
             "tangent_space_normal": True,
         }

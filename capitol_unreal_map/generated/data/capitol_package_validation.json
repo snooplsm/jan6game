@@ -64,7 +64,8 @@
   "materials": {
     "manifest_materials": 75,
     "missing_manifest_materials": 0,
-    "extra_manifest_materials": 0
+    "extra_manifest_materials": 0,
+    "clear_coat_materials": 25
   },
   "textures": {
     "texture_sets": 43,
@@ -84,7 +85,7 @@
     "label_categories": 20,
     "outliner_folders": 12,
     "first_person_markers": 23,
-    "material_markers": 17,
+    "material_markers": 24,
     "environment_markers": 24,
     "inspection_markers": 13,
     "missing": {

@@ -251,6 +251,8 @@
     "roughness": 0.52,
     "metallic": 0.0,
     "specular": 0.42,
+    "clear_coat": 0.28,
+    "clear_coat_roughness": 0.42,
     "note": "Wood trim"
   },
   "HouseCarpet": {
@@ -284,6 +286,8 @@
     "roughness": 0.46,
     "metallic": 0.0,
     "specular": 0.46,
+    "clear_coat": 0.42,
+    "clear_coat_roughness": 0.28,
     "note": "Polished dark wood desks"
   },
   "ChairLeather": {
@@ -295,6 +299,8 @@
     "roughness": 0.42,
     "metallic": 0.0,
     "specular": 0.52,
+    "clear_coat": 0.32,
+    "clear_coat_roughness": 0.34,
     "note": "Dark leather chairs"
   },
   "BrassRail": {
@@ -306,6 +312,8 @@
     "roughness": 0.34,
     "metallic": 1.0,
     "specular": 0.6,
+    "clear_coat": 0.36,
+    "clear_coat_roughness": 0.18,
     "note": "Brass rails and trim"
   },
   "RotundaFloor": {
@@ -439,6 +447,8 @@
     "roughness": 0.08,
     "metallic": 0.0,
     "specular": 0.8,
+    "clear_coat": 0.85,
+    "clear_coat_roughness": 0.04,
     "opacity": 0.45,
     "note": "Revolving door glass"
   },
@@ -451,6 +461,8 @@
     "roughness": 0.3,
     "metallic": 1.0,
     "specular": 0.55,
+    "clear_coat": 0.22,
+    "clear_coat_roughness": 0.22,
     "note": "Door metal and dark recesses"
   },
   "PresidentPodium": {
@@ -462,6 +474,8 @@
     "roughness": 0.42,
     "metallic": 0.0,
     "specular": 0.48,
+    "clear_coat": 0.44,
+    "clear_coat_roughness": 0.26,
     "note": "Joint-session podium wood"
   },
   "JointSessionZone": {
@@ -539,6 +553,8 @@
     "roughness": 0.46,
     "metallic": 1.0,
     "specular": 0.56,
+    "clear_coat": 0.24,
+    "clear_coat_roughness": 0.24,
     "note": "Schematic bronze statue material"
   },
   "ArtFrameGold": {
@@ -550,6 +566,8 @@
     "roughness": 0.32,
     "metallic": 1.0,
     "specular": 0.62,
+    "clear_coat": 0.38,
+    "clear_coat_roughness": 0.16,
     "note": "Gilded art and picture frame trim"
   },
   "PaintingCanvas": {
@@ -583,6 +601,8 @@
     "roughness": 0.18,
     "metallic": 0.0,
     "specular": 0.78,
+    "clear_coat": 0.74,
+    "clear_coat_roughness": 0.08,
     "opacity": 0.72,
     "note": "Warm translucent glass light shade"
   },
@@ -595,6 +615,8 @@
     "roughness": 0.36,
     "metallic": 1.0,
     "specular": 0.58,
+    "clear_coat": 0.30,
+    "clear_coat_roughness": 0.20,
     "note": "Dark metal light fixture hardware"
   },
   "FacadeWindow": {
@@ -606,6 +628,8 @@
     "roughness": 0.12,
     "metallic": 0.0,
     "specular": 0.72,
+    "clear_coat": 0.78,
+    "clear_coat_roughness": 0.06,
     "opacity": 0.72,
     "note": "Dark public facade window glass"
   },
@@ -618,6 +642,8 @@
     "roughness": 0.34,
     "metallic": 1.0,
     "specular": 0.52,
+    "clear_coat": 0.20,
+    "clear_coat_roughness": 0.22,
     "note": "Exterior streetlight and sign post metal"
   },
   "StreetLightGlass": {
@@ -629,6 +655,8 @@
     "roughness": 0.16,
     "metallic": 0.0,
     "specular": 0.78,
+    "clear_coat": 0.72,
+    "clear_coat_roughness": 0.08,
     "opacity": 0.7,
     "note": "Warm exterior streetlight glass"
   },
@@ -641,6 +669,8 @@
     "roughness": 0.44,
     "metallic": 0.55,
     "specular": 0.42,
+    "clear_coat": 0.18,
+    "clear_coat_roughness": 0.28,
     "note": "Dark traffic signal housing"
   },
   "TrafficSignalRed": {
@@ -652,6 +682,8 @@
     "roughness": 0.18,
     "metallic": 0.0,
     "specular": 0.65,
+    "clear_coat": 0.68,
+    "clear_coat_roughness": 0.10,
     "note": "Red traffic signal lens"
   },
   "TrafficSignalYellow": {
@@ -663,6 +695,8 @@
     "roughness": 0.18,
     "metallic": 0.0,
     "specular": 0.65,
+    "clear_coat": 0.68,
+    "clear_coat_roughness": 0.10,
     "note": "Yellow traffic signal lens"
   },
   "TrafficSignalGreen": {
@@ -674,6 +708,8 @@
     "roughness": 0.18,
     "metallic": 0.0,
     "specular": 0.65,
+    "clear_coat": 0.68,
+    "clear_coat_roughness": 0.10,
     "note": "Green traffic signal lens"
   },
   "TreeTrunk": {
@@ -718,6 +754,8 @@
     "roughness": 0.5,
     "metallic": 0.0,
     "specular": 0.42,
+    "clear_coat": 0.26,
+    "clear_coat_roughness": 0.36,
     "note": "Public bench wood"
   },
   "BollardMetal": {
@@ -729,6 +767,8 @@
     "roughness": 0.36,
     "metallic": 1.0,
     "specular": 0.5,
+    "clear_coat": 0.20,
+    "clear_coat_roughness": 0.22,
     "note": "Public bollards and bench hardware"
   },
   "GameplayPickupPad": {
@@ -751,6 +791,8 @@
     "roughness": 0.5,
     "metallic": 0.0,
     "specular": 0.42,
+    "clear_coat": 0.24,
+    "clear_coat_roughness": 0.38,
     "note": "Abstract gameplay item wood"
   },
   "ItemMetal": {
@@ -762,6 +804,8 @@
     "roughness": 0.34,
     "metallic": 1.0,
     "specular": 0.52,
+    "clear_coat": 0.20,
+    "clear_coat_roughness": 0.22,
     "note": "Abstract gameplay item metal"
   },
   "ItemGrip": {
@@ -784,6 +828,8 @@
     "roughness": 0.38,
     "metallic": 0.65,
     "specular": 0.5,
+    "clear_coat": 0.26,
+    "clear_coat_roughness": 0.20,
     "note": "Abstract irritant spray can prop"
   },
   "ItemWarningOrange": {
@@ -795,6 +841,8 @@
     "roughness": 0.42,
     "metallic": 0.35,
     "specular": 0.48,
+    "clear_coat": 0.24,
+    "clear_coat_roughness": 0.24,
     "note": "Abstract warning-orange spray can prop"
   },
   "ItemOrganicBrown": {
@@ -817,6 +865,8 @@
     "roughness": 0.34,
     "metallic": 1.0,
     "specular": 0.58,
+    "clear_coat": 0.28,
+    "clear_coat_roughness": 0.18,
     "note": "Abstract blade material for game prop"
   },
   "ItemCloth": {

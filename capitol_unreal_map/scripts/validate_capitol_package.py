@@ -278,6 +278,13 @@ REQUIRED_UNREAL_MATERIAL_MARKERS = {
     "MP_METALLIC",
     "MP_SPECULAR",
     "MP_OPACITY",
+    "MP_CLEAR_COAT",
+    "MP_CLEAR_COAT_ROUGHNESS",
+    "MaterialShadingModel",
+    "MSM_CLEAR_COAT",
+    "clear_coat_property",
+    "clear_coat_roughness_property",
+    "supports_clear_coat_shading",
     "two_sided",
     "tangent_space_normal",
     "use_material_attributes",
@@ -2287,7 +2294,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
 
 
 def validate_material_manifest(materials: set[str], errors: list[str]) -> dict[str, Any]:
-    summary = {"manifest_materials": 0, "missing_manifest_materials": 0, "extra_manifest_materials": 0}
+    summary = {
+        "manifest_materials": 0,
+        "missing_manifest_materials": 0,
+        "extra_manifest_materials": 0,
+        "clear_coat_materials": 0,
+    }
     if not MATERIAL_MANIFEST_PATH.exists():
         error(errors, f"missing Unreal material realism manifest: {MATERIAL_MANIFEST_PATH}")
         return summary
@@ -2296,13 +2308,17 @@ def validate_material_manifest(materials: set[str], errors: list[str]) -> dict[s
     manifest_materials = set(manifest)
     missing = sorted(materials - manifest_materials)
     extra = sorted(manifest_materials - materials)
+    clear_coat_materials = [name for name, spec in manifest.items() if spec.get("clear_coat") is not None]
     summary["manifest_materials"] = len(manifest_materials)
     summary["missing_manifest_materials"] = len(missing)
     summary["extra_manifest_materials"] = len(extra)
+    summary["clear_coat_materials"] = len(clear_coat_materials)
     if missing:
         error(errors, f"material realism manifest missing MTL materials: {', '.join(missing)}")
     if extra:
         error(errors, f"material realism manifest has materials not in MTL: {', '.join(extra)}")
+    if len(clear_coat_materials) < 20:
+        error(errors, f"expected at least 20 clear-coat material specs, got {len(clear_coat_materials)}")
 
     for name, spec in manifest.items():
         color = spec.get("base_color")
@@ -2317,6 +2333,16 @@ def validate_material_manifest(materials: set[str], errors: list[str]) -> dict[s
         opacity = spec.get("opacity")
         if opacity is not None and (not is_number(opacity) or not (0.0 <= float(opacity) <= 1.0)):
             error(errors, f"material {name} has invalid opacity")
+            break
+        clear_coat = spec.get("clear_coat")
+        if clear_coat is not None and (not is_number(clear_coat) or not (0.0 <= float(clear_coat) <= 1.0)):
+            error(errors, f"material {name} has invalid clear_coat")
+            break
+        clear_coat_roughness = spec.get("clear_coat_roughness")
+        if clear_coat_roughness is not None and (
+            not is_number(clear_coat_roughness) or not (0.0 <= float(clear_coat_roughness) <= 1.0)
+        ):
+            error(errors, f"material {name} has invalid clear_coat_roughness")
             break
     return summary
 
