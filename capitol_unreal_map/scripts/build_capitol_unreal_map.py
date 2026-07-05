@@ -4583,6 +4583,18 @@ def add_generic_chamber_furniture_finish_details(
         (chair_x, chair_y, chair_top_z + 0.020),
         cushion_size,
     )
+    seam_long = (cushion_size[0] * 0.82, max(0.012, cushion_size[1] * 0.035))
+    seam_short = (max(0.012, cushion_size[0] * 0.035), cushion_size[1] * 0.82)
+    obj.add_box((chair_x, chair_y), seam_long, 0.018, chair_top_z + 0.042, f"{prefix}_generic_chair_cushion_cross_seam", "DoorMetal")
+    obj.add_box((chair_x, chair_y), seam_short, 0.018, chair_top_z + 0.043, f"{prefix}_generic_chair_cushion_center_seam", "DoorMetal")
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_cushion_seam",
+        "generic_chair_cushion_seam",
+        chamber,
+        (chair_x, chair_y, chair_top_z + 0.052),
+        cushion_size,
+    )
 
     back_x, back_y = chair_back_center
     back_panel_size = (chair_back_size[0] * 0.70, 0.040)
@@ -4602,6 +4614,38 @@ def add_generic_chamber_furniture_finish_details(
         chamber,
         (back_x, back_y - chair_back_size[1] * 0.34, chair_back_z + chair_back_height * 0.49),
         back_panel_size,
+    )
+    button_y = back_y - chair_back_size[1] * 0.46
+    button_z = chair_back_z + chair_back_height * 0.54
+    for button_index, dx in enumerate([-back_panel_size[0] * 0.24, back_panel_size[0] * 0.24], start=1):
+        obj.add_cylinder(
+            (back_x + dx, button_y),
+            0.032,
+            button_z,
+            0.020,
+            f"{prefix}_generic_chair_back_button_{button_index}",
+            "DoorMetal",
+            segments=8,
+        )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_back_buttons",
+        "generic_chair_back_button",
+        chamber,
+        (back_x, button_y, button_z + 0.010),
+        (back_panel_size[0] * 0.58, 0.08),
+    )
+
+    pull_y = desk_y - desk_sy * 0.50
+    pull_size = (desk_sx * 0.40, max(0.018, desk_sy * 0.055))
+    obj.add_box((desk_x, pull_y), pull_size, 0.034, desk_top_z - 0.17, f"{prefix}_generic_desk_drawer_pull", "BrassRail")
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_desk_drawer_pull",
+        "generic_desk_drawer_pull",
+        chamber,
+        (desk_x, pull_y, desk_top_z - 0.153),
+        pull_size,
     )
 
 
@@ -4756,6 +4800,12 @@ def add_chamber_realism_details(
         obj.add_cylinder((x, y), 0.085, z + 0.70, 0.08, f"{name}_cap", "BrassRail", segments=10)
         add_chamber_detail_record(records, name, "gallery_stanchion", chamber, (x, y, z + 0.38), (0.24, 0.24))
 
+    def gallery_rail_baluster(name: str, chamber: str, center: tuple[float, float], z: float) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.035, z, 0.66, f"{name}_slender_post", "BrassRail", segments=8)
+        obj.add_cylinder((x, y), 0.060, z + 0.64, 0.045, f"{name}_small_cap", "BrassRail", segments=8)
+        add_chamber_detail_record(records, name, "gallery_rail_baluster", chamber, (x, y, z + 0.34), (0.12, 0.12))
+
     def gallery_support_column(name: str, chamber: str, center: tuple[float, float], z: float, height: float) -> None:
         x, y = center
         obj.add_cylinder((x, y), 0.18, z, height, f"{name}_shaft", "ColumnStone", segments=14)
@@ -4795,6 +4845,9 @@ def add_chamber_realism_details(
         backdrop_panel(f"house_rostrum_backdrop_panel_{idx}", "House Chamber", (x, -46.45), (1.35, 0.12), 5.05)
     gallery_rail("house_gallery_front_brass_rail", "House Chamber", (0.0, -95.15), (66.0, 0.16), 5.24)
     gallery_rail("house_gallery_rear_brass_rail", "House Chamber", (0.0, -103.7), (66.0, 0.16), 5.54)
+    for idx, x in enumerate([value * 4.0 for value in range(-8, 9)], start=1):
+        gallery_rail_baluster(f"house_gallery_front_baluster_{idx:02d}", "House Chamber", (x, -95.15), 5.27)
+        gallery_rail_baluster(f"house_gallery_rear_baluster_{idx:02d}", "House Chamber", (x, -103.7), 5.57)
     aisle("house_center_aisle_left_edge", "House Chamber", [(-0.82, -54.0), (-0.82, -95.0)], 4.62)
     aisle("house_center_aisle_right_edge", "House Chamber", [(0.82, -54.0), (0.82, -95.0)], 4.62)
     aisle("house_left_aisle_outer_edge", "House Chamber", [(-15.4, -56.0), (-28.4, -95.0)], 4.62)
@@ -4856,6 +4909,9 @@ def add_chamber_realism_details(
         backdrop_panel(f"senate_presiding_backdrop_panel_{idx}", "Senate Chamber", (x, 85.15), (1.35, 0.12), 5.02)
     gallery_rail("senate_gallery_front_brass_rail", "Senate Chamber", (0.0, 94.05), (52.0, 0.16), 5.22)
     gallery_rail("senate_gallery_rear_brass_rail", "Senate Chamber", (0.0, 101.2), (52.0, 0.16), 5.52)
+    for idx, x in enumerate([value * 3.6 for value in range(-7, 8)], start=1):
+        gallery_rail_baluster(f"senate_gallery_front_baluster_{idx:02d}", "Senate Chamber", (x, 94.05), 5.25)
+        gallery_rail_baluster(f"senate_gallery_rear_baluster_{idx:02d}", "Senate Chamber", (x, 101.2), 5.55)
     aisle("senate_center_aisle_left_edge", "Senate Chamber", [(-0.72, 62.0), (-0.72, 83.0)], 4.62)
     aisle("senate_center_aisle_right_edge", "Senate Chamber", [(0.72, 62.0), (0.72, 83.0)], 4.62)
     aisle("senate_left_aisle_outer_edge", "Senate Chamber", [(-9.45, 63.0), (-18.45, 82.0)], 4.62)
