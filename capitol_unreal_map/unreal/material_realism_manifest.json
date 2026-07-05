@@ -98,6 +98,28 @@
     "specular": 0.14,
     "note": "Matte asphalt"
   },
+  "RoadPatchAsphalt": {
+    "base_color": [
+      0.03,
+      0.032,
+      0.034
+    ],
+    "roughness": 0.96,
+    "metallic": 0.0,
+    "specular": 0.12,
+    "note": "Darker public road repair patches"
+  },
+  "RoadCrackSealant": {
+    "base_color": [
+      0.01,
+      0.011,
+      0.012
+    ],
+    "roughness": 0.98,
+    "metallic": 0.0,
+    "specular": 0.08,
+    "note": "Matte crack sealant and road utility recesses"
+  },
   "LaneMarkingWhite": {
     "base_color": [
       0.88,

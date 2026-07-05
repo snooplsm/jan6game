@@ -41,6 +41,8 @@ MATERIALS = {
     "GroundGrass": (0.16, 0.32, 0.12, 1.0),
     "PlazaStone": (0.58, 0.56, 0.50, 1.0),
     "RoadAsphalt": (0.045, 0.048, 0.052, 1.0),
+    "RoadPatchAsphalt": (0.030, 0.032, 0.034, 1.0),
+    "RoadCrackSealant": (0.010, 0.011, 0.012, 1.0),
     "LaneMarkingWhite": (0.96, 0.96, 0.90, 1.0),
     "LaneMarkingYellow": (0.95, 0.78, 0.14, 1.0),
     "SidewalkConcrete": (0.56, 0.56, 0.53, 1.0),
@@ -1133,6 +1135,63 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box(center, size, 0.024, 0.205, name, material)
         add_streetscape_record(name, "curb_paint_segment", (x, y, 0.218), extra={"orientation": orientation, "length_m": round(length, 3), "material": material})
 
+    def add_asphalt_patch(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        roads.add_oriented_box(center, size, 0.026, 0.214, math.radians(angle_degrees), name, "RoadPatchAsphalt")
+        add_streetscape_record(
+            name,
+            "road_asphalt_patch",
+            (center[0], center[1], 0.227),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
+    def add_road_crack_line(name: str, points: list[tuple[float, float]], width: float = 0.07) -> None:
+        roads.add_polyline_strip(points, width, 0.232, name, "RoadCrackSealant")
+        cx = sum(point[0] for point in points) / len(points)
+        cy = sum(point[1] for point in points) / len(points)
+        length = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:]))
+        add_streetscape_record(name, "road_crack_line", (cx, cy, 0.234), extra={"length_m": round(length, 3), "width_m": round(width, 3)})
+
+    def add_manhole_cover(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.44, 0.216, 0.034, f"{name}_cover", "RoadCrackSealant", segments=24)
+        roads.add_ring((x, y), 0.36, 0.29, 0.252, 0.020, f"{name}_raised_ring", "RoadPatchAsphalt", segments=24)
+        add_streetscape_record(name, "public_manhole_cover", (x, y, 0.245), extra={"radius_m": 0.44})
+
+    def add_storm_drain_grate(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        grate_size = (1.20, 0.36) if orientation == "east_west" else (0.36, 1.20)
+        roads.add_box(center, grate_size, 0.038, 0.212, f"{name}_dark_recess", "RoadCrackSealant")
+        for slat_index, offset in enumerate([-0.36, -0.12, 0.12, 0.36], start=1):
+            if orientation == "east_west":
+                slat_center = (x + offset, y)
+                slat_size = (0.040, 0.30)
+            else:
+                slat_center = (x, y + offset)
+                slat_size = (0.30, 0.040)
+            roads.add_box(slat_center, slat_size, 0.022, 0.252, f"{name}_slat_{slat_index:02d}", "DoorMetal")
+        add_streetscape_record(name, "storm_drain_grate", (x, y, 0.246), extra={"orientation": orientation, "size_m": grate_size})
+
+    def add_public_utility_box(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        body_size = (0.72, 0.42) if orientation == "east_west" else (0.42, 0.72)
+        roads.add_box(center, body_size, 1.08, 0.14, f"{name}_body", "TrafficSignalHousing")
+        roads.add_box((x, y), (body_size[0] * 0.72, body_size[1] * 0.18), 0.045, 0.86, f"{name}_service_label", "LaneMarkingWhite")
+        for vent_index, z in enumerate([0.38, 0.52, 0.66], start=1):
+            roads.add_box((x, y), (body_size[0] * 0.62, body_size[1] * 0.10), 0.026, z, f"{name}_louver_{vent_index:02d}", "RoadCrackSealant")
+        add_streetscape_record(name, "public_utility_box", (x, y, 0.68), extra={"orientation": orientation, "size_m": body_size})
+
+    def add_public_news_box(name: str, center: tuple[float, float], material: str) -> None:
+        x, y = center
+        roads.add_box(center, (0.54, 0.42), 0.92, 0.12, f"{name}_box_body", material)
+        roads.add_box((x, y - 0.045), (0.40, 0.050), 0.36, 0.48, f"{name}_front_window", "DoorGlass")
+        roads.add_box((x, y), (0.38, 0.042), 0.050, 0.92, f"{name}_headline_bar", "LaneMarkingWhite")
+        add_streetscape_record(name, "public_news_box", (x, y, 0.58), extra={"material": material})
+
     def add_public_roadway_visual_details() -> None:
         # Authored public-facing road markings for visual realism. These are
         # schematic surface props, not traffic-control engineering plans.
@@ -1300,6 +1359,116 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         ]
         for name, center, length, orientation, material in curb_paint_specs:
             add_curb_paint_segment(f"public_curb_paint_segment_{name}", center, length, orientation, material)
+
+        patch_specs = [
+            ("west_approach_patch_01", (-318.0, -6.0), (8.2, 2.6), 1.0),
+            ("west_approach_patch_02", (-292.0, 7.4), (6.4, 2.1), -2.0),
+            ("west_approach_patch_03", (-266.0, -7.2), (7.0, 2.4), 2.5),
+            ("west_approach_patch_04", (-240.0, 6.6), (5.6, 1.9), -1.5),
+            ("west_approach_patch_05", (-214.0, -6.8), (6.0, 2.2), 2.0),
+            ("west_approach_patch_06", (-188.0, 6.8), (7.4, 2.2), -1.0),
+            ("east_approach_patch_01", (122.0, 7.0), (5.8, 1.9), 1.0),
+            ("east_approach_patch_02", (148.0, -7.0), (6.6, 2.2), -1.0),
+            ("east_approach_patch_03", (176.0, 6.6), (5.2, 1.8), 2.0),
+            ("east_approach_patch_04", (204.0, -7.0), (6.2, 2.1), -2.0),
+            ("north_approach_patch_01", (-42.0, 132.0), (2.0, 6.2), 0.0),
+            ("north_approach_patch_02", (42.0, 158.0), (2.0, 6.8), 0.0),
+            ("north_approach_patch_03", (-42.0, 184.0), (2.1, 5.8), 0.0),
+            ("south_approach_patch_01", (42.0, -132.0), (2.0, 6.2), 0.0),
+            ("south_approach_patch_02", (-42.0, -158.0), (2.0, 6.8), 0.0),
+            ("south_approach_patch_03", (42.0, -184.0), (2.1, 5.8), 0.0),
+            ("northwest_curve_patch_01", (-164.0, 96.0), (6.0, 2.0), 12.0),
+            ("northwest_curve_patch_02", (-132.0, 116.0), (5.2, 1.8), -8.0),
+            ("southwest_curve_patch_01", (-164.0, -96.0), (6.0, 2.0), -12.0),
+            ("southwest_curve_patch_02", (-132.0, -116.0), (5.2, 1.8), 8.0),
+            ("east_plaza_patch_01", (204.0, 42.0), (2.0, 5.4), 0.0),
+            ("east_plaza_patch_02", (204.0, -42.0), (2.0, 5.4), 0.0),
+            ("west_pool_patch_01", (-340.0, 42.0), (2.0, 5.2), 0.0),
+            ("west_pool_patch_02", (-340.0, -42.0), (2.0, 5.2), 0.0),
+        ]
+        for name, center, size, angle_degrees in patch_specs:
+            add_asphalt_patch(f"public_{name}", center, size, angle_degrees)
+
+        crack_specs = [
+            ("west_crack_01", [(-334.0, -8.5), (-322.0, -7.0), (-310.0, -8.2)]),
+            ("west_crack_02", [(-316.0, 8.5), (-304.0, 7.6), (-292.0, 8.3)]),
+            ("west_crack_03", [(-286.0, -8.6), (-274.0, -7.4), (-260.0, -8.0)]),
+            ("west_crack_04", [(-252.0, 8.3), (-240.0, 7.5), (-226.0, 8.4)]),
+            ("west_crack_05", [(-220.0, -8.0), (-208.0, -7.1), (-196.0, -8.1)]),
+            ("west_crack_06", [(-190.0, 8.2), (-176.0, 7.7), (-162.0, 8.5)]),
+            ("east_crack_01", [(116.0, 8.2), (128.0, 7.3), (140.0, 8.0)]),
+            ("east_crack_02", [(146.0, -8.3), (158.0, -7.2), (172.0, -8.0)]),
+            ("east_crack_03", [(178.0, 8.1), (190.0, 7.2), (202.0, 8.2)]),
+            ("east_crack_04", [(202.0, -8.2), (214.0, -7.4), (226.0, -8.0)]),
+            ("north_crack_01", [(-48.0, 124.0), (-47.0, 138.0), (-48.4, 152.0)]),
+            ("north_crack_02", [(48.0, 136.0), (47.0, 150.0), (48.2, 164.0)]),
+            ("north_crack_03", [(-48.0, 166.0), (-46.8, 180.0), (-48.4, 194.0)]),
+            ("south_crack_01", [(48.0, -124.0), (47.0, -138.0), (48.4, -152.0)]),
+            ("south_crack_02", [(-48.0, -136.0), (-47.0, -150.0), (-48.2, -164.0)]),
+            ("south_crack_03", [(48.0, -166.0), (46.8, -180.0), (48.4, -194.0)]),
+            ("nw_curve_crack_01", [(-178.0, 92.0), (-164.0, 98.0), (-150.0, 104.0)]),
+            ("nw_curve_crack_02", [(-150.0, 118.0), (-136.0, 112.0), (-122.0, 116.0)]),
+            ("sw_curve_crack_01", [(-178.0, -92.0), (-164.0, -98.0), (-150.0, -104.0)]),
+            ("sw_curve_crack_02", [(-150.0, -118.0), (-136.0, -112.0), (-122.0, -116.0)]),
+            ("east_plaza_crack_01", [(198.0, 28.0), (204.0, 38.0), (198.0, 50.0)]),
+            ("east_plaza_crack_02", [(210.0, -28.0), (204.0, -38.0), (210.0, -50.0)]),
+            ("west_pool_crack_01", [(-346.0, 28.0), (-340.0, 38.0), (-346.0, 50.0)]),
+            ("west_pool_crack_02", [(-334.0, -28.0), (-340.0, -38.0), (-334.0, -50.0)]),
+            ("road_joint_crack_01", [(-88.0, 52.0), (-96.0, 56.0), (-104.0, 54.0)]),
+            ("road_joint_crack_02", [(88.0, -52.0), (96.0, -56.0), (104.0, -54.0)]),
+            ("road_joint_crack_03", [(-88.0, -52.0), (-96.0, -56.0), (-104.0, -54.0)]),
+            ("road_joint_crack_04", [(88.0, 52.0), (96.0, 56.0), (104.0, 54.0)]),
+            ("plaza_lane_crack_01", [(180.0, 30.0), (190.0, 32.0), (200.0, 31.0)]),
+            ("plaza_lane_crack_02", [(-218.0, 30.0), (-228.0, 32.0), (-238.0, 31.0)]),
+            ("plaza_lane_crack_03", [(180.0, -30.0), (190.0, -32.0), (200.0, -31.0)]),
+            ("plaza_lane_crack_04", [(-218.0, -30.0), (-228.0, -32.0), (-238.0, -31.0)]),
+        ]
+        for name, points in crack_specs:
+            add_road_crack_line(f"public_{name}", points)
+
+        for idx, center in enumerate(
+            [
+                (-318.0, 0.0), (-286.0, 0.0), (-254.0, 0.0), (-222.0, 0.0),
+                (-190.0, 0.0), (124.0, 0.0), (156.0, 0.0), (188.0, 0.0),
+                (-52.0, 132.0), (52.0, 132.0), (-52.0, -132.0), (52.0, -132.0),
+            ],
+            start=1,
+        ):
+            add_manhole_cover(f"public_manhole_cover_{idx:02d}", center)
+
+        for idx, (center, orientation) in enumerate(
+            [
+                ((-330.0, 29.6), "east_west"), ((-294.0, -29.6), "east_west"), ((-258.0, 29.6), "east_west"), ((-222.0, -29.6), "east_west"),
+                ((-186.0, 29.6), "east_west"), ((118.0, -29.6), "east_west"), ((154.0, 29.6), "east_west"), ((190.0, -29.6), "east_west"),
+                ((-70.2, 126.0), "north_south"), ((70.2, 154.0), "north_south"), ((-70.2, -126.0), "north_south"), ((70.2, -154.0), "north_south"),
+                ((-152.0, 110.5), "east_west"), ((-152.0, -110.5), "east_west"), ((206.0, 88.0), "north_south"), ((206.0, -88.0), "north_south"),
+            ],
+            start=1,
+        ):
+            add_storm_drain_grate(f"public_storm_drain_grate_{idx:02d}", center, orientation)
+
+        for idx, (center, orientation) in enumerate(
+            [
+                ((-238.0, 34.5), "east_west"), ((-202.0, -34.5), "east_west"), ((-166.0, 34.5), "east_west"),
+                ((126.0, -34.5), "east_west"), ((166.0, 34.5), "east_west"), ((206.0, -34.5), "east_west"),
+                ((-82.0, 136.0), "north_south"), ((82.0, 136.0), "north_south"), ((-82.0, -136.0), "north_south"), ((82.0, -136.0), "north_south"),
+                ((-188.0, 126.0), "east_west"), ((-188.0, -126.0), "east_west"),
+            ],
+            start=1,
+        ):
+            add_public_utility_box(f"public_utility_box_{idx:02d}", center, orientation)
+
+        for idx, (center, material) in enumerate(
+            [
+                ((-246.0, 34.5), "MarkerBlue"), ((-210.0, -34.5), "StreetSignGreen"), ((-174.0, 34.5), "MarkerBlue"),
+                ((134.0, -34.5), "StreetSignGreen"), ((174.0, 34.5), "MarkerBlue"), ((214.0, -34.5), "StreetSignGreen"),
+                ((-90.0, 136.0), "MarkerBlue"), ((90.0, -136.0), "StreetSignGreen"),
+                ((-196.0, 126.0), "MarkerBlue"), ((-196.0, -126.0), "StreetSignGreen"),
+                ((198.0, 116.0), "MarkerBlue"), ((198.0, -116.0), "StreetSignGreen"),
+            ],
+            start=1,
+        ):
+            add_public_news_box(f"public_news_box_{idx:02d}", center, material)
 
         for name, center, label, orientation in [
             ("west_public_wayfinding_pool", (-245.0, -26.0), "Reflecting Pool / West Front", "east_west"),

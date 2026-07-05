@@ -84,6 +84,8 @@ MATERIAL_TEXTURE_BINDINGS = {
     "GroundGrass": "grass",
     "PlazaStone": "plaza_stone",
     "RoadAsphalt": "asphalt",
+    "RoadPatchAsphalt": "asphalt",
+    "RoadCrackSealant": "asphalt",
     "LaneMarkingWhite": "road_paint_white",
     "LaneMarkingYellow": "road_paint_yellow",
     "SidewalkConcrete": "concrete",
