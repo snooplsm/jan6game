@@ -77,11 +77,12 @@
     "destination_paths": 4,
     "required_functions": 16,
     "required_calls": 16,
-    "report_keys": 78,
+    "report_keys": 80,
     "label_categories": 20,
-    "outliner_folders": 9,
+    "outliner_folders": 11,
     "first_person_markers": 15,
     "environment_markers": 24,
+    "inspection_markers": 7,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],
@@ -91,7 +92,8 @@
       "label_categories": [],
       "outliner_folders": [],
       "first_person_markers": [],
-      "environment_markers": []
+      "environment_markers": [],
+      "inspection_markers": []
     }
   },
   "unreal_project_config": {

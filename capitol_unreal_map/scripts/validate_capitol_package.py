@@ -145,6 +145,8 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "nav_mesh_bounds_location_cm",
     "nav_mesh_bounds_scale_cm",
     "metadata_counts",
+    "inspection_visibility",
+    "mesh_inspection_visibility",
     "buildings",
     "roads",
     "bike_lanes",
@@ -194,6 +196,8 @@ REQUIRED_UNREAL_LABEL_CATEGORIES = {
 
 REQUIRED_UNREAL_OUTLINER_FOLDERS = {
     "CapitolMap/Meshes",
+    "CapitolMap/Meshes/InteriorTopDownVisible",
+    "CapitolMap/Meshes/HideForInteriorTopDown",
     "CapitolMap/SceneSetup",
     "CapitolMap/Environment",
     "CapitolMap/Viewpoints",
@@ -582,6 +586,16 @@ REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_SenateChamber",
     "CapitolMap_Camera_Chambers_TopDown",
     "CapitolMap_Camera_GameplayItems",
+}
+
+REQUIRED_UNREAL_INSPECTION_MARKERS = {
+    "INTERIOR_TOPDOWN_INSPECTION",
+    "MESH_INSPECTION_VISIBILITY",
+    "CapitolMap_VisibleForInteriorTopDown",
+    "CapitolMap_HideForInteriorTopDown",
+    "CapitolMap/Meshes/InteriorTopDownVisible",
+    "CapitolMap/Meshes/HideForInteriorTopDown",
+    "set_actor_tags",
 }
 
 REQUIRED_GAMEPLAY_ITEMS = {
@@ -1700,6 +1714,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "outliner_folders": 0,
         "first_person_markers": 0,
         "environment_markers": 0,
+        "inspection_markers": 0,
     }
     if not UNREAL_IMPORTER_PATH.exists():
         error(errors, f"missing Unreal import script: {UNREAL_IMPORTER_PATH}")
@@ -1718,6 +1733,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         if isinstance(node, ast.Constant) and isinstance(node.value, str)
     }
     attribute_names = {node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
+    name_tokens = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     marker_tokens = string_literals | attribute_names
     functions = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
     calls: set[str] = set()
@@ -1728,6 +1744,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
             calls.add(node.func.id)
         elif isinstance(node.func, ast.Attribute):
             calls.add(node.func.attr)
+    inspection_tokens = marker_tokens | name_tokens | functions | calls
 
     missing_meshes = sorted(EXPECTED_UNREAL_MESH_BASENAMES - string_literals)
     missing_destinations = sorted(EXPECTED_UNREAL_DESTINATIONS - string_literals)
@@ -1738,6 +1755,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     missing_outliner_folders = sorted(REQUIRED_UNREAL_OUTLINER_FOLDERS - string_literals)
     missing_first_person_markers = sorted(REQUIRED_UNREAL_FIRST_PERSON_MARKERS - string_literals)
     missing_environment_markers = sorted(REQUIRED_UNREAL_ENVIRONMENT_MARKERS - marker_tokens)
+    missing_inspection_markers = sorted(REQUIRED_UNREAL_INSPECTION_MARKERS - inspection_tokens)
 
     summary["mesh_files"] = len(EXPECTED_UNREAL_MESH_BASENAMES) - len(missing_meshes)
     summary["destination_paths"] = len(EXPECTED_UNREAL_DESTINATIONS) - len(missing_destinations)
@@ -1748,6 +1766,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     summary["outliner_folders"] = len(REQUIRED_UNREAL_OUTLINER_FOLDERS) - len(missing_outliner_folders)
     summary["first_person_markers"] = len(REQUIRED_UNREAL_FIRST_PERSON_MARKERS) - len(missing_first_person_markers)
     summary["environment_markers"] = len(REQUIRED_UNREAL_ENVIRONMENT_MARKERS) - len(missing_environment_markers)
+    summary["inspection_markers"] = len(REQUIRED_UNREAL_INSPECTION_MARKERS) - len(missing_inspection_markers)
     summary["missing"] = {
         "mesh_files": missing_meshes,
         "destination_paths": missing_destinations,
@@ -1758,6 +1777,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "outliner_folders": missing_outliner_folders,
         "first_person_markers": missing_first_person_markers,
         "environment_markers": missing_environment_markers,
+        "inspection_markers": missing_inspection_markers,
     }
 
     if missing_meshes:
@@ -1778,6 +1798,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         error(errors, f"Unreal importer missing first-person setup markers: {', '.join(missing_first_person_markers)}")
     if missing_environment_markers:
         error(errors, f"Unreal importer missing environment setup markers: {', '.join(missing_environment_markers)}")
+    if missing_inspection_markers:
+        error(errors, f"Unreal importer missing interior inspection markers: {', '.join(missing_inspection_markers)}")
 
     return summary
 
@@ -1913,6 +1935,7 @@ def main() -> int:
     print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")
     print(f"Unreal importer environment markers: {unreal_importer_summary.get('environment_markers', 0):,}")
+    print(f"Unreal importer inspection markers: {unreal_importer_summary.get('inspection_markers', 0):,}")
     print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")
     print(f"Viewer markers: {viewer_summary.get('required_markers', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")

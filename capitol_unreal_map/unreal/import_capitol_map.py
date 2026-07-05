@@ -90,6 +90,38 @@ MESH_FILES = [
     "capitol_gameplay_items.obj",
 ]
 
+INTERIOR_TOPDOWN_INSPECTION = {
+    "camera_label": "CapitolMap_Camera_Chambers_TopDown",
+    "visible_tag": "CapitolMap_VisibleForInteriorTopDown",
+    "hide_tag": "CapitolMap_HideForInteriorTopDown",
+    "visible_folder": "CapitolMap/Meshes/InteriorTopDownVisible",
+    "hide_folder": "CapitolMap/Meshes/HideForInteriorTopDown",
+    "note": "Hide actors tagged CapitolMap_HideForInteriorTopDown to inspect chambers from the top-down camera.",
+}
+
+MESH_INSPECTION_VISIBILITY = {
+    "capitol_exterior_buildings.obj": {
+        "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
+        "tags": ["CapitolMap_Mesh", "CapitolMap_Exterior", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+    },
+    "capitol_exterior_roads_bike_lanes_markers.obj": {
+        "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
+        "tags": ["CapitolMap_Mesh", "CapitolMap_Exterior", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+    },
+    "capitol_landmark_visual_details.obj": {
+        "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
+        "tags": ["CapitolMap_Mesh", "CapitolMap_Landmark", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+    },
+    "capitol_public_interior_schematic.obj": {
+        "folder": INTERIOR_TOPDOWN_INSPECTION["visible_folder"],
+        "tags": ["CapitolMap_Mesh", "CapitolMap_PublicInterior", INTERIOR_TOPDOWN_INSPECTION["visible_tag"]],
+    },
+    "capitol_gameplay_items.obj": {
+        "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
+        "tags": ["CapitolMap_Mesh", "CapitolMap_GameplayPreview", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+    },
+}
+
 DEFAULT_VIEWPOINTS = [
     {
         "label": "CapitolMap_Camera_Overview",
@@ -183,6 +215,17 @@ def get_property(obj: Any, name: str) -> Any:
         return obj.get_editor_property(name)
     except Exception:
         return None
+
+
+def set_actor_tags(actor: Any, tags: list[str]) -> None:
+    """Best-effort tag assignment across UE Python versions."""
+    try:
+        unreal_tags = [unreal.Name(tag) for tag in tags] if hasattr(unreal, "Name") else tags
+        if set_property(actor, "tags", unreal_tags):
+            return
+    except Exception:
+        pass
+    set_property(actor, "tags", tags)
 
 
 def load_metadata() -> dict[str, Any]:
@@ -648,8 +691,11 @@ def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -
             continue
         actor = unreal.EditorLevelLibrary.spawn_actor_from_object(asset, unreal.Vector(0, 0, 0))
         if actor:
+            mesh_key = f"{Path(asset_path).name}.obj"
+            visibility = MESH_INSPECTION_VISIBILITY.get(mesh_key, {"folder": "CapitolMap/Meshes", "tags": ["CapitolMap_Mesh"]})
             actor.set_actor_label(f"CapitolMap_{Path(asset_path).name}")
-            actor.set_folder_path("CapitolMap/Meshes")
+            actor.set_folder_path(visibility["folder"])
+            set_actor_tags(actor, visibility["tags"])
             configure_static_mesh_component(actor.get_component_by_class(unreal.StaticMeshComponent))
 
 
@@ -1087,6 +1133,8 @@ def write_unreal_import_report(
                 "gameplay_items": len(data.get("gameplay", {}).get("items", [])),
                 "viewpoints": len(data.get("viewpoints", [])),
             },
+            "inspection_visibility": INTERIOR_TOPDOWN_INSPECTION,
+            "mesh_inspection_visibility": MESH_INSPECTION_VISIBILITY,
         }
         UNREAL_IMPORT_REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
         log(f"Wrote Unreal import report: {UNREAL_IMPORT_REPORT_PATH}")
