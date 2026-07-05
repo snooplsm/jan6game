@@ -8297,6 +8297,86 @@ def add_public_interior_wall_finish_details(
             size,
         )
 
+    def wall_fixture_size(width: float, depth: float, orientation: str) -> tuple[float, float]:
+        if orientation == "east_west":
+            return (width, depth)
+        return (depth, width)
+
+    def wall_fixture_center(center: tuple[float, float], along_offset: float, orientation: str) -> tuple[float, float]:
+        x, y = center
+        if orientation == "east_west":
+            return (x + along_offset, y)
+        return (x, y + along_offset)
+
+    def add_public_wall_glazing_assembly(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        glass_size = wall_fixture_size(width, 0.058, orientation)
+        obj.add_box(center, glass_size, 0.82, 5.72, f"{name}_public_glazing_panel", "DoorGlass")
+        add_wall_finish_detail_record(records, f"{name}_public_glazing_panel", "public_wall_glazing_panel", room, (x, y, 6.13), glass_size)
+
+        rail_size = wall_fixture_size(width + 0.18, 0.070, orientation)
+        for rail_name, rail_z in [("bottom", 5.66), ("top", 6.52)]:
+            obj.add_box(center, rail_size, 0.055, rail_z, f"{name}_{rail_name}_glazing_rail", "InteriorTrim")
+            add_wall_finish_detail_record(
+                records,
+                f"{name}_{rail_name}_glazing_rail",
+                "public_wall_glazing_mullion",
+                room,
+                (x, y, rail_z + 0.028),
+                rail_size,
+            )
+
+        mullion_size = wall_fixture_size(0.055, 0.084, orientation)
+        for mullion_index, along_offset in enumerate([-width / 2.0, 0.0, width / 2.0], start=1):
+            mullion_center = wall_fixture_center(center, along_offset, orientation)
+            obj.add_box(mullion_center, mullion_size, 0.86, 5.68, f"{name}_vertical_mullion_{mullion_index:02d}", "InteriorTrim")
+            add_wall_finish_detail_record(
+                records,
+                f"{name}_vertical_mullion_{mullion_index:02d}",
+                "public_wall_glazing_mullion",
+                room,
+                (mullion_center[0], mullion_center[1], 6.11),
+                mullion_size,
+            )
+
+        drape_size = wall_fixture_size(0.20, 0.090, orientation)
+        for side, along_offset in [("left", -width / 2.0 - 0.22), ("right", width / 2.0 + 0.22)]:
+            drape_center = wall_fixture_center(center, along_offset, orientation)
+            obj.add_box(drape_center, drape_size, 1.02, 5.58, f"{name}_{side}_drapery_panel", "PublicGallery")
+            add_wall_finish_detail_record(
+                records,
+                f"{name}_{side}_drapery_panel",
+                "public_drapery_panel",
+                room,
+                (drape_center[0], drape_center[1], 6.09),
+                drape_size,
+            )
+
+        sill_size = wall_fixture_size(width + 0.42, 0.155, orientation)
+        obj.add_box(center, sill_size, 0.070, 5.44, f"{name}_projecting_window_sill", "InteriorTrim")
+        add_wall_finish_detail_record(records, f"{name}_projecting_window_sill", "public_window_sill", room, (x, y, 5.475), sill_size)
+
+        radiator_size = wall_fixture_size(width * 0.86, 0.125, orientation)
+        obj.add_box(center, radiator_size, 0.32, 4.74, f"{name}_low_wall_radiator_cover", "DoorMetal")
+        add_wall_finish_detail_record(records, f"{name}_low_wall_radiator_cover", "public_low_wall_radiator_cover", room, (x, y, 4.90), radiator_size)
+        for slat_index, slat_z in enumerate([4.84, 4.94, 5.04], start=1):
+            slat_size = wall_fixture_size(width * 0.72, 0.032, orientation)
+            obj.add_box(center, slat_size, 0.030, slat_z, f"{name}_radiator_grille_slat_{slat_index:02d}", "BrassRail")
+            add_wall_finish_detail_record(
+                records,
+                f"{name}_radiator_grille_slat_{slat_index:02d}",
+                "public_radiator_grille_slat",
+                room,
+                (x, y, slat_z + 0.015),
+                slat_size,
+            )
+
     def add_room_finish(
         name: str,
         room: str,
@@ -8371,6 +8451,10 @@ def add_public_interior_wall_finish_details(
             add_pilaster(f"{name}_east_pilaster_{index+1:02d}", room, (east_x, y), (0.16, 0.13))
             add_pilaster(f"{name}_west_pilaster_{index+1:02d}", room, (west_x, y), (0.16, 0.13))
 
+        glazing_width = min(max(sx * 0.14, 1.65), 3.40)
+        add_public_wall_glazing_assembly(f"{name}_north_public_wall_glazing", room, (cx - sx * 0.22, north_y - 0.018), glazing_width, "east_west")
+        add_public_wall_glazing_assembly(f"{name}_south_public_wall_glazing", room, (cx + sx * 0.22, south_y + 0.018), glazing_width, "east_west")
+
     for args in [
         ("rotunda_wall_finish_detail", "Rotunda", (0.0, 0.0), (29.5, 29.5), 10, 10),
         ("house_chamber_wall_finish_detail", "House Chamber", (0.0, -72.0), (62.0, 42.0), 12, 8),
@@ -8432,7 +8516,7 @@ def add_public_interior_wall_finish_details(
     ]:
         add_architrave(*args)
 
-    add_label(labels, "Raised wall panels, picture rails, pilasters, and architraves - schematic", -23.0, -7.5, 7.7, "wall_finish_detail")
+    add_label(labels, "Raised wall panels, picture rails, pilasters, architraves, glazing panels, drapery, and low wall grilles - schematic", -23.0, -7.5, 7.7, "wall_finish_detail")
 
 
 def add_interior_ceiling_detail_record(

@@ -1129,6 +1129,12 @@ REQUIRED_WALL_FINISH_DETAIL_KINDS = {
     "baseboard_grime_decal",
     "wall_patina_decal",
     "wainscot_rub_mark",
+    "public_wall_glazing_panel",
+    "public_wall_glazing_mullion",
+    "public_drapery_panel",
+    "public_window_sill",
+    "public_low_wall_radiator_cover",
+    "public_radiator_grille_slat",
 }
 
 REQUIRED_ROTUNDA_DETAIL_KINDS = {
@@ -2961,8 +2967,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
     summary["wall_finish_details"] = len(wall_finish_details)
     summary["wall_finish_detail_kinds"] = len(wall_finish_detail_kinds)
-    if len(wall_finish_details) < 1750:
-        error(errors, f"expected at least 1750 public wall-finish detail records, got {len(wall_finish_details)}")
+    if len(wall_finish_details) < 1970:
+        error(errors, f"expected at least 1970 public wall-finish detail records, got {len(wall_finish_details)}")
     missing_wall_finish_kinds = sorted(REQUIRED_WALL_FINISH_DETAIL_KINDS - wall_finish_detail_kinds)
     if missing_wall_finish_kinds:
         error(errors, f"missing public wall-finish detail kinds: {', '.join(missing_wall_finish_kinds)}")
@@ -3001,6 +3007,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 44 public wall patina decal records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "wainscot_rub_mark"]) < 114:
         error(errors, "expected at least 114 public wainscot rub-mark records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_wall_glazing_panel"]) < 22:
+        error(errors, "expected at least 22 public wall glazing panel records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_wall_glazing_mullion"]) < 100:
+        error(errors, "expected at least 100 public wall glazing mullion records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_drapery_panel"]) < 44:
+        error(errors, "expected at least 44 public drapery panel records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_window_sill"]) < 22:
+        error(errors, "expected at least 22 public window sill records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_low_wall_radiator_cover"]) < 22:
+        error(errors, "expected at least 22 public low wall radiator-cover records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_radiator_grille_slat"]) < 66:
+        error(errors, "expected at least 66 public radiator grille-slat records")
     for detail in wall_finish_details:
         if not detail.get("room"):
             error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} is missing room")
