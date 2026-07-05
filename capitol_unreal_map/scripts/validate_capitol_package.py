@@ -1195,6 +1195,8 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "regulatory_stop_sign",
     "bike_route_sign",
     "crosswalk_ahead_sign",
+    "dcgis_traffic_control_sign",
+    "dcgis_overhead_traffic_sign",
     "curb_paint_segment",
     "road_asphalt_patch",
     "road_crack_line",
@@ -1650,6 +1652,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     streetscape_prop_kinds = {prop.get("kind") for prop in streetscape_props}
     summary["streetscape_props"] = len(streetscape_props)
     summary["streetscape_prop_kinds"] = len(streetscape_prop_kinds)
+    traffic_sign_model = exterior.get("traffic_sign_model", {})
+    summary["traffic_sign_model"] = {
+        "dcgis_traffic_sign_points": traffic_sign_model.get("dcgis_traffic_sign_points"),
+        "dcgis_overhead_signs": traffic_sign_model.get("dcgis_overhead_signs"),
+        "generated_public_traffic_sign_props": traffic_sign_model.get("generated_public_traffic_sign_props"),
+        "generated_public_overhead_sign_props": traffic_sign_model.get("generated_public_overhead_sign_props"),
+    }
     grounds_details = exterior.get("grounds_details", [])
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
     grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
@@ -1830,6 +1839,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 12 public bike-route sign props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "crosswalk_ahead_sign"]) < 12:
         error(errors, "expected at least 12 public crosswalk-ahead sign props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_traffic_control_sign"]) < 240:
+        error(errors, "expected at least 240 DCGIS public traffic-control sign props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_overhead_traffic_sign"]) < 6:
+        error(errors, "expected at least 6 DCGIS public overhead traffic-sign props")
+    if (traffic_sign_model.get("dcgis_traffic_sign_points") or 0) < 240:
+        error(errors, "expected at least 240 DCGIS traffic-sign source points")
+    if (traffic_sign_model.get("dcgis_overhead_signs") or 0) < 6:
+        error(errors, "expected at least 6 DCGIS overhead-sign source records")
+    if (traffic_sign_model.get("generated_public_traffic_sign_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_traffic_control_sign"]):
+        error(errors, "traffic_sign_model generated traffic sign count must match streetscape props")
+    if (traffic_sign_model.get("generated_public_overhead_sign_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_overhead_traffic_sign"]):
+        error(errors, "traffic_sign_model generated overhead sign count must match streetscape props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "curb_paint_segment"]) < 16:
         error(errors, "expected at least 16 public curb-paint segment props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "road_asphalt_patch"]) < 24:

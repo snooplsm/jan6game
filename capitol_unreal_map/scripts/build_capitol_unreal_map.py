@@ -21,6 +21,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2026-07-04.json"
 DCGIS_ELEVATION_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
+DCGIS_TRAFFIC_SIGN_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
 GENERATED = ROOT / "generated"
 MESH_DIR = GENERATED / "meshes"
 DATA_DIR = GENERATED / "data"
@@ -39,6 +40,27 @@ class ElevationPoint:
     y: float
     elevation_m: float
     object_id: int
+
+
+@dataclass(frozen=True)
+class DcgisTrafficSignPoint:
+    x: float
+    y: float
+    object_id: int
+    sign_code: int
+    sign_id: int
+    description: str
+    dxf_layer: str
+
+
+@dataclass(frozen=True)
+class DcgisOverheadTrafficSign:
+    points: tuple[tuple[float, float], ...]
+    object_id: int
+    sign_code: int
+    sign_id: int
+    description: str
+    dxf_layer: str
 
 
 MATERIALS = {
@@ -711,6 +733,91 @@ def load_dcgis_elevation_points() -> dict[str, Any]:
     }
 
 
+def dcgis_int(value: Any) -> int:
+    if isinstance(value, bool):
+        return 0
+    if isinstance(value, (int, float)):
+        return int(value)
+    return 0
+
+
+def parse_dcgis_traffic_sign_points(features: list[dict[str, Any]]) -> list[DcgisTrafficSignPoint]:
+    signs: list[DcgisTrafficSignPoint] = []
+    for feature in features:
+        geometry = feature.get("geometry") or {}
+        attributes = feature.get("attributes") or {}
+        if not all(key in geometry for key in ("x", "y")):
+            continue
+        x, y = local_xy(float(geometry["y"]), float(geometry["x"]))
+        signs.append(
+            DcgisTrafficSignPoint(
+                x=x,
+                y=y,
+                object_id=dcgis_int(attributes.get("OBJECTID")),
+                sign_code=dcgis_int(attributes.get("TRF_CODE")),
+                sign_id=dcgis_int(attributes.get("TRF_ID")),
+                description=str(attributes.get("DESC_") or "Other Traffic Control Sign"),
+                dxf_layer=str(attributes.get("DXF_LAYER") or ""),
+            )
+        )
+    return signs
+
+
+def parse_dcgis_overhead_traffic_signs(features: list[dict[str, Any]]) -> list[DcgisOverheadTrafficSign]:
+    signs: list[DcgisOverheadTrafficSign] = []
+    for feature in features:
+        geometry = feature.get("geometry") or {}
+        attributes = feature.get("attributes") or {}
+        raw_paths = geometry.get("paths") or []
+        if not raw_paths:
+            continue
+        path_points: list[tuple[float, float]] = []
+        for raw_point in raw_paths[0]:
+            if len(raw_point) < 2:
+                continue
+            path_points.append(local_xy(float(raw_point[1]), float(raw_point[0])))
+        if len(path_points) < 2:
+            continue
+        signs.append(
+            DcgisOverheadTrafficSign(
+                points=tuple(path_points),
+                object_id=dcgis_int(attributes.get("OBJECTID")),
+                sign_code=dcgis_int(attributes.get("OTS_CODE")),
+                sign_id=dcgis_int(attributes.get("OTS_ID")),
+                description=str(attributes.get("DESC_") or "Overhead Traffic Sign"),
+                dxf_layer=str(attributes.get("DXF_LAYER") or ""),
+            )
+        )
+    return signs
+
+
+def load_dcgis_traffic_signs() -> dict[str, Any]:
+    if not DCGIS_TRAFFIC_SIGN_SOURCE.exists():
+        return {
+            "available": False,
+            "source_file": str(DCGIS_TRAFFIC_SIGN_SOURCE.relative_to(ROOT)),
+            "traffic_sign_points": [],
+            "overhead_signs": [],
+        }
+    data = json.loads(DCGIS_TRAFFIC_SIGN_SOURCE.read_text(encoding="utf-8"))
+    layers = data.get("layers", {})
+    traffic_sign_features = layers.get("other_traffic_signs_1999", {}).get("features", [])
+    overhead_sign_features = layers.get("overhead_traffic_signs_1999", {}).get("features", [])
+    traffic_sign_points = parse_dcgis_traffic_sign_points(traffic_sign_features)
+    overhead_signs = parse_dcgis_overhead_traffic_signs(overhead_sign_features)
+    return {
+        "available": True,
+        "source_file": str(DCGIS_TRAFFIC_SIGN_SOURCE.relative_to(ROOT)),
+        "service_url": data.get("service_url"),
+        "bbox_lonlat": data.get("bbox_lonlat"),
+        "retrieved_utc": data.get("retrieved_utc"),
+        "traffic_sign_points": traffic_sign_points,
+        "overhead_signs": overhead_signs,
+        "traffic_sign_point_count": len(traffic_sign_points),
+        "overhead_sign_count": len(overhead_signs),
+    }
+
+
 def dcgis_height_estimate(
     footprint: list[tuple[float, float]],
     current_height: float,
@@ -1016,6 +1123,9 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     dcgis_elevation_model = load_dcgis_elevation_points()
     dcgis_rooftop_points = dcgis_elevation_model.get("rooftop_points", [])
     dcgis_ground_points = dcgis_elevation_model.get("ground_points", [])
+    dcgis_traffic_sign_model = load_dcgis_traffic_signs()
+    dcgis_traffic_sign_points = dcgis_traffic_sign_model.get("traffic_sign_points", [])
+    dcgis_overhead_signs = dcgis_traffic_sign_model.get("overhead_signs", [])
     dcgis_height_match_count = 0
     metadata: dict[str, Any] = {
         "buildings": [],
@@ -1049,6 +1159,20 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "DCGIS elevation points are public 1999 planimetrics. They are used conservatively only "
                 "when rooftop points fall inside the current OSM footprint and nearby ground points produce "
                 "a plausible building-height delta; explicit height and level tags remain authoritative."
+            ),
+        },
+        "traffic_sign_model": {
+            "source_file": dcgis_traffic_sign_model.get("source_file"),
+            "service_url": dcgis_traffic_sign_model.get("service_url"),
+            "retrieved_utc": dcgis_traffic_sign_model.get("retrieved_utc"),
+            "bbox_lonlat": dcgis_traffic_sign_model.get("bbox_lonlat"),
+            "dcgis_traffic_sign_points": dcgis_traffic_sign_model.get("traffic_sign_point_count", 0),
+            "dcgis_overhead_signs": dcgis_traffic_sign_model.get("overhead_sign_count", 0),
+            "generated_public_traffic_sign_props": 0,
+            "generated_public_overhead_sign_props": 0,
+            "dcgis_note": (
+                "Public DCGIS 1999 planimetric sign points and overhead sign lines are rendered as generic "
+                "traffic-control sign props. They are public streetscape markers, not current operational guidance."
             ),
         },
     }
@@ -1952,6 +2076,72 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box((x, y), panel_size, 0.68, 1.88, f"{name}_yellow_panel", "LaneMarkingYellow")
         roads.add_box((x, y), icon_size, 0.055, 2.12, f"{name}_crossing_icon_marker", "TrafficSignalHousing")
         add_streetscape_record(name, "crosswalk_ahead_sign", (x, y, 1.70), extra={"label": "Crosswalk", "orientation": orientation})
+
+    def add_dcgis_traffic_control_sign(name: str, sign: DcgisTrafficSignPoint, stack_index: int) -> None:
+        offset_angle = stack_index * math.tau / 5.0
+        offset_radius = 0.18 * min(stack_index, 4)
+        x = sign.x + math.cos(offset_angle) * offset_radius
+        y = sign.y + math.sin(offset_angle) * offset_radius
+        orientation = "east_west" if stack_index % 2 else "north_south"
+        panel_size = (0.76, 0.10) if orientation == "east_west" else (0.10, 0.76)
+        trim_size = (0.88, 0.12) if orientation == "east_west" else (0.12, 0.88)
+        symbol_size = (0.42, 0.036) if orientation == "east_west" else (0.036, 0.42)
+        panel_material = "LaneMarkingWhite" if sign.object_id % 3 else "LaneMarkingYellow"
+        roads.add_cylinder((x, y), 0.042, 0.10, 2.26, f"{name}_post", "StreetLightPole", segments=8)
+        roads.add_box((x, y), trim_size, 0.66, 1.83, f"{name}_dark_backplate", "TrafficSignalHousing")
+        roads.add_box((x, y), panel_size, 0.56, 1.88, f"{name}_sign_face", panel_material)
+        roads.add_box((x, y), symbol_size, 0.052, 2.08, f"{name}_abstract_symbol_bar", "TrafficSignalHousing")
+        add_streetscape_record(
+            name,
+            "dcgis_traffic_control_sign",
+            (x, y, 1.68),
+            public_accuracy="public_1999_planimetric_sign_point_generic_visual",
+            extra={
+                "source": "DCGIS Planimetrics 1999 Other Traffic Signs",
+                "dcgis_object_id": sign.object_id,
+                "dcgis_sign_id": sign.sign_id,
+                "dcgis_sign_code": sign.sign_code,
+                "description": sign.description,
+                "dxf_layer": sign.dxf_layer,
+                "orientation": orientation,
+                "stack_index": stack_index,
+            },
+        )
+
+    def add_dcgis_overhead_traffic_sign(name: str, sign: DcgisOverheadTrafficSign) -> None:
+        x0, y0 = sign.points[0]
+        x1, y1 = sign.points[-1]
+        cx = (x0 + x1) / 2.0
+        cy = (y0 + y1) / 2.0
+        dx = x1 - x0
+        dy = y1 - y0
+        length = max(math.hypot(dx, dy), 1.2)
+        angle = math.atan2(dy, dx) if length > 0.01 else 0.0
+        ux = math.cos(angle)
+        uy = math.sin(angle)
+        support_a = (cx - ux * length / 2.0, cy - uy * length / 2.0)
+        support_b = (cx + ux * length / 2.0, cy + uy * length / 2.0)
+        roads.add_cylinder(support_a, 0.055, 0.10, 4.28, f"{name}_support_a", "StreetLightPole", segments=8)
+        roads.add_cylinder(support_b, 0.055, 0.10, 4.28, f"{name}_support_b", "StreetLightPole", segments=8)
+        roads.add_oriented_box((cx, cy), (length + 0.34, 0.10), 0.10, 4.22, angle, f"{name}_overhead_bar", "StreetLightPole")
+        roads.add_oriented_box((cx, cy), (max(1.02, length * 0.90), 0.16), 0.52, 3.82, angle, f"{name}_green_panel", "StreetSignGreen")
+        roads.add_oriented_box((cx, cy), (max(0.52, length * 0.46), 0.035), 0.052, 4.04, angle, f"{name}_white_text_marker", "LaneMarkingWhite")
+        add_streetscape_record(
+            name,
+            "dcgis_overhead_traffic_sign",
+            (cx, cy, 3.72),
+            public_accuracy="public_1999_planimetric_overhead_sign_generic_visual",
+            extra={
+                "source": "DCGIS Planimetrics 1999 Overhead Traffic Signs",
+                "dcgis_object_id": sign.object_id,
+                "dcgis_sign_id": sign.sign_id,
+                "dcgis_sign_code": sign.sign_code,
+                "description": sign.description,
+                "dxf_layer": sign.dxf_layer,
+                "span_m": round(length, 3),
+                "angle_degrees": round(math.degrees(angle), 2),
+            },
+        )
 
     def add_curb_paint_segment(name: str, center: tuple[float, float], length: float, orientation: str, material: str) -> None:
         x, y = center
@@ -3037,6 +3227,26 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "tags": tags,
             }
         )
+
+    sign_stack_counts: dict[tuple[int, int], int] = {}
+    generated_dcgis_signs = 0
+    for sign in sorted(dcgis_traffic_sign_points, key=lambda item: item.object_id):
+        key = (round(sign.x * 2.0), round(sign.y * 2.0))
+        sign_stack_counts[key] = sign_stack_counts.get(key, 0) + 1
+        generated_dcgis_signs += 1
+        add_dcgis_traffic_control_sign(
+            f"dcgis_traffic_control_sign_{sign.object_id}",
+            sign,
+            sign_stack_counts[key],
+        )
+
+    generated_dcgis_overhead_signs = 0
+    for sign in sorted(dcgis_overhead_signs, key=lambda item: item.object_id):
+        generated_dcgis_overhead_signs += 1
+        add_dcgis_overhead_traffic_sign(f"dcgis_overhead_traffic_sign_{sign.object_id}", sign)
+
+    metadata["traffic_sign_model"]["generated_public_traffic_sign_props"] = generated_dcgis_signs
+    metadata["traffic_sign_model"]["generated_public_overhead_sign_props"] = generated_dcgis_overhead_signs
 
     add_public_roadway_visual_details()
     add_capitol_grounds_details()
@@ -10610,6 +10820,16 @@ def write_scene_metadata(
                     "Elevation Point - 1999",
                 ],
                 "usage": "Conservative surrounding-building height correction for missing-height footprints only.",
+            },
+            "exterior_dcgis_planimetrics_1999_traffic_signs": {
+                "file": exterior.get("traffic_sign_model", {}).get("source_file"),
+                "service_url": exterior.get("traffic_sign_model", {}).get("service_url"),
+                "retrieved_utc": exterior.get("traffic_sign_model", {}).get("retrieved_utc"),
+                "layers": [
+                    "Other Traffic Signs - 1999",
+                    "Overhead Traffic Signs - 1999",
+                ],
+                "usage": "Generic public traffic-control sign and overhead-sign streetscape props.",
             },
         },
         "meshes": [

@@ -1,0 +1,3711 @@
+{
+  "bbox_lonlat": [
+    -77.01770688017783,
+    38.882303355012574,
+    -76.99693276775105,
+    38.89802380057492
+  ],
+  "layers": {
+    "other_traffic_signs_1999": {
+      "feature_count": 252,
+      "features": [
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6698,
+            "TRF": 6872.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24998.0
+          },
+          "geometry": {
+            "x": -77.01624098950094,
+            "y": 38.897864547161866
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6699,
+            "TRF": 6873.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9548.0
+          },
+          "geometry": {
+            "x": -77.01624098950094,
+            "y": 38.897864547161866
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6700,
+            "TRF": 6874.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25205.0
+          },
+          "geometry": {
+            "x": -77.0122503636434,
+            "y": 38.89769018152567
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6701,
+            "TRF": 6875.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9755.0
+          },
+          "geometry": {
+            "x": -77.0122503636434,
+            "y": 38.89769018152567
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6702,
+            "TRF": 6876.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24997.0
+          },
+          "geometry": {
+            "x": -77.01624081752894,
+            "y": 38.89761555600275
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6703,
+            "TRF": 6877.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9547.0
+          },
+          "geometry": {
+            "x": -77.01624081752894,
+            "y": 38.89761555600275
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6704,
+            "TRF": 6878.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9756.0
+          },
+          "geometry": {
+            "x": -77.01224653989594,
+            "y": 38.89757622611971
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6705,
+            "TRF": 6879.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25206.0
+          },
+          "geometry": {
+            "x": -77.01224653989594,
+            "y": 38.89757622611971
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6706,
+            "TRF": 6880.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24995.0
+          },
+          "geometry": {
+            "x": -77.01624331331557,
+            "y": 38.89743845121125
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6707,
+            "TRF": 6881.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9545.0
+          },
+          "geometry": {
+            "x": -77.01624331331557,
+            "y": 38.89743845121125
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6720,
+            "TRF": 6894.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9540.0
+          },
+          "geometry": {
+            "x": -77.01746363702308,
+            "y": 38.89740890786593
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6721,
+            "TRF": 6895.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24990.0
+          },
+          "geometry": {
+            "x": -77.01746363702308,
+            "y": 38.89740890786593
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6733,
+            "TRF": 6907.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9918.0
+          },
+          "geometry": {
+            "x": -77.01208899385117,
+            "y": 38.89712636480235
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6734,
+            "TRF": 6908.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25368.0
+          },
+          "geometry": {
+            "x": -77.01208899385117,
+            "y": 38.89712636480235
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6739,
+            "TRF": 6913.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9495.0
+          },
+          "geometry": {
+            "x": -77.01624292740789,
+            "y": 38.89675624777538
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6740,
+            "TRF": 6914.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24945.0
+          },
+          "geometry": {
+            "x": -77.01624292740789,
+            "y": 38.89675624777538
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6741,
+            "TRF": 6915.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24944.0
+          },
+          "geometry": {
+            "x": -77.01624383216337,
+            "y": 38.896679586457296
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6742,
+            "TRF": 6916.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9494.0
+          },
+          "geometry": {
+            "x": -77.01624383216337,
+            "y": 38.896679586457296
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6743,
+            "TRF": 6917.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25342.0
+          },
+          "geometry": {
+            "x": -77.0117111429961,
+            "y": 38.89659581057662
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6744,
+            "TRF": 6918.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9892.0
+          },
+          "geometry": {
+            "x": -77.0117111429961,
+            "y": 38.89659581057662
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6745,
+            "TRF": 6919.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9891.0
+          },
+          "geometry": {
+            "x": -77.01166731777204,
+            "y": 38.89647249043297
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6746,
+            "TRF": 6920.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25341.0
+          },
+          "geometry": {
+            "x": -77.01166731777204,
+            "y": 38.89647249043297
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6751,
+            "TRF": 6925.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9493.0
+          },
+          "geometry": {
+            "x": -77.01624386308262,
+            "y": 38.89630916244004
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6752,
+            "TRF": 6926.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24943.0
+          },
+          "geometry": {
+            "x": -77.01624386308262,
+            "y": 38.89630916244004
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6755,
+            "TRF": 6929.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 22431.0
+          },
+          "geometry": {
+            "x": -77.01177402887208,
+            "y": 38.8962622244571
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6756,
+            "TRF": 6930.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6981.0
+          },
+          "geometry": {
+            "x": -77.01177402887208,
+            "y": 38.8962622244571
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6761,
+            "TRF": 6935.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7114.0
+          },
+          "geometry": {
+            "x": -77.01258418010313,
+            "y": 38.896217548564735
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6762,
+            "TRF": 6936.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 22564.0
+          },
+          "geometry": {
+            "x": -77.01258418010313,
+            "y": 38.896217548564735
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6763,
+            "TRF": 6937.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 22563.0
+          },
+          "geometry": {
+            "x": -77.01262072243227,
+            "y": 38.896216914036174
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6764,
+            "TRF": 6938.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7113.0
+          },
+          "geometry": {
+            "x": -77.01262072243227,
+            "y": 38.896216914036174
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6767,
+            "TRF": 6941.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7115.0
+          },
+          "geometry": {
+            "x": -77.01304101790379,
+            "y": 38.89621560669356
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6768,
+            "TRF": 6942.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 22565.0
+          },
+          "geometry": {
+            "x": -77.01304101790379,
+            "y": 38.89621560669356
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6771,
+            "TRF": 6945.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 22497.0
+          },
+          "geometry": {
+            "x": -77.01345289822402,
+            "y": 38.896214298808296
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6772,
+            "TRF": 6946.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7047.0
+          },
+          "geometry": {
+            "x": -77.01345289822402,
+            "y": 38.896214298808296
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6781,
+            "TRF": 6955.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25353.0
+          },
+          "geometry": {
+            "x": -77.01190624210093,
+            "y": 38.89621284520624
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6782,
+            "TRF": 6956.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9903.0
+          },
+          "geometry": {
+            "x": -77.01190624210093,
+            "y": 38.89621284520624
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6783,
+            "TRF": 6957.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25354.0
+          },
+          "geometry": {
+            "x": -77.01183673040126,
+            "y": 38.89621060017991
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6784,
+            "TRF": 6958.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9904.0
+          },
+          "geometry": {
+            "x": -77.01183673040126,
+            "y": 38.89621060017991
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6785,
+            "TRF": 6959.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9491.0
+          },
+          "geometry": {
+            "x": -77.01658517141821,
+            "y": 38.89620650918145
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6786,
+            "TRF": 6960.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24941.0
+          },
+          "geometry": {
+            "x": -77.01658517141821,
+            "y": 38.89620650918145
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6789,
+            "TRF": 6963.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9407.0
+          },
+          "geometry": {
+            "x": -77.01704716437206,
+            "y": 38.89607032624807
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6790,
+            "TRF": 6964.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24857.0
+          },
+          "geometry": {
+            "x": -77.01704716437206,
+            "y": 38.89607032624807
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6793,
+            "TRF": 6967.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 10076.0
+          },
+          "geometry": {
+            "x": -77.01487132632425,
+            "y": 38.896017384095515
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6794,
+            "TRF": 6968.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25526.0
+          },
+          "geometry": {
+            "x": -77.01487132632425,
+            "y": 38.896017384095515
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6803,
+            "TRF": 6977.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 10033.0
+          },
+          "geometry": {
+            "x": -77.01224354584298,
+            "y": 38.895580062638636
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6804,
+            "TRF": 6978.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25483.0
+          },
+          "geometry": {
+            "x": -77.01224354584298,
+            "y": 38.895580062638636
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6805,
+            "TRF": 6979.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31545.0
+          },
+          "geometry": {
+            "x": -77.01224375072324,
+            "y": 38.89543052371507
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6806,
+            "TRF": 6980.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25482.0
+          },
+          "geometry": {
+            "x": -77.01224375072324,
+            "y": 38.89543052371507
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6807,
+            "TRF": 6981.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 10032.0
+          },
+          "geometry": {
+            "x": -77.01224375072324,
+            "y": 38.89543052371507
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6808,
+            "TRF": 6982.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31544.0
+          },
+          "geometry": {
+            "x": -77.01224362556769,
+            "y": 38.895372960258165
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6809,
+            "TRF": 6983.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 10031.0
+          },
+          "geometry": {
+            "x": -77.01224362556769,
+            "y": 38.895372960258165
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6810,
+            "TRF": 6984.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25481.0
+          },
+          "geometry": {
+            "x": -77.01224362556769,
+            "y": 38.895372960258165
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6811,
+            "TRF": 6985.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31522.0
+          },
+          "geometry": {
+            "x": -77.0162421253588,
+            "y": 38.89525896723198
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6812,
+            "TRF": 6986.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 24859.0
+          },
+          "geometry": {
+            "x": -77.0162421253588,
+            "y": 38.89525896723198
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6813,
+            "TRF": 6987.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9409.0
+          },
+          "geometry": {
+            "x": -77.0162421253588,
+            "y": 38.89525896723198
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6814,
+            "TRF": 6988.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31543.0
+          },
+          "geometry": {
+            "x": -77.01224706230194,
+            "y": 38.89524774358387
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6815,
+            "TRF": 6989.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 25480.0
+          },
+          "geometry": {
+            "x": -77.01224706230194,
+            "y": 38.89524774358387
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6816,
+            "TRF": 6990.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 10030.0
+          },
+          "geometry": {
+            "x": -77.01224706230194,
+            "y": 38.89524774358387
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6817,
+            "TRF": 6991.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31396.0
+          },
+          "geometry": {
+            "x": -77.01610914395673,
+            "y": 38.89494837710942
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6818,
+            "TRF": 6992.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8057.0
+          },
+          "geometry": {
+            "x": -77.01610914395673,
+            "y": 38.89494837710942
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6819,
+            "TRF": 6993.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 23507.0
+          },
+          "geometry": {
+            "x": -77.01610914395673,
+            "y": 38.89494837710942
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6824,
+            "TRF": 6998.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31316.0
+          },
+          "geometry": {
+            "x": -77.0175187073694,
+            "y": 38.89493006737712
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6825,
+            "TRF": 6999.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 23327.0
+          },
+          "geometry": {
+            "x": -77.0175187073694,
+            "y": 38.89493006737712
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6826,
+            "TRF": 7000.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7877.0
+          },
+          "geometry": {
+            "x": -77.0175187073694,
+            "y": 38.89493006737712
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6827,
+            "TRF": 7001.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 31317.0
+          },
+          "geometry": {
+            "x": -77.01697519130546,
+            "y": 38.89492888646127
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6828,
+            "TRF": 7002.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 23328.0
+          },
+          "geometry": {
+            "x": -77.01697519130546,
+            "y": 38.89492888646127
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6829,
+            "TRF": 7003.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7878.0
+          },
+          "geometry": {
+            "x": -77.01697519130546,
+            "y": 38.89492888646127
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6836,
+            "TRF": 7010.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 30316.0
+          },
+          "geometry": {
+            "x": -77.01345584817766,
+            "y": 38.89474188077473
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6837,
+            "TRF": 7011.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 27874.0
+          },
+          "geometry": {
+            "x": -77.01345584817766,
+            "y": 38.89474188077473
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6838,
+            "TRF": 7012.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 30317.0
+          },
+          "geometry": {
+            "x": -77.01331475303321,
+            "y": 38.894739554768776
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6839,
+            "TRF": 7013.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 27875.0
+          },
+          "geometry": {
+            "x": -77.01331475303321,
+            "y": 38.894739554768776
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6840,
+            "TRF": 7014.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 30288.0
+          },
+          "geometry": {
+            "x": -77.01315417700125,
+            "y": 38.894738942378105
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6841,
+            "TRF": 7015.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 27846.0
+          },
+          "geometry": {
+            "x": -77.01315417700125,
+            "y": 38.894738942378105
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6842,
+            "TRF": 7016.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 30318.0
+          },
+          "geometry": {
+            "x": -77.0130027076894,
+            "y": 38.89473895933906
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6843,
+            "TRF": 7017.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 27876.0
+          },
+          "geometry": {
+            "x": -77.0130027076894,
+            "y": 38.89473895933906
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6859,
+            "TRF": 7033.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 30314.0
+          },
+          "geometry": {
+            "x": -77.01224753213441,
+            "y": 38.89395594341382
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6860,
+            "TRF": 7034.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 27872.0
+          },
+          "geometry": {
+            "x": -77.01224753213441,
+            "y": 38.89395594341382
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6861,
+            "TRF": 7035.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 29993.0
+          },
+          "geometry": {
+            "x": -77.01198778331408,
+            "y": 38.893714455956626
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6862,
+            "TRF": 7036.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 27551.0
+          },
+          "geometry": {
+            "x": -77.01198778331408,
+            "y": 38.893714455956626
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6869,
+            "TRF": 7043.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 30615.0
+          },
+          "geometry": {
+            "x": -77.01546114484077,
+            "y": 38.89367648290327
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6870,
+            "TRF": 7044.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 28173.0
+          },
+          "geometry": {
+            "x": -77.01546114484077,
+            "y": 38.89367648290327
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6874,
+            "TRF": 7048.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5849.0
+          },
+          "geometry": {
+            "x": -77.00930500646781,
+            "y": 38.89770045259717
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6875,
+            "TRF": 7049.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8577.0
+          },
+          "geometry": {
+            "x": -77.00894209902962,
+            "y": 38.897608325381505
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6876,
+            "TRF": 7050.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8388.0
+          },
+          "geometry": {
+            "x": -77.00896591912593,
+            "y": 38.89727050988812
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6877,
+            "TRF": 7051.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8487.0
+          },
+          "geometry": {
+            "x": -77.00788126371931,
+            "y": 38.89718888225087
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6878,
+            "TRF": 7052.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8480.0
+          },
+          "geometry": {
+            "x": -77.0078309907709,
+            "y": 38.89707961416594
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6879,
+            "TRF": 7053.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8475.0
+          },
+          "geometry": {
+            "x": -77.00787062943704,
+            "y": 38.89692827096683
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6880,
+            "TRF": 7054.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8197.0
+          },
+          "geometry": {
+            "x": -77.00790550682906,
+            "y": 38.89646334686034
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6881,
+            "TRF": 7055.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8180.0
+          },
+          "geometry": {
+            "x": -77.0078027953676,
+            "y": 38.89646029092342
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6882,
+            "TRF": 7056.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8638.0
+          },
+          "geometry": {
+            "x": -77.00896118980108,
+            "y": 38.896329586476185
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6883,
+            "TRF": 7057.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8327.0
+          },
+          "geometry": {
+            "x": -77.00891355291796,
+            "y": 38.89610645288541
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6884,
+            "TRF": 7058.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7902.0
+          },
+          "geometry": {
+            "x": -77.00542173241304,
+            "y": 38.89603433001309
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6885,
+            "TRF": 7059.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8968.0
+          },
+          "geometry": {
+            "x": -77.00680445608694,
+            "y": 38.89596651471221
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6886,
+            "TRF": 7060.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7910.0
+          },
+          "geometry": {
+            "x": -77.0056327964818,
+            "y": 38.89596531593351
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6887,
+            "TRF": 7061.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8963.0
+          },
+          "geometry": {
+            "x": -77.00681782384326,
+            "y": 38.89592264318602
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6888,
+            "TRF": 7062.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8958.0
+          },
+          "geometry": {
+            "x": -77.00671845438463,
+            "y": 38.89590039827883
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6889,
+            "TRF": 7063.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7891.0
+          },
+          "geometry": {
+            "x": -77.0035770599343,
+            "y": 38.8953719257717
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6890,
+            "TRF": 7064.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7886.0
+          },
+          "geometry": {
+            "x": -77.00362328374352,
+            "y": 38.895347241418634
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6891,
+            "TRF": 7065.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4391.0
+          },
+          "geometry": {
+            "x": -77.00921303089322,
+            "y": 38.8951506418676
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6892,
+            "TRF": 7066.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3670.0
+          },
+          "geometry": {
+            "x": -77.00882904922608,
+            "y": 38.89512166458173
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6893,
+            "TRF": 7067.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4124.0
+          },
+          "geometry": {
+            "x": -77.00344551712898,
+            "y": 38.89506915848015
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6894,
+            "TRF": 7068.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4517.0
+          },
+          "geometry": {
+            "x": -77.00882846114756,
+            "y": 38.895027076759575
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6895,
+            "TRF": 7069.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3653.0
+          },
+          "geometry": {
+            "x": -77.00722395411299,
+            "y": 38.89493431075291
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6896,
+            "TRF": 7070.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3612.0
+          },
+          "geometry": {
+            "x": -77.00902729634859,
+            "y": 38.89492986126458
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6897,
+            "TRF": 7071.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4726.0
+          },
+          "geometry": {
+            "x": -77.0057804947943,
+            "y": 38.89491925706577
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6898,
+            "TRF": 7072.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3810.0
+          },
+          "geometry": {
+            "x": -77.00954763981282,
+            "y": 38.89491279406877
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6899,
+            "TRF": 7073.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3826.0
+          },
+          "geometry": {
+            "x": -77.01087120983074,
+            "y": 38.894893310375735
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6900,
+            "TRF": 7074.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3605.0
+          },
+          "geometry": {
+            "x": -77.00914855951201,
+            "y": 38.89489219684808
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6901,
+            "TRF": 7075.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4119.0
+          },
+          "geometry": {
+            "x": -77.00344539290029,
+            "y": 38.8948838563465
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6902,
+            "TRF": 7076.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3805.0
+          },
+          "geometry": {
+            "x": -77.00968088903106,
+            "y": 38.89485963372509
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6903,
+            "TRF": 7077.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4233.0
+          },
+          "geometry": {
+            "x": -77.00286349020277,
+            "y": 38.89485549570937
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6904,
+            "TRF": 7078.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3894.0
+          },
+          "geometry": {
+            "x": -77.0111483210016,
+            "y": 38.89484977383299
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6905,
+            "TRF": 7079.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3148.0
+          },
+          "geometry": {
+            "x": -77.00990784548054,
+            "y": 38.89473466861802
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6906,
+            "TRF": 7080.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3121.0
+          },
+          "geometry": {
+            "x": -77.00931718387832,
+            "y": 38.89473102380177
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6907,
+            "TRF": 7081.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4437.0
+          },
+          "geometry": {
+            "x": -77.00942311464428,
+            "y": 38.89468921647145
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6908,
+            "TRF": 7082.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3153.0
+          },
+          "geometry": {
+            "x": -77.01079371339216,
+            "y": 38.894678467969214
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6909,
+            "TRF": 7083.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3140.0
+          },
+          "geometry": {
+            "x": -77.00988697228381,
+            "y": 38.894671882056016
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6910,
+            "TRF": 7084.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4603.0
+          },
+          "geometry": {
+            "x": -77.00731891277569,
+            "y": 38.89467198114469
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6911,
+            "TRF": 7085.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3364.0
+          },
+          "geometry": {
+            "x": -77.00600145357984,
+            "y": 38.8946699843578
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6912,
+            "TRF": 7086.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4608.0
+          },
+          "geometry": {
+            "x": -77.00712017851306,
+            "y": 38.8946417253111
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6913,
+            "TRF": 7087.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3158.0
+          },
+          "geometry": {
+            "x": -77.01063272423244,
+            "y": 38.894225271678906
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6914,
+            "TRF": 7088.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3166.0
+          },
+          "geometry": {
+            "x": -77.01055202708196,
+            "y": 38.894182579325545
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6915,
+            "TRF": 7089.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3268.0
+          },
+          "geometry": {
+            "x": -77.01086760923054,
+            "y": 38.89395878247892
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6916,
+            "TRF": 7090.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3019.0
+          },
+          "geometry": {
+            "x": -77.01047612345653,
+            "y": 38.89381297273816
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6917,
+            "TRF": 7091.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3348.0
+          },
+          "geometry": {
+            "x": -77.00600045800736,
+            "y": 38.89379779406722
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6918,
+            "TRF": 7092.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 3275.0
+          },
+          "geometry": {
+            "x": -77.01068970951943,
+            "y": 38.893727103614744
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6919,
+            "TRF": 7093.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 2862.0
+          },
+          "geometry": {
+            "x": -77.00767454014388,
+            "y": 38.89368536166931
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6920,
+            "TRF": 7094.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 2574.0
+          },
+          "geometry": {
+            "x": -77.00358008764059,
+            "y": 38.893685018483794
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6921,
+            "TRF": 7095.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4042.0
+          },
+          "geometry": {
+            "x": -77.00344372038928,
+            "y": 38.893668987686574
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6931,
+            "TRF": 7105.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 17198.0
+          },
+          "geometry": {
+            "x": -77.00046649009985,
+            "y": 38.89484553062759
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 6932,
+            "TRF": 7106.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 16396.0
+          },
+          "geometry": {
+            "x": -76.99852172203988,
+            "y": 38.894206558620624
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7150,
+            "TRF": 7498.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4105.0
+          },
+          "geometry": {
+            "x": -77.01726926195286,
+            "y": 38.893530564205065
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7151,
+            "TRF": 7499.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5543.0
+          },
+          "geometry": {
+            "x": -77.0123430159238,
+            "y": 38.893511820699715
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7152,
+            "TRF": 7500.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4111.0
+          },
+          "geometry": {
+            "x": -77.0161331392856,
+            "y": 38.8935006387021
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7153,
+            "TRF": 7501.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4110.0
+          },
+          "geometry": {
+            "x": -77.01631192460006,
+            "y": 38.89349755102385
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7154,
+            "TRF": 7502.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5420.0
+          },
+          "geometry": {
+            "x": -77.01368737488025,
+            "y": 38.89323988833515
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7155,
+            "TRF": 7503.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5521.0
+          },
+          "geometry": {
+            "x": -77.01358247749127,
+            "y": 38.89323593689777
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7156,
+            "TRF": 7504.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5522.0
+          },
+          "geometry": {
+            "x": -77.0136912749024,
+            "y": 38.89313989495641
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7160,
+            "TRF": 7508.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4038.0
+          },
+          "geometry": {
+            "x": -77.01537093412337,
+            "y": 38.892290016325816
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7161,
+            "TRF": 7509.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4087.0
+          },
+          "geometry": {
+            "x": -77.01737853017815,
+            "y": 38.8920735339112
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7162,
+            "TRF": 7510.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5015.0
+          },
+          "geometry": {
+            "x": -77.01329198932858,
+            "y": 38.89197092460383
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7163,
+            "TRF": 7511.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4937.0
+          },
+          "geometry": {
+            "x": -77.0151896495517,
+            "y": 38.89190997678305
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7164,
+            "TRF": 7512.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4088.0
+          },
+          "geometry": {
+            "x": -77.01663684076664,
+            "y": 38.891868881589275
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7165,
+            "TRF": 7513.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4089.0
+          },
+          "geometry": {
+            "x": -77.01655614730937,
+            "y": 38.89184610187079
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7166,
+            "TRF": 7514.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4931.0
+          },
+          "geometry": {
+            "x": -77.01625388803441,
+            "y": 38.891738404177765
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7167,
+            "TRF": 7515.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4938.0
+          },
+          "geometry": {
+            "x": -77.01519017590499,
+            "y": 38.89167521849943
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7168,
+            "TRF": 7516.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5016.0
+          },
+          "geometry": {
+            "x": -77.0150301731315,
+            "y": 38.89162731465117
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7169,
+            "TRF": 7517.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5017.0
+          },
+          "geometry": {
+            "x": -77.01492145456524,
+            "y": 38.89152958773469
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7171,
+            "TRF": 7519.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5014.0
+          },
+          "geometry": {
+            "x": -77.0122769205428,
+            "y": 38.89124216819131
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7172,
+            "TRF": 7520.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5574.0
+          },
+          "geometry": {
+            "x": -77.01503584863758,
+            "y": 38.891210226197046
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7173,
+            "TRF": 7521.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4484.0
+          },
+          "geometry": {
+            "x": -77.0150463099758,
+            "y": 38.891077351324526
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7174,
+            "TRF": 7522.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5019.0
+          },
+          "geometry": {
+            "x": -77.01274485099064,
+            "y": 38.89092412243983
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7175,
+            "TRF": 7523.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4487.0
+          },
+          "geometry": {
+            "x": -77.01504486503656,
+            "y": 38.890784669409065
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7176,
+            "TRF": 7524.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5593.0
+          },
+          "geometry": {
+            "x": -77.01195627798757,
+            "y": 38.890748182183806
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7185,
+            "TRF": 7533.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 2911.0
+          },
+          "geometry": {
+            "x": -77.01765974765135,
+            "y": 38.88865571392126
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7186,
+            "TRF": 7534.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 2909.0
+          },
+          "geometry": {
+            "x": -77.01767164094157,
+            "y": 38.888275738700806
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7187,
+            "TRF": 7535.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 2433.0
+          },
+          "geometry": {
+            "x": -77.01493758033051,
+            "y": 38.88817054218927
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7188,
+            "TRF": 7536.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1290.0
+          },
+          "geometry": {
+            "x": -77.01533311715278,
+            "y": 38.887960055184465
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7189,
+            "TRF": 7537.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1354.0
+          },
+          "geometry": {
+            "x": -77.01607586408785,
+            "y": 38.88793959636967
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7190,
+            "TRF": 7538.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1310.0
+          },
+          "geometry": {
+            "x": -77.01583703564516,
+            "y": 38.88791881964284
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7191,
+            "TRF": 7539.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1353.0
+          },
+          "geometry": {
+            "x": -77.01633356339853,
+            "y": 38.887819208659344
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7192,
+            "TRF": 7540.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1289.0
+          },
+          "geometry": {
+            "x": -77.01533814498723,
+            "y": 38.88775673539201
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7193,
+            "TRF": 7541.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1352.0
+          },
+          "geometry": {
+            "x": -77.0164380875524,
+            "y": 38.88773793840712
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7194,
+            "TRF": 7542.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1396.0
+          },
+          "geometry": {
+            "x": -77.01730150730432,
+            "y": 38.887701059498525
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7195,
+            "TRF": 7543.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1395.0
+          },
+          "geometry": {
+            "x": -77.01732017903902,
+            "y": 38.88769808396553
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7196,
+            "TRF": 7544.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1397.0
+          },
+          "geometry": {
+            "x": -77.01714959058731,
+            "y": 38.88769567687703
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7197,
+            "TRF": 7545.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1532.0
+          },
+          "geometry": {
+            "x": -77.0137364440018,
+            "y": 38.88766396828518
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7198,
+            "TRF": 7546.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1531.0
+          },
+          "geometry": {
+            "x": -77.01390184485699,
+            "y": 38.887663228043095
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7199,
+            "TRF": 7547.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1529.0
+          },
+          "geometry": {
+            "x": -77.01472274071581,
+            "y": 38.887662046436
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7200,
+            "TRF": 7548.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1530.0
+          },
+          "geometry": {
+            "x": -77.01447031657466,
+            "y": 38.88766045647663
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7201,
+            "TRF": 7549.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 2089.0
+          },
+          "geometry": {
+            "x": -77.01194282562905,
+            "y": 38.887508230419634
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7203,
+            "TRF": 7551.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1716.0
+          },
+          "geometry": {
+            "x": -77.0150484169536,
+            "y": 38.887404995835205
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7208,
+            "TRF": 7556.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1761.0
+          },
+          "geometry": {
+            "x": -77.01365707755973,
+            "y": 38.88731832603892
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7216,
+            "TRF": 7564.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 1268.0
+          },
+          "geometry": {
+            "x": -77.01529694425663,
+            "y": 38.8869760745344
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7218,
+            "TRF": 7566.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5307.0
+          },
+          "geometry": {
+            "x": -77.00362596410083,
+            "y": 38.89365168609725
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7219,
+            "TRF": 7567.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6584.0
+          },
+          "geometry": {
+            "x": -77.0033882732145,
+            "y": 38.89363791043083
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7220,
+            "TRF": 7568.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5690.0
+          },
+          "geometry": {
+            "x": -77.00771406572586,
+            "y": 38.89356861058282
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7221,
+            "TRF": 7569.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6573.0
+          },
+          "geometry": {
+            "x": -77.00341766259807,
+            "y": 38.8935358447354
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7222,
+            "TRF": 7570.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5421.0
+          },
+          "geometry": {
+            "x": -77.00364313299187,
+            "y": 38.89352268569587
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7223,
+            "TRF": 7571.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6572.0
+          },
+          "geometry": {
+            "x": -77.00344797763627,
+            "y": 38.89350755756001
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7224,
+            "TRF": 7572.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5524.0
+          },
+          "geometry": {
+            "x": -77.007538845501,
+            "y": 38.89349808648302
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7225,
+            "TRF": 7573.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7123.0
+          },
+          "geometry": {
+            "x": -77.0057796865937,
+            "y": 38.893481070895646
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7226,
+            "TRF": 7574.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5490.0
+          },
+          "geometry": {
+            "x": -77.00599916200073,
+            "y": 38.89346475467519
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7227,
+            "TRF": 7575.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5706.0
+          },
+          "geometry": {
+            "x": -77.00819148479118,
+            "y": 38.892253806221916
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7228,
+            "TRF": 7576.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6494.0
+          },
+          "geometry": {
+            "x": -77.00345171677033,
+            "y": 38.89216855306753
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7229,
+            "TRF": 7577.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5445.0
+          },
+          "geometry": {
+            "x": -77.00578326505045,
+            "y": 38.8921217974894
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7230,
+            "TRF": 7578.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5542.0
+          },
+          "geometry": {
+            "x": -77.00604400141764,
+            "y": 38.89209097564929
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7231,
+            "TRF": 7579.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5547.0
+          },
+          "geometry": {
+            "x": -77.0063274482059,
+            "y": 38.89208978954586
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7232,
+            "TRF": 7580.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6465.0
+          },
+          "geometry": {
+            "x": -77.00341562990235,
+            "y": 38.89201036709949
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7233,
+            "TRF": 7581.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4896.0
+          },
+          "geometry": {
+            "x": -77.00361953797369,
+            "y": 38.891953968539596
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7234,
+            "TRF": 7582.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5959.0
+          },
+          "geometry": {
+            "x": -77.00625838955472,
+            "y": 38.89194827172599
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7235,
+            "TRF": 7583.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6457.0
+          },
+          "geometry": {
+            "x": -77.00345066265317,
+            "y": 38.89182362249174
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7236,
+            "TRF": 7584.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5147.0
+          },
+          "geometry": {
+            "x": -77.00574317262,
+            "y": 38.89095440429907
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7237,
+            "TRF": 7585.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5169.0
+          },
+          "geometry": {
+            "x": -77.00583341658354,
+            "y": 38.89082774207457
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7238,
+            "TRF": 7586.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5825.0
+          },
+          "geometry": {
+            "x": -77.00602590293343,
+            "y": 38.89071224493119
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7239,
+            "TRF": 7587.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5042.0
+          },
+          "geometry": {
+            "x": -77.00582908104617,
+            "y": 38.889963298560765
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7240,
+            "TRF": 7588.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6334.0
+          },
+          "geometry": {
+            "x": -77.00345748696397,
+            "y": 38.889930242052486
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7241,
+            "TRF": 7589.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5828.0
+          },
+          "geometry": {
+            "x": -77.0060675598868,
+            "y": 38.889893201243595
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7242,
+            "TRF": 7590.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6316.0
+          },
+          "geometry": {
+            "x": -77.00339650245037,
+            "y": 38.88974196877277
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7243,
+            "TRF": 7591.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6313.0
+          },
+          "geometry": {
+            "x": -77.00345401849418,
+            "y": 38.88971350061467
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7244,
+            "TRF": 7592.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7625.0
+          },
+          "geometry": {
+            "x": -77.00358578795783,
+            "y": 38.88784281681786
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7245,
+            "TRF": 7593.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7626.0
+          },
+          "geometry": {
+            "x": -77.00361759469233,
+            "y": 38.887731202010826
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7246,
+            "TRF": 7594.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7633.0
+          },
+          "geometry": {
+            "x": -77.005732076433,
+            "y": 38.88770634430058
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7247,
+            "TRF": 7595.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7627.0
+          },
+          "geometry": {
+            "x": -77.00369585632781,
+            "y": 38.88770516534139
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7248,
+            "TRF": 7596.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 8044.0
+          },
+          "geometry": {
+            "x": -77.00625179144811,
+            "y": 38.88768649919447
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7249,
+            "TRF": 7597.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7877.0
+          },
+          "geometry": {
+            "x": -77.00358795780242,
+            "y": 38.88744257442655
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7253,
+            "TRF": 7601.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 17094.0
+          },
+          "geometry": {
+            "x": -77.00197603845224,
+            "y": 38.892140481254856
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7258,
+            "TRF": 7606.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 18939.0
+          },
+          "geometry": {
+            "x": -76.99942974214592,
+            "y": 38.89195708614685
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7259,
+            "TRF": 7607.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 18853.0
+          },
+          "geometry": {
+            "x": -76.99959642111298,
+            "y": 38.89194681729329
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7263,
+            "TRF": 7611.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 17529.0
+          },
+          "geometry": {
+            "x": -77.00064673138381,
+            "y": 38.88971481111496
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7264,
+            "TRF": 7612.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 15814.0
+          },
+          "geometry": {
+            "x": -76.99945052329278,
+            "y": 38.88769080918769
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7265,
+            "TRF": 7613.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 15075.0
+          },
+          "geometry": {
+            "x": -76.99834274292581,
+            "y": 38.887547835751256
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7267,
+            "TRF": 7615.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 15580.0
+          },
+          "geometry": {
+            "x": -77.00051104238102,
+            "y": 38.88669664444607
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7268,
+            "TRF": 7616.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 15445.0
+          },
+          "geometry": {
+            "x": -76.99856567862884,
+            "y": 38.88658538327899
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7349,
+            "TRF": 7775.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5798.0
+          },
+          "geometry": {
+            "x": -77.01355973432467,
+            "y": 38.88638281697653
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7350,
+            "TRF": 7776.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6046.0
+          },
+          "geometry": {
+            "x": -77.01510824848273,
+            "y": 38.88636731266408
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7351,
+            "TRF": 7777.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5713.0
+          },
+          "geometry": {
+            "x": -77.01230258925001,
+            "y": 38.886355030193705
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7352,
+            "TRF": 7778.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6117.0
+          },
+          "geometry": {
+            "x": -77.01373283374905,
+            "y": 38.886273615157485
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7353,
+            "TRF": 7779.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5724.0
+          },
+          "geometry": {
+            "x": -77.01208726404434,
+            "y": 38.88623875446457
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7354,
+            "TRF": 7780.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5684.0
+          },
+          "geometry": {
+            "x": -77.01238174906884,
+            "y": 38.886218274585175
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7355,
+            "TRF": 7781.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9510.0
+          },
+          "geometry": {
+            "x": -77.01743817379992,
+            "y": 38.88614601238901
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7356,
+            "TRF": 7782.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5594.0
+          },
+          "geometry": {
+            "x": -77.01351565745773,
+            "y": 38.886131758471144
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7357,
+            "TRF": 7783.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9587.0
+          },
+          "geometry": {
+            "x": -77.0153421750383,
+            "y": 38.8861297311248
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7358,
+            "TRF": 7784.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5645.0
+          },
+          "geometry": {
+            "x": -77.01250942956352,
+            "y": 38.886062956464244
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7359,
+            "TRF": 7785.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5653.0
+          },
+          "geometry": {
+            "x": -77.01243035029151,
+            "y": 38.88599810455325
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7360,
+            "TRF": 7786.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5779.0
+          },
+          "geometry": {
+            "x": -77.011779134766,
+            "y": 38.88599619020986
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7361,
+            "TRF": 7787.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5552.0
+          },
+          "geometry": {
+            "x": -77.01352116375803,
+            "y": 38.88599374941213
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7362,
+            "TRF": 7788.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5991.0
+          },
+          "geometry": {
+            "x": -77.01505411137656,
+            "y": 38.88598725599934
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7363,
+            "TRF": 7789.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5784.0
+          },
+          "geometry": {
+            "x": -77.01203592668817,
+            "y": 38.88596148175259
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7364,
+            "TRF": 7790.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9515.0
+          },
+          "geometry": {
+            "x": -77.01743570662964,
+            "y": 38.88595485487656
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7365,
+            "TRF": 7791.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9678.0
+          },
+          "geometry": {
+            "x": -77.01766322478791,
+            "y": 38.88594022710732
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7366,
+            "TRF": 7792.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5996.0
+          },
+          "geometry": {
+            "x": -77.01511576470419,
+            "y": 38.88593815234945
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7367,
+            "TRF": 7793.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5658.0
+          },
+          "geometry": {
+            "x": -77.01226067804926,
+            "y": 38.88593695557129
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7368,
+            "TRF": 7794.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 11778.0
+          },
+          "geometry": {
+            "x": -77.01511479875101,
+            "y": 38.885731049749374
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7369,
+            "TRF": 7795.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9282.0
+          },
+          "geometry": {
+            "x": -77.01531096935177,
+            "y": 38.885730844027606
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7370,
+            "TRF": 7796.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5923.0
+          },
+          "geometry": {
+            "x": -77.0151137608726,
+            "y": 38.885184421167516
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7371,
+            "TRF": 7797.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9259.0
+          },
+          "geometry": {
+            "x": -77.01530589321487,
+            "y": 38.885171514155154
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7372,
+            "TRF": 7798.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5918.0
+          },
+          "geometry": {
+            "x": -77.01505462396929,
+            "y": 38.88513920671794
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7373,
+            "TRF": 7799.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9254.0
+          },
+          "geometry": {
+            "x": -77.01533919549134,
+            "y": 38.885137638261654
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7375,
+            "TRF": 7801.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 9249.0
+          },
+          "geometry": {
+            "x": -77.0153219980871,
+            "y": 38.885026026639146
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7376,
+            "TRF": 7802.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6212.0
+          },
+          "geometry": {
+            "x": -77.01378445705704,
+            "y": 38.88501297591996
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7377,
+            "TRF": 7803.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6351.0
+          },
+          "geometry": {
+            "x": -77.0150514844461,
+            "y": 38.88500858555183
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7378,
+            "TRF": 7804.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6217.0
+          },
+          "geometry": {
+            "x": -77.01374745323074,
+            "y": 38.88498136085302
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7379,
+            "TRF": 7805.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 11905.0
+          },
+          "geometry": {
+            "x": -77.01508179096292,
+            "y": 38.88497894405747
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7380,
+            "TRF": 7806.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6530.0
+          },
+          "geometry": {
+            "x": -77.01745327347511,
+            "y": 38.88473538733663
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7383,
+            "TRF": 7809.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6553.0
+          },
+          "geometry": {
+            "x": -77.01527559567066,
+            "y": 38.88416645262639
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7384,
+            "TRF": 7810.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 6228.0
+          },
+          "geometry": {
+            "x": -77.01374606630469,
+            "y": 38.88376513892067
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7385,
+            "TRF": 7811.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 5406.0
+          },
+          "geometry": {
+            "x": -77.0135920775061,
+            "y": 38.88372759197445
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7395,
+            "TRF": 7821.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 4725.0
+          },
+          "geometry": {
+            "x": -77.00753587645306,
+            "y": 38.88612644200933
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7398,
+            "TRF": 7824.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7924.0
+          },
+          "geometry": {
+            "x": -77.00064958161398,
+            "y": 38.88627667299366
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7399,
+            "TRF": 7825.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7821.0
+          },
+          "geometry": {
+            "x": -77.000650383241,
+            "y": 38.88570896471627
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Other Traffic Control Sign",
+            "DXF_LAYER": "OTHERTRF",
+            "OBJECTID": 7400,
+            "TRF": 7826.0,
+            "TRF_CODE": 1160.0,
+            "TRF_ID": 7821.0
+          },
+          "geometry": {
+            "x": -76.99837929930584,
+            "y": 38.883028860739536
+          }
+        }
+      ],
+      "layer_id": 3,
+      "query_url": "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planimetrics_1999/MapServer/3/query"
+    },
+    "overhead_traffic_signs_1999": {
+      "feature_count": 6,
+      "features": [
+        {
+          "attributes": {
+            "DESC_": "Overhead Traffic Sign",
+            "DXF_LAYER": "OVERSIGN",
+            "OBJECTID": 72,
+            "OTS": 85.0,
+            "OTS_CODE": 1180.0,
+            "OTS_ID": 3697.0
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -77.01668816138121,
+                  38.892472705509306
+                ],
+                [
+                  -77.0167089099217,
+                  38.89247261245914
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Overhead Traffic Sign",
+            "DXF_LAYER": "OVERSIGN",
+            "OBJECTID": 73,
+            "OTS": 86.0,
+            "OTS_CODE": 1180.0,
+            "OTS_ID": 5306.0
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -77.01395058975244,
+                  38.89232244459033
+                ],
+                [
+                  -77.01399404462096,
+                  38.89231352110271
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Overhead Traffic Sign",
+            "DXF_LAYER": "OVERSIGN",
+            "OBJECTID": 74,
+            "OTS": 87.0,
+            "OTS_CODE": 1180.0,
+            "OTS_ID": 3810.0
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -77.01562545537634,
+                  38.89231835892628
+                ],
+                [
+                  -77.01564009190169,
+                  38.89230601549657
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Overhead Traffic Sign",
+            "DXF_LAYER": "OVERSIGN",
+            "OBJECTID": 75,
+            "OTS": 88.0,
+            "OTS_CODE": 1180.0,
+            "OTS_ID": 5474.0
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -77.01486306331276,
+                  38.89232161136503
+                ],
+                [
+                  -77.01482421410711,
+                  38.89230540123151
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Overhead Traffic Sign",
+            "DXF_LAYER": "OVERSIGN",
+            "OBJECTID": 78,
+            "OTS": 91.0,
+            "OTS_CODE": 1180.0,
+            "OTS_ID": 3491.0
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -77.01730623421143,
+                  38.891031726194505
+                ],
+                [
+                  -77.01734438329369,
+                  38.89101343353458
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "DESC_": "Overhead Traffic Sign",
+            "DXF_LAYER": "OVERSIGN",
+            "OBJECTID": 84,
+            "OTS": 97.0,
+            "OTS_CODE": 1180.0,
+            "OTS_ID": 1931.0
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -77.01297007713839,
+                  38.8864527889979
+                ],
+                [
+                  -77.01297549529522,
+                  38.88645792317375
+                ],
+                [
+                  -77.01297053988205,
+                  38.88646215766377
+                ],
+                [
+                  -77.01296466081587,
+                  38.886457744209395
+                ],
+                [
+                  -77.01297007713839,
+                  38.8864527889979
+                ]
+              ]
+            ]
+          }
+        }
+      ],
+      "layer_id": 12,
+      "query_url": "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planimetrics_1999/MapServer/12/query"
+    }
+  },
+  "license_note": "Public DC GIS planimetrics data accessed through the DCGIS ArcGIS REST service.",
+  "retrieved_utc": "2026-07-05T15:19:02+00:00",
+  "service_url": "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planimetrics_1999/MapServer"
+}
