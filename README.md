@@ -13,6 +13,7 @@ Main package:
 Useful commands:
 
 ```bash
+python3 capitol_unreal_map/scripts/fetch_osm_historical_capitol.py
 python3 capitol_unreal_map/scripts/build_capitol_unreal_map.py
 python3 capitol_unreal_map/scripts/validate_capitol_package.py
 ```

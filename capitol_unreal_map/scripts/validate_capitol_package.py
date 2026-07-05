@@ -20,6 +20,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+TARGET_OSM_DATE_UTC = "2021-01-06T17:00:00Z"
+HISTORICAL_OSM_SOURCE_REL = "source_data/capitol_osm_overpass_2021-01-06.json"
 MESH_DIR = ROOT / "generated" / "meshes"
 DATA_DIR = ROOT / "generated" / "data"
 METADATA_PATH = DATA_DIR / "capitol_scene_metadata.json"
@@ -1653,6 +1655,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         if not (ROOT / rel).exists():
             error(errors, f"metadata mesh does not exist: {rel}")
 
+    sources = metadata.get("sources", {})
+    target_map_era = sources.get("target_map_era", {})
+    if target_map_era.get("target_osm_date_utc") != TARGET_OSM_DATE_UTC:
+        error(errors, "metadata sources.target_map_era must record the Jan 6-era OSM target date")
+    exterior_osm_source = sources.get("exterior_osm", {})
+    if exterior_osm_source.get("target_osm_date_utc") != TARGET_OSM_DATE_UTC:
+        error(errors, "metadata sources.exterior_osm must record the Jan 6-era OSM target date")
+    if exterior_osm_source.get("file") != HISTORICAL_OSM_SOURCE_REL:
+        error(errors, f"metadata sources.exterior_osm.file must be {HISTORICAL_OSM_SOURCE_REL}")
+
     exterior = metadata.get("exterior", {})
     buildings = exterior.get("buildings", [])
     summary["buildings"] = len(buildings)
@@ -1732,8 +1744,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected every surrounding building to include height_source provenance")
     if building_height_sources.get("explicit_height_tag", 0) < 20:
         error(errors, "expected at least 20 surrounding buildings with explicit height tags")
-    if building_height_sources.get("building_levels_estimate", 0) < 100:
-        error(errors, "expected at least 100 surrounding buildings with building-level height estimates")
+    if building_height_sources.get("building_levels_estimate", 0) < 70:
+        error(errors, "expected at least 70 historical-source buildings with building-level height estimates")
     if building_height_sources.get("dcgis_rooftop_ground_delta_estimate", 0) < 900:
         error(errors, "expected at least 900 surrounding buildings with DCGIS rooftop/ground delta height estimates")
     if building_height_sources.get("footprint_type_area_estimate", 0) < 1000:
@@ -1767,26 +1779,28 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "height_model.height_accuracy_tiers must match per-building height_accuracy_tier counts")
     if len(height_model.get("height_review_targets", [])) < 20:
         error(errors, "expected at least 20 high-priority height review targets in height_model")
-    next_height_source = height_model.get("next_public_height_source_candidate", {})
-    if "3D_Buildings_2024_Maximum_Height_Web_Scene_WSL1/SceneServer" not in next_height_source.get("scene_service_url", ""):
-        error(errors, "expected height_model to record the public DC 2024 3D building-height source candidate")
+    target_era_height_policy = height_model.get("target_era_height_policy", {})
+    if target_era_height_policy.get("target_osm_date_utc") != TARGET_OSM_DATE_UTC:
+        error(errors, "expected height_model.target_era_height_policy to record the Jan 6-era target date")
+    if "modern_reference_policy" not in target_era_height_policy:
+        error(errors, "expected height_model.target_era_height_policy to define modern-source reference limits")
     for building in buildings:
         if building.get("height_source") == "dcgis_rooftop_ground_delta_estimate" and not building.get("height_provenance"):
             error(errors, f"DCGIS height-matched building {building.get('name', '<unknown>')} missing height_provenance")
-    if summary["roads"] < 3000:
-        error(errors, "expected at least 3000 roads/paths")
-    if summary["bike_lanes"] < 300:
-        error(errors, "expected at least 300 bike/cycleway features")
-    if summary["pedestrian_paths"] < 2000:
-        error(errors, "expected at least 2000 pedestrian paths/footways")
+    if summary["roads"] < 1400:
+        error(errors, "expected at least 1400 historical-source roads/paths")
+    if summary["bike_lanes"] < 240:
+        error(errors, "expected at least 240 historical-source bike/cycleway features")
+    if summary["pedestrian_paths"] < 600:
+        error(errors, "expected at least 600 historical-source pedestrian paths/footways")
     if summary["curbs"] < 1000:
         error(errors, "expected at least 1000 curb edge records")
     if len(exterior.get("sidewalks", [])) < 600:
         error(errors, "expected at least 600 public sidewalk records")
     if summary["lane_edge_markings"] < 500:
         error(errors, "expected at least 500 lane edge marking records")
-    if summary["street_markers"] < 500:
-        error(errors, "expected at least 500 street markers/crossings/signals")
+    if summary["street_markers"] < 390:
+        error(errors, "expected at least 390 historical-source street markers/crossings/signals")
     if not any(item.get("name") == "United States Capitol" for item in replaced_buildings):
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
@@ -1882,10 +1896,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 250 public streetlight fixture-detail props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "street_name_sign_text_strokes"]) < 170:
         error(errors, "expected at least 170 public street-name sign text-stroke props")
-    if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_mast_arm"]) < 150:
-        error(errors, "expected at least 150 public traffic-signal mast-arm props")
-    if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_backplate"]) < 150:
-        error(errors, "expected at least 150 public traffic-signal backplate props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_mast_arm"]) < 135:
+        error(errors, "expected at least 135 historical-source public traffic-signal mast-arm props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_backplate"]) < 135:
+        error(errors, "expected at least 135 historical-source public traffic-signal backplate props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "lane_direction_arrow"]) < 12:
         error(errors, "expected at least 12 public lane-direction arrow props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "bike_symbol"]) < 8:

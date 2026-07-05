@@ -3,38 +3,38 @@
   "root": "/Volumes/128gb/metahuman/capitol_unreal_map",
   "metadata": {
     "mesh_count": 5,
-    "buildings": 2524,
-    "roads": 3528,
-    "bike_lanes": 445,
-    "pedestrian_paths": 2533,
-    "curbs": 2523,
-    "lane_edge_markings": 608,
-    "street_markers": 880,
+    "buildings": 3631,
+    "roads": 1432,
+    "bike_lanes": 242,
+    "pedestrian_paths": 636,
+    "curbs": 2449,
+    "lane_edge_markings": 571,
+    "street_markers": 396,
     "replaced_buildings": 1,
     "building_height_sources": {
-      "building_levels_estimate": 123,
-      "dcgis_rooftop_ground_delta_estimate": 930,
-      "explicit_height_tag": 22,
-      "footprint_type_area_estimate": 1449
+      "building_levels_estimate": 74,
+      "dcgis_rooftop_ground_delta_estimate": 1324,
+      "explicit_height_tag": 25,
+      "footprint_type_area_estimate": 2208
     },
     "height_model": {
       "dcgis_rooftop_points": 2360,
       "dcgis_ground_points": 2307,
-      "dcgis_matched_buildings": 930,
-      "source_backed_buildings": 952,
-      "level_count_estimated_buildings": 123,
-      "heuristic_estimated_buildings": 1449,
+      "dcgis_matched_buildings": 1324,
+      "source_backed_buildings": 1349,
+      "level_count_estimated_buildings": 74,
+      "heuristic_estimated_buildings": 2208,
       "height_accuracy_tiers": {
-        "heuristic_visual_estimate": 1449,
-        "level_count_estimate": 123,
-        "public_elevation_delta": 930,
-        "source_tag": 22
+        "heuristic_visual_estimate": 2208,
+        "level_count_estimate": 74,
+        "public_elevation_delta": 1324,
+        "source_tag": 25
       },
       "height_review_targets": 40
     },
-    "building_details": 8064,
+    "building_details": 8548,
     "building_detail_kinds": 34,
-    "streetscape_props": 6001,
+    "streetscape_props": 5941,
     "streetscape_prop_kinds": 53,
     "traffic_sign_model": {
       "dcgis_traffic_sign_points": 252,
@@ -174,12 +174,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 168442,
-      "uvs": 505326,
-      "faces": 118569,
-      "faces_with_uvs": 118569,
-      "triangles": 268188,
-      "groups": 17174,
+      "vertices": 196264,
+      "uvs": 588792,
+      "faces": 136558,
+      "faces_with_uvs": 136558,
+      "triangles": 315676,
+      "groups": 19213,
       "materials": [
         "BrassRail",
         "BuildingCapitol",
@@ -199,25 +199,25 @@
       ],
       "bbox_cm": {
         "min": [
-          -72017.8061,
-          -84806.9156,
+          -81165.0561,
+          -86524.5832,
           0.0
         ],
         "max": [
-          101951.5037,
-          93672.4404,
-          5075.0
+          107255.1238,
+          100769.0904,
+          5074.92
         ]
       }
     },
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
-      "vertices": 877004,
-      "uvs": 1370780,
-      "faces": 316989,
-      "faces_with_uvs": 316989,
-      "triangles": 736802,
-      "groups": 27018,
+      "vertices": 827724,
+      "uvs": 1276892,
+      "faces": 293657,
+      "faces_with_uvs": 293657,
+      "triangles": 689578,
+      "groups": 22277,
       "materials": [
         "BenchWood",
         "BikeLaneGreen",
@@ -257,13 +257,13 @@
       ],
       "bbox_cm": {
         "min": [
-          -116165.5184,
+          -214016.0294,
           -948771.2577,
           2.2
         ],
         "max": [
-          191068.8452,
-          114351.6042,
+          201832.6327,
+          181039.6356,
           520.0
         ]
       }

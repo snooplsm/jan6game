@@ -19,7 +19,16 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2026-07-04.json"
+TARGET_MAP_ERA = "Jan 6, 2021 / late-2020 public map state"
+TARGET_OSM_DATE_UTC = "2021-01-06T17:00:00Z"
+HISTORICAL_OSM_SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2021-01-06.json"
+STRICT_2020_OSM_SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2020-12-31.json"
+PRESENT_DAY_OSM_SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2026-07-04.json"
+SOURCE = next(
+    path
+    for path in (HISTORICAL_OSM_SOURCE, STRICT_2020_OSM_SOURCE, PRESENT_DAY_OSM_SOURCE)
+    if path.exists()
+)
 DCGIS_ELEVATION_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
 DCGIS_TRAFFIC_SIGN_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
 DCGIS_FIXTURE_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_public_fixtures.json"
@@ -34,6 +43,10 @@ EARTH_M_PER_DEG_LAT = 111_320.0
 EARTH_M_PER_DEG_LON = 111_320.0 * math.cos(math.radians(LAT0))
 OBJ_UNIT_SCALE = 100.0  # meters to Unreal centimeters
 UV_TILE_METERS = 3.0
+
+
+def relative_to_package(path: Path) -> str:
+    return path.relative_to(ROOT).as_posix()
 
 
 @dataclass(frozen=True)
@@ -1551,18 +1564,22 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             "heuristic_estimated_buildings": 0,
             "height_accuracy_tiers": {},
             "height_review_targets": [],
-            "next_public_height_source_candidate": {
-                "title": "Buildings 3D Scene - 2024",
-                "item_id": "6e4d654b86f043f799e63c04a3f190ca",
-                "item_url": "https://opendata.dc.gov/maps/6e4d654b86f043f799e63c04a3f190ca/about",
-                "scene_service_url": (
-                    "https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/"
-                    "3D_Buildings_2024_Maximum_Height_Web_Scene_WSL1/SceneServer"
+            "target_era_height_policy": {
+                "target_map_era": TARGET_MAP_ERA,
+                "target_osm_date_utc": TARGET_OSM_DATE_UTC,
+                "preferred_sources": [
+                    "historical OSM attic extract selected by the target date",
+                    "public 2019/2020-era municipal or federal datasets when licensing and coverage permit",
+                    "older public DCGIS Planimetrics 1999 data as conservative supplemental evidence",
+                ],
+                "modern_reference_policy": (
+                    "Present-day or 2024+ sources may be used only as clearly marked non-era references "
+                    "for visual modeling; they should not silently replace target-era geometry."
                 ),
                 "note": (
-                    "Public DC 2024 lidar-derived 3D building maximum-height source. It is an I3S scene "
-                    "service with compact MAX_Z attributes and multi-GB Collada download options; use it "
-                    "for the next source-backed replacement pass after validating feature-ID/footprint matches."
+                    "Height corrections should prioritize sources close to the Jan 6 / late-2020 target era. "
+                    "Modern lidar-derived building datasets can be useful for comparison, but they must be "
+                    "tagged as non-era references before use."
                 ),
             },
             "dcgis_note": (
@@ -11593,8 +11610,20 @@ def write_scene_metadata(
             "unreal_scale_note": "OBJ vertices are written in centimeters so import scale can remain 1.0 in Unreal.",
         },
         "sources": {
+            "target_map_era": {
+                "label": TARGET_MAP_ERA,
+                "target_osm_date_utc": TARGET_OSM_DATE_UTC,
+                "selected_osm_source": relative_to_package(SOURCE),
+                "fallback_note": (
+                    "Historical OSM extracts are preferred. The 2026 extract is a visible fallback only "
+                    "when the Jan 6-era or strict 2020 source file has not been fetched."
+                ),
+            },
             "exterior_osm": {
-                "file": "source_data/capitol_osm_overpass_2026-07-04.json",
+                "file": relative_to_package(SOURCE),
+                "target_map_era": TARGET_MAP_ERA,
+                "target_osm_date_utc": TARGET_OSM_DATE_UTC,
+                "source_request": osm_data.get("source_request", {}),
                 "generator": osm_data.get("generator"),
                 "timestamp_osm_base": osm_data.get("osm3s", {}).get("timestamp_osm_base"),
                 "license": "OpenStreetMap data is available under the Open Database License (ODbL).",
@@ -11669,6 +11698,12 @@ def main() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     write_mtl(MESH_DIR / "capitol_materials.mtl")
     nodes, ways, osm_data = load_osm()
+    print(f"Using OSM source {relative_to_package(SOURCE)}")
+    if SOURCE == PRESENT_DAY_OSM_SOURCE:
+        print(
+            "Warning: Jan 6-era OSM source is missing; using the 2026 fallback extract. "
+            "Run scripts/fetch_osm_historical_capitol.py to fetch the historical source."
+        )
     exterior = build_exterior(nodes, ways)
     landmark = build_capitol_landmark_details()
     interior = build_interior()
