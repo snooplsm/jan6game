@@ -9,6 +9,7 @@ features.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -606,22 +607,134 @@ def write_mtl(path: Path) -> None:
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def parse_height(tags: dict[str, str], is_capitol: bool) -> tuple[float, str]:
+def stable_unit_interval(*parts: object) -> float:
+    payload = "|".join(str(part) for part in parts).encode("utf-8")
+    digest = hashlib.sha1(payload).digest()
+    return int.from_bytes(digest[:4], "big") / 0xFFFFFFFF
+
+
+def parse_numeric_tag(value: str | None) -> float | None:
+    if not value:
+        return None
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)", value)
+    if not match:
+        return None
+    return float(match.group(1))
+
+
+def polygon_area_m2(points: list[tuple[float, float]]) -> float:
+    if len(points) < 3:
+        return 0.0
+    total = 0.0
+    for (x0, y0), (x1, y1) in zip(points, points[1:] + points[:1]):
+        total += x0 * y1 - x1 * y0
+    return abs(total) / 2.0
+
+
+def footprint_span_m(points: list[tuple[float, float]]) -> float:
+    if not points:
+        return 0.0
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    return max(max(xs) - min(xs), max(ys) - min(ys))
+
+
+def estimate_missing_building_height(
+    tags: dict[str, str],
+    way_id: int,
+    name: str,
+    footprint_area: float,
+    footprint_span: float,
+    is_capitol: bool,
+) -> tuple[float, str]:
+    if is_capitol:
+        return 28.0, "capitol_osm_placeholder_replaced"
+
+    building = tags.get("building", "").lower()
+    amenity = tags.get("amenity", "").lower()
+    office = tags.get("office", "").lower()
+    tourism = tags.get("tourism", "").lower()
+    government = tags.get("government", "").lower()
+    roof_levels = parse_numeric_tag(tags.get("roof:levels")) or 0.0
+    roof_extra = min(max(roof_levels, 0.0), 3.0) * 2.6
+    variation = stable_unit_interval(way_id, name, building, round(footprint_area, 1))
+
+    low_auxiliary = {"garage", "garages", "guardhouse", "service", "shed", "roof", "carport"}
+    rowhouse = {"house", "residential", "semidetached_house", "terrace", "detached"}
+    institutional = (
+        building in {"office", "commercial", "government", "hotel", "university", "school", "retail", "public"}
+        or bool(office)
+        or government in {"administrative", "government"}
+        or tourism in {"hotel", "museum", "attraction"}
+        or amenity in {"school", "university", "college", "courthouse", "townhall", "hospital", "place_of_worship"}
+    )
+
+    if building in low_auxiliary:
+        height = 3.2 + variation * 2.4 + roof_extra
+        return min(max(height, 3.0), 7.5), "footprint_type_area_estimate"
+
+    if building in rowhouse:
+        area_boost = 0.55 if footprint_area < 80.0 else 0.95 if footprint_area < 180.0 else 1.25
+        stories = 1.75 + area_boost + variation * 0.65
+        height = stories * 3.15 + roof_extra
+        return min(max(height, 6.0), 14.5), "footprint_type_area_estimate"
+
+    if building == "apartments":
+        area_boost = min(math.log2(max(footprint_area, 120.0) / 120.0) * 0.75, 3.0)
+        stories = 3.0 + area_boost + variation * 1.1
+        height = stories * 3.25 + roof_extra
+        return min(max(height, 10.0), 24.0), "footprint_type_area_estimate"
+
+    if institutional:
+        area_boost = min(math.log2(max(footprint_area, 120.0) / 120.0) * 0.85, 5.7)
+        span_boost = min(max(footprint_span - 35.0, 0.0) / 45.0, 1.6)
+        use_bonus = 1.9 if tourism == "hotel" or building == "hotel" else 1.4 if office or government else 0.9
+        stories = 2.2 + area_boost + span_boost + use_bonus + variation * 1.0
+        height = stories * 3.55 + roof_extra
+        return min(max(height, 11.0), 54.0), "footprint_type_area_estimate"
+
+    if amenity == "place_of_worship" or building == "church":
+        area_boost = min(math.log2(max(footprint_area, 160.0) / 160.0) * 0.55, 2.0)
+        height = (2.8 + area_boost + variation * 0.7) * 4.0 + roof_extra
+        return min(max(height, 9.0), 24.0), "footprint_type_area_estimate"
+
+    if footprint_area < 60.0:
+        height = 4.2 + variation * 2.2 + roof_extra
+    elif footprint_area < 140.0:
+        height = 7.1 + variation * 3.4 + roof_extra
+    elif footprint_area < 400.0:
+        height = 9.2 + variation * 5.2 + roof_extra
+    elif footprint_area < 900.0:
+        height = 11.5 + variation * 8.5 + roof_extra
+    elif footprint_area < 1800.0:
+        height = 15.0 + variation * 10.5 + roof_extra
+    elif footprint_area < 4000.0:
+        height = 19.0 + variation * 14.0 + roof_extra
+    else:
+        height = 25.0 + variation * 18.0 + roof_extra
+    return min(max(height, 3.0), 50.0), "footprint_type_area_estimate"
+
+
+def parse_height(
+    tags: dict[str, str],
+    is_capitol: bool,
+    way_id: int,
+    name: str,
+    footprint_area: float,
+    footprint_span: float,
+) -> tuple[float, str]:
     height = tags.get("height") or tags.get("building:height")
     if height:
-        match = re.search(r"([0-9]+(?:\.[0-9]+)?)", height)
-        if match:
-            value = float(match.group(1))
+        value = parse_numeric_tag(height)
+        if value is not None:
             if "ft" in height.lower() or "'" in height:
                 value *= 0.3048
             max_height = 120.0 if is_capitol else 70.0
             return min(max(value, 3.0), max_height), "explicit_height_tag"
-    levels = tags.get("building:levels")
-    if levels and levels.replace(".", "", 1).isdigit():
-        return min(max(float(levels) * 3.4, 3.0), 70.0), "building_levels_estimate"
-    if is_capitol:
-        return 28.0, "capitol_osm_placeholder_replaced"
-    return 11.0, "default_11m_no_height_tag"
+    levels = parse_numeric_tag(tags.get("building:levels"))
+    if levels is not None:
+        return min(max(levels * 3.4, 3.0), 70.0), "building_levels_estimate"
+    return estimate_missing_building_height(tags, way_id, name, footprint_area, footprint_span, is_capitol)
 
 
 def road_width(tags: dict[str, str]) -> float:
@@ -2469,9 +2582,18 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         is_us_capitol = tags.get("wikidata") == "Q54109" or name == "United States Capitol"
 
         if tags.get("building") and len(points) >= 3:
-            height, height_source = parse_height(tags, is_us_capitol)
             cx = sum(p[0] for p in points) / len(points)
             cy = sum(p[1] for p in points) / len(points)
+            footprint_area = polygon_area_m2(points)
+            footprint_span = footprint_span_m(points)
+            height, height_source = parse_height(
+                tags,
+                is_us_capitol,
+                int(way["id"]),
+                name,
+                footprint_area,
+                footprint_span,
+            )
             if is_us_capitol:
                 metadata["replaced_buildings"].append(
                     {
@@ -2480,6 +2602,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
                         "height_m": round(height, 2),
                         "height_source": height_source,
+                        "footprint_area_m2": round(footprint_area, 2),
+                        "footprint_span_m": round(footprint_span, 2),
                         "reason": "Skipped concave OSM extrusion; replaced by authored Capitol landmark visual mesh.",
                         "tags": tags,
                     }
@@ -2494,6 +2618,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "name": name,
                         "height_m": round(height, 2),
                         "height_source": height_source,
+                        "footprint_area_m2": round(footprint_area, 2),
+                        "footprint_span_m": round(footprint_span, 2),
                         "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
                         "tags": tags,
                     }

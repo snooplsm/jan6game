@@ -1609,14 +1609,20 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 2000 surrounding building footprints")
     if any(not is_number(building.get("height_m")) for building in buildings):
         error(errors, "expected every surrounding building to include numeric height_m")
+    if any(not is_number(building.get("footprint_area_m2")) for building in buildings):
+        error(errors, "expected every surrounding building to include numeric footprint_area_m2")
+    if any(not is_number(building.get("footprint_span_m")) for building in buildings):
+        error(errors, "expected every surrounding building to include numeric footprint_span_m")
     if "missing" in building_height_sources:
         error(errors, "expected every surrounding building to include height_source provenance")
     if building_height_sources.get("explicit_height_tag", 0) < 20:
         error(errors, "expected at least 20 surrounding buildings with explicit height tags")
     if building_height_sources.get("building_levels_estimate", 0) < 100:
         error(errors, "expected at least 100 surrounding buildings with building-level height estimates")
-    if building_height_sources.get("default_11m_no_height_tag", 0) < 2000:
-        error(errors, "expected at least 2000 surrounding buildings marked as default-height estimates")
+    if building_height_sources.get("footprint_type_area_estimate", 0) < 2000:
+        error(errors, "expected at least 2000 surrounding buildings marked as footprint/type/area height estimates")
+    if building_height_sources.get("default_11m_no_height_tag", 0):
+        error(errors, "flat default_11m_no_height_tag building heights should be replaced by area/type estimates")
     if summary["roads"] < 3000:
         error(errors, "expected at least 3000 roads/paths")
     if summary["bike_lanes"] < 300:

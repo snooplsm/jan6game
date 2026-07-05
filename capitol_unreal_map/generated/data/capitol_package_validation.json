@@ -13,10 +13,10 @@
     "replaced_buildings": 1,
     "building_height_sources": {
       "building_levels_estimate": 123,
-      "default_11m_no_height_tag": 2379,
-      "explicit_height_tag": 22
+      "explicit_height_tag": 22,
+      "footprint_type_area_estimate": 2379
     },
-    "building_details": 7948,
+    "building_details": 8050,
     "building_detail_kinds": 28,
     "streetscape_props": 2258,
     "streetscape_prop_kinds": 42,
@@ -132,12 +132,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 166618,
-      "uvs": 499854,
-      "faces": 117201,
-      "faces_with_uvs": 117201,
-      "triangles": 265452,
-      "groups": 16946,
+      "vertices": 168442,
+      "uvs": 505326,
+      "faces": 118569,
+      "faces_with_uvs": 118569,
+      "triangles": 268188,
+      "groups": 17174,
       "materials": [
         "BrassRail",
         "BuildingCapitol",
