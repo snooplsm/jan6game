@@ -225,6 +225,14 @@ VIEWPOINTS = [
         "category": "public_exterior",
     },
     {
+        "label": "CapitolMap_Camera_SurroundingStreetLevel",
+        "location_m": [-492.0, -528.0, 18.0],
+        "target_m": [-446.0, -471.0, 2.2],
+        "fov": 60.0,
+        "category": "public_exterior_street_level",
+        "viewer_note": "Inspect public/schematic surrounding-building street-level facade, entry, utility, and weathering detail records.",
+    },
+    {
         "label": "CapitolMap_Camera_Rotunda",
         "location_m": [-23.0, -24.0, 7.5],
         "target_m": [0.0, 0.0, 5.0],

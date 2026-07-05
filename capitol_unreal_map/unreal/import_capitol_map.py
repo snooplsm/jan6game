@@ -914,6 +914,16 @@ UNREAL_INSPECTION_WORKFLOWS = {
         "public_accuracy": "public_schematic_non_operational",
         "person_specific": False,
     },
+    "surrounding_building_street_level": {
+        "browser_route": "#street-level",
+        "camera_label": "CapitolMap_Camera_SurroundingStreetLevel",
+        "visible_mesh": "capitol_exterior_buildings.obj",
+        "context_mesh": "capitol_exterior_roads_bike_lanes_markers.obj",
+        "label_filter": "building_detail",
+        "purpose": "Public surrounding-building street-level facade, entry, utility, and weathering detail inspection.",
+        "public_accuracy": "approximate_public_surrounding_building_visual",
+        "person_specific": False,
+    },
 }
 
 MESH_INSPECTION_VISIBILITY = {
@@ -988,6 +998,12 @@ DEFAULT_VIEWPOINTS = [
         "location_m": [-360.0, -125.0, 42.0],
         "target_m": [-235.0, 0.0, 1.0],
         "fov": 52.0,
+    },
+    {
+        "label": "CapitolMap_Camera_SurroundingStreetLevel",
+        "location_m": [-492.0, -528.0, 18.0],
+        "target_m": [-446.0, -471.0, 2.2],
+        "fov": 60.0,
     },
     {
         "label": "CapitolMap_Camera_Rotunda",
