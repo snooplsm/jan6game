@@ -883,6 +883,48 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box((x, y), (panel_size[0] * 0.72, panel_size[1] * 0.72), 0.12, 2.23, f"{name}_white_arrow_marker", "LaneMarkingWhite")
         add_streetscape_record(name, "public_wayfinding_sign", (x, y, 1.55), extra={"label": label, "orientation": orientation})
 
+    def add_public_bike_rack(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        if orientation == "east_west":
+            roads.add_box((x, y), (2.35, 0.10), 0.10, 0.18, f"{name}_ground_rail", "BollardMetal")
+            for idx, offset in enumerate([-0.78, 0.0, 0.78], start=1):
+                roads.add_box((x + offset, y), (0.10, 0.52), 0.74, 0.22, f"{name}_u_loop_{idx:02d}", "BollardMetal")
+        else:
+            roads.add_box((x, y), (0.10, 2.35), 0.10, 0.18, f"{name}_ground_rail", "BollardMetal")
+            for idx, offset in enumerate([-0.78, 0.0, 0.78], start=1):
+                roads.add_box((x, y + offset), (0.52, 0.10), 0.74, 0.22, f"{name}_u_loop_{idx:02d}", "BollardMetal")
+        add_streetscape_record(name, "public_bike_rack", (x, y, 0.58), extra={"orientation": orientation})
+
+    def add_public_trash_receptacle(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.30, 0.10, 0.78, f"{name}_dark_body", "TrafficSignalHousing", segments=14)
+        roads.add_cylinder((x, y), 0.32, 0.88, 0.08, f"{name}_metal_lid", "DoorMetal", segments=14)
+        roads.add_box((x, y), (0.30, 0.055), 0.04, 0.95, f"{name}_slot_marker", "LaneMarkingWhite")
+        add_streetscape_record(name, "public_trash_receptacle", (x, y, 0.52))
+
+    def add_bus_stop_shelter(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        if orientation == "east_west":
+            panel_size = (3.2, 0.10)
+            roof_size = (3.6, 1.2)
+            post_offsets = [(-1.45, -0.42), (1.45, -0.42), (-1.45, 0.42), (1.45, 0.42)]
+        else:
+            panel_size = (0.10, 3.2)
+            roof_size = (1.2, 3.6)
+            post_offsets = [(-0.42, -1.45), (-0.42, 1.45), (0.42, -1.45), (0.42, 1.45)]
+        for idx, (dx, dy) in enumerate(post_offsets, start=1):
+            roads.add_cylinder((x + dx, y + dy), 0.055, 0.10, 2.15, f"{name}_post_{idx:02d}", "StreetLightPole", segments=8)
+        roads.add_box((x, y), panel_size, 1.28, 0.42, f"{name}_glass_back_panel", "DoorGlass")
+        roads.add_box((x, y), roof_size, 0.10, 2.24, f"{name}_flat_roof", "DoorMetal")
+        add_streetscape_record(name, "public_bus_stop_shelter", (x, y, 1.35), extra={"orientation": orientation})
+
+    def add_public_hydrant(name: str, center: tuple[float, float]) -> None:
+        x, y = center
+        roads.add_cylinder((x, y), 0.18, 0.10, 0.62, f"{name}_barrel", "TrafficSignalRed", segments=12)
+        roads.add_cylinder((x, y), 0.20, 0.72, 0.12, f"{name}_cap", "TrafficSignalYellow", segments=12)
+        roads.add_box((x, y), (0.64, 0.12), 0.12, 0.46, f"{name}_side_nozzles", "TrafficSignalYellow")
+        add_streetscape_record(name, "public_hydrant_marker", (x, y, 0.48))
+
     def add_public_roadway_visual_details() -> None:
         # Authored public-facing road markings for visual realism. These are
         # schematic surface props, not traffic-control engineering plans.
@@ -951,6 +993,86 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             ("east_public_wayfinding_bike", (196.0, -28.0), "Bike Lane / Public Walk", "east_west"),
         ]:
             add_public_wayfinding_sign(name, center, label, orientation)
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-226.0, -36.0, "east_west"),
+                (-196.0, -36.0, "east_west"),
+                (-166.0, -36.0, "east_west"),
+                (-136.0, -36.0, "east_west"),
+                (124.0, 36.0, "east_west"),
+                (154.0, 36.0, "east_west"),
+                (184.0, 36.0, "east_west"),
+                (-72.0, 134.0, "north_south"),
+                (72.0, 134.0, "north_south"),
+                (-72.0, -134.0, "north_south"),
+                (72.0, -134.0, "north_south"),
+                (214.0, -34.0, "east_west"),
+            ],
+            start=1,
+        ):
+            add_public_bike_rack(f"public_bike_rack_{idx:02d}", (x, y), orientation)
+
+        for idx, (x, y) in enumerate(
+            [
+                (-252.0, 28.0),
+                (-228.0, -28.0),
+                (-188.0, 28.0),
+                (-148.0, -28.0),
+                (-108.0, 30.0),
+                (112.0, -30.0),
+                (146.0, 30.0),
+                (180.0, -30.0),
+                (-84.0, 118.0),
+                (84.0, 118.0),
+                (-84.0, -118.0),
+                (84.0, -118.0),
+                (-182.0, 118.0),
+                (-182.0, -118.0),
+                (202.0, 116.0),
+                (202.0, -116.0),
+            ],
+            start=1,
+        ):
+            add_public_trash_receptacle(f"public_trash_receptacle_{idx:02d}", (x, y))
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-318.0, 42.0, "east_west"),
+                (-270.0, -42.0, "east_west"),
+                (-198.0, 42.0, "east_west"),
+                (-126.0, -42.0, "east_west"),
+                (126.0, 42.0, "east_west"),
+                (184.0, -42.0, "east_west"),
+                (-96.0, 152.0, "north_south"),
+                (96.0, -152.0, "north_south"),
+            ],
+            start=1,
+        ):
+            add_bus_stop_shelter(f"public_bus_stop_shelter_{idx:02d}", (x, y), orientation)
+
+        for idx, (x, y) in enumerate(
+            [
+                (-338.0, 32.0),
+                (-302.0, -32.0),
+                (-266.0, 32.0),
+                (-230.0, -32.0),
+                (-194.0, 32.0),
+                (-158.0, -32.0),
+                (-122.0, 32.0),
+                (116.0, -32.0),
+                (148.0, 32.0),
+                (180.0, -32.0),
+                (212.0, 32.0),
+                (-96.0, 126.0),
+                (96.0, 126.0),
+                (-96.0, -126.0),
+                (96.0, -126.0),
+                (208.0, -92.0),
+            ],
+            start=1,
+        ):
+            add_public_hydrant(f"public_hydrant_marker_{idx:02d}", (x, y))
 
     def add_grounds_record(
         name: str,
