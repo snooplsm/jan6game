@@ -129,7 +129,7 @@ The current generated build contains:
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
 - 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - 5 flagpole banner visuals: American flag, two Trump 2024 campaign-style banners, a Save America campaign-style banner, and a Make America Great Again campaign-style banner
-- 43 deterministic 4K procedural material texture sets, each with basecolor, normal, and roughness PNG maps
+- 43 deterministic 4K procedural material texture sets, each with structured basecolor, normal, and roughness PNG maps
 
 ## Local Browser Viewer
 
@@ -263,7 +263,7 @@ For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide
 
 ## Realism Pass
 
-The current realism pass uses deterministic 4K procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable 4096x4096 basecolor, normal, and roughness PNGs under `generated/textures/` and writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
+The current realism pass uses deterministic 4K structured procedural texture maps plus material settings. `scripts/generate_material_textures.py` writes tileable 4096x4096 basecolor, normal, and roughness PNGs under `generated/textures/`, with material-specific rules for stone bedding, weathering streaks, paver joints, asphalt aggregate/cracks, wood grain/knots, textile weave, canvas brush texture, metal brushing, and height-derived roughness. It also writes `generated/data/material_texture_manifest.json`. `unreal/material_realism_manifest.json` defines base color fallback, roughness, metallic, specular, and opacity values for all generated MTL materials.
 
 The Unreal import script imports those PNGs into `/Game/CapitolMap/Textures`, creates `M_*` materials under `/Game/CapitolMap/Materials`, wires basecolor/normal/roughness texture samples into the material graph when the editor API supports it, and assigns the materials to imported static mesh slots when the slot names match the original MTL names. The generated OBJ UVs use a simple planar projection with a 3-meter tile scale so stone, asphalt, carpet, wood, canvas, and metal textures have deterministic coordinates in Unreal. The importer also spawns guarded environment actors for sun, skylight, sky atmosphere, fog, reflection capture, and post-process exposure where the Unreal Python API exposes them, plus metadata-driven interior lights, capped public streetlights, authored public grounds walk lamps, and public Capitol facade entry/uplight fixtures.
 

@@ -31,7 +31,7 @@ PNG_COMPRESSION_LEVEL = int(os.environ.get("CAPITOL_TEXTURE_COMPRESSION", "6"))
 TEXTURE_SETS: dict[str, dict[str, Any]] = {
     "limestone": {"base": [0.82, 0.80, 0.72], "roughness": 0.78, "style": "stone", "normal_strength": 3.2},
     "limestone_light": {"base": [0.88, 0.86, 0.79], "roughness": 0.72, "style": "stone", "normal_strength": 2.8},
-    "limestone_weathered": {"base": [0.62, 0.61, 0.58], "roughness": 0.86, "style": "stone", "normal_strength": 2.4},
+    "limestone_weathered": {"base": [0.62, 0.61, 0.58], "roughness": 0.86, "style": "weathered_stone", "normal_strength": 2.7},
     "dome_painted": {"base": [0.76, 0.76, 0.72], "roughness": 0.58, "style": "painted_metal", "normal_strength": 1.4},
     "step_stone": {"base": [0.50, 0.49, 0.46], "roughness": 0.90, "style": "worn_stone", "normal_strength": 4.0},
     "plaza_stone": {"base": [0.55, 0.53, 0.47], "roughness": 0.88, "style": "pavers", "normal_strength": 3.0},
@@ -195,6 +195,22 @@ def ridge_noise(size: int, seed: int) -> np.ndarray:
     return 1.0 - np.abs(n * 2.0 - 1.0)
 
 
+def band_mask(signal: np.ndarray, width: float) -> np.ndarray:
+    return np.clip((width - np.abs(np.sin(signal))) / width, 0.0, 1.0).astype(np.float32, copy=False)
+
+
+def threshold_soft(field: np.ndarray, threshold: float, softness: float) -> np.ndarray:
+    return np.clip((field - threshold) / softness, 0.0, 1.0).astype(np.float32, copy=False)
+
+
+def periodic_knot_field(xx: np.ndarray, yy: np.ndarray, seed: int) -> np.ndarray:
+    phase_a = np.float32((seed % 19) / 19.0 * math.tau)
+    phase_b = np.float32((seed % 31) / 31.0 * math.tau)
+    dx = np.sin(xx * 2.0 + phase_a)
+    dy = np.sin(yy * 3.0 + phase_b)
+    return np.exp(-((dx * dx) / 0.035 + (dy * dy) / 0.055)).astype(np.float32, copy=False)
+
+
 def style_height(style: str, size: int, seed: int) -> np.ndarray:
     x = np.linspace(0.0, math.tau, size, endpoint=False, dtype=np.float32)
     xx = x.reshape(1, size)
@@ -204,55 +220,82 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
     ridges = ridge_noise(size, seed + 31)
 
     if style == "asphalt":
-        aggregate = (fine > 0.58).astype(np.float32) * np.float32(0.32)
-        return np.clip(base * 0.45 + aggregate + ridges * 0.20, 0.0, 1.0)
+        aggregate = threshold_soft(fine, 0.50, 0.28) * np.float32(0.38)
+        cracks = band_mask(xx * 3.0 + yy * 2.0 + tile_noise(size, seed + 71, 4) * 6.0, 0.022)
+        tar_patch = band_mask(xx * 5.0 - yy * 2.0 + tile_noise(size, seed + 72, 4) * 3.0, 0.035) * threshold_soft(ridges, 0.62, 0.22)
+        return np.clip(base * 0.32 + aggregate + ridges * 0.16 + cracks * 0.36 + tar_patch * 0.18, 0.0, 1.0)
     if style == "concrete":
-        hairline = (ridge_noise(size, seed + 7) > 0.955).astype(np.float32) * np.float32(0.38)
-        return np.clip(base * 0.45 + fine * 0.22 + hairline, 0.0, 1.0)
+        hairline = band_mask(xx * 4.0 - yy * 3.0 + tile_noise(size, seed + 7, 5) * 5.0, 0.018)
+        trowel = band_mask(xx * 10.0 + tile_noise(size, seed + 8, 3) * 1.6, 0.075) * 0.08
+        return np.clip(base * 0.36 + fine * 0.22 + hairline * 0.34 + trowel, 0.0, 1.0)
     if style == "grass":
         blades = (np.sin(xx * 34.0 + tile_noise(size, seed + 2, 3) * 4.0) + 1.0) * 0.16
         return np.clip(base * 0.45 + fine * 0.25 + blades, 0.0, 1.0)
     if style == "wood":
-        grain = (np.sin(xx * 18.0 + tile_noise(size, seed + 4, 5) * 8.0) + 1.0) * 0.35
-        long_variation = tile_noise(size, seed + 5, 4) * 0.35
-        return np.clip(grain + long_variation + fine * 0.18, 0.0, 1.0)
+        flow = tile_noise(size, seed + 4, 5) * 7.0
+        grain = (np.sin(xx * 22.0 + flow) + 1.0) * 0.30
+        tight_grain = (np.sin(xx * 74.0 + flow * 1.7) + 1.0) * 0.065
+        knots = periodic_knot_field(xx, yy, seed) * 0.36
+        long_variation = tile_noise(size, seed + 5, 4) * 0.28
+        return np.clip(grain + tight_grain + knots + long_variation + fine * 0.13, 0.0, 1.0)
     if style == "carpet":
-        weave = (np.sin(xx * 88.0) + np.sin(yy * 82.0)) * 0.06 + 0.5
-        return np.clip(weave + fine * 0.38, 0.0, 1.0)
+        warp = np.sin(xx * 112.0 + tile_noise(size, seed + 18, 3) * 0.8) * 0.055
+        weft = np.sin(yy * 104.0 + tile_noise(size, seed + 19, 3) * 0.8) * 0.055
+        pile = threshold_soft(fine, 0.42, 0.36) * 0.35
+        wear_lanes = band_mask(xx * 4.0 + yy * 1.0, 0.18) * 0.08
+        return np.clip(0.42 + warp + weft + pile + wear_lanes, 0.0, 1.0)
     if style == "fabric":
-        weave = (np.sin(xx * 52.0) * np.sin(yy * 52.0)) * 0.12 + 0.5
-        return np.clip(weave + fine * 0.30, 0.0, 1.0)
+        weave = (np.sin(xx * 58.0) * np.sin(yy * 54.0)) * 0.12 + 0.48
+        thread = (np.sin(xx * 116.0 + yy * 3.0) + np.sin(yy * 112.0)) * 0.035
+        return np.clip(weave + thread + fine * 0.25, 0.0, 1.0)
     if style == "leather":
-        pores = (fine > 0.72).astype(np.float32) * np.float32(0.28)
-        return np.clip(base * 0.50 + ridges * 0.20 + pores, 0.0, 1.0)
+        pores = threshold_soft(fine, 0.68, 0.20) * np.float32(0.28)
+        crease = band_mask(xx * 5.0 + yy * 4.0 + tile_noise(size, seed + 35, 4) * 5.0, 0.030)
+        return np.clip(base * 0.44 + ridges * 0.20 + pores + crease * 0.22, 0.0, 1.0)
     if style == "brushed_metal":
-        brush = (np.sin(xx * 60.0 + fine * 2.0) + 1.0) * 0.12
-        return np.clip(base * 0.24 + brush, 0.0, 1.0)
+        brush = (np.sin(xx * 92.0 + fine * 2.0) + 1.0) * 0.10
+        hair_scratches = band_mask(xx * 38.0 + tile_noise(size, seed + 44, 4) * 2.0, 0.030) * 0.14
+        return np.clip(base * 0.20 + brush + hair_scratches, 0.0, 1.0)
     if style == "painted_metal":
-        return np.clip(base * 0.28 + fine * 0.18, 0.0, 1.0)
+        seam = band_mask(xx * 9.0 + tile_noise(size, seed + 45, 3) * 1.2, 0.035) * 0.10
+        oxidized = threshold_soft(ridges, 0.72, 0.18) * 0.14
+        return np.clip(base * 0.26 + fine * 0.17 + seam + oxidized, 0.0, 1.0)
     if style == "worn_paint":
-        wear = (ridges > 0.82).astype(np.float32) * np.float32(0.42)
-        return np.clip(base * 0.22 + fine * 0.18 + wear, 0.0, 1.0)
+        wear = threshold_soft(ridges, 0.72, 0.18) * np.float32(0.42)
+        chipped_edges = band_mask(xx * 12.0 + yy * 4.0 + tile_noise(size, seed + 48, 4) * 4.0, 0.032) * 0.18
+        return np.clip(base * 0.20 + fine * 0.17 + wear + chipped_edges, 0.0, 1.0)
     if style == "glass":
         return np.clip(base * 0.08 + fine * 0.05, 0.0, 1.0)
     if style == "marble":
-        veins = np.sin(xx * 4.0 + yy * 3.0 + tile_noise(size, seed + 9, 5) * 8.0)
-        veins = np.clip((veins + 1.0) * 0.5, 0.0, 1.0)
-        return np.clip(base * 0.35 + (veins > 0.88).astype(np.float32) * np.float32(0.35), 0.0, 1.0)
+        vein_signal = xx * 4.0 + yy * 3.0 + tile_noise(size, seed + 9, 5) * 8.0
+        veins = band_mask(vein_signal, 0.060)
+        secondary = band_mask(xx * 7.0 - yy * 2.0 + tile_noise(size, seed + 10, 4) * 5.0, 0.035)
+        return np.clip(base * 0.30 + veins * 0.42 + secondary * 0.20 + fine * 0.10, 0.0, 1.0)
     if style == "pavers":
-        grid_x = (np.abs(np.sin(xx * 8.0)) < 0.045).astype(np.float32)
-        grid_y = (np.abs(np.sin(yy * 8.0)) < 0.045).astype(np.float32)
-        return np.clip(base * 0.30 + fine * 0.18 + (grid_x + grid_y) * 0.28, 0.0, 1.0)
+        grid_x = band_mask(xx * 8.0, 0.050)
+        grid_y = band_mask(yy * 8.0 + np.sin(xx * 4.0) * 0.35, 0.050)
+        chipped_edges = threshold_soft(ridges, 0.78, 0.18) * (grid_x + grid_y) * 0.20
+        return np.clip(base * 0.27 + fine * 0.16 + (grid_x + grid_y) * 0.30 + chipped_edges, 0.0, 1.0)
     if style == "worn_stone":
-        chips = (fine > 0.80).astype(np.float32) * np.float32(0.30)
-        return np.clip(base * 0.45 + ridges * 0.20 + chips, 0.0, 1.0)
+        chips = threshold_soft(fine, 0.74, 0.20) * np.float32(0.30)
+        erosion = band_mask(xx * 5.0 - yy * 3.0 + tile_noise(size, seed + 56, 5) * 5.5, 0.050) * 0.18
+        return np.clip(base * 0.38 + ridges * 0.18 + chips + erosion, 0.0, 1.0)
     if style == "canvas":
-        weave = (np.sin(xx * 70.0) + np.sin(yy * 74.0)) * 0.08 + 0.5
-        brush = ridge_noise(size, seed + 12) * 0.24
-        return np.clip(weave + brush + fine * 0.24, 0.0, 1.0)
+        weave = (np.sin(xx * 76.0) + np.sin(yy * 80.0)) * 0.075 + 0.48
+        brush = ridge_noise(size, seed + 12) * 0.22
+        brush_direction = band_mask(xx * 10.0 + yy * 2.0 + tile_noise(size, seed + 13, 4) * 3.5, 0.12) * 0.08
+        return np.clip(weave + brush + brush_direction + fine * 0.20, 0.0, 1.0)
+    if style == "weathered_stone":
+        bedding = band_mask(yy * 7.0 + tile_noise(size, seed + 61, 4) * 0.9, 0.070) * 0.12
+        pits = threshold_soft(fine, 0.76, 0.18) * 0.22
+        rain_streaks = band_mask(xx * 11.0 + tile_noise(size, seed + 62, 4) * 2.0, 0.045) * threshold_soft(ridges, 0.48, 0.35) * 0.24
+        mineral_veins = band_mask(xx * 4.0 + yy * 2.0 + tile_noise(size, seed + 63, 5) * 4.0, 0.034) * 0.14
+        return np.clip(base * 0.32 + ridges * 0.14 + bedding + pits + rain_streaks + mineral_veins, 0.0, 1.0)
     # stone
-    flecks = (fine > 0.86).astype(np.float32) * np.float32(0.18)
-    return np.clip(base * 0.38 + ridges * 0.16 + flecks, 0.0, 1.0)
+    bedding = band_mask(yy * 7.0 + tile_noise(size, seed + 61, 4) * 0.9, 0.065) * 0.10
+    mineral_veins = band_mask(xx * 3.0 + yy * 5.0 + tile_noise(size, seed + 63, 5) * 4.0, 0.030) * 0.14
+    flecks = threshold_soft(fine, 0.82, 0.16) * np.float32(0.18)
+    return np.clip(base * 0.34 + ridges * 0.14 + bedding + mineral_veins + flecks, 0.0, 1.0)
 
 
 def normal_from_height(height: np.ndarray, strength: float) -> np.ndarray:
@@ -270,15 +313,40 @@ def color_map(base_color: list[float], height: np.ndarray, style: str, seed: int
     base = np.array(base_color, dtype=np.float32).reshape(1, 1, 3)
     variation = (height - 0.5)[:, :, None]
     tint_noise = tile_noise(height.shape[0], seed + 101, 5)[:, :, None] - 0.5
-    color = base * (1.0 + variation * 0.24 + tint_noise * 0.10)
+    detail_noise = tile_noise(height.shape[0], seed + 121, 7)[:, :, None] - 0.5
+    color = base * (1.0 + variation * 0.24 + tint_noise * 0.10 + detail_noise * 0.04)
 
     if style in {"asphalt", "leather", "brushed_metal"}:
         color *= 0.92 + variation * 0.18
+    elif style in {"stone"}:
+        warm = np.array([0.035, 0.028, 0.006], dtype=np.float32).reshape(1, 1, 3)
+        cool = np.array([-0.018, -0.014, 0.018], dtype=np.float32).reshape(1, 1, 3)
+        color += warm * np.clip(height[:, :, None] - 0.56, 0.0, 1.0)
+        color += cool * np.clip(0.44 - height[:, :, None], 0.0, 1.0)
+    elif style in {"weathered_stone"}:
+        grime = np.array([-0.12, -0.11, -0.095], dtype=np.float32).reshape(1, 1, 3)
+        mineral = np.array([0.055, 0.048, 0.020], dtype=np.float32).reshape(1, 1, 3)
+        color += grime * np.clip(height[:, :, None] - 0.52, 0.0, 1.0)
+        color += mineral * np.clip(0.45 - height[:, :, None], 0.0, 1.0)
+    elif style in {"worn_stone", "concrete", "pavers"}:
+        dust = np.array([0.030, 0.027, 0.018], dtype=np.float32).reshape(1, 1, 3)
+        shadow = np.array([-0.045, -0.043, -0.040], dtype=np.float32).reshape(1, 1, 3)
+        color += dust * np.clip(height[:, :, None] - 0.55, 0.0, 1.0)
+        color += shadow * np.clip(0.40 - height[:, :, None], 0.0, 1.0)
+    elif style == "worn_paint":
+        exposed = np.array([-0.18, -0.17, -0.15], dtype=np.float32).reshape(1, 1, 3)
+        chalk = np.array([0.08, 0.08, 0.07], dtype=np.float32).reshape(1, 1, 3)
+        color += exposed * np.clip(height[:, :, None] - 0.64, 0.0, 1.0)
+        color += chalk * np.clip(0.52 - height[:, :, None], 0.0, 1.0)
     elif style in {"grass"}:
         yellow = np.array([0.08, 0.07, -0.04], dtype=np.float32).reshape(1, 1, 3)
         color += yellow * np.clip(tint_noise + 0.4, 0.0, 1.0)
     elif style in {"wood"}:
-        color += np.array([0.05, 0.018, -0.012], dtype=np.float32).reshape(1, 1, 3) * np.sin(height[:, :, None] * math.tau * 2.0)
+        color += np.array([0.06, 0.024, -0.016], dtype=np.float32).reshape(1, 1, 3) * np.sin(height[:, :, None] * math.tau * 2.0)
+        color *= 0.92 + np.clip(height[:, :, None], 0.0, 1.0) * 0.18
+    elif style in {"carpet", "fabric", "canvas"}:
+        fiber_highlight = np.array([0.035, 0.033, 0.030], dtype=np.float32).reshape(1, 1, 3)
+        color += fiber_highlight * np.clip(height[:, :, None] - 0.54, 0.0, 1.0)
     elif style in {"marble"}:
         color += np.array([0.05, 0.045, 0.02], dtype=np.float32).reshape(1, 1, 3) * np.clip(height[:, :, None] - 0.62, 0.0, 1.0)
 
@@ -289,8 +357,14 @@ def roughness_map(base_roughness: float, height: np.ndarray, style: str) -> np.n
     roughness = base_roughness + (height - 0.5) * 0.16
     if style in {"glass", "brushed_metal"}:
         roughness = base_roughness + (height - 0.5) * 0.08
+    if style in {"weathered_stone", "worn_stone", "concrete", "pavers", "asphalt"}:
+        roughness = base_roughness + height * 0.10 - 0.03
     if style in {"carpet", "grass"}:
         roughness = base_roughness + height * 0.04
+    if style in {"wood", "leather"}:
+        roughness = base_roughness + (height - 0.5) * 0.10
+    if style in {"worn_paint"}:
+        roughness = base_roughness + np.clip(height - 0.45, 0.0, 1.0) * 0.18
     gray = np.clip(roughness, 0.0, 1.0) * 255.0
     return np.repeat(gray[:, :, None], 3, axis=2).astype(np.uint8)
 
@@ -335,7 +409,7 @@ def main() -> None:
         "texture_root": "generated/textures",
         "source_type": "deterministic_procedural_local",
         "external_texture_sources": [],
-        "realism_note": "Generated locally from procedural noise, colors, and height-derived maps. These are 4K placeholder PBR-style maps, not scanned or photogrammetry material textures.",
+        "realism_note": "Generated locally from structured procedural material rules: stone bedding, weathering streaks, paver joints, asphalt aggregate/cracks, wood grain/knots, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
         "target_size_px": [SIZE, SIZE],
         "png_compression_level": PNG_COMPRESSION_LEVEL,
         "sets": sets,
