@@ -1322,6 +1322,10 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "bike_lane_surface_scuff",
     "crosswalk_paint_wear_patch",
     "road_tire_wear_band",
+    "road_oil_stain",
+    "sidewalk_gum_mark",
+    "sidewalk_leaf_litter_cluster",
+    "curb_grime_patch",
     "public_manhole_cover",
     "storm_drain_grate",
     "storm_drain_curb_inlet",
@@ -2119,6 +2123,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 public crosswalk paint-wear patch props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "road_tire_wear_band"]) < 16:
         error(errors, "expected at least 16 public road tire-wear band props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "road_oil_stain"]) < 20:
+        error(errors, "expected at least 20 public road oil-stain props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "sidewalk_gum_mark"]) < 48:
+        error(errors, "expected at least 48 public sidewalk gum-mark props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "sidewalk_leaf_litter_cluster"]) < 28:
+        error(errors, "expected at least 28 public sidewalk leaf-litter cluster props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "curb_grime_patch"]) < 24:
+        error(errors, "expected at least 24 public curb grime-patch props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_manhole_cover"]) < 12:
         error(errors, "expected at least 12 public manhole-cover props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "storm_drain_grate"]) < 16:

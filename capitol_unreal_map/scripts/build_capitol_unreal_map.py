@@ -2499,6 +2499,64 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
         )
 
+    def add_road_oil_stain(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        angle = math.radians(angle_degrees)
+        roads.add_oriented_box(center, size, 0.009, 0.248, angle, f"{name}_soft_edge", "RoadCrackSealant")
+        roads.add_oriented_box(
+            (center[0] + size[0] * 0.07, center[1] - size[1] * 0.05),
+            (size[0] * 0.58, size[1] * 0.52),
+            0.010,
+            0.252,
+            angle + math.radians(7.0),
+            f"{name}_dark_core",
+            "RoadPatchAsphalt",
+        )
+        add_streetscape_record(
+            name,
+            "road_oil_stain",
+            (center[0], center[1], 0.260),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
+    def add_sidewalk_gum_mark(name: str, center: tuple[float, float], radius: float) -> None:
+        roads.add_cylinder(center, radius, 0.214, 0.006, f"{name}_flattened_disc", "FloorWear", segments=10)
+        add_streetscape_record(name, "sidewalk_gum_mark", (center[0], center[1], 0.222), extra={"radius_m": round(radius, 3)})
+
+    def add_sidewalk_leaf_litter_cluster(name: str, center: tuple[float, float], radius: float) -> None:
+        leaf_materials = ["TreeCanopy", "BenchWood", "TreeTrunk", "FloorWear"]
+        leaf_count = 5
+        for leaf_index in range(leaf_count):
+            spread = radius * (0.18 + stable_unit_interval(name, leaf_index, "spread") * 0.82)
+            theta = math.tau * stable_unit_interval(name, leaf_index, "theta")
+            leaf_center = (center[0] + math.cos(theta) * spread, center[1] + math.sin(theta) * spread)
+            leaf_size = (
+                0.18 + stable_unit_interval(name, leaf_index, "size_x") * 0.16,
+                0.045 + stable_unit_interval(name, leaf_index, "size_y") * 0.035,
+            )
+            leaf_angle = math.tau * stable_unit_interval(name, leaf_index, "angle")
+            material = leaf_materials[leaf_index % len(leaf_materials)]
+            roads.add_oriented_box(leaf_center, leaf_size, 0.006, 0.216 + leaf_index * 0.001, leaf_angle, f"{name}_leaf_{leaf_index+1:02d}", material)
+        add_streetscape_record(name, "sidewalk_leaf_litter_cluster", (center[0], center[1], 0.226), extra={"radius_m": round(radius, 3), "leaf_count": leaf_count})
+
+    def add_curb_grime_patch(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        roads.add_oriented_box(center, size, 0.012, 0.242, math.radians(angle_degrees), name, "StoneGrimeOverlay")
+        add_streetscape_record(
+            name,
+            "curb_grime_patch",
+            (center[0], center[1], 0.256),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
     def add_bike_lane_delineator_post(name: str, center: tuple[float, float]) -> None:
         x, y = center
         roads.add_cylinder((x, y), 0.18, 0.10, 0.05, f"{name}_rubber_base", "TrafficSignalHousing", segments=12)
@@ -3323,6 +3381,85 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         ]
         for name, center, size, angle_degrees in tire_wear_specs:
             add_road_tire_wear_band(f"public_road_tire_wear_band_{name}", center, size, angle_degrees)
+
+        oil_stain_specs = [
+            ("west_lane_oil_01", (-326.0, -5.2), (1.55, 0.54), -3.0),
+            ("west_lane_oil_02", (-302.0, 6.4), (1.20, 0.46), 4.0),
+            ("west_lane_oil_03", (-274.0, -7.6), (1.46, 0.50), -5.0),
+            ("west_lane_oil_04", (-246.0, 7.2), (1.28, 0.44), 6.0),
+            ("west_lane_oil_05", (-218.0, -6.0), (1.34, 0.48), -4.0),
+            ("east_lane_oil_01", (128.0, 5.8), (1.20, 0.44), 3.0),
+            ("east_lane_oil_02", (152.0, -6.8), (1.50, 0.52), -5.0),
+            ("east_lane_oil_03", (178.0, 6.2), (1.18, 0.42), 5.0),
+            ("east_lane_oil_04", (202.0, -7.4), (1.44, 0.50), -2.0),
+            ("north_lane_oil_01", (-36.0, 132.0), (0.48, 1.36), 2.0),
+            ("north_lane_oil_02", (36.0, 158.0), (0.52, 1.46), -3.0),
+            ("north_lane_oil_03", (-36.0, 188.0), (0.44, 1.18), 4.0),
+            ("south_lane_oil_01", (36.0, -132.0), (0.48, 1.36), -2.0),
+            ("south_lane_oil_02", (-36.0, -158.0), (0.52, 1.46), 3.0),
+            ("south_lane_oil_03", (36.0, -188.0), (0.44, 1.18), -4.0),
+            ("west_pool_oil_01", (-340.0, 16.0), (0.48, 1.20), 2.0),
+            ("east_plaza_oil_01", (210.0, -16.0), (0.46, 1.18), -2.0),
+            ("northwest_curve_oil", (-160.0, 104.0), (1.10, 0.42), 14.0),
+            ("southwest_curve_oil", (-160.0, -104.0), (1.10, 0.42), -14.0),
+            ("east_service_oil", (206.0, 92.0), (0.48, 1.12), 3.0),
+        ]
+        for name, center, size, angle_degrees in oil_stain_specs:
+            add_road_oil_stain(f"public_road_oil_stain_{name}", center, size, angle_degrees)
+
+        gum_mark_centers = [
+            (-326.0, 34.1), (-314.0, 33.8), (-302.0, 34.2), (-290.0, 33.9), (-278.0, 34.0), (-266.0, 34.2),
+            (-254.0, -34.1), (-242.0, -33.8), (-230.0, -34.2), (-218.0, -33.9), (-206.0, -34.0), (-194.0, -34.2),
+            (122.0, 34.1), (134.0, 33.8), (146.0, 34.2), (158.0, 33.9), (170.0, -34.1), (182.0, -33.8),
+            (194.0, -34.2), (206.0, -33.9), (-63.8, 128.0), (-63.9, 142.0), (-64.1, 156.0), (-63.8, 170.0),
+            (63.8, 128.0), (63.9, 142.0), (64.1, 156.0), (63.8, 170.0), (-63.8, -128.0), (-63.9, -142.0),
+            (-64.1, -156.0), (-63.8, -170.0), (63.8, -128.0), (63.9, -142.0), (64.1, -156.0), (63.8, -170.0),
+            (-178.0, 119.4), (-166.0, 119.2), (-154.0, 119.5), (-142.0, 119.3), (-178.0, -119.4), (-166.0, -119.2),
+            (-154.0, -119.5), (-142.0, -119.3), (204.5, 74.0), (204.6, 62.0), (-340.5, 74.0), (-340.6, -62.0),
+        ]
+        for idx, center in enumerate(gum_mark_centers, start=1):
+            radius = 0.055 + stable_unit_interval("public_sidewalk_gum_mark", idx) * 0.035
+            add_sidewalk_gum_mark(f"public_sidewalk_gum_mark_{idx:02d}", center, radius)
+
+        leaf_cluster_centers = [
+            (-330.0, 35.0), (-306.0, 35.2), (-282.0, 35.0), (-258.0, 35.1), (-234.0, -35.0), (-210.0, -35.2),
+            (126.0, 35.0), (150.0, 35.2), (174.0, -35.0), (198.0, -35.2), (-66.0, 132.0), (-66.2, 156.0),
+            (66.0, 132.0), (66.2, 156.0), (-66.0, -132.0), (-66.2, -156.0), (66.0, -132.0), (66.2, -156.0),
+            (-182.0, 121.0), (-158.0, 121.2), (-134.0, 121.0), (-182.0, -121.0), (-158.0, -121.2), (-134.0, -121.0),
+            (206.0, 72.0), (206.0, -72.0), (-338.0, 72.0), (-338.0, -72.0),
+        ]
+        for idx, center in enumerate(leaf_cluster_centers, start=1):
+            radius = 0.46 + stable_unit_interval("public_sidewalk_leaf_litter", idx) * 0.18
+            add_sidewalk_leaf_litter_cluster(f"public_sidewalk_leaf_litter_cluster_{idx:02d}", center, radius)
+
+        curb_grime_patch_specs = [
+            ("west_north_curb_patch_01", (-326.0, 30.3), (2.4, 0.32), 0.0),
+            ("west_north_curb_patch_02", (-294.0, 30.3), (2.0, 0.28), 0.0),
+            ("west_north_curb_patch_03", (-262.0, 30.3), (2.6, 0.34), 0.0),
+            ("west_north_curb_patch_04", (-230.0, 30.3), (2.1, 0.30), 0.0),
+            ("west_south_curb_patch_01", (-326.0, -30.3), (2.4, 0.32), 0.0),
+            ("west_south_curb_patch_02", (-294.0, -30.3), (2.0, 0.28), 0.0),
+            ("west_south_curb_patch_03", (-262.0, -30.3), (2.6, 0.34), 0.0),
+            ("west_south_curb_patch_04", (-230.0, -30.3), (2.1, 0.30), 0.0),
+            ("east_north_curb_patch_01", (126.0, 30.3), (2.2, 0.30), 0.0),
+            ("east_north_curb_patch_02", (158.0, 30.3), (2.6, 0.34), 0.0),
+            ("east_south_curb_patch_01", (126.0, -30.3), (2.2, 0.30), 0.0),
+            ("east_south_curb_patch_02", (158.0, -30.3), (2.6, 0.34), 0.0),
+            ("north_west_curb_patch_01", (-70.8, 132.0), (0.32, 2.2), 0.0),
+            ("north_west_curb_patch_02", (-70.8, 164.0), (0.34, 2.6), 0.0),
+            ("north_east_curb_patch_01", (70.8, 132.0), (0.32, 2.2), 0.0),
+            ("north_east_curb_patch_02", (70.8, 164.0), (0.34, 2.6), 0.0),
+            ("south_west_curb_patch_01", (-70.8, -132.0), (0.32, 2.2), 0.0),
+            ("south_west_curb_patch_02", (-70.8, -164.0), (0.34, 2.6), 0.0),
+            ("south_east_curb_patch_01", (70.8, -132.0), (0.32, 2.2), 0.0),
+            ("south_east_curb_patch_02", (70.8, -164.0), (0.34, 2.6), 0.0),
+            ("northwest_curb_patch_01", (-178.0, 111.3), (2.4, 0.32), 0.0),
+            ("northwest_curb_patch_02", (-146.0, 111.3), (2.0, 0.28), 0.0),
+            ("southwest_curb_patch_01", (-178.0, -111.3), (2.4, 0.32), 0.0),
+            ("southwest_curb_patch_02", (-146.0, -111.3), (2.0, 0.28), 0.0),
+        ]
+        for name, center, size, angle_degrees in curb_grime_patch_specs:
+            add_curb_grime_patch(f"public_curb_grime_patch_{name}", center, size, angle_degrees)
 
         for idx, (center, orientation) in enumerate(
             [
