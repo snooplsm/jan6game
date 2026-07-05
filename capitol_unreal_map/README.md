@@ -117,7 +117,7 @@ The current generated build contains:
 - 448 generic House floor seats
 - 100 generic Senate desks
 - 16 public seating-section records: 7 regular-session House/Senate chamber sections and 9 joint-session role zones
-- 4,682 public chamber detail records for House/Senate rails, dais steps, rostrum desks, public lecterns, work tables, gallery rails, gallery benches, gallery dividers, balcony fascia, aisle edge markers, aisle step lights, row-marker plaques, rostrum microphone clusters, public gallery stanchions, 24 gallery support columns, 4 public display boards, desk arc markers, desk surface markers, 548 generic desk-surface insets, 548 generic desk edge trims, 548 generic document stacks, 548 generic desk microphone markers, 548 generic nameplate strips, 548 chair-arm pairs, 548 chair cushions, 548 chair-back insets, row modesty panels, backdrop panels, and flag standards
+- 4,778 public chamber detail records for House/Senate rails, dais steps, rostrum desks, public lecterns, work tables, gallery rails, gallery benches, gallery dividers, balcony fascia, aisle edge markers, aisle step lights, row-marker plaques, rostrum microphone clusters, public gallery stanchions, 24 gallery support columns, 4 public display boards, desk arc markers, desk surface markers, 16 public role-zone floor overlays, 64 public role-zone boundary strips, 16 public role-zone label plaques, 548 generic desk-surface insets, 548 generic desk edge trims, 548 generic document stacks, 548 generic desk microphone markers, 548 generic nameplate strips, 548 chair-arm pairs, 548 chair cushions, 548 chair-back insets, row modesty panels, backdrop panels, and flag standards
 - 105 public circulation detail records for schematic corridor bands, door thresholds, room portal trim, public portal transoms, orientation signs, floor inlays, 34 public corridor pilasters, 20 public corridor sconces, and 8 public floor medallions between major public spaces
 - 53 public signage detail records for room-identification signs, directional signs, visitor-gallery markers, chamber-role markers, generic office-zone signs, and public orientation map kiosks
 - 192 public door-hardware detail records: 24 double-door panels, 24 pull bars, 72 hinge plates, 24 kick plates, 12 transom panels, 12 header trims, and 24 side-lite panels at public/schematic doorway transitions
@@ -231,7 +231,7 @@ Chamber top-down quick link:
 http://127.0.0.1:8765/viewer.html#chambers-top
 ```
 
-This route hides the exterior, roof/landmark, roads, and gameplay meshes in the browser viewer so the public House and Senate chamber schematic can be inspected from above.
+This route hides the exterior, roof/landmark, roads, and gameplay meshes in the browser viewer so the public House and Senate chamber schematic can be inspected from above, including non-person-specific role-zone overlays and plaques.
 
 The viewer can toggle:
 
@@ -335,7 +335,7 @@ Not included:
 - current senator-by-desk or representative-by-seat assignments
 - nonpublic room numbers or operational details
 
-House floor seating is modeled as 448 generic seats. Senate seating is modeled as 100 generic desks. The `seating_sections` metadata summarizes where major public roles sit without encoding person-by-person assignments. The joint-session layout is a public visual arrangement, not an operational seating chart. Occupant assignments are deliberately not encoded because they change and should be sourced only from approved public references if needed.
+House floor seating is modeled as 448 generic seats. Senate seating is modeled as 100 generic desks. The `seating_sections` metadata summarizes where major public roles sit without encoding person-by-person assignments, and the chamber mesh includes visible public role-zone overlays for top-down inspection. The joint-session layout is a public visual arrangement, not an operational seating chart. Occupant assignments are deliberately not encoded because they change and should be sourced only from approved public references if needed.
 
 ## Sources
 
@@ -347,5 +347,5 @@ House floor seating is modeled as 448 generic seats. Senate seating is modeled a
 The current direction is Unreal 5.8, first-person scale, most-compatible static mesh import, and public-only interior/seating detail. The next pass should improve:
 
 - higher-fidelity facade ornament beyond the current public mullion, bracket, pilaster, and doorway pass
-- current public seating-chart overlays where available and appropriate
+- higher-fidelity public chamber role-zone ornament, upholstery variation, and gallery rail detail
 - additional pedestrian-scale street furniture and roadway material variation beyond the current sign/curb/road/bike marking pass

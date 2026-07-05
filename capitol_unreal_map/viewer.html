@@ -256,6 +256,7 @@
         <option value="seating">Seating</option>
         <option value="seating_section">Seating sections</option>
         <option value="chamber_detail">Chamber details</option>
+        <option value="chamber_role_overlay">Chamber role overlays</option>
         <option value="public_circulation_detail">Circulation details</option>
         <option value="grounds_detail">Grounds details</option>
         <option value="facade_detail">Facade details</option>
@@ -1345,9 +1346,9 @@
       document.getElementById("labelsToggle").checked = true;
       labelLayer.style.display = "block";
 
-      state.labelCategory = "seating";
+      state.labelCategory = "chamber_role_overlay";
       state.labelQuery = "";
-      document.getElementById("categoryFilter").value = "seating";
+      document.getElementById("categoryFilter").value = "chamber_role_overlay";
       document.getElementById("labelSearch").value = "";
 
       setCamera(0.0, 1.43, 33000, [0, -200, 640]);

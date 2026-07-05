@@ -493,6 +493,9 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "generic_chair_cushion",
     "generic_chair_back_inset",
     "generic_row_modesty_panel",
+    "public_role_zone_floor_overlay",
+    "public_role_zone_boundary",
+    "public_role_zone_label_plaque",
 }
 
 REQUIRED_OFFICE_DETAIL_KINDS = {
@@ -1316,8 +1319,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 4650:
-        error(errors, f"expected at least 4650 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 4740:
+        error(errors, f"expected at least 4740 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1368,6 +1371,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 548 generic chamber chair-back inset records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_row_modesty_panel"]) < 26:
         error(errors, "expected at least 26 generic chamber row modesty-panel records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_floor_overlay"]) < 16:
+        error(errors, "expected at least 16 public chamber role-zone floor overlay records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_boundary"]) < 64:
+        error(errors, "expected at least 64 public chamber role-zone boundary records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_label_plaque"]) < 16:
+        error(errors, "expected at least 16 public chamber role-zone label plaque records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")

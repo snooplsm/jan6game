@@ -5823,6 +5823,121 @@ def build_seating_sections(
     return sections
 
 
+def add_chamber_public_role_zone_overlays(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    seating_sections: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    """Add visible public, non-person-specific role-zone overlays for top-down chamber inspection."""
+
+    fallback_sizes: dict[str, tuple[float, float]] = {
+        "joint_session_president_address_podium": (2.8, 1.8),
+        "joint_session_speaker_chair_joint_session": (1.7, 1.4),
+        "joint_session_vice_president_chair_joint_session": (1.7, 1.4),
+    }
+    material_by_id = {
+        "house_representatives_floor_generic": "HouseCarpet",
+        "house_rostrum_speaker_clerks_press": "PresidentPodium",
+        "house_public_gallery": "PublicGallery",
+        "senate_desks_left_generic_block": "SenateDesk",
+        "senate_desks_right_generic_block": "SenateDesk",
+        "senate_presiding_officer_clerks": "PresidentPodium",
+        "senate_public_gallery": "PublicGallery",
+        "joint_session_president_address_podium": "PresidentPodium",
+        "joint_session_speaker_chair_joint_session": "ChairLeather",
+        "joint_session_vice_president_chair_joint_session": "ChairLeather",
+        "joint_session_senate_floor_block": "SenateDesk",
+        "joint_session_cabinet_floor_block": "CabinetZone",
+        "joint_session_supreme_court_block": "SupremeCourtZone",
+        "joint_session_diplomatic_corps_block": "DiplomaticZone",
+        "joint_session_press_pool_block": "PressZone",
+        "joint_session_members_and_guests_backfill": "JointSessionZone",
+    }
+
+    def role_material(section_id: str, chamber: str) -> str:
+        if section_id in material_by_id:
+            return material_by_id[section_id]
+        return "HouseCarpet" if chamber == "House Chamber" else "SenateCarpet"
+
+    def detail_z(section: dict[str, Any]) -> float:
+        # Keep joint-session overlays above the colored zone pads and regular
+        # overlays just above the carpet, so they read in the browser top view.
+        return 5.155 if section.get("mode") == "joint_session" else 4.565
+
+    def plaque_anchor(x: float, y: float, sx: float, sy: float, chamber: str) -> tuple[float, float]:
+        if chamber == "Senate Chamber":
+            return (x, y + sy / 2.0 - min(0.70, sy * 0.22))
+        return (x, y - sy / 2.0 + min(0.70, sy * 0.22))
+
+    for section in seating_sections:
+        section_id = str(section.get("id", "unknown_role_zone"))
+        chamber = str(section.get("chamber", "House Chamber"))
+        center = section.get("center_m", [0.0, 0.0, 5.2])
+        size = section.get("size_m") or fallback_sizes.get(section_id, (2.0, 1.4))
+        if not isinstance(center, list) or len(center) < 2:
+            continue
+        x = float(center[0])
+        y = float(center[1])
+        sx = max(0.7, float(size[0]))
+        sy = max(0.7, float(size[1]))
+        base_name = f"{section_id}_public_role_zone"
+        zone_z = detail_z(section)
+        material = role_material(section_id, chamber)
+
+        obj.add_box((x, y), (sx, sy), 0.028, zone_z, f"{base_name}_floor_overlay", material)
+        add_chamber_detail_record(
+            records,
+            f"{base_name}_floor_overlay",
+            "public_role_zone_floor_overlay",
+            chamber,
+            (x, y, zone_z + 0.014),
+            (sx, sy),
+        )
+
+        boundary_specs = [
+            ("north", (x, y + sy / 2.0), (sx, 0.12)),
+            ("south", (x, y - sy / 2.0), (sx, 0.12)),
+            ("west", (x - sx / 2.0, y), (0.12, sy)),
+            ("east", (x + sx / 2.0, y), (0.12, sy)),
+        ]
+        for side, boundary_center, boundary_size in boundary_specs:
+            boundary_name = f"{base_name}_{side}_boundary_strip"
+            obj.add_box(boundary_center, boundary_size, 0.070, zone_z + 0.030, boundary_name, "BrassRail")
+            add_chamber_detail_record(
+                records,
+                boundary_name,
+                "public_role_zone_boundary",
+                chamber,
+                (boundary_center[0], boundary_center[1], zone_z + 0.065),
+                boundary_size,
+            )
+
+        plaque_x, plaque_y = plaque_anchor(x, y, sx, sy, chamber)
+        plaque_width = min(max(sx * 0.34, 1.20), 4.80)
+        plaque_depth = 0.18 if sx >= sy else 0.34
+        plaque_size = (plaque_width, plaque_depth)
+        plaque_z = zone_z + 0.130
+        obj.add_box((plaque_x, plaque_y), (plaque_size[0] * 1.12, plaque_size[1] * 1.35), 0.055, plaque_z, f"{base_name}_plaque_backplate", "DoorMetal")
+        obj.add_box((plaque_x, plaque_y), plaque_size, 0.045, plaque_z + 0.055, f"{base_name}_plaque_face", "BrassRail")
+        add_chamber_detail_record(
+            records,
+            f"{base_name}_label_plaque",
+            "public_role_zone_label_plaque",
+            chamber,
+            (plaque_x, plaque_y, plaque_z + 0.078),
+            plaque_size,
+        )
+        add_label(
+            labels,
+            f"Public role zone - {section.get('role', section_id)}",
+            plaque_x,
+            plaque_y,
+            plaque_z + 0.90,
+            "chamber_role_overlay",
+        )
+
+
 def build_house_seats(
     obj: ObjWriter,
     seats: list[dict[str, Any]],
@@ -6091,6 +6206,7 @@ def build_interior() -> dict[str, Any]:
     build_senate_desks(obj, seats, labels, chamber_details)
     add_joint_session_layout(obj, labels, joint_session)
     seating_sections.extend(build_seating_sections(labels, seats, joint_session))
+    add_chamber_public_role_zone_overlays(obj, labels, seating_sections, chamber_details)
     add_chamber_realism_details(obj, labels, chamber_details)
     public_art, light_fixtures = add_public_art_and_lighting(obj, labels)
 
