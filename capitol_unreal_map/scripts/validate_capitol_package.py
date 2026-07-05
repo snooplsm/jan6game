@@ -984,6 +984,20 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "chamber_flag_fold_strip",
     "chamber_flag_stripe_detail",
     "chamber_flag_canton_marker",
+    "joint_session_rostrum_step_edge",
+    "joint_session_podium_reading_surface",
+    "joint_session_podium_front_medallion",
+    "joint_session_podium_microphone_pair",
+    "joint_session_glass_side_panel",
+    "joint_session_presiding_chair_arm_pair",
+    "joint_session_presiding_chair_back_detail",
+    "joint_session_presiding_chair_cushion_seam",
+    "generic_joint_session_role_nameplate",
+    "joint_session_press_camera_tripod",
+    "joint_session_press_camera_body",
+    "joint_session_press_camera_lens",
+    "joint_session_press_cable_cover",
+    "joint_session_press_pool_riser_edge_trim",
 }
 
 REQUIRED_OFFICE_DETAIL_KINDS = {
@@ -2490,8 +2504,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 10320:
-        error(errors, f"expected at least 10320 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 11325:
+        error(errors, f"expected at least 11325 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -2636,6 +2650,34 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public chamber flag stripe-detail records")
     if len([detail for detail in chamber_details if detail.get("kind") == "chamber_flag_canton_marker"]) < 4:
         error(errors, "expected at least 4 public chamber flag canton-marker records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_rostrum_step_edge"]) < 3:
+        error(errors, "expected at least 3 joint-session rostrum step-edge records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_podium_reading_surface"]) < 1:
+        error(errors, "expected at least 1 joint-session podium reading-surface record")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_podium_front_medallion"]) < 1:
+        error(errors, "expected at least 1 joint-session podium front-medallion record")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_podium_microphone_pair"]) < 1:
+        error(errors, "expected at least 1 joint-session podium microphone-pair record")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_glass_side_panel"]) < 2:
+        error(errors, "expected at least 2 joint-session glass side-panel records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_presiding_chair_arm_pair"]) < 2:
+        error(errors, "expected at least 2 joint-session presiding-chair arm-pair records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_presiding_chair_back_detail"]) < 2:
+        error(errors, "expected at least 2 joint-session presiding-chair back-detail records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_presiding_chair_cushion_seam"]) < 2:
+        error(errors, "expected at least 2 joint-session presiding-chair cushion-seam records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_joint_session_role_nameplate"]) < 6:
+        error(errors, "expected at least 6 generic joint-session role-nameplate records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_press_camera_tripod"]) < 4:
+        error(errors, "expected at least 4 joint-session press camera-tripod records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_press_camera_body"]) < 4:
+        error(errors, "expected at least 4 joint-session press camera-body records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_press_camera_lens"]) < 4:
+        error(errors, "expected at least 4 joint-session press camera-lens records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_press_cable_cover"]) < 6:
+        error(errors, "expected at least 6 joint-session press cable-cover records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "joint_session_press_pool_riser_edge_trim"]) < 4:
+        error(errors, "expected at least 4 joint-session press-pool riser edge-trim records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")

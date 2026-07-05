@@ -11368,9 +11368,13 @@ def add_joint_session_layout(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
     records: list[dict[str, Any]],
+    chamber_records: list[dict[str, Any]],
 ) -> None:
     """Add generic public visual zones for a joint session in the House Chamber."""
     z = 5.05
+
+    def joint_detail(name: str, kind: str, center: tuple[float, float, float], size: tuple[float, float] | None = None) -> None:
+        add_chamber_detail_record(chamber_records, name, kind, "House Chamber", center, size)
 
     def zone(
         name: str,
@@ -11413,6 +11417,37 @@ def add_joint_session_layout(
     add_label(labels, "President address podium", 0.0, -51.0, z + 1.8, "joint_session")
     add_label(labels, "Speaker of the House", -2.0, -47.7, z + 1.8, "joint_session")
     add_label(labels, "Vice President / President of the Senate", 2.0, -47.7, z + 1.8, "joint_session")
+
+    for edge_name, center, size in [
+        ("front", (0.0, -51.62), (15.4, 0.14)),
+        ("left", (-7.58, -49.1), (0.14, 5.0)),
+        ("right", (7.58, -49.1), (0.14, 5.0)),
+    ]:
+        obj.add_box(center, size, 0.055, z + 0.205, f"joint_session_rostrum_{edge_name}_step_edge", "BrassRail")
+        joint_detail(f"joint_session_rostrum_{edge_name}_step_edge", "joint_session_rostrum_step_edge", (center[0], center[1], z + 0.232), size)
+
+    obj.add_box((0.0, -51.34), (1.55, 0.46), 0.055, z + 1.25, "president_podium_reading_surface_joint_session", "DeskWood")
+    obj.add_cylinder((0.0, -51.61), 0.30, z + 0.72, 0.045, "president_podium_public_front_medallion", "BrassRail", segments=24)
+    obj.add_box((-0.18, -51.72), (0.08, 0.18), 0.16, z + 1.34, "president_podium_left_microphone", "DoorMetal")
+    obj.add_box((0.18, -51.72), (0.08, 0.18), 0.16, z + 1.34, "president_podium_right_microphone", "DoorMetal")
+    joint_detail("president_podium_reading_surface_joint_session", "joint_session_podium_reading_surface", (0.0, -51.34, z + 1.278), (1.55, 0.46))
+    joint_detail("president_podium_public_front_medallion", "joint_session_podium_front_medallion", (0.0, -51.61, z + 0.742), (0.60, 0.60))
+    joint_detail("president_podium_microphone_pair_joint_session", "joint_session_podium_microphone_pair", (0.0, -51.72, z + 1.42), (0.46, 0.18))
+
+    for side, x in [("left", -1.55), ("right", 1.55)]:
+        obj.add_box((x, -51.34), (0.08, 0.58), 0.52, z + 1.03, f"joint_session_{side}_generic_glass_side_panel", "DoorGlass")
+        obj.add_cylinder((x, -51.05), 0.035, z + 0.62, 0.46, f"joint_session_{side}_glass_panel_stem", "DoorMetal", segments=8)
+        joint_detail(f"joint_session_{side}_generic_glass_side_panel", "joint_session_glass_side_panel", (x, -51.34, z + 1.29), (0.08, 0.58))
+
+    for chair_name, x in [("speaker", -2.0), ("vice_president", 2.0)]:
+        obj.add_box((x - 0.54, -47.70), (0.10, 0.76), 0.18, z + 0.68, f"{chair_name}_chair_left_arm_joint_session", "ChairLeather")
+        obj.add_box((x + 0.54, -47.70), (0.10, 0.76), 0.18, z + 0.68, f"{chair_name}_chair_right_arm_joint_session", "ChairLeather")
+        obj.add_box((x, -47.17), (0.62, 0.040), 0.055, z + 1.10, f"{chair_name}_chair_back_button_row_joint_session", "BrassRail")
+        obj.add_box((x, -47.70), (0.78, 0.040), 0.040, z + 0.69, f"{chair_name}_chair_cushion_front_seam_joint_session", "BrassRail")
+        joint_detail(f"{chair_name}_chair_arm_pair_joint_session", "joint_session_presiding_chair_arm_pair", (x, -47.70, z + 0.77), (1.18, 0.76))
+        joint_detail(f"{chair_name}_chair_back_detail_joint_session", "joint_session_presiding_chair_back_detail", (x, -47.17, z + 1.128), (0.62, 0.040))
+        joint_detail(f"{chair_name}_chair_cushion_seam_joint_session", "joint_session_presiding_chair_cushion_seam", (x, -47.70, z + 0.71), (0.78, 0.040))
+
     records.extend(
         [
             {
@@ -11445,6 +11480,49 @@ def add_joint_session_layout(
     zone("diplomatic_corps_block", (15.0, -70.5), (12.0, 5.5), "DiplomaticZone", "Diplomatic corps generic block", 3, 5)
     zone("press_pool_block", (0.0, -59.0), (9.0, 4.2), "PressZone", "Press / camera pool generic block", 2, 6)
     zone("members_and_guests_backfill", (0.0, -82.5), (48.0, 13.0), "JointSessionZone", "Members of Congress and guests overflow generic block", 5, 16)
+
+    for name, center, width, material in [
+        ("senate_floor_block", (-14.5, -56.25), 4.2, "SenateDesk"),
+        ("cabinet_floor_block", (14.5, -56.25), 4.2, "CabinetZone"),
+        ("supreme_court_block", (-15.0, -67.50), 3.8, "SupremeCourtZone"),
+        ("diplomatic_corps_block", (15.0, -67.50), 3.8, "DiplomaticZone"),
+        ("press_pool_block", (0.0, -56.70), 3.4, "PressZone"),
+        ("members_and_guests_backfill", (0.0, -75.60), 5.8, "JointSessionZone"),
+    ]:
+        obj.add_box(center, (width, 0.12), 0.055, z + 0.19, f"joint_session_{name}_generic_role_nameplate", material)
+        joint_detail(f"joint_session_{name}_generic_role_nameplate", "generic_joint_session_role_nameplate", (center[0], center[1], z + 0.218), (width, 0.12))
+
+    for camera_index, (x, y, angle) in enumerate([(-3.2, -58.6, -0.30), (-1.05, -59.35, -0.10), (1.05, -59.35, 0.10), (3.2, -58.6, 0.30)], start=1):
+        name = f"joint_session_press_camera_{camera_index:02d}"
+        obj.add_cylinder((x, y), 0.055, z + 0.12, 0.70, f"{name}_tripod_center_post", "DoorMetal", segments=8)
+        for leg_index, leg_angle in enumerate([angle, angle + 2.10, angle - 2.10], start=1):
+            leg_center = (x + math.cos(leg_angle) * 0.34, y + math.sin(leg_angle) * 0.34)
+            obj.add_oriented_box(leg_center, (0.72, 0.040), 0.045, z + 0.16, leg_angle, f"{name}_tripod_leg_{leg_index}", "DoorMetal")
+        obj.add_oriented_box((x, y - 0.06), (0.48, 0.28), 0.30, z + 0.86, angle, f"{name}_camera_body", "DoorMetal")
+        obj.add_oriented_box((x, y - 0.33), (0.26, 0.18), 0.18, z + 0.92, angle, f"{name}_camera_lens", "DoorGlass")
+        joint_detail(f"{name}_tripod", "joint_session_press_camera_tripod", (x, y, z + 0.49), (0.88, 0.88))
+        joint_detail(f"{name}_camera_body", "joint_session_press_camera_body", (x, y - 0.06, z + 1.01), (0.48, 0.28))
+        joint_detail(f"{name}_camera_lens", "joint_session_press_camera_lens", (x, y - 0.33, z + 1.01), (0.26, 0.18))
+
+    for cable_index, (x, y, width, angle) in enumerate([
+        (-3.2, -60.15, 2.4, 0.00),
+        (-1.05, -60.35, 2.0, 0.00),
+        (1.05, -60.35, 2.0, 0.00),
+        (3.2, -60.15, 2.4, 0.00),
+        (-2.1, -57.30, 2.2, 0.18),
+        (2.1, -57.30, 2.2, -0.18),
+    ], start=1):
+        obj.add_oriented_box((x, y), (width, 0.075), 0.030, z + 0.16, angle, f"joint_session_press_cable_cover_{cable_index:02d}", "DoorMetal")
+        joint_detail(f"joint_session_press_cable_cover_{cable_index:02d}", "joint_session_press_cable_cover", (x, y, z + 0.175), (width, 0.075))
+
+    for trim_index, (center, size) in enumerate([
+        ((0.0, -61.18), (9.4, 0.10)),
+        ((0.0, -56.82), (9.4, 0.10)),
+        ((-4.72, -59.0), (0.10, 4.2)),
+        ((4.72, -59.0), (0.10, 4.2)),
+    ], start=1):
+        obj.add_box(center, size, 0.040, z + 0.125, f"joint_session_press_pool_riser_edge_trim_{trim_index}", "BrassRail")
+        joint_detail(f"joint_session_press_pool_riser_edge_trim_{trim_index}", "joint_session_press_pool_riser_edge_trim", (center[0], center[1], z + 0.145), size)
 
 
 def build_seating_sections(
@@ -12027,7 +12105,7 @@ def build_interior() -> dict[str, Any]:
     add_public_interior_furnishing_details(obj, labels, furnishing_details)
     build_house_seats(obj, seats, labels, chamber_details)
     build_senate_desks(obj, seats, labels, chamber_details)
-    add_joint_session_layout(obj, labels, joint_session)
+    add_joint_session_layout(obj, labels, joint_session, chamber_details)
     seating_sections.extend(build_seating_sections(labels, seats, joint_session))
     add_chamber_public_role_zone_overlays(obj, labels, seating_sections, chamber_details)
     add_chamber_realism_details(obj, labels, chamber_details)
