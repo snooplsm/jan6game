@@ -3752,6 +3752,68 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box(center, (radius * 2.65, radius * 2.65), 0.18, z_base + height - 0.02, f"{prefix}_square_abacus", "ColumnStone")
         obj.add_box(center, (radius * 2.28, radius * 2.28), 0.075, z_base + height + 0.17, f"{prefix}_abacus_top_bevel", "ColumnStone")
 
+        for leaf_index in range(8):
+            angle = math.tau * leaf_index / 8.0
+            leaf_center = (
+                center[0] + radius * 1.06 * math.cos(angle),
+                center[1] + radius * 1.06 * math.sin(angle),
+            )
+            leaf_name = f"{prefix}_capital_leaf_detail_{leaf_index + 1:02d}"
+            obj.add_oriented_box(
+                leaf_center,
+                (0.10, radius * 0.34),
+                0.34,
+                z_base + height - 0.70,
+                angle + math.pi / 2.0,
+                leaf_name,
+                "ColumnStone",
+            )
+            add_facade_detail(
+                leaf_name,
+                "exterior_column_capital_leaf_detail",
+                (leaf_center[0], leaf_center[1], z_base + height - 0.53),
+                {"orientation": orientation, "angle_degrees": round(math.degrees(angle), 2)},
+            )
+
+        face_sign = 1.0 if (center[0] if orientation == "east_west" else center[1]) >= 0.0 else -1.0
+        for volute_index, tangent_offset in enumerate((-radius * 0.58, radius * 0.58), start=1):
+            if orientation == "east_west":
+                volute_center = (center[0] + face_sign * radius * 1.22, center[1] + tangent_offset)
+                volute_size = (0.11, radius * 0.34)
+            else:
+                volute_center = (center[0] + tangent_offset, center[1] + face_sign * radius * 1.22)
+                volute_size = (radius * 0.34, 0.11)
+            volute_name = f"{prefix}_capital_volute_detail_{volute_index:02d}"
+            obj.add_box(volute_center, volute_size, 0.30, z_base + height - 0.43, volute_name, "ColumnStone")
+            add_facade_detail(
+                volute_name,
+                "exterior_column_capital_volute_detail",
+                (volute_center[0], volute_center[1], z_base + height - 0.28),
+                {"orientation": orientation, "face_sign": face_sign},
+            )
+
+        for chip_index, angle in enumerate((0.0, math.pi / 2.0, math.pi, math.pi * 1.5), start=1):
+            chip_center = (
+                center[0] + radius * 1.36 * math.cos(angle),
+                center[1] + radius * 1.36 * math.sin(angle),
+            )
+            chip_name = f"{prefix}_base_chip_detail_{chip_index:02d}"
+            obj.add_oriented_box(
+                chip_center,
+                (0.08, radius * 0.38),
+                0.08,
+                z_base + 0.06,
+                angle + math.pi / 2.0,
+                chip_name,
+                "StoneGrimeOverlay",
+            )
+            add_facade_detail(
+                chip_name,
+                "exterior_column_base_chip_detail",
+                (chip_center[0], chip_center[1], z_base + 0.10),
+                {"orientation": orientation, "angle_degrees": round(math.degrees(angle), 2)},
+            )
+
         flute_count = 12
         flute_height = max(0.5, height - 1.24)
         for flute_index in range(flute_count):

@@ -1305,6 +1305,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "exterior_column_fluting_groove",
     "exterior_column_base_ring_detail",
     "exterior_column_capital_abacus_detail",
+    "exterior_column_capital_leaf_detail",
+    "exterior_column_capital_volute_detail",
+    "exterior_column_base_chip_detail",
     "portico_soffit_coffer",
     "portico_intercolumn_shadow",
     "portico_architrave_band",
@@ -1900,6 +1903,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 28 public exterior column base ring detail records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_abacus_detail"]) < 28:
         error(errors, "expected at least 28 public exterior column capital abacus detail records")
+    if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_leaf_detail"]) < 224:
+        error(errors, "expected at least 224 public exterior column capital leaf detail records")
+    if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_volute_detail"]) < 56:
+        error(errors, "expected at least 56 public exterior column capital volute detail records")
+    if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_base_chip_detail"]) < 112:
+        error(errors, "expected at least 112 public exterior column base chip detail records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
         error(errors, "expected at least 70 public portico soffit coffer records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_intercolumn_shadow"]) < 24:
