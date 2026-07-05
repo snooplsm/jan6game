@@ -29,6 +29,7 @@ MATERIAL_DESTINATION_PATH = "/Game/CapitolMap/Materials"
 TEXTURE_DESTINATION_PATH = "/Game/CapitolMap/Textures"
 MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
+TEXTURE_KINDS = ("basecolor", "normal", "roughness", "ambient_occlusion")
 TEXTURE_KIND_SETTINGS = {
     "basecolor": {
         "srgb": True,
@@ -54,11 +55,20 @@ TEXTURE_KIND_SETTINGS = {
         "filter": ["TF_DEFAULT"],
         "sampler_type": ["SAMPLERTYPE_LINEAR_GRAYSCALE", "SAMPLERTYPE_MASKS"],
     },
+    "ambient_occlusion": {
+        "srgb": False,
+        "compression_settings": ["TC_GRAYSCALE", "TC_MASKS"],
+        "texture_group": ["TEXTUREGROUP_WORLD_SPECULAR", "TEXTUREGROUP_WorldSpecular", "TEXTUREGROUP_WORLD"],
+        "mip_gen_settings": ["TMGS_FROM_TEXTURE_GROUP"],
+        "filter": ["TF_DEFAULT"],
+        "sampler_type": ["SAMPLERTYPE_LINEAR_GRAYSCALE", "SAMPLERTYPE_MASKS"],
+    },
 }
 MATERIAL_GRAPH_FEATURES = {
     "basecolor_property": "MP_BASE_COLOR",
     "normal_property": "MP_NORMAL",
     "roughness_property": "MP_ROUGHNESS",
+    "ambient_occlusion_property": "MP_AMBIENT_OCCLUSION",
     "metallic_property": "MP_METALLIC",
     "specular_property": "MP_SPECULAR",
     "opacity_property": "MP_OPACITY",
@@ -66,6 +76,7 @@ MATERIAL_GRAPH_FEATURES = {
     "clear_coat_roughness_property": "MP_CLEAR_COAT_ROUGHNESS",
     "supports_clear_coat_shading": True,
     "uses_texture_samples": True,
+    "uses_ambient_occlusion_maps": True,
     "uses_tangent_space_normals": True,
     "two_sided_by_default": True,
     "adds_editor_comment": True,
@@ -904,7 +915,7 @@ def import_texture_assets() -> tuple[dict[str, dict[str, str]], dict[str, str]]:
     ensure_content_dirs()
     tasks = []
     for texture_set in sets.values():
-        for texture_kind in ("basecolor", "normal", "roughness"):
+        for texture_kind in TEXTURE_KINDS:
             rel_path = texture_set.get(texture_kind)
             if not rel_path:
                 continue
@@ -927,7 +938,7 @@ def import_texture_assets() -> tuple[dict[str, dict[str, str]], dict[str, str]]:
     imported: dict[str, dict[str, str]] = {}
     for set_name, texture_set in sets.items():
         imported[set_name] = {}
-        for texture_kind in ("basecolor", "normal", "roughness"):
+        for texture_kind in TEXTURE_KINDS:
             rel_path = texture_set.get(texture_kind)
             if not rel_path:
                 continue
@@ -1091,7 +1102,7 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
             pass
         create_material_comment(
             material,
-            "CapitolMap generated PBR setup: basecolor, normal, and roughness maps are imported from generated/textures; scalar parameters remain editable.",
+            "CapitolMap generated PBR setup: basecolor, normal, roughness, and ambient-occlusion maps are imported from generated/textures; scalar parameters remain editable.",
             -900,
             -390,
             760,
@@ -1131,6 +1142,17 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
         if texture_set.get("roughness")
         else None
     )
+    ambient_occlusion_sample = (
+        create_texture_sample(
+            material,
+            texture_set.get("ambient_occlusion", ""),
+            -760,
+            460,
+            TEXTURE_KIND_SETTINGS["ambient_occlusion"]["sampler_type"],
+        )
+        if texture_set.get("ambient_occlusion")
+        else None
+    )
 
     if basecolor_sample is not None:
         connect_material_property(basecolor_sample, "RGB", "MP_BASE_COLOR")
@@ -1138,6 +1160,8 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
         connect_material_property(normal_sample, "RGB", "MP_NORMAL")
     if roughness_sample is not None:
         connect_material_property(roughness_sample, "R", "MP_ROUGHNESS")
+    if ambient_occlusion_sample is not None:
+        connect_material_property(ambient_occlusion_sample, "R", "MP_AMBIENT_OCCLUSION")
 
     if basecolor_sample is None and hasattr(unreal, "MaterialExpressionConstant3Vector"):
         color_expr = create_material_constant(
@@ -1245,6 +1269,7 @@ def build_material_texture_features(
             "basecolor": bool(texture_set.get("basecolor")),
             "normal": bool(texture_set.get("normal")),
             "roughness": bool(texture_set.get("roughness")),
+            "ambient_occlusion": bool(texture_set.get("ambient_occlusion")),
             "opacity": spec.get("opacity"),
             "clear_coat": spec.get("clear_coat"),
             "clear_coat_roughness": spec.get("clear_coat_roughness"),

@@ -2,8 +2,9 @@
 """Generate deterministic tileable texture maps for the Capitol Unreal package.
 
 The texture pass is procedural so it can run locally without network access or
-third-party image packages. Each texture set writes basecolor, normal, and
-roughness PNGs plus a manifest consumed by the Unreal import script.
+third-party image packages. Each texture set writes basecolor, normal,
+roughness, and ambient-occlusion PNGs plus a manifest consumed by the Unreal
+import script.
 """
 
 from __future__ import annotations
@@ -458,6 +459,43 @@ def roughness_map(base_roughness: float, height: np.ndarray, style: str) -> np.n
     return np.repeat(gray[:, :, None], 3, axis=2).astype(np.uint8)
 
 
+def ambient_occlusion_map(height: np.ndarray, style: str) -> np.ndarray:
+    neighbor_mean = (
+        np.roll(height, -1, axis=0)
+        + np.roll(height, 1, axis=0)
+        + np.roll(height, -1, axis=1)
+        + np.roll(height, 1, axis=1)
+    ) * np.float32(0.25)
+    local_cavity = np.clip((neighbor_mean - height) * 5.0, 0.0, 1.0)
+    low_crevices = np.clip((0.48 - height) * 2.4, 0.0, 1.0)
+    style_strength = {
+        "ashlar_limestone": 0.52,
+        "weathered_ashlar_limestone": 0.62,
+        "worn_stone": 0.58,
+        "weathered_stone": 0.62,
+        "pavers": 0.58,
+        "asphalt": 0.50,
+        "concrete": 0.42,
+        "wood_planks": 0.46,
+        "marble_floor": 0.36,
+        "marble_wall": 0.34,
+        "carpet": 0.30,
+        "fabric": 0.28,
+        "leather": 0.38,
+        "canvas": 0.32,
+        "brushed_metal": 0.26,
+        "painted_metal": 0.28,
+        "painted_dome_panels": 0.34,
+        "worn_paint": 0.36,
+        "glass": 0.14,
+        "grass": 0.32,
+    }.get(style, 0.38)
+    cavity = np.clip(local_cavity * 0.72 + low_crevices * 0.48, 0.0, 1.0)
+    occlusion = 1.0 - cavity * np.float32(style_strength)
+    gray = np.clip(occlusion, 0.0, 1.0) * 255.0
+    return np.repeat(gray[:, :, None], 3, axis=2).astype(np.uint8)
+
+
 def generate_set(name: str, spec: dict[str, Any]) -> dict[str, str]:
     seed = int.from_bytes(hashlib.sha256(name.encode("utf-8")).digest()[:8], "big") % 1_000_000
     style = str(spec["style"])
@@ -465,15 +503,18 @@ def generate_set(name: str, spec: dict[str, Any]) -> dict[str, str]:
     basecolor = color_map(spec["base"], height, style, seed)
     normal = normal_from_height(height, float(spec["normal_strength"]))
     roughness = roughness_map(float(spec["roughness"]), height, style)
+    ambient_occlusion = ambient_occlusion_map(height, style)
 
     paths = {
         "basecolor": f"generated/textures/{name}_basecolor.png",
         "normal": f"generated/textures/{name}_normal.png",
         "roughness": f"generated/textures/{name}_roughness.png",
+        "ambient_occlusion": f"generated/textures/{name}_ambient_occlusion.png",
     }
     write_png(ROOT / paths["basecolor"], basecolor)
     write_png(ROOT / paths["normal"], normal)
     write_png(ROOT / paths["roughness"], roughness)
+    write_png(ROOT / paths["ambient_occlusion"], ambient_occlusion)
     return paths
 
 
@@ -491,6 +532,7 @@ def main() -> None:
             "basecolor": texture_paths["basecolor"],
             "normal": texture_paths["normal"],
             "roughness": texture_paths["roughness"],
+            "ambient_occlusion": texture_paths["ambient_occlusion"],
         }
 
     manifest = {
@@ -498,7 +540,7 @@ def main() -> None:
         "texture_root": "generated/textures",
         "source_type": "deterministic_procedural_local",
         "external_texture_sources": [],
-        "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
+        "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness/ambient-occlusion maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
         "target_size_px": [SIZE, SIZE],
         "png_compression_level": PNG_COMPRESSION_LEVEL,
         "sets": sets,

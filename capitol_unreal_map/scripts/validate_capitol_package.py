@@ -141,10 +141,12 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "basecolor_property",
     "normal_property",
     "roughness_property",
+    "ambient_occlusion_property",
     "metallic_property",
     "specular_property",
     "opacity_property",
     "uses_texture_samples",
+    "uses_ambient_occlusion_maps",
     "uses_tangent_space_normals",
     "two_sided_by_default",
     "adds_editor_comment",
@@ -353,6 +355,7 @@ REQUIRED_UNREAL_MATERIAL_MARKERS = {
     "MP_BASE_COLOR",
     "MP_NORMAL",
     "MP_ROUGHNESS",
+    "MP_AMBIENT_OCCLUSION",
     "MP_METALLIC",
     "MP_SPECULAR",
     "MP_OPACITY",
@@ -362,7 +365,9 @@ REQUIRED_UNREAL_MATERIAL_MARKERS = {
     "MSM_CLEAR_COAT",
     "clear_coat_property",
     "clear_coat_roughness_property",
+    "ambient_occlusion_property",
     "supports_clear_coat_shading",
+    "uses_ambient_occlusion_maps",
     "two_sided",
     "tangent_space_normal",
     "use_material_attributes",
@@ -370,7 +375,7 @@ REQUIRED_UNREAL_MATERIAL_MARKERS = {
     "material_texture_features",
     "material_graph_features",
     "build_material_texture_features",
-    "CapitolMap generated PBR setup: basecolor, normal, and roughness maps are imported from generated/textures; scalar parameters remain editable.",
+    "CapitolMap generated PBR setup: basecolor, normal, roughness, and ambient-occlusion maps are imported from generated/textures; scalar parameters remain editable.",
 }
 
 REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
@@ -2697,7 +2702,7 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
         ):
             error(errors, f"texture set {set_name} has invalid size_px")
             declared_size = None
-        for key in ("basecolor", "normal", "roughness"):
+        for key in ("basecolor", "normal", "roughness", "ambient_occlusion"):
             rel = spec.get(key)
             if not rel:
                 error(errors, f"texture set {set_name} missing {key}")

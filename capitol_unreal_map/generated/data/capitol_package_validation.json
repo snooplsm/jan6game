@@ -72,7 +72,7 @@
   "textures": {
     "texture_sets": 43,
     "texture_material_bindings": 75,
-    "texture_files": 129,
+    "texture_files": 172,
     "texture_styles": 19,
     "min_texture_size_px": 4096,
     "expected_min_texture_size_px": 4096
@@ -83,11 +83,11 @@
     "destination_paths": 4,
     "required_functions": 22,
     "required_calls": 20,
-    "report_keys": 166,
+    "report_keys": 168,
     "label_categories": 21,
     "outliner_folders": 13,
     "first_person_markers": 36,
-    "material_markers": 24,
+    "material_markers": 27,
     "environment_markers": 38,
     "inspection_markers": 24,
     "missing": {
