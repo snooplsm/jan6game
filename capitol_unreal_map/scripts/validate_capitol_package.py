@@ -564,11 +564,14 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_dentil_course",
     "facade_cornice_bracket",
     "facade_pilaster",
+    "facade_ashlar_course",
+    "facade_vertical_stone_joint",
     "public_stair_tread",
     "public_approach_handrail",
     "public_door_surround",
     "roof_balustrade",
     "roof_articulation_volume",
+    "roof_surface_joint",
     "wing_transition_block",
     "courtyard_notch_shadow",
     "roof_dormer",
@@ -914,8 +917,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 1200:
-        error(errors, f"expected at least 1200 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 1500:
+        error(errors, f"expected at least 1500 public facade/furniture visual details, got {len(facade_details)}")
     missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
     if missing_facade_kinds:
         error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
@@ -929,6 +932,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 100 facade cornice bracket records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_pilaster"]) < 48:
         error(errors, "expected at least 48 public facade pilaster records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_ashlar_course"]) < 70:
+        error(errors, "expected at least 70 public facade ashlar course records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_vertical_stone_joint"]) < 68:
+        error(errors, "expected at least 68 public facade vertical stone joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_stair_tread"]) < 18:
         error(errors, "expected at least 18 public stair tread records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_approach_handrail"]) < 8:
@@ -939,6 +946,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 6 public roof balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_articulation_volume"]) < 10:
         error(errors, "expected at least 10 public roof articulation volume records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_surface_joint"]) < 55:
+        error(errors, "expected at least 55 public roof surface joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "wing_transition_block"]) < 8:
         error(errors, "expected at least 8 public wing transition block records")
     if len([detail for detail in facade_details if detail.get("kind") == "courtyard_notch_shadow"]) < 8:

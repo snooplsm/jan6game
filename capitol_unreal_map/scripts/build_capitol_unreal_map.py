@@ -1553,6 +1553,77 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box((x, y - sy / 2.0), (sx + 0.18, 0.10), 0.10, z + 0.04, f"{name}_south_frame", "DoorMetal")
         add_facade_detail(name, "roof_skylight_strip", (center[0], center[1], z + 0.04), {"size_m": [round(size[0], 3), round(size[1], 3)]})
 
+    def add_facade_ashlar_courses(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z_levels: list[float],
+    ) -> None:
+        face_offset = 0.24 if fixed >= 0.0 else -0.24
+        for idx, z_level in enumerate(z_levels, start=1):
+            if orientation == "east_west":
+                center = (fixed + face_offset, span_center)
+                size = (0.075, span_length)
+            else:
+                center = (span_center, fixed + face_offset)
+                size = (span_length, 0.075)
+            name = f"{prefix}_ashlar_course_{idx:02d}"
+            obj.add_box(center, size, 0.055, z_level, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                "facade_ashlar_course",
+                (center[0], center[1], z_level + 0.028),
+                {"orientation": orientation, "length_m": round(span_length, 3)},
+            )
+
+    def add_facade_vertical_stone_joints(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        positions: list[float],
+        z_base: float,
+        height: float,
+    ) -> None:
+        face_offset = 0.25 if fixed >= 0.0 else -0.25
+        for idx, value in enumerate(positions, start=1):
+            if orientation == "east_west":
+                center = (fixed + face_offset, value)
+                size = (0.080, 0.055)
+            else:
+                center = (value, fixed + face_offset)
+                size = (0.055, 0.080)
+            name = f"{prefix}_vertical_stone_joint_{idx:02d}"
+            obj.add_box(center, size, height, z_base, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                "facade_vertical_stone_joint",
+                (center[0], center[1], z_base + height / 2.0),
+                {"orientation": orientation, "height_m": round(height, 3)},
+            )
+
+    def add_roof_surface_joint_grid(
+        prefix: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        x_lines: int,
+        y_lines: int,
+    ) -> None:
+        cx, cy = center
+        sx, sy = size
+        for idx in range(1, x_lines + 1):
+            x = cx - sx / 2.0 + sx * idx / (x_lines + 1)
+            name = f"{prefix}_roof_joint_x_{idx:02d}"
+            obj.add_box((x, cy), (0.08, sy * 0.84), 0.035, z, name, "StepStone")
+            add_facade_detail(name, "roof_surface_joint", (x, cy, z + 0.018), {"axis": "x", "length_m": round(sy * 0.84, 3)})
+        for idx in range(1, y_lines + 1):
+            y = cy - sy / 2.0 + sy * idx / (y_lines + 1)
+            name = f"{prefix}_roof_joint_y_{idx:02d}"
+            obj.add_box((cx, y), (sx * 0.84, 0.08), 0.035, z, name, "StepStone")
+            add_facade_detail(name, "roof_surface_joint", (cx, y, z + 0.018), {"axis": "y", "length_m": round(sx * 0.84, 3)})
+
     def add_column_row(prefix: str, orientation: str, fixed: float, values: list[float], z_base: float, height: float) -> None:
         for idx, value in enumerate(values, start=1):
             center = (fixed, value) if orientation == "east_west" else (value, fixed)
@@ -1912,6 +1983,18 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(f"{side}_wing_triangular_pediment", "classical_pediment", (0.0, y, 15.1))
         add_facade_detail(f"{side}_wing_pediment_public_relief_panel", "pediment_relief_panel", (0.0, y, 14.71))
 
+    roof_joint_specs = [
+        ("central_body", (0.0, 0.0), (75.0, 55.0), 18.47, 5, 4),
+        ("senate_main", (0.0, 68.0), (78.0, 54.0), 12.79, 5, 4),
+        ("house_main", (0.0, -68.0), (86.0, 58.0), 12.79, 5, 4),
+        ("senate_center_pavilion", (0.0, 68.0), (24.0, 62.0), 14.29, 2, 5),
+        ("house_center_pavilion", (0.0, -68.0), (24.0, 66.0), 14.29, 2, 5),
+        ("east_front_portico", (58.5, 0.0), (18.0, 66.0), 14.70, 2, 5),
+        ("west_front_portico", (-58.5, 0.0), (18.0, 66.0), 14.70, 2, 5),
+    ]
+    for name, center, size, z, x_lines, y_lines in roof_joint_specs:
+        add_roof_surface_joint_grid(name, center, size, z, x_lines, y_lines)
+
     # Facade rhythm: public visual windows, belt courses, and cornice bands.
     y_window_positions = [value * 5.0 for value in range(-6, 7)]
     wing_x_window_positions = [value * 5.6 for value in range(-7, 8)]
@@ -1923,6 +2006,27 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_window_grid_on_face("west_front_deep_shadow", "east_west", -67.3, [-27, -18, -9, 9, 18, 27], [5.1, 8.5, 11.9], width=1.05)
     add_window_grid_on_face("north_portico_shadow", "north_south", 101.8, [-20, -12, -4, 4, 12, 20], [4.9, 8.3, 11.2], width=0.9)
     add_window_grid_on_face("south_portico_shadow", "north_south", -101.8, [-20, -12, -4, 4, 12, 20], [4.9, 8.3, 11.2], width=0.9)
+
+    ashlar_z_levels = [2.35, 3.55, 4.75, 5.95, 7.15, 8.35, 9.55, 10.75, 11.95]
+    front_ashlar_z_levels = [2.25, 3.48, 4.71, 5.94, 7.17, 8.40, 9.63, 10.86, 12.09]
+    wing_ashlar_z_levels = [2.20, 3.40, 4.60, 5.80, 7.00, 8.20, 9.40, 10.60]
+    add_facade_ashlar_courses("central_east", "east_west", 39.0, 0.0, 57.0, ashlar_z_levels)
+    add_facade_ashlar_courses("central_west", "east_west", -39.0, 0.0, 57.0, ashlar_z_levels)
+    add_facade_ashlar_courses("central_north", "north_south", 29.4, 0.0, 76.0, ashlar_z_levels)
+    add_facade_ashlar_courses("central_south", "north_south", -29.4, 0.0, 76.0, ashlar_z_levels)
+    add_facade_ashlar_courses("east_front_portico", "east_west", 67.2, 0.0, 66.0, front_ashlar_z_levels)
+    add_facade_ashlar_courses("west_front_portico", "east_west", -67.2, 0.0, 66.0, front_ashlar_z_levels)
+    add_facade_ashlar_courses("senate_north_front", "north_south", 101.8, 0.0, 82.0, wing_ashlar_z_levels)
+    add_facade_ashlar_courses("house_south_front", "north_south", -101.8, 0.0, 86.0, wing_ashlar_z_levels)
+
+    add_facade_vertical_stone_joints("central_east", "east_west", 39.0, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], 2.0, 10.9)
+    add_facade_vertical_stone_joints("central_west", "east_west", -39.0, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], 2.0, 10.9)
+    add_facade_vertical_stone_joints("central_north", "north_south", 29.4, [-32.0, -24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0, 32.0], 2.0, 10.9)
+    add_facade_vertical_stone_joints("central_south", "north_south", -29.4, [-32.0, -24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0, 32.0], 2.0, 10.9)
+    add_facade_vertical_stone_joints("east_front_portico", "east_west", 67.2, [-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], 2.0, 11.8)
+    add_facade_vertical_stone_joints("west_front_portico", "east_west", -67.2, [-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], 2.0, 11.8)
+    add_facade_vertical_stone_joints("senate_north_front", "north_south", 101.8, [-36.0, -28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0, 36.0], 2.0, 9.7)
+    add_facade_vertical_stone_joints("house_south_front", "north_south", -101.8, [-36.0, -28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0, 36.0], 2.0, 9.7)
 
     front_pilaster_values = [value * 5.0 for value in range(-7, 8)]
     wing_pilaster_values = [value * 5.6 for value in range(-8, 9)]
