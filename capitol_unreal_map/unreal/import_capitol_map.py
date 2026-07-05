@@ -29,6 +29,32 @@ MATERIAL_DESTINATION_PATH = "/Game/CapitolMap/Materials"
 TEXTURE_DESTINATION_PATH = "/Game/CapitolMap/Textures"
 MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
+TEXTURE_KIND_SETTINGS = {
+    "basecolor": {
+        "srgb": True,
+        "compression_settings": ["TC_DEFAULT"],
+        "texture_group": ["TEXTUREGROUP_WORLD", "TEXTUREGROUP_World"],
+        "mip_gen_settings": ["TMGS_FROM_TEXTURE_GROUP"],
+        "filter": ["TF_DEFAULT"],
+        "sampler_type": ["SAMPLERTYPE_COLOR"],
+    },
+    "normal": {
+        "srgb": False,
+        "compression_settings": ["TC_NORMALMAP"],
+        "texture_group": ["TEXTUREGROUP_WORLD_NORMAL_MAP", "TEXTUREGROUP_WorldNormalMap", "TEXTUREGROUP_WORLD"],
+        "mip_gen_settings": ["TMGS_FROM_TEXTURE_GROUP"],
+        "filter": ["TF_DEFAULT"],
+        "sampler_type": ["SAMPLERTYPE_NORMAL"],
+    },
+    "roughness": {
+        "srgb": False,
+        "compression_settings": ["TC_GRAYSCALE", "TC_MASKS"],
+        "texture_group": ["TEXTUREGROUP_WORLD_SPECULAR", "TEXTUREGROUP_WorldSpecular", "TEXTUREGROUP_WORLD"],
+        "mip_gen_settings": ["TMGS_FROM_TEXTURE_GROUP"],
+        "filter": ["TF_DEFAULT"],
+        "sampler_type": ["SAMPLERTYPE_LINEAR_GRAYSCALE", "SAMPLERTYPE_MASKS"],
+    },
+}
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
 PLAYTEST_PAWN_LABEL = "CapitolMap_Playtest_DefaultPawn"
@@ -257,6 +283,17 @@ def get_property(obj: Any, name: str) -> Any:
         return None
 
 
+def set_enum_property(obj: Any, property_name: str, enum_type_name: str, member_names: list[str]) -> str | None:
+    enum_type = getattr(unreal, enum_type_name, None)
+    if enum_type is None:
+        return None
+    for member_name in member_names:
+        member = getattr(enum_type, member_name, None)
+        if member is not None and set_property(obj, property_name, member):
+            return member_name
+    return None
+
+
 def set_actor_tags(actor: Any, tags: list[str]) -> None:
     """Best-effort tag assignment across UE Python versions."""
     try:
@@ -381,15 +418,12 @@ def configure_texture_asset(asset_path: str, texture_kind: str) -> None:
     if not texture:
         return
 
-    set_property(texture, "srgb", texture_kind == "basecolor")
-    if texture_kind == "normal" and hasattr(unreal, "TextureCompressionSettings"):
-        setting = getattr(unreal.TextureCompressionSettings, "TC_NORMALMAP", None)
-        if setting is not None:
-            set_property(texture, "compression_settings", setting)
-    elif texture_kind == "roughness" and hasattr(unreal, "TextureCompressionSettings"):
-        setting = getattr(unreal.TextureCompressionSettings, "TC_GRAYSCALE", None)
-        if setting is not None:
-            set_property(texture, "compression_settings", setting)
+    settings = TEXTURE_KIND_SETTINGS.get(texture_kind, {})
+    set_property(texture, "srgb", bool(settings.get("srgb", texture_kind == "basecolor")))
+    set_enum_property(texture, "compression_settings", "TextureCompressionSettings", settings.get("compression_settings", []))
+    set_enum_property(texture, "lod_group", "TextureGroup", settings.get("texture_group", []))
+    set_enum_property(texture, "mip_gen_settings", "TextureMipGenSettings", settings.get("mip_gen_settings", []))
+    set_enum_property(texture, "filter", "TextureFilter", settings.get("filter", []))
 
     try:
         unreal.EditorAssetLibrary.save_asset(asset_path, only_if_is_dirty=False)
@@ -494,7 +528,7 @@ def create_material_constant(material: Any, expression_class: Any, value: Any, x
         return None
 
 
-def create_texture_sample(material: Any, texture_asset_path: str, x: int, y: int, sampler_type_name: str | None = None) -> Any | None:
+def create_texture_sample(material: Any, texture_asset_path: str, x: int, y: int, sampler_type_names: list[str] | None = None) -> Any | None:
     if not hasattr(unreal, "MaterialEditingLibrary") or not hasattr(unreal, "MaterialExpressionTextureSample"):
         return None
     texture = unreal.EditorAssetLibrary.load_asset(texture_asset_path)
@@ -510,10 +544,8 @@ def create_texture_sample(material: Any, texture_asset_path: str, x: int, y: int
         if expression is None:
             return None
         set_property(expression, "texture", texture)
-        if sampler_type_name and hasattr(unreal, "MaterialSamplerType"):
-            sampler_type = getattr(unreal.MaterialSamplerType, sampler_type_name, None)
-            if sampler_type is not None:
-                set_property(expression, "sampler_type", sampler_type)
+        if sampler_type_names:
+            set_enum_property(expression, "sampler_type", "MaterialSamplerType", sampler_type_names)
         return expression
     except Exception:
         return None
@@ -544,13 +576,39 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
         except Exception:
             pass
 
-    basecolor_sample = create_texture_sample(material, texture_set.get("basecolor", ""), -760, -160) if texture_set.get("basecolor") else None
+    basecolor_sample = (
+        create_texture_sample(
+            material,
+            texture_set.get("basecolor", ""),
+            -760,
+            -160,
+            TEXTURE_KIND_SETTINGS["basecolor"]["sampler_type"],
+        )
+        if texture_set.get("basecolor")
+        else None
+    )
     normal_sample = (
-        create_texture_sample(material, texture_set.get("normal", ""), -760, 60, "SAMPLERTYPE_NORMAL")
+        create_texture_sample(
+            material,
+            texture_set.get("normal", ""),
+            -760,
+            60,
+            TEXTURE_KIND_SETTINGS["normal"]["sampler_type"],
+        )
         if texture_set.get("normal")
         else None
     )
-    roughness_sample = create_texture_sample(material, texture_set.get("roughness", ""), -760, 260) if texture_set.get("roughness") else None
+    roughness_sample = (
+        create_texture_sample(
+            material,
+            texture_set.get("roughness", ""),
+            -760,
+            260,
+            TEXTURE_KIND_SETTINGS["roughness"]["sampler_type"],
+        )
+        if texture_set.get("roughness")
+        else None
+    )
 
     if basecolor_sample is not None:
         connect_material_property(basecolor_sample, "RGB", "MP_BASE_COLOR")
@@ -1131,6 +1189,7 @@ def write_unreal_import_report(
             "imported_assets": imported,
             "material_assets": material_assets,
             "texture_assets": texture_assets,
+            "texture_kind_settings": TEXTURE_KIND_SETTINGS,
             "mesh_count": len(imported),
             "material_count": len(material_assets),
             "texture_set_count": len(texture_assets),

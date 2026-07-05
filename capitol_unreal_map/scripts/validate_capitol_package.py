@@ -66,6 +66,7 @@ REQUIRED_UNREAL_FUNCTIONS = {
     "spawn_metadata_lights",
     "spawn_metadata_labels",
     "write_unreal_import_report",
+    "set_enum_property",
     "main",
 }
 
@@ -98,6 +99,13 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "imported_assets",
     "material_assets",
     "texture_assets",
+    "texture_kind_settings",
+    "srgb",
+    "compression_settings",
+    "texture_group",
+    "mip_gen_settings",
+    "filter",
+    "sampler_type",
     "mesh_count",
     "material_count",
     "texture_set_count",
