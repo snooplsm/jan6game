@@ -3427,10 +3427,43 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         x, y = center
         body_size = (0.72, 0.42) if orientation == "east_west" else (0.42, 0.72)
         roads.add_box(center, body_size, 1.08, 0.14, f"{name}_body", "TrafficSignalHousing")
+        roads.add_box(center, (body_size[0] * 1.10, body_size[1] * 1.10), 0.08, 0.08, f"{name}_base_plinth", "DoorMetal")
+        roads.add_box(center, (body_size[0] * 1.06, body_size[1] * 1.06), 0.07, 1.22, f"{name}_top_cap", "DoorMetal")
         roads.add_box((x, y), (body_size[0] * 0.72, body_size[1] * 0.18), 0.045, 0.86, f"{name}_service_label", "LaneMarkingWhite")
         for vent_index, z in enumerate([0.38, 0.52, 0.66], start=1):
             roads.add_box((x, y), (body_size[0] * 0.62, body_size[1] * 0.10), 0.026, z, f"{name}_louver_{vent_index:02d}", "RoadCrackSealant")
+        if orientation == "east_west":
+            face_center = (x, y - body_size[1] * 0.53)
+            seam_center = (x, face_center[1])
+            latch_center = (x + body_size[0] * 0.25, face_center[1] - 0.006)
+            label_center = (x - body_size[0] * 0.18, face_center[1] - 0.008)
+            vertical_size = (0.028, 0.018)
+            latch_size = (0.09, 0.020)
+            label_size = (0.18, 0.018)
+            vent_centers = [(x - body_size[0] * 0.53, y), (x + body_size[0] * 0.53, y)]
+            vent_size = (0.020, body_size[1] * 0.46)
+        else:
+            face_center = (x - body_size[0] * 0.53, y)
+            seam_center = (face_center[0], y)
+            latch_center = (face_center[0] - 0.006, y + body_size[1] * 0.25)
+            label_center = (face_center[0] - 0.008, y - body_size[1] * 0.18)
+            vertical_size = (0.018, 0.028)
+            latch_size = (0.020, 0.09)
+            label_size = (0.018, 0.18)
+            vent_centers = [(x, y - body_size[1] * 0.53), (x, y + body_size[1] * 0.53)]
+            vent_size = (body_size[0] * 0.46, 0.020)
+        roads.add_box(seam_center, vertical_size, 0.82, 0.28, f"{name}_front_door_seam", "RoadCrackSealant")
+        roads.add_box(latch_center, latch_size, 0.070, 0.76, f"{name}_latch_plate", "DoorMetal")
+        roads.add_box(label_center, label_size, 0.060, 0.98, f"{name}_warning_label_plate", "LaneMarkingYellow")
+        for vent_index, vent_center in enumerate(vent_centers, start=1):
+            roads.add_box(vent_center, vent_size, 0.034, 0.72, f"{name}_side_vent_panel_{vent_index:02d}", "RoadCrackSealant")
         add_streetscape_record(name, "public_utility_box", (x, y, 0.68), extra={"orientation": orientation, "size_m": body_size})
+        add_streetscape_record(
+            f"{name}_fixture_detail",
+            "public_utility_box_detail",
+            (x, y, 0.72),
+            extra={"orientation": orientation, "parts": ["base_plinth", "top_cap", "front_door_seam", "latch_plate", "warning_label_plate", "side_vent_panels"]},
+        )
 
     def add_public_news_box(name: str, center: tuple[float, float], material: str) -> None:
         x, y = center
