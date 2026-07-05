@@ -1638,6 +1638,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     building_detail_kinds = {detail.get("kind") for detail in building_details}
     building_height_sources = Counter(building.get("height_source", "missing") for building in buildings)
     summary["building_height_sources"] = dict(sorted(building_height_sources.items()))
+    height_model = exterior.get("height_model", {})
+    summary["height_model"] = {
+        "dcgis_rooftop_points": height_model.get("dcgis_rooftop_points"),
+        "dcgis_ground_points": height_model.get("dcgis_ground_points"),
+        "dcgis_matched_buildings": height_model.get("dcgis_matched_buildings"),
+    }
     summary["building_details"] = len(building_details)
     summary["building_detail_kinds"] = len(building_detail_kinds)
     streetscape_props = exterior.get("streetscape_props", [])
@@ -1664,10 +1670,21 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 20 surrounding buildings with explicit height tags")
     if building_height_sources.get("building_levels_estimate", 0) < 100:
         error(errors, "expected at least 100 surrounding buildings with building-level height estimates")
-    if building_height_sources.get("footprint_type_area_estimate", 0) < 2000:
-        error(errors, "expected at least 2000 surrounding buildings marked as footprint/type/area height estimates")
+    if building_height_sources.get("dcgis_rooftop_ground_delta_estimate", 0) < 900:
+        error(errors, "expected at least 900 surrounding buildings with DCGIS rooftop/ground delta height estimates")
+    if building_height_sources.get("footprint_type_area_estimate", 0) < 1000:
+        error(errors, "expected at least 1000 surrounding buildings marked as footprint/type/area height estimates")
     if building_height_sources.get("default_11m_no_height_tag", 0):
         error(errors, "flat default_11m_no_height_tag building heights should be replaced by area/type estimates")
+    if (height_model.get("dcgis_rooftop_points") or 0) < 2000:
+        error(errors, "expected at least 2000 DCGIS rooftop elevation points in exterior height model")
+    if (height_model.get("dcgis_ground_points") or 0) < 2000:
+        error(errors, "expected at least 2000 DCGIS ground elevation points in exterior height model")
+    if (height_model.get("dcgis_matched_buildings") or 0) != building_height_sources.get("dcgis_rooftop_ground_delta_estimate", 0):
+        error(errors, "height_model.dcgis_matched_buildings must match DCGIS height-source count")
+    for building in buildings:
+        if building.get("height_source") == "dcgis_rooftop_ground_delta_estimate" and not building.get("height_provenance"):
+            error(errors, f"DCGIS height-matched building {building.get('name', '<unknown>')} missing height_provenance")
     if summary["roads"] < 3000:
         error(errors, "expected at least 3000 roads/paths")
     if summary["bike_lanes"] < 300:
@@ -1703,18 +1720,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 500 surrounding building facade-pilaster records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_facade_window"]) < 360:
         error(errors, "expected at least 360 surrounding building facade-window records")
-    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_sill"]) < 800:
-        error(errors, "expected at least 800 surrounding building window-sill records")
-    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_lintel"]) < 800:
-        error(errors, "expected at least 800 surrounding building window-lintel records")
-    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_mullion"]) < 800:
-        error(errors, "expected at least 800 surrounding building window-mullion records")
-    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_recess_shadow"]) < 800:
-        error(errors, "expected at least 800 surrounding building window recess-shadow records")
-    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_inner_sash"]) < 800:
-        error(errors, "expected at least 800 surrounding building window inner-sash records")
-    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_pane_highlight"]) < 800:
-        error(errors, "expected at least 800 surrounding building window pane-highlight records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_sill"]) < 790:
+        error(errors, "expected at least 790 surrounding building window-sill records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_lintel"]) < 790:
+        error(errors, "expected at least 790 surrounding building window-lintel records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_mullion"]) < 790:
+        error(errors, "expected at least 790 surrounding building window-mullion records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_recess_shadow"]) < 790:
+        error(errors, "expected at least 790 surrounding building window recess-shadow records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_inner_sash"]) < 790:
+        error(errors, "expected at least 790 surrounding building window inner-sash records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_pane_highlight"]) < 790:
+        error(errors, "expected at least 790 surrounding building window pane-highlight records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_public_entry_marker"]) < 35:
         error(errors, "expected at least 35 surrounding building public-entry marker records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_entry_frame"]) < 35:

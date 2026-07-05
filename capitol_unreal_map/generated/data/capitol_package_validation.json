@@ -13,10 +13,16 @@
     "replaced_buildings": 1,
     "building_height_sources": {
       "building_levels_estimate": 123,
+      "dcgis_rooftop_ground_delta_estimate": 930,
       "explicit_height_tag": 22,
-      "footprint_type_area_estimate": 2379
+      "footprint_type_area_estimate": 1449
     },
-    "building_details": 8370,
+    "height_model": {
+      "dcgis_rooftop_points": 2360,
+      "dcgis_ground_points": 2307,
+      "dcgis_matched_buildings": 930
+    },
+    "building_details": 8064,
     "building_detail_kinds": 34,
     "streetscape_props": 2258,
     "streetscape_prop_kinds": 42,
@@ -132,12 +138,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 173242,
-      "uvs": 519726,
-      "faces": 122169,
-      "faces_with_uvs": 122169,
-      "triangles": 275388,
-      "groups": 17774,
+      "vertices": 168442,
+      "uvs": 505326,
+      "faces": 118569,
+      "faces_with_uvs": 118569,
+      "triangles": 268188,
+      "groups": 17174,
       "materials": [
         "BrassRail",
         "BuildingCapitol",

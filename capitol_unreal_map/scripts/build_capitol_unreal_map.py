@@ -20,6 +20,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2026-07-04.json"
+DCGIS_ELEVATION_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
 GENERATED = ROOT / "generated"
 MESH_DIR = GENERATED / "meshes"
 DATA_DIR = GENERATED / "data"
@@ -30,6 +31,14 @@ EARTH_M_PER_DEG_LAT = 111_320.0
 EARTH_M_PER_DEG_LON = 111_320.0 * math.cos(math.radians(LAT0))
 OBJ_UNIT_SCALE = 100.0  # meters to Unreal centimeters
 UV_TILE_METERS = 3.0
+
+
+@dataclass(frozen=True)
+class ElevationPoint:
+    x: float
+    y: float
+    elevation_m: float
+    object_id: int
 
 
 MATERIALS = {
@@ -631,12 +640,133 @@ def polygon_area_m2(points: list[tuple[float, float]]) -> float:
     return abs(total) / 2.0
 
 
+def point_in_polygon(point: tuple[float, float], polygon: list[tuple[float, float]]) -> bool:
+    x, y = point
+    inside = False
+    for (x1, y1), (x2, y2) in zip(polygon, polygon[1:] + polygon[:1]):
+        if (y1 > y) == (y2 > y):
+            continue
+        crossing_x = (x2 - x1) * (y - y1) / (y2 - y1 + 1e-12) + x1
+        if x < crossing_x:
+            inside = not inside
+    return inside
+
+
+def median(values: list[float]) -> float:
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[midpoint]
+    return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
+
+
 def footprint_span_m(points: list[tuple[float, float]]) -> float:
     if not points:
         return 0.0
     xs = [point[0] for point in points]
     ys = [point[1] for point in points]
     return max(max(xs) - min(xs), max(ys) - min(ys))
+
+
+def parse_dcgis_elevation_layer(features: list[dict[str, Any]]) -> list[ElevationPoint]:
+    points: list[ElevationPoint] = []
+    for feature in features:
+        geometry = feature.get("geometry") or {}
+        attributes = feature.get("attributes") or {}
+        if not all(key in geometry for key in ("x", "y")):
+            continue
+        elevation = attributes.get("ELEVATION")
+        object_id = attributes.get("OBJECTID")
+        if not isinstance(elevation, (int, float)) or not isinstance(object_id, int):
+            continue
+        x, y = local_xy(float(geometry["y"]), float(geometry["x"]))
+        points.append(ElevationPoint(x=x, y=y, elevation_m=float(elevation), object_id=object_id))
+    return points
+
+
+def load_dcgis_elevation_points() -> dict[str, Any]:
+    if not DCGIS_ELEVATION_SOURCE.exists():
+        return {
+            "available": False,
+            "source_file": str(DCGIS_ELEVATION_SOURCE.relative_to(ROOT)),
+            "rooftop_points": [],
+            "ground_points": [],
+        }
+    data = json.loads(DCGIS_ELEVATION_SOURCE.read_text(encoding="utf-8"))
+    layers = data.get("layers", {})
+    rooftop_features = layers.get("rooftop_elevations_1999", {}).get("features", [])
+    ground_features = layers.get("ground_elevation_points_1999", {}).get("features", [])
+    rooftop_points = parse_dcgis_elevation_layer(rooftop_features)
+    ground_points = parse_dcgis_elevation_layer(ground_features)
+    return {
+        "available": True,
+        "source_file": str(DCGIS_ELEVATION_SOURCE.relative_to(ROOT)),
+        "service_url": data.get("service_url"),
+        "bbox_lonlat": data.get("bbox_lonlat"),
+        "retrieved_utc": data.get("retrieved_utc"),
+        "rooftop_points": rooftop_points,
+        "ground_points": ground_points,
+        "rooftop_point_count": len(rooftop_points),
+        "ground_point_count": len(ground_points),
+    }
+
+
+def dcgis_height_estimate(
+    footprint: list[tuple[float, float]],
+    current_height: float,
+    rooftop_points: list[ElevationPoint],
+    ground_points: list[ElevationPoint],
+) -> dict[str, Any] | None:
+    if not rooftop_points or not ground_points or len(footprint) < 3:
+        return None
+    roof_inside = [point for point in rooftop_points if point_in_polygon((point.x, point.y), footprint)]
+    if not roof_inside:
+        return None
+
+    cx = sum(point[0] for point in footprint) / len(footprint)
+    cy = sum(point[1] for point in footprint) / len(footprint)
+    nearby_ground = [
+        point
+        for point in ground_points
+        if math.hypot(point.x - cx, point.y - cy) <= 120.0
+    ]
+    if len(nearby_ground) < 4:
+        nearby_ground = sorted(ground_points, key=lambda point: math.hypot(point.x - cx, point.y - cy))[:8]
+    if len(nearby_ground) < 4:
+        return None
+
+    roof_elevations = [point.elevation_m for point in roof_inside]
+    ground_elevations = [point.elevation_m for point in nearby_ground]
+    roof_median = median(roof_elevations)
+    ground_median = median(ground_elevations)
+    low_ground_count = max(3, min(6, len(ground_elevations) // 2))
+    low_ground_median = median(sorted(ground_elevations)[:low_ground_count])
+
+    for method, ground_elevation in (
+        ("median_ground_delta", ground_median),
+        ("low_ground_delta", low_ground_median),
+    ):
+        candidate_height = roof_median - ground_elevation
+        if not 3.0 <= candidate_height <= 70.0:
+            continue
+        ratio = candidate_height / current_height if current_height > 0.1 else 0.0
+        if not 0.45 <= ratio <= 2.0:
+            continue
+        return {
+            "height_m": candidate_height,
+            "method": method,
+            "roof_point_count": len(roof_inside),
+            "ground_point_count": len(nearby_ground),
+            "roof_elevation_m": roof_median,
+            "ground_elevation_m": ground_elevation,
+            "nearest_ground_distance_m": round(
+                min(math.hypot(point.x - cx, point.y - cy) for point in nearby_ground),
+                3,
+            ),
+            "roof_object_ids": [point.object_id for point in roof_inside[:5]],
+            "ground_object_ids": [point.object_id for point in nearby_ground[:8]],
+        }
+    return None
 
 
 def estimate_missing_building_height(
@@ -883,6 +1013,10 @@ def sample_polyline(points: list[tuple[float, float]], spacing: float) -> list[t
 def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, Any]]) -> dict[str, Any]:
     buildings = ObjWriter("capitol_exterior_buildings")
     roads = ObjWriter("capitol_exterior_roads_bike_lanes_markers")
+    dcgis_elevation_model = load_dcgis_elevation_points()
+    dcgis_rooftop_points = dcgis_elevation_model.get("rooftop_points", [])
+    dcgis_ground_points = dcgis_elevation_model.get("ground_points", [])
+    dcgis_height_match_count = 0
     metadata: dict[str, Any] = {
         "buildings": [],
         "roads": [],
@@ -897,6 +1031,26 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "building_details": [],
         "grounds_details": [],
         "replaced_buildings": [],
+        "height_model": {
+            "primary_sources": [
+                "explicit OSM/DCGIS height tags",
+                "OSM building:levels estimates",
+                "DCGIS Planimetrics 1999 rooftop-to-ground elevation deltas for matched missing-height footprints",
+                "deterministic footprint/type/area fallback estimates",
+            ],
+            "dcgis_source_file": dcgis_elevation_model.get("source_file"),
+            "dcgis_service_url": dcgis_elevation_model.get("service_url"),
+            "dcgis_retrieved_utc": dcgis_elevation_model.get("retrieved_utc"),
+            "dcgis_bbox_lonlat": dcgis_elevation_model.get("bbox_lonlat"),
+            "dcgis_rooftop_points": dcgis_elevation_model.get("rooftop_point_count", 0),
+            "dcgis_ground_points": dcgis_elevation_model.get("ground_point_count", 0),
+            "dcgis_matched_buildings": 0,
+            "dcgis_note": (
+                "DCGIS elevation points are public 1999 planimetrics. They are used conservatively only "
+                "when rooftop points fall inside the current OSM footprint and nearby ground points produce "
+                "a plausible building-height delta; explicit height and level tags remain authoritative."
+            ),
+        },
     }
     streetlight_count = 0
     tree_count = 0
@@ -2684,6 +2838,25 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 footprint_area,
                 footprint_span,
             )
+            height_provenance: dict[str, Any] | None = None
+            if height_source == "footprint_type_area_estimate":
+                dcgis_height = dcgis_height_estimate(points, height, dcgis_rooftop_points, dcgis_ground_points)
+                if dcgis_height:
+                    height = float(dcgis_height["height_m"])
+                    height_source = "dcgis_rooftop_ground_delta_estimate"
+                    dcgis_height_match_count += 1
+                    height_provenance = {
+                        "source": "DCGIS Planimetrics 1999 rooftop and ground elevation points",
+                        "source_file": dcgis_elevation_model.get("source_file"),
+                        "method": dcgis_height["method"],
+                        "roof_point_count": dcgis_height["roof_point_count"],
+                        "ground_point_count": dcgis_height["ground_point_count"],
+                        "roof_elevation_m": round(float(dcgis_height["roof_elevation_m"]), 3),
+                        "ground_elevation_m": round(float(dcgis_height["ground_elevation_m"]), 3),
+                        "nearest_ground_distance_m": dcgis_height["nearest_ground_distance_m"],
+                        "roof_object_ids": dcgis_height["roof_object_ids"],
+                        "ground_object_ids": dcgis_height["ground_object_ids"],
+                    }
             if is_us_capitol:
                 metadata["replaced_buildings"].append(
                     {
@@ -2702,18 +2875,19 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 material = "BuildingCapitol" if is_capitol else "BuildingGeneric"
                 buildings.add_extruded_polygon(points, 0.0, height, f"building_{name}_{way['id']}", material)
                 add_surrounding_building_visuals(way["id"], name, points, height, (cx, cy))
-                metadata["buildings"].append(
-                    {
-                        "id": way["id"],
-                        "name": name,
-                        "height_m": round(height, 2),
-                        "height_source": height_source,
-                        "footprint_area_m2": round(footprint_area, 2),
-                        "footprint_span_m": round(footprint_span, 2),
-                        "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
-                        "tags": tags,
-                    }
-                )
+                building_record = {
+                    "id": way["id"],
+                    "name": name,
+                    "height_m": round(height, 2),
+                    "height_source": height_source,
+                    "footprint_area_m2": round(footprint_area, 2),
+                    "footprint_span_m": round(footprint_span, 2),
+                    "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
+                    "tags": tags,
+                }
+                if height_provenance:
+                    building_record["height_provenance"] = height_provenance
+                metadata["buildings"].append(building_record)
 
         if tags.get("highway"):
             width = road_width(tags)
@@ -2866,6 +3040,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     add_public_roadway_visual_details()
     add_capitol_grounds_details()
+    metadata["height_model"]["dcgis_matched_buildings"] = dcgis_height_match_count
 
     buildings.write(MESH_DIR / "capitol_exterior_buildings.obj", "capitol_materials.mtl")
     roads.write(MESH_DIR / "capitol_exterior_roads_bike_lanes_markers.obj", "capitol_materials.mtl")
@@ -10426,6 +10601,16 @@ def write_scene_metadata(
                 "Architect of the Capitol public pages for U.S. Capitol Building, Rotunda, House Wing, and Senate Wing.",
                 "Interior spaces are schematic and based on publicly described major rooms and chamber functions.",
             ],
+            "exterior_dcgis_planimetrics_1999": {
+                "file": exterior.get("height_model", {}).get("dcgis_source_file"),
+                "service_url": exterior.get("height_model", {}).get("dcgis_service_url"),
+                "retrieved_utc": exterior.get("height_model", {}).get("dcgis_retrieved_utc"),
+                "layers": [
+                    "Rooftop Elevations - 1999",
+                    "Elevation Point - 1999",
+                ],
+                "usage": "Conservative surrounding-building height correction for missing-height footprints only.",
+            },
         },
         "meshes": [
             "generated/meshes/capitol_exterior_buildings.obj",
