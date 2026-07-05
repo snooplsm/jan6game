@@ -799,6 +799,12 @@ REQUIRED_ROTUNDA_DETAIL_KINDS = {
     "upper_balustrade",
     "upper_balustrade_post",
     "oculus_trim_ring",
+    "dome_springline_molding",
+    "dome_coffer_belt_ring",
+    "interior_dome_rib",
+    "interior_dome_coffer_panel",
+    "interior_frieze_panel",
+    "oculus_light_pool",
     "statue_pedestal_base",
     "statue_pedestal_plaque",
 }
@@ -2192,8 +2198,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     rotunda_detail_kinds = {detail.get("kind") for detail in rotunda_details}
     summary["rotunda_details"] = len(rotunda_details)
     summary["rotunda_detail_kinds"] = len(rotunda_detail_kinds)
-    if len(rotunda_details) < 220:
-        error(errors, f"expected at least 220 public Rotunda detail records, got {len(rotunda_details)}")
+    if len(rotunda_details) < 360:
+        error(errors, f"expected at least 360 public Rotunda detail records, got {len(rotunda_details)}")
     missing_rotunda_kinds = sorted(REQUIRED_ROTUNDA_DETAIL_KINDS - rotunda_detail_kinds)
     if missing_rotunda_kinds:
         error(errors, f"missing public Rotunda detail kinds: {', '.join(missing_rotunda_kinds)}")
@@ -2219,6 +2225,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 public Rotunda upper balustrade post records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "oculus_trim_ring"]) < 1:
         error(errors, "expected public Rotunda oculus trim ring record")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "dome_springline_molding"]) < 1:
+        error(errors, "expected public Rotunda dome springline molding record")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "dome_coffer_belt_ring"]) < 3:
+        error(errors, "expected at least 3 public Rotunda dome coffer-belt ring records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "interior_dome_rib"]) < 24:
+        error(errors, "expected at least 24 public Rotunda interior dome rib records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "interior_dome_coffer_panel"]) < 72:
+        error(errors, "expected at least 72 public Rotunda interior dome coffer panel records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "interior_frieze_panel"]) < 32:
+        error(errors, "expected at least 32 public Rotunda interior frieze panel records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "oculus_light_pool"]) < 1:
+        error(errors, "expected public Rotunda oculus light-pool record")
     if len([detail for detail in rotunda_details if detail.get("kind") == "statue_pedestal_base"]) < 7:
         error(errors, "expected at least 7 public Rotunda statue pedestal records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "statue_pedestal_plaque"]) < 7:

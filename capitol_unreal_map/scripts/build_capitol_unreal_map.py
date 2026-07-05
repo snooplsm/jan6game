@@ -4742,6 +4742,55 @@ def add_rotunda_visual_details(
         obj.add_cylinder((x, y), 0.24, 7.55, 0.10, name, "ArtFrameGold", segments=12)
         add_rotunda_detail(name, "upper_coffer_panel", (x, y, 7.6), (0.48, 0.48))
 
+    dome_ring_specs = [
+        ("rotunda_dome_springline_molding", "dome_springline_molding", 13.65, 13.36, 9.24, 0.16, "ArtFrameGold"),
+        ("rotunda_dome_lower_coffer_belt_ring", "dome_coffer_belt_ring", 12.15, 11.92, 10.58, 0.12, "InteriorTrim"),
+        ("rotunda_dome_middle_coffer_belt_ring", "dome_coffer_belt_ring", 9.60, 9.40, 12.12, 0.11, "InteriorTrim"),
+        ("rotunda_dome_upper_coffer_belt_ring", "dome_coffer_belt_ring", 6.90, 6.72, 13.52, 0.10, "InteriorTrim"),
+    ]
+    for name, kind, outer_radius, inner_radius, z, height, material in dome_ring_specs:
+        obj.add_ring((0.0, 0.0), outer_radius, inner_radius, z, height, name, material, segments=96)
+        add_rotunda_detail(name, kind, (0.0, 0.0, z + height / 2.0), (outer_radius * 2.0, outer_radius * 2.0))
+
+    for idx in range(24):
+        angle = math.tau * idx / 24.0
+        inner_radius = 4.95
+        outer_radius = 12.75
+        start = (inner_radius * math.cos(angle), inner_radius * math.sin(angle))
+        end = (outer_radius * math.cos(angle), outer_radius * math.sin(angle))
+        name = f"rotunda_dome_interior_rib_{idx+1:02d}"
+        obj.add_polyline_strip([start, end], 0.12, 11.40, name, "ArtFrameGold")
+        mid_radius = (inner_radius + outer_radius) / 2.0
+        add_rotunda_detail(name, "interior_dome_rib", (mid_radius * math.cos(angle), mid_radius * math.sin(angle), 11.42), (outer_radius - inner_radius, 0.12))
+
+    for band_index, (radius, z, panel_width, panel_depth, panel_count) in enumerate(
+        [
+            (12.10, 10.76, 0.78, 0.20, 24),
+            (9.55, 12.30, 0.68, 0.18, 24),
+            (6.85, 13.72, 0.54, 0.16, 24),
+        ],
+        start=1,
+    ):
+        for idx in range(panel_count):
+            angle = math.tau * (idx + 0.5) / panel_count
+            x = radius * math.cos(angle)
+            y = radius * math.sin(angle)
+            name = f"rotunda_dome_interior_coffer_b{band_index:02d}_{idx+1:02d}"
+            obj.add_oriented_box((x, y), (panel_width, panel_depth), 0.07, z, angle + math.pi / 2.0, name, "RotundaWall")
+            add_rotunda_detail(name, "interior_dome_coffer_panel", (x, y, z + 0.035), (panel_width, panel_depth))
+
+    for idx in range(32):
+        angle = math.tau * (idx + 0.5) / 32.0
+        radius = 14.57
+        x = radius * math.cos(angle)
+        y = radius * math.sin(angle)
+        name = f"rotunda_upper_frieze_panel_{idx+1:02d}"
+        obj.add_oriented_box((x, y), (0.86, 0.095), 0.30, 8.76, angle + math.pi / 2.0, name, "PaintingCanvas")
+        add_rotunda_detail(name, "interior_frieze_panel", (x, y, 8.91), (0.86, 0.095))
+
+    obj.add_disk((0.0, 0.0), 4.20, 4.515, "rotunda_oculus_soft_light_pool", "WarmLightGlass", segments=72)
+    add_rotunda_detail("rotunda_oculus_soft_light_pool", "oculus_light_pool", (0.0, 0.0, 4.516), (8.4, 8.4))
+
     portal_specs = [
         ("north", (0.0, 14.42), "y", 1.0),
         ("south", (0.0, -14.42), "y", -1.0),
@@ -4817,6 +4866,7 @@ def add_rotunda_visual_details(
         )
 
     add_label(labels, "Rotunda architectural details - public schematic", 0.0, 11.0, 7.2, "major_public_space")
+    add_label(labels, "Rotunda dome interior ribs, coffers, frieze, and oculus light - schematic", 0.0, 7.0, 11.2, "major_public_space")
 
 
 def add_statue_visual(

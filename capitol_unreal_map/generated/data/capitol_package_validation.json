@@ -43,8 +43,8 @@
     "furnishing_detail_kinds": 17,
     "wall_finish_details": 1260,
     "wall_finish_detail_kinds": 11,
-    "rotunda_details": 227,
-    "rotunda_detail_kinds": 17,
+    "rotunda_details": 360,
+    "rotunda_detail_kinds": 23,
     "ceiling_details": 425,
     "ceiling_detail_kinds": 9,
     "floor_details": 347,
@@ -256,12 +256,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 259553,
-      "uvs": 781148,
-      "faces": 186715,
-      "faces_with_uvs": 186715,
-      "triangles": 407718,
-      "groups": 26848,
+      "vertices": 262090,
+      "uvs": 790100,
+      "faces": 188971,
+      "faces_with_uvs": 188971,
+      "triangles": 412158,
+      "groups": 26981,
       "materials": [
         "ArtFrameGold",
         "BenchWood",
@@ -319,7 +319,7 @@
         "max": [
           7521.0,
           10200.5,
-          974.0
+          1379.0
         ]
       }
     },
