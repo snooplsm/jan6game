@@ -7245,16 +7245,49 @@ def add_statue_visual(
     z: float = 4.45,
 ) -> None:
     x, y = center
+    pose_variants = ("draped_robe", "book_slab", "scroll_marker", "raised_arm")
+    pose_variant = pose_variants[int(stable_unit_interval(name, "pose_variant") * len(pose_variants)) % len(pose_variants)]
+    surface_offset = stable_unit_interval(name, "surface_offset") - 0.5
+    surface_material = "StoneGrimeOverlay" if material == "StatueMarble" else "FloorWear"
     obj.add_cylinder((x, y), 0.62, z, 0.34, f"{name}_plinth", "StepStone", segments=18)
     obj.add_cylinder((x, y), 0.34, z + 0.34, 1.28, f"{name}_body", material, segments=18)
     obj.add_cylinder((x, y), 0.20, z + 1.62, 0.28, f"{name}_head", material, segments=18)
     obj.add_cylinder((x, y), 0.72, z - 0.08, 0.10, f"{name}_plinth_base_step", "StepStone", segments=18)
     obj.add_cylinder((x, y), 0.54, z + 0.31, 0.12, f"{name}_plinth_cap", "StepStone", segments=18)
+    obj.add_cylinder((x, y), 0.78, z - 0.16, 0.045, f"{name}_plinth_lower_shadow_bevel", "StoneGrimeOverlay", segments=18)
+    obj.add_cylinder((x, y), 0.46, z + 0.44, 0.060, f"{name}_plinth_upper_profile_ring", "StepStone", segments=18)
     obj.add_box((x, y - 0.51), (0.72, 0.08), 0.18, z + 0.12, f"{name}_plinth_public_plaque", "BrassRail")
+    obj.add_box((x, y - 0.57), (0.62, 0.05), 0.055, z + 0.33, f"{name}_plinth_inscription_bar", "BrassRail")
     obj.add_box((x, y), (0.82, 0.18), 0.18, z + 1.12, f"{name}_shoulder_silhouette", material)
     obj.add_box((x - 0.34, y), (0.12, 0.12), 0.72, z + 0.70, f"{name}_left_drape_fold", material)
     obj.add_box((x + 0.34, y), (0.12, 0.12), 0.72, z + 0.70, f"{name}_right_drape_fold", material)
     obj.add_cylinder((x, y), 0.23, z + 1.89, 0.035, f"{name}_head_top_highlight", material, segments=18)
+    for fold_index, dx in enumerate([-0.18, 0.0, 0.18], start=1):
+        obj.add_box((x + dx, y - 0.105), (0.046, 0.075), 0.82, z + 0.55, f"{name}_robe_fold_relief_{fold_index}", material)
+    if pose_variant == "book_slab":
+        obj.add_box((x + 0.31, y - 0.25), (0.34, 0.10), 0.22, z + 1.04, f"{name}_book_slab_marker", "StepStone")
+        obj.add_box((x + 0.31, y - 0.31), (0.30, 0.036), 0.028, z + 1.24, f"{name}_book_page_groove", "BrassRail")
+        accessory_hint = "book_slab"
+    elif pose_variant == "scroll_marker":
+        obj.add_cylinder((x - 0.28, y - 0.23), 0.055, z + 1.02, 0.34, f"{name}_scroll_cylinder_marker", material, segments=10)
+        obj.add_box((x - 0.28, y - 0.30), (0.24, 0.045), 0.030, z + 1.18, f"{name}_scroll_edge_marker", "BrassRail")
+        accessory_hint = "scroll_marker"
+    elif pose_variant == "raised_arm":
+        obj.add_box((x - 0.42, y - 0.02), (0.10, 0.12), 0.94, z + 0.98, f"{name}_raised_arm_silhouette", material)
+        obj.add_box((x - 0.48, y - 0.02), (0.18, 0.12), 0.12, z + 1.86, f"{name}_raised_hand_marker", material)
+        accessory_hint = "raised_arm"
+    else:
+        obj.add_box((x, y - 0.18), (0.56, 0.07), 0.56, z + 0.82, f"{name}_front_drape_panel", material)
+        obj.add_box((x - 0.02, y - 0.235), (0.46, 0.040), 0.055, z + 1.30, f"{name}_drape_clasp_marker", "BrassRail")
+        accessory_hint = "draped_robe"
+    obj.add_box(
+        (x - 0.10 + surface_offset * 0.18, y - 0.33),
+        (0.14, 0.055),
+        0.42,
+        z + 0.72,
+        f"{name}_surface_patina_patch",
+        surface_material,
+    )
     records.append(
         {
             "name": name,
@@ -7272,6 +7305,10 @@ def add_statue_visual(
         ("torso_silhouette", "statue_torso_silhouette", (x, y, z + 1.08), "shoulders/drape"),
         ("head_silhouette", "statue_head_silhouette", (x, y, z + 1.78), "head/highlight"),
         ("public_plaque", "statue_public_plaque", (x, y - 0.51, z + 0.21), "generic_public_label"),
+        ("base_profile_detail", "statue_base_profile_detail", (x, y, z + 0.38), "stepped_plinth_profile"),
+        ("pose_variant_marker", "statue_pose_variant_marker", (x, y - 0.18, z + 1.22), pose_variant),
+        ("accessory_silhouette", "statue_accessory_silhouette", (x, y - 0.26, z + 1.18), accessory_hint),
+        ("surface_detail", "statue_surface_detail", (x - 0.10 + surface_offset * 0.18, y - 0.33, z + 0.93), "patina_or_stone_wear_patch"),
     ]
     for suffix, art_type, detail_center, detail_hint in detail_specs:
         records.append(
@@ -7284,6 +7321,7 @@ def add_statue_visual(
                 "material_hint": "bronze" if material == "StatueBronze" else "marble/stone",
                 "public_accuracy": "schematic_public_art_detail",
                 "detail_hint": detail_hint,
+                "pose_variant": pose_variant,
                 "assignment": "Generic sculptural-detail silhouette for public visual realism; not an exact artwork reconstruction.",
             }
         )

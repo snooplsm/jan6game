@@ -1098,6 +1098,10 @@ REQUIRED_PUBLIC_ART_TYPES = {
     "statue_torso_silhouette",
     "statue_head_silhouette",
     "statue_public_plaque",
+    "statue_base_profile_detail",
+    "statue_pose_variant_marker",
+    "statue_accessory_silhouette",
+    "statue_surface_detail",
     "historical_painting_panel",
     "historical_painting_title_plaque",
     "rotunda_frieze_relief_panel",
@@ -3005,8 +3009,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["light_fixture_details"] = len(light_fixture_details)
     summary["light_fixture_detail_kinds"] = len(light_fixture_detail_kinds)
     summary["wall_treatments"] = len(wall_treatments)
-    if len(public_art) < 403:
-        error(errors, f"expected at least 403 public-art visuals, got {len(public_art)}")
+    if len(public_art) < 540:
+        error(errors, f"expected at least 540 public-art visuals, got {len(public_art)}")
     missing_art_types = sorted(REQUIRED_PUBLIC_ART_TYPES - public_art_types)
     if missing_art_types:
         error(errors, f"missing public-art visual types: {', '.join(missing_art_types)}")
@@ -3020,6 +3024,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 35 public statue head-silhouette records")
     if len([record for record in public_art if record.get("type") == "statue_public_plaque"]) < 35:
         error(errors, "expected at least 35 public statue plaque records")
+    if len([record for record in public_art if record.get("type") == "statue_base_profile_detail"]) < 35:
+        error(errors, "expected at least 35 public statue base-profile detail records")
+    if len([record for record in public_art if record.get("type") == "statue_pose_variant_marker"]) < 35:
+        error(errors, "expected at least 35 public statue pose-variant marker records")
+    if len([record for record in public_art if record.get("type") == "statue_accessory_silhouette"]) < 35:
+        error(errors, "expected at least 35 public statue accessory-silhouette records")
+    if len([record for record in public_art if record.get("type") == "statue_surface_detail"]) < 35:
+        error(errors, "expected at least 35 public statue surface-detail records")
     if len([record for record in public_art if record.get("type") == "historical_painting_panel"]) < 8:
         error(errors, "expected at least 8 Rotunda historical painting panel records")
     if len([record for record in public_art if record.get("type") == "historical_painting_title_plaque"]) < 8:
