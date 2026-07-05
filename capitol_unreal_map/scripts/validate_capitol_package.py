@@ -1196,6 +1196,12 @@ REQUIRED_BUILDING_DETAIL_KINDS = {
     "surrounding_building_entry_center_seam",
     "surrounding_building_awning",
     "surrounding_building_wall_sign",
+    "surrounding_building_roof_setback_surface",
+    "surrounding_building_parapet_inner_shadow",
+    "surrounding_building_roof_gravel_patch",
+    "surrounding_building_skylight_strip",
+    "surrounding_building_roof_penthouse",
+    "surrounding_building_roof_penthouse_louver",
     "surrounding_building_rooftop_detail",
     "surrounding_building_roof_access_hatch",
     "surrounding_building_rooftop_mechanical",
@@ -1686,6 +1692,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 35 surrounding building awning records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_wall_sign"]) < 35:
         error(errors, "expected at least 35 surrounding building wall-sign records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_setback_surface"]) < 35:
+        error(errors, "expected at least 35 surrounding building roof setback-surface records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_parapet_inner_shadow"]) < 35:
+        error(errors, "expected at least 35 surrounding building parapet inner-shadow records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_gravel_patch"]) < 70:
+        error(errors, "expected at least 70 surrounding building roof gravel-patch records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_skylight_strip"]) < 70:
+        error(errors, "expected at least 70 surrounding building skylight-strip records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_penthouse"]) < 35:
+        error(errors, "expected at least 35 surrounding building roof-penthouse records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_penthouse_louver"]) < 35:
+        error(errors, "expected at least 35 surrounding building roof-penthouse louver records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_rooftop_detail"]) < 60:
         error(errors, "expected at least 60 surrounding building rooftop-detail records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_access_hatch"]) < 70:

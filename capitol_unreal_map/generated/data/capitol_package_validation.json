@@ -16,8 +16,8 @@
       "explicit_height_tag": 22,
       "footprint_type_area_estimate": 2379
     },
-    "building_details": 8050,
-    "building_detail_kinds": 28,
+    "building_details": 8370,
+    "building_detail_kinds": 34,
     "streetscape_props": 2258,
     "streetscape_prop_kinds": 42,
     "grounds_details": 169,
@@ -132,12 +132,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 168442,
-      "uvs": 505326,
-      "faces": 118569,
-      "faces_with_uvs": 118569,
-      "triangles": 268188,
-      "groups": 17174,
+      "vertices": 173242,
+      "uvs": 519726,
+      "faces": 122169,
+      "faces_with_uvs": 122169,
+      "triangles": 275388,
+      "groups": 17774,
       "materials": [
         "BrassRail",
         "BuildingCapitol",
@@ -147,7 +147,9 @@
         "FacadeWindow",
         "MarkerBlue",
         "RoadCrackSealant",
+        "RoadPatchAsphalt",
         "StepStone",
+        "StoneGrimeOverlay",
         "StreetSignGreen"
       ],
       "mtllibs": [

@@ -1011,6 +1011,96 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             {"size_m": [round(width, 3), round(depth, 3)]},
         )
 
+        roof_inset = max(0.35, min(width, depth) * 0.06)
+        roof_surface_size = (max(0.8, width - roof_inset * 2.0), max(0.8, depth - roof_inset * 2.0))
+        roof_surface_z = height + 0.105
+        roof_surface_name = f"{safe_prefix}_inset_roof_surface"
+        buildings.add_box((cx, cy), roof_surface_size, 0.045, roof_surface_z, roof_surface_name, "RoadPatchAsphalt")
+        add_building_detail_record(
+            roof_surface_name,
+            "surrounding_building_roof_setback_surface",
+            way_id,
+            name,
+            (cx, cy, roof_surface_z + 0.022),
+            {"size_m": [round(roof_surface_size[0], 3), round(roof_surface_size[1], 3)]},
+        )
+
+        shadow_z = height + 0.145
+        inner_shadow_specs = [
+            ("north", (cx, max_y - roof_inset * 0.55), (roof_surface_size[0], 0.045)),
+            ("south", (cx, min_y + roof_inset * 0.55), (roof_surface_size[0], 0.045)),
+            ("east", (max_x - roof_inset * 0.55, cy), (0.045, roof_surface_size[1])),
+            ("west", (min_x + roof_inset * 0.55, cy), (0.045, roof_surface_size[1])),
+        ]
+        for shadow_face, shadow_center, shadow_size in inner_shadow_specs:
+            shadow_name = f"{safe_prefix}_{shadow_face}_parapet_inner_shadow"
+            buildings.add_box(shadow_center, shadow_size, 0.028, shadow_z, shadow_name, "RoadCrackSealant")
+        add_building_detail_record(
+            f"{safe_prefix}_parapet_inner_shadow",
+            "surrounding_building_parapet_inner_shadow",
+            way_id,
+            name,
+            (cx, cy, shadow_z + 0.014),
+            {"count": len(inner_shadow_specs)},
+        )
+
+        gravel_specs = [
+            ((cx - width * 0.18, cy + depth * 0.18), (max(0.9, min(width * 0.22, 4.2)), max(0.55, min(depth * 0.11, 2.0)))),
+            ((cx + width * 0.20, cy - depth * 0.15), (max(0.8, min(width * 0.18, 3.6)), max(0.50, min(depth * 0.10, 1.8)))),
+        ]
+        for patch_index, (patch_center, patch_size) in enumerate(gravel_specs, start=1):
+            patch_name = f"{safe_prefix}_roof_gravel_patch_{patch_index}"
+            buildings.add_box(patch_center, patch_size, 0.026, height + 0.168, patch_name, "StoneGrimeOverlay")
+            add_building_detail_record(
+                patch_name,
+                "surrounding_building_roof_gravel_patch",
+                way_id,
+                name,
+                (patch_center[0], patch_center[1], height + 0.181),
+                {"size_m": [round(patch_size[0], 3), round(patch_size[1], 3)]},
+            )
+
+        skylight_specs = [
+            ((cx, cy + depth * 0.08), (max(1.0, min(width * 0.36, 7.8)), 0.34), "east_west"),
+            ((cx - width * 0.14, cy - depth * 0.08), (0.34, max(1.0, min(depth * 0.34, 6.8))), "north_south"),
+        ]
+        for skylight_index, (skylight_center, skylight_size, orientation) in enumerate(skylight_specs, start=1):
+            skylight_name = f"{safe_prefix}_roof_skylight_strip_{skylight_index}"
+            buildings.add_box(skylight_center, skylight_size, 0.12, height + 0.20, skylight_name, "DoorGlass")
+            buildings.add_box(skylight_center, (skylight_size[0] + 0.10, skylight_size[1] + 0.10), 0.045, height + 0.18, f"{skylight_name}_metal_frame", "DoorMetal")
+            add_building_detail_record(
+                skylight_name,
+                "surrounding_building_skylight_strip",
+                way_id,
+                name,
+                (skylight_center[0], skylight_center[1], height + 0.26),
+                {"orientation": orientation, "size_m": [round(skylight_size[0], 3), round(skylight_size[1], 3)]},
+            )
+
+        penthouse_size = (max(1.4, min(width * 0.28, 6.2)), max(1.0, min(depth * 0.22, 4.8)))
+        penthouse_center = (cx + width * 0.12, cy - depth * 0.22)
+        penthouse_name = f"{safe_prefix}_roof_penthouse"
+        buildings.add_box(penthouse_center, penthouse_size, 1.05, height + 0.25, penthouse_name, "BuildingGeneric")
+        buildings.add_box((penthouse_center[0], penthouse_center[1] - penthouse_size[1] * 0.52), (penthouse_size[0] * 0.74, 0.06), 0.12, height + 0.84, f"{penthouse_name}_louver_mid", "RoadCrackSealant")
+        buildings.add_box((penthouse_center[0], penthouse_center[1] - penthouse_size[1] * 0.52), (penthouse_size[0] * 0.74, 0.06), 0.12, height + 1.08, f"{penthouse_name}_louver_high", "RoadCrackSealant")
+        buildings.add_box((penthouse_center[0] + penthouse_size[0] * 0.42, penthouse_center[1]), (0.08, penthouse_size[1] * 0.62), 0.64, height + 0.44, f"{penthouse_name}_access_panel", "DoorMetal")
+        add_building_detail_record(
+            penthouse_name,
+            "surrounding_building_roof_penthouse",
+            way_id,
+            name,
+            (penthouse_center[0], penthouse_center[1], height + 0.775),
+            {"size_m": [round(penthouse_size[0], 3), round(penthouse_size[1], 3)]},
+        )
+        add_building_detail_record(
+            f"{penthouse_name}_louvers",
+            "surrounding_building_roof_penthouse_louver",
+            way_id,
+            name,
+            (penthouse_center[0], penthouse_center[1] - penthouse_size[1] * 0.52, height + 0.96),
+            {"count": 2},
+        )
+
         corner_specs = [
             ("northwest", min_x - 0.03, max_y + 0.03, (0.22, 0.22)),
             ("northeast", max_x + 0.03, max_y + 0.03, (0.22, 0.22)),
