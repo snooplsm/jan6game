@@ -2870,7 +2870,38 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box(bench_center, (bench_size[0] * 0.94, bench_size[1] * 0.94), 0.08, 0.62, f"{name}_bench_back", "BenchWood")
         roads.add_box(ad_center, ad_size, 0.72, 1.04, f"{name}_route_ad_panel", "MarkerBlue")
         roads.add_box(ad_center, (ad_size[0] * 0.70, ad_size[1] * 0.70), 0.05, 1.58, f"{name}_route_ad_text_marker", "LaneMarkingWhite")
+        if orientation == "east_west":
+            roof_front = (x, y - roof_size[1] * 0.47)
+            roof_back = (x, y + roof_size[1] * 0.47)
+            roof_trim_size = (roof_size[0] * 0.96, 0.045)
+            mullion_size = (0.055, panel_size[1] * 1.30)
+            mullion_centers = [(x - 1.05, y), (x, y), (x + 1.05, y)]
+            bench_leg_size = (0.08, 0.20)
+            bench_leg_centers = [(bench_center[0] - 0.92, bench_center[1]), (bench_center[0] + 0.92, bench_center[1])]
+            route_frame_size = (ad_size[0] * 1.18, ad_size[1] * 1.65)
+        else:
+            roof_front = (x - roof_size[0] * 0.47, y)
+            roof_back = (x + roof_size[0] * 0.47, y)
+            roof_trim_size = (0.045, roof_size[1] * 0.96)
+            mullion_size = (panel_size[0] * 1.30, 0.055)
+            mullion_centers = [(x, y - 1.05), (x, y), (x, y + 1.05)]
+            bench_leg_size = (0.20, 0.08)
+            bench_leg_centers = [(bench_center[0], bench_center[1] - 0.92), (bench_center[0], bench_center[1] + 0.92)]
+            route_frame_size = (ad_size[0] * 1.65, ad_size[1] * 1.18)
+        roads.add_box(roof_front, roof_trim_size, 0.055, 2.34, f"{name}_roof_front_trim", "DoorMetal")
+        roads.add_box(roof_back, roof_trim_size, 0.055, 2.34, f"{name}_roof_back_trim", "DoorMetal")
+        for mullion_index, mullion_center in enumerate(mullion_centers, start=1):
+            roads.add_box(mullion_center, mullion_size, 1.24, 0.46, f"{name}_glass_mullion_{mullion_index:02d}", "StreetLightPole")
+        for leg_index, leg_center in enumerate(bench_leg_centers, start=1):
+            roads.add_box(leg_center, bench_leg_size, 0.42, 0.13, f"{name}_bench_support_leg_{leg_index:02d}", "BollardMetal")
+        roads.add_box(ad_center, route_frame_size, 0.050, 1.02, f"{name}_route_panel_frame", "DoorMetal")
         add_streetscape_record(name, "public_bus_stop_shelter", (x, y, 1.35), extra={"orientation": orientation})
+        add_streetscape_record(
+            f"{name}_frame_detail",
+            "bus_stop_shelter_frame_detail",
+            (x, y, 1.44),
+            extra={"orientation": orientation, "parts": ["roof_edge_trim", "glass_mullions", "bench_support_legs", "route_panel_frame"]},
+        )
         add_streetscape_record(
             f"{name}_bench_detail",
             "bus_stop_shelter_bench",

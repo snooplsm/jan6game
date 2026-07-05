@@ -48,12 +48,42 @@
       box-shadow: 0 18px 52px rgba(0, 0, 0, 0.42);
     }
 
+    .panel-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
     h1 {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: 15px;
       font-weight: 650;
       letter-spacing: 0;
     }
+
+    .hud-toggle {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 3;
+      display: none;
+      border-color: rgba(119, 183, 255, 0.50);
+      background: rgba(18, 20, 23, 0.82);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 38px rgba(0, 0, 0, 0.34);
+    }
+
+    .panel-toggle {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      color: var(--accent);
+    }
+
+    body.hud-collapsed .panel { display: none; }
+
+    body.hud-collapsed .hud-toggle { display: inline-flex; }
 
     .status {
       margin: 0 0 12px;
@@ -241,6 +271,7 @@
 <body>
   <canvas id="viewport"></canvas>
   <div class="label-layer" id="labelLayer"></div>
+  <button class="hud-toggle" id="expandHud" type="button" aria-controls="viewerPanel" aria-expanded="false" title="Show viewer controls">Show HUD</button>
   <div class="walk-hud" id="walkHud" aria-live="polite">
     <div class="walk-hud-row">
       <span>Walk Mode</span><strong id="walkHudMode">Off</strong>
@@ -251,8 +282,11 @@
     <button id="resetWalk">Reset Walk Start</button>
   </div>
 
-  <aside class="panel">
-    <h1>U.S. Capitol OBJ Viewer <span class="badge">local</span></h1>
+  <aside class="panel" id="viewerPanel">
+    <div class="panel-header">
+      <h1>U.S. Capitol OBJ Viewer <span class="badge">local</span></h1>
+      <button class="panel-toggle" id="collapseHud" type="button" aria-controls="viewerPanel" aria-expanded="true" title="Hide viewer controls">Hide HUD</button>
+    </div>
     <p class="status" id="status">Loading generated assets...</p>
 
     <div class="quick-links">
@@ -378,7 +412,7 @@
       <span>Labels</span><strong>0</strong>
     </div>
 
-    <p class="hint">Orbit: drag, wheel, shift-drag. Walk modes: click the viewport for mouse look; WASD or arrow keys move; shift moves faster; Q/E adjusts height; Esc releases mouse.</p>
+    <p class="hint">Orbit: drag, wheel, shift-drag. Press H to hide/show this HUD. Walk modes: click the viewport for mouse look; WASD or arrow keys move; shift moves faster; Q/E adjusts height; Esc releases mouse.</p>
   </aside>
 
   <script>
@@ -391,6 +425,8 @@
     const walkHudPosition = document.getElementById("walkHudPosition");
     const statusEl = document.getElementById("status");
     const statsEl = document.getElementById("stats");
+    const collapseHudButton = document.getElementById("collapseHud");
+    const expandHudButton = document.getElementById("expandHud");
     const gl = canvas.getContext("webgl", { antialias: true });
 
     if (!gl) {
@@ -644,6 +680,8 @@
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("blur", () => state.walkKeys.clear());
+    collapseHudButton.addEventListener("click", () => setHudCollapsed(true));
+    expandHudButton.addEventListener("click", () => setHudCollapsed(false));
 
     document.querySelectorAll("[data-mesh]").forEach((input) => {
       input.addEventListener("change", () => {
@@ -1531,6 +1569,11 @@
       return label.text.toLowerCase().includes(state.labelQuery);
     }
 
+    function preserveSelectedLabelVisibility() {
+      state.labelsVisible = document.getElementById("labelsToggle").checked;
+      labelLayer.style.display = state.labelsVisible ? "block" : "none";
+    }
+
     function focusLabel(label) {
       const target = [
         label.location[0] * 100,
@@ -1561,9 +1604,7 @@
 
     function focusGroundsDetails() {
       setMeshVisible("capitol_exterior_roads_bike_lanes_markers", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "grounds_detail";
       state.labelQuery = "";
@@ -1583,9 +1624,7 @@
 
     function focusFacadeDetails() {
       setMeshVisible("capitol_landmark_visual_details", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "facade_detail";
       state.labelQuery = "";
@@ -1609,9 +1648,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", false);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "building_detail";
       state.labelQuery = "";
@@ -1635,9 +1672,7 @@
       setMeshVisible("capitol_landmark_visual_details", true);
       setMeshVisible("capitol_public_interior_schematic", false);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "height_review_target";
       state.labelQuery = "";
@@ -1661,9 +1696,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", false);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "building_roof_detail";
       state.labelQuery = "";
@@ -1687,9 +1720,7 @@
       setMeshVisible("capitol_landmark_visual_details", true);
       setMeshVisible("capitol_public_interior_schematic", false);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "facade_detail";
       state.labelQuery = "roof";
@@ -1709,9 +1740,7 @@
 
     function focusOffices() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "office_detail";
       state.labelQuery = "";
@@ -1731,9 +1760,7 @@
 
     function focusSignageDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "signage_detail";
       state.labelQuery = "";
@@ -1753,9 +1780,7 @@
 
     function focusDoorDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "door_detail";
       state.labelQuery = "";
@@ -1775,9 +1800,7 @@
 
     function focusFurnishingDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "furnishing_detail";
       state.labelQuery = "";
@@ -1797,9 +1820,7 @@
 
     function focusWallFinishDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "wall_finish_detail";
       state.labelQuery = "";
@@ -1819,9 +1840,7 @@
 
     function focusFloorDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "floor_detail";
       state.labelQuery = "";
@@ -1841,9 +1860,7 @@
 
     function focusPublicArt() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "public_art";
       state.labelQuery = "";
@@ -1863,9 +1880,7 @@
 
     function focusSurfaceAgingDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "surface_aging_detail";
       state.labelQuery = "";
@@ -1885,9 +1900,7 @@
 
     function focusCeilingDetails() {
       setMeshVisible("capitol_public_interior_schematic", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "ceiling_detail";
       state.labelQuery = "";
@@ -1911,9 +1924,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "";
       state.labelQuery = "";
@@ -1931,9 +1942,7 @@
       setMeshVisible("capitol_landmark_visual_details", true);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = false;
-      document.getElementById("labelsToggle").checked = false;
-      labelLayer.style.display = "none";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "";
       state.labelQuery = "";
@@ -1958,9 +1967,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", false);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "building_detail";
       state.labelQuery = "";
@@ -1988,9 +1995,7 @@
 
     function focusGameplayItems() {
       setMeshVisible("capitol_gameplay_items", true);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "gameplay_item";
       state.labelQuery = "";
@@ -2014,9 +2019,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "";
       state.labelQuery = "";
@@ -2040,9 +2043,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "interior_plan";
       state.labelQuery = "";
@@ -2066,9 +2067,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "";
       state.labelQuery = "";
@@ -2092,9 +2091,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "";
       state.labelQuery = "house";
@@ -2118,9 +2115,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "";
       state.labelQuery = "senate";
@@ -2144,9 +2139,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "chamber_role_overlay";
       state.labelQuery = "";
@@ -2170,9 +2163,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "chamber_detail";
       state.labelQuery = "house gallery";
@@ -2196,9 +2187,7 @@
       setMeshVisible("capitol_landmark_visual_details", false);
       setMeshVisible("capitol_public_interior_schematic", true);
       setMeshVisible("capitol_gameplay_items", false);
-      state.labelsVisible = true;
-      document.getElementById("labelsToggle").checked = true;
-      labelLayer.style.display = "block";
+      preserveSelectedLabelVisibility();
 
       state.labelCategory = "chamber_detail";
       state.labelQuery = "senate gallery";
@@ -2480,6 +2469,11 @@
     }
 
     function onKeyDown(event) {
+      if (!isTypingTarget(event.target) && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === "h") {
+        toggleHudCollapsed();
+        event.preventDefault();
+        return;
+      }
       if (state.cameraMode !== "walk" || isTypingTarget(event.target)) return;
       const key = normalizedWalkKey(event);
       if (!key) return;
@@ -2495,6 +2489,17 @@
     function onKeyUp(event) {
       const key = normalizedWalkKey(event);
       if (key) state.walkKeys.delete(key);
+    }
+
+    function setHudCollapsed(collapsed) {
+      document.body.classList.toggle("hud-collapsed", collapsed);
+      collapseHudButton.setAttribute("aria-expanded", String(!collapsed));
+      expandHudButton.setAttribute("aria-expanded", String(!collapsed));
+      statusEl.textContent = collapsed ? "Viewer HUD hidden. Press H or use Show HUD to restore controls." : "Viewer HUD restored.";
+    }
+
+    function toggleHudCollapsed() {
+      setHudCollapsed(!document.body.classList.contains("hud-collapsed"));
     }
 
     function normalizedWalkKey(event) {

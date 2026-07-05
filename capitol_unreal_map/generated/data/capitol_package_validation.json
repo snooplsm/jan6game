@@ -34,8 +34,8 @@
     },
     "building_details": 9748,
     "building_detail_kinds": 50,
-    "streetscape_props": 7131,
-    "streetscape_prop_kinds": 66,
+    "streetscape_props": 7139,
+    "streetscape_prop_kinds": 67,
     "traffic_sign_model": {
       "dcgis_traffic_sign_points": 252,
       "dcgis_overhead_signs": 6,
@@ -162,7 +162,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 264,
+    "required_markers": 271,
     "missing": []
   },
   "landmark_height": {
@@ -213,12 +213,12 @@
     },
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
-      "vertices": 867140,
-      "uvs": 1395060,
-      "faces": 322259,
-      "faces_with_uvs": 322259,
-      "triangles": 750542,
-      "groups": 26739,
+      "vertices": 867652,
+      "uvs": 1396596,
+      "faces": 322643,
+      "faces_with_uvs": 322643,
+      "triangles": 751310,
+      "groups": 26803,
       "materials": [
         "BenchWood",
         "BikeLaneGreen",
