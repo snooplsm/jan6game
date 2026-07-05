@@ -14,6 +14,7 @@ import math
 import os
 import struct
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -1281,6 +1282,10 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_limestone_discoloration_patch",
     "facade_sill_runoff_stain",
     "facade_base_grime_band",
+    "facade_mortar_shadow_groove",
+    "facade_staggered_masonry_joint",
+    "facade_chipped_limestone_block",
+    "facade_panel_bevel_strip",
     "facade_beveled_massing",
     "facade_recess_shadow_panel",
     "facade_arcade_shadow_bay",
@@ -1308,6 +1313,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "terrace_retaining_wall",
     "public_stair_tread",
     "public_step_edge_chip_shadow",
+    "public_step_grime_seam",
     "terrace_stair_riser_band",
     "public_terrace_landing_slab",
     "public_approach_handrail",
@@ -1566,7 +1572,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"metadata mesh does not exist: {rel}")
 
     exterior = metadata.get("exterior", {})
-    summary["buildings"] = len(exterior.get("buildings", []))
+    buildings = exterior.get("buildings", [])
+    summary["buildings"] = len(buildings)
     summary["roads"] = len(exterior.get("roads", []))
     summary["bike_lanes"] = len(exterior.get("bike_lanes", []))
     summary["pedestrian_paths"] = len(exterior.get("pedestrian_paths", []))
@@ -1577,6 +1584,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["replaced_buildings"] = len(replaced_buildings)
     building_details = exterior.get("building_details", [])
     building_detail_kinds = {detail.get("kind") for detail in building_details}
+    building_height_sources = Counter(building.get("height_source", "missing") for building in buildings)
+    summary["building_height_sources"] = dict(sorted(building_height_sources.items()))
     summary["building_details"] = len(building_details)
     summary["building_detail_kinds"] = len(building_detail_kinds)
     streetscape_props = exterior.get("streetscape_props", [])
@@ -1591,6 +1600,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
+    if any(not is_number(building.get("height_m")) for building in buildings):
+        error(errors, "expected every surrounding building to include numeric height_m")
+    if "missing" in building_height_sources:
+        error(errors, "expected every surrounding building to include height_source provenance")
+    if building_height_sources.get("explicit_height_tag", 0) < 20:
+        error(errors, "expected at least 20 surrounding buildings with explicit height tags")
+    if building_height_sources.get("building_levels_estimate", 0) < 100:
+        error(errors, "expected at least 100 surrounding buildings with building-level height estimates")
+    if building_height_sources.get("default_11m_no_height_tag", 0) < 2000:
+        error(errors, "expected at least 2000 surrounding buildings marked as default-height estimates")
     if summary["roads"] < 3000:
         error(errors, "expected at least 3000 roads/paths")
     if summary["bike_lanes"] < 300:
@@ -1838,6 +1857,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 112 public facade sill runoff stain records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_base_grime_band"]) < 10:
         error(errors, "expected at least 10 public facade base grime band records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_mortar_shadow_groove"]) < 48:
+        error(errors, "expected at least 48 close-range facade mortar shadow-groove records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_staggered_masonry_joint"]) < 600:
+        error(errors, "expected at least 600 close-range staggered masonry joint records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_chipped_limestone_block"]) < 160:
+        error(errors, "expected at least 160 close-range chipped limestone block records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_panel_bevel_strip"]) < 16:
+        error(errors, "expected at least 16 close-range facade panel bevel-strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_beveled_massing"]) < 32:
         error(errors, "expected at least 32 beveled public facade massing records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_recess_shadow_panel"]) < 130:
@@ -1892,6 +1919,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 public stair tread records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_step_edge_chip_shadow"]) < 36:
         error(errors, "expected at least 36 public step-edge chip shadow records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_step_grime_seam"]) < 160:
+        error(errors, "expected at least 160 public step grime-seam records")
     if len([detail for detail in facade_details if detail.get("kind") == "terrace_stair_riser_band"]) < 22:
         error(errors, "expected at least 22 public lower terrace stair/riser band records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_terrace_landing_slab"]) < 4:

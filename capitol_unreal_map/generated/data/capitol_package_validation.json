@@ -11,6 +11,11 @@
     "lane_edge_markings": 608,
     "street_markers": 880,
     "replaced_buildings": 1,
+    "building_height_sources": {
+      "building_levels_estimate": 123,
+      "default_11m_no_height_tag": 2379,
+      "explicit_height_tag": 22
+    },
     "building_details": 7948,
     "building_detail_kinds": 28,
     "streetscape_props": 2258,
@@ -19,8 +24,8 @@
     "grounds_detail_kinds": 12,
     "grounds_walk_lamps": 18,
     "landmark_elements": 20,
-    "facade_details": 4936,
-    "facade_detail_kinds": 92,
+    "facade_details": 6086,
+    "facade_detail_kinds": 97,
     "revolving_door_visuals": 12,
     "rooms": 15,
     "house_seats": 448,
@@ -151,7 +156,7 @@
         "max": [
           101951.5037,
           93672.4404,
-          4712.0
+          5075.0
         ]
       }
     },
@@ -215,12 +220,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 108022,
-      "uvs": 335348,
-      "faces": 81648,
-      "faces_with_uvs": 81648,
-      "triangles": 172052,
-      "groups": 11064,
+      "vertices": 117222,
+      "uvs": 362948,
+      "faces": 88548,
+      "faces_with_uvs": 88548,
+      "triangles": 185852,
+      "groups": 12214,
       "materials": [
         "BenchWood",
         "BollardMetal",

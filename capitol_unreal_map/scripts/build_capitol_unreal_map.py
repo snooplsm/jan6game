@@ -606,9 +606,7 @@ def write_mtl(path: Path) -> None:
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def parse_height(tags: dict[str, str], is_capitol: bool) -> float:
-    if is_capitol:
-        return 28.0
+def parse_height(tags: dict[str, str], is_capitol: bool) -> tuple[float, str]:
     height = tags.get("height") or tags.get("building:height")
     if height:
         match = re.search(r"([0-9]+(?:\.[0-9]+)?)", height)
@@ -616,11 +614,14 @@ def parse_height(tags: dict[str, str], is_capitol: bool) -> float:
             value = float(match.group(1))
             if "ft" in height.lower() or "'" in height:
                 value *= 0.3048
-            return min(max(value, 3.0), 70.0)
+            max_height = 120.0 if is_capitol else 70.0
+            return min(max(value, 3.0), max_height), "explicit_height_tag"
     levels = tags.get("building:levels")
     if levels and levels.replace(".", "", 1).isdigit():
-        return min(max(float(levels) * 3.4, 3.0), 70.0)
-    return 11.0
+        return min(max(float(levels) * 3.4, 3.0), 70.0), "building_levels_estimate"
+    if is_capitol:
+        return 28.0, "capitol_osm_placeholder_replaced"
+    return 11.0, "default_11m_no_height_tag"
 
 
 def road_width(tags: dict[str, str]) -> float:
@@ -2468,7 +2469,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         is_us_capitol = tags.get("wikidata") == "Q54109" or name == "United States Capitol"
 
         if tags.get("building") and len(points) >= 3:
-            height = parse_height(tags, is_capitol)
+            height, height_source = parse_height(tags, is_us_capitol)
             cx = sum(p[0] for p in points) / len(points)
             cy = sum(p[1] for p in points) / len(points)
             if is_us_capitol:
@@ -2477,6 +2478,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "id": way["id"],
                         "name": name,
                         "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
+                        "height_m": round(height, 2),
+                        "height_source": height_source,
                         "reason": "Skipped concave OSM extrusion; replaced by authored Capitol landmark visual mesh.",
                         "tags": tags,
                     }
@@ -2490,6 +2493,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "id": way["id"],
                         "name": name,
                         "height_m": round(height, 2),
+                        "height_source": height_source,
                         "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
                         "tags": tags,
                     }
@@ -3526,6 +3530,141 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (center[0], center[1], z + 0.21),
             {"orientation": orientation, "length_m": round(span_length, 3)},
         )
+
+    def add_close_range_masonry_relief(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z_base: float,
+        z_top: float,
+        columns: int,
+        rows: int,
+    ) -> None:
+        face_offset = 0.58 if fixed >= 0.0 else -0.58
+        face = fixed + face_offset
+        row_height = (z_top - z_base) / rows
+        column_width = span_length / columns
+        min_span = span_center - span_length / 2.0
+
+        for row_index in range(1, rows):
+            z = z_base + row_height * row_index
+            if orientation == "east_west":
+                center = (face, span_center)
+                size = (0.035, span_length * 0.94)
+            else:
+                center = (span_center, face)
+                size = (span_length * 0.94, 0.035)
+            name = f"{prefix}_mortar_shadow_groove_{row_index:02d}"
+            obj.add_box(center, size, 0.038, z, name, "StoneGrimeOverlay")
+            add_facade_detail(
+                name,
+                "facade_mortar_shadow_groove",
+                (center[0], center[1], z + 0.019),
+                {"orientation": orientation, "span_m": round(span_length, 3), "public_accuracy": "generic_public_masonry_relief"},
+            )
+
+        for row_index in range(rows):
+            row_z = z_base + row_height * row_index + row_height * 0.14
+            stagger = 0.5 if row_index % 2 else 0.0
+            for column_index in range(1, columns):
+                span_value = min_span + (column_index + stagger) * column_width
+                if span_value > min_span + span_length - column_width * 0.18:
+                    continue
+                if orientation == "east_west":
+                    center = (face, span_value)
+                    size = (0.042, 0.055)
+                else:
+                    center = (span_value, face)
+                    size = (0.055, 0.042)
+                name = f"{prefix}_staggered_masonry_joint_r{row_index+1:02d}_c{column_index:02d}"
+                obj.add_box(center, size, row_height * 0.68, row_z, name, "StoneGrimeOverlay")
+                add_facade_detail(
+                    name,
+                    "facade_staggered_masonry_joint",
+                    (center[0], center[1], row_z + row_height * 0.34),
+                    {
+                        "orientation": orientation,
+                        "row": row_index + 1,
+                        "column": column_index,
+                        "public_accuracy": "generic_public_masonry_relief",
+                    },
+                )
+
+        for row_index in range(rows):
+            for column_index in range(columns):
+                if (row_index * 3 + column_index * 5 + len(prefix)) % 4 != 0:
+                    continue
+                span_value = min_span + column_width * (column_index + 0.5)
+                z = z_base + row_height * row_index + row_height * (0.42 + 0.08 * ((row_index + column_index) % 2))
+                chip_span = min(column_width * 0.34, 0.42)
+                chip_height = min(row_height * 0.24, 0.24)
+                if orientation == "east_west":
+                    center = (face + (0.018 if fixed >= 0.0 else -0.018), span_value + column_width * 0.18 * ((column_index % 2) - 0.5))
+                    size = (0.030, chip_span)
+                else:
+                    center = (span_value + column_width * 0.18 * ((column_index % 2) - 0.5), face + (0.018 if fixed >= 0.0 else -0.018))
+                    size = (chip_span, 0.030)
+                name = f"{prefix}_chipped_limestone_block_r{row_index+1:02d}_c{column_index+1:02d}"
+                obj.add_box(center, size, chip_height, z, name, "StepStone")
+                add_facade_detail(
+                    name,
+                    "facade_chipped_limestone_block",
+                    (center[0], center[1], z + chip_height / 2.0),
+                    {
+                        "orientation": orientation,
+                        "row": row_index + 1,
+                        "column": column_index + 1,
+                        "public_accuracy": "generic_public_masonry_relief",
+                    },
+                )
+
+        bevel_specs = [
+            ("lower", z_base, 0.060),
+            ("upper", z_top, 0.065),
+        ]
+        for label, z, height in bevel_specs:
+            if orientation == "east_west":
+                center = (face + (0.018 if fixed >= 0.0 else -0.018), span_center)
+                size = (0.050, span_length * 0.96)
+            else:
+                center = (span_center, face + (0.018 if fixed >= 0.0 else -0.018))
+                size = (span_length * 0.96, 0.050)
+            name = f"{prefix}_{label}_panel_bevel_strip"
+            obj.add_box(center, size, height, z, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                "facade_panel_bevel_strip",
+                (center[0], center[1], z + height / 2.0),
+                {"orientation": orientation, "edge": label, "public_accuracy": "generic_public_masonry_relief"},
+            )
+
+    def add_public_step_grime_seams(
+        prefix: str,
+        orientation: str,
+        center: tuple[float, float],
+        span: float,
+        count: int,
+        z: float,
+    ) -> None:
+        cx, cy = center
+        for index in range(count):
+            offset = -span / 2.0 + span * (index + 0.5) / count
+            if orientation == "east_west":
+                seam_center = (cx, cy + offset)
+                seam_size = (0.040, span / count * 0.48)
+            else:
+                seam_center = (cx + offset, cy)
+                seam_size = (span / count * 0.48, 0.040)
+            name = f"{prefix}_step_grime_seam_{index+1:02d}"
+            obj.add_box(seam_center, seam_size, 0.026, z, name, "StoneGrimeOverlay")
+            add_facade_detail(
+                name,
+                "public_step_grime_seam",
+                (seam_center[0], seam_center[1], z + 0.013),
+                {"orientation": orientation, "public_accuracy": "generic_public_approach_wear"},
+            )
 
     def add_plaza_wear_patch(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         obj.add_box(center, size, 0.026, z, name, "StepStone")
@@ -4720,6 +4859,19 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     for args in base_grime_specs:
         add_facade_base_grime_band(*args)
 
+    close_range_masonry_specs = [
+        ("central_east_close_masonry", "east_west", 39.78, 0.0, 57.0, 1.72, 12.55, 12, 7),
+        ("central_west_close_masonry", "east_west", -39.78, 0.0, 57.0, 1.72, 12.55, 12, 7),
+        ("east_front_portico_close_masonry", "east_west", 67.92, 0.0, 66.0, 1.64, 13.25, 14, 8),
+        ("west_front_portico_close_masonry", "east_west", -67.92, 0.0, 66.0, 1.64, 13.25, 14, 8),
+        ("senate_north_close_masonry", "north_south", 102.62, 0.0, 82.0, 1.58, 11.65, 16, 7),
+        ("house_south_close_masonry", "north_south", -102.62, 0.0, 86.0, 1.58, 11.65, 16, 7),
+        ("senate_inner_south_close_masonry", "north_south", 39.02, 0.0, 70.0, 1.56, 10.95, 12, 6),
+        ("house_inner_north_close_masonry", "north_south", -38.02, 0.0, 74.0, 1.56, 10.95, 12, 6),
+    ]
+    for args in close_range_masonry_specs:
+        add_close_range_masonry_relief(*args)
+
     front_pilaster_values = [value * 5.0 for value in range(-7, 8)]
     wing_pilaster_values = [value * 5.6 for value in range(-8, 9)]
     add_facade_pilaster_line("east_front_public_rhythm", "east_west", 64.1, front_pilaster_values, 1.2, 12.6)
@@ -4812,6 +4964,15 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 0.72,
                 "east_west",
             )
+        for seam_row, seam_x in enumerate([x + front_sign * 4.4, x + front_sign * 7.2, x + front_sign * 10.0], start=1):
+            add_public_step_grime_seams(
+                f"{side}_front_approach_row_{seam_row:02d}",
+                "east_west",
+                (seam_x, 0.0),
+                78.0,
+                18,
+                0.44 + seam_row * 0.11,
+            )
         for idx, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
             column_center = (x * 0.92, y)
             column_name = f"{side}_portico_column_{idx}"
@@ -4900,6 +5061,15 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 (0.92, 0.52),
                 0.60,
                 "north_south",
+            )
+        for seam_row, seam_y in enumerate([y + wing_sign * 3.6, y + wing_sign * 5.9, y + wing_sign * 8.2], start=1):
+            add_public_step_grime_seams(
+                f"{side}_wing_approach_row_{seam_row:02d}",
+                "north_south",
+                (0.0, seam_y),
+                54.0,
+                14,
+                0.38 + seam_row * 0.10,
             )
         for door_index, x in enumerate([-8.0, 0.0, 8.0], start=1):
             add_revolving_door(f"{side}_wing_{door_index}", (x, y), side)
