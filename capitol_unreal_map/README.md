@@ -104,7 +104,7 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 1,955,642 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 2,085,746 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 19 procedural texture styles, 172 PNG texture files, 75 material bindings, and a minimum generated texture dimension of 4096px.
 
@@ -134,7 +134,7 @@ The current generated build contains:
 - 261 public signage detail records for room-identification signs, directional signs, visitor-gallery markers, chamber-role markers, generic office-zone signs, public orientation map kiosks, 196 abstract sign-typography strokes, and 12 map-kiosk route-line glyphs
 - 192 public door-hardware detail records: 24 double-door panels, 24 pull bars, 72 hinge plates, 24 kick plates, 12 transom panels, 12 header trims, and 24 side-lite panels at public/schematic doorway transitions
 - 536 public furnishing/fixture detail records: 24 benches, 72 bench seat slats, 48 bench arm rests, 24 display cases, 96 display-case edge trims, 24 display-case object silhouettes, 48 display-case light strips, 24 display-case label plaques, 10 information lecterns, 30 lectern text-line glyphs, 16 receptacles, 16 receptacle sorting labels, 20 plant urns, 20 plant urn rims, 20 leaf-cluster records, 24 public queue posts, and 20 rope segments
-- 1,260 public wall-finish detail records: 44 baseboards, 44 picture rails, 326 raised wainscot frames, 172 decorative wall panels, 172 upper wall panel frames, 238 wall pilasters, 18 public architrave trims, 44 wall material-variation panels, 44 baseboard grime decals, 44 wall patina decals, and 114 wainscot rub-mark decals across public rooms, chambers, galleries, and generic office/support zones
+- 1,758 public wall-finish detail records: 44 baseboards, 44 picture rails, 326 raised wainscot frames, 172 decorative wall panels, 172 upper wall panel frames, 238 wall pilasters, 18 public architrave trims, 44 wall material-variation panels, 498 bevelled wall-trim profile records, 44 baseboard grime decals, 44 wall patina decals, and 114 wainscot rub-mark decals across public rooms, chambers, galleries, and generic office/support zones
 - 360 public Rotunda architectural detail records for wall ring, floor trim, center medallion, 16 radial floor inlays, 16 perimeter columns with base/capital blocks plus 64 fluting-groove records, 32 upper coffer panels, 4 public arch portals with 8 spandrel inlays and 4 keystone blocks, upper balustrade ring with 32 posts, oculus trim ring, dome springline/coffer-belt rings, 24 interior dome ribs, 72 dome coffer panels, 32 upper frieze panels, oculus light-pool marker, 7 public statue pedestal bases, and 7 pedestal plaques
 - 425 public ceiling detail records: 127 coffer panels, 54 ceiling grid beams, 40 crown moldings, 31 medallions, 31 light canopies, 31 light-fixture trim rings, 31 warm glass fixture domes, 40 ceiling vent grilles, and 40 ceiling material-variation panels across the chambers, galleries, public rooms, and generic office/support zones
 - 347 public floor-finish/detail records for 72 marble/tile joints, 52 marble vein decals, 52 floor border strips, 24 carpet pile-variation decals, 16 carpet borders, 16 threshold tarnish decals, 8 public threshold slabs, 12 floor medallions, 10 floor-wear bands, 24 floor-wear scuff patches, 7 public room outline inlays, 10 public room axis inlays, and 44 public column footprint markers across public rooms, chamber approaches, galleries, and generic office/support zones
@@ -414,7 +414,7 @@ Included:
 - Public room-identification signs, directional signs, gallery markers, chamber-role markers, generic office/support zone signs, orientation map kiosks, abstract sign-typography strokes, and map-kiosk route-line glyphs
 - Public doorway panels, pull bars, hinges, kick plates, transoms, header trim, and side-lite panels at schematic public transitions
 - Public benches with slats/arms, display cases with edge trims/object silhouettes, information lecterns with text-line glyphs, receptacles, plant urns with rim/leaf details, queue posts, and rope segments as generic public fixtures
-- Raised public wall-finish details: baseboards, picture rails, wainscot frames, decorative wall panels, upper wall panel frames, pilasters, and public architrave trims
+- Raised public wall-finish details: bevelled baseboards, picture rails, wainscot frames, decorative wall panels, upper wall panel frames, pilasters, and public architrave trims
 - Public coffered ceiling, crown molding, medallion, light-canopy, light-fixture trim/glass-dome, and ceiling vent-grille details in major public interior zones
 - Public floor borders, marble/tile joints, threshold slabs, carpet borders, floor medallions, floor-wear bands/scuff patches, public room outline inlays, public room axis inlays, and public column footprint markers in major public interior zones
 - National Statuary Hall

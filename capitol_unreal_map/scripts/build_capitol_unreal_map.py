@@ -5478,12 +5478,13 @@ def add_public_interior_wall_finish_details(
     architrave_height = 2.28
 
     def add_baseboard(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
-        obj.add_box(center, size, 0.18, baseboard_z, f"{name}_baseboard", "InteriorTrim")
+        obj.add_beveled_box(center, size, 0.18, baseboard_z, f"{name}_baseboard", "InteriorTrim", 0.014)
         add_wall_finish_detail_record(records, name, "baseboard", room, (center[0], center[1], baseboard_z + 0.09), size)
 
     def add_pilaster(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
-        obj.add_box(center, size, 2.35, pilaster_z, f"{name}_shaft", "InteriorTrim")
-        obj.add_box(center, (size[0] * 1.45, size[1] * 1.45), 0.18, pilaster_z + 2.32, f"{name}_cap", "ArtFrameGold")
+        obj.add_beveled_box(center, (size[0] * 1.55, size[1] * 1.55), 0.16, pilaster_z - 0.02, f"{name}_base", "ArtFrameGold", 0.012)
+        obj.add_beveled_box(center, size, 2.35, pilaster_z, f"{name}_shaft", "InteriorTrim", 0.014)
+        obj.add_beveled_box(center, (size[0] * 1.45, size[1] * 1.45), 0.18, pilaster_z + 2.32, f"{name}_cap", "ArtFrameGold", 0.012)
         add_wall_finish_detail_record(records, name, "wall_pilaster", room, (center[0], center[1], pilaster_z + 1.18), size)
 
     def add_frame(
@@ -5503,23 +5504,31 @@ def add_public_interior_wall_finish_details(
         if orientation == "east_west":
             top_size = (width, wall_depth)
             side_size = (thickness, wall_depth)
-            obj.add_box((x, y), top_size, 0.065, bottom_z, f"{name}_bottom_rail", material)
-            obj.add_box((x, y), top_size, 0.065, bottom_z + height, f"{name}_top_rail", material)
-            obj.add_box((x - width / 2.0, y), side_size, height, bottom_z, f"{name}_left_stile", material)
-            obj.add_box((x + width / 2.0, y), side_size, height, bottom_z, f"{name}_right_stile", material)
+            obj.add_beveled_box((x, y), top_size, 0.065, bottom_z, f"{name}_bottom_rail", material, 0.012)
+            obj.add_beveled_box((x, y), top_size, 0.065, bottom_z + height, f"{name}_top_rail", material, 0.012)
+            obj.add_beveled_box((x - width / 2.0, y), side_size, height, bottom_z, f"{name}_left_stile", material, 0.010)
+            obj.add_beveled_box((x + width / 2.0, y), side_size, height, bottom_z, f"{name}_right_stile", material, 0.010)
             size = (width, wall_depth)
         else:
             top_size = (wall_depth, width)
             side_size = (wall_depth, thickness)
-            obj.add_box((x, y), top_size, 0.065, bottom_z, f"{name}_bottom_rail", material)
-            obj.add_box((x, y), top_size, 0.065, bottom_z + height, f"{name}_top_rail", material)
-            obj.add_box((x, y - width / 2.0), side_size, height, bottom_z, f"{name}_left_stile", material)
-            obj.add_box((x, y + width / 2.0), side_size, height, bottom_z, f"{name}_right_stile", material)
+            obj.add_beveled_box((x, y), top_size, 0.065, bottom_z, f"{name}_bottom_rail", material, 0.012)
+            obj.add_beveled_box((x, y), top_size, 0.065, bottom_z + height, f"{name}_top_rail", material, 0.012)
+            obj.add_beveled_box((x, y - width / 2.0), side_size, height, bottom_z, f"{name}_left_stile", material, 0.010)
+            obj.add_beveled_box((x, y + width / 2.0), side_size, height, bottom_z, f"{name}_right_stile", material, 0.010)
             size = (wall_depth, width)
         add_wall_finish_detail_record(records, name, kind, room, (x, y, bottom_z + height / 2.0), size)
+        add_wall_finish_detail_record(
+            records,
+            f"{name}_beveled_trim_profile",
+            "beveled_wall_trim_profile",
+            room,
+            (x, y, bottom_z + height / 2.0),
+            size,
+        )
 
     def add_picture_rail(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
-        obj.add_box(center, size, 0.11, picture_rail_z, name, "ArtFrameGold")
+        obj.add_beveled_box(center, size, 0.11, picture_rail_z, name, "ArtFrameGold", 0.012)
         add_wall_finish_detail_record(
             records,
             name,
@@ -5541,7 +5550,7 @@ def add_public_interior_wall_finish_details(
             size = (width, 0.064)
         else:
             size = (0.064, width)
-        obj.add_box((x, y), size, decorative_panel_height, decorative_panel_z, name, "RotundaWall")
+        obj.add_beveled_box((x, y), size, decorative_panel_height, decorative_panel_z, name, "RotundaWall", 0.010)
         add_wall_finish_detail_record(
             records,
             name,
@@ -5600,14 +5609,14 @@ def add_public_interior_wall_finish_details(
         depth = 0.15
         header_height = 0.18
         if orientation == "east_west":
-            obj.add_box((x - opening_width / 2.0, y), (stile, depth), architrave_height, architrave_z, f"{name}_left_stile", "InteriorTrim")
-            obj.add_box((x + opening_width / 2.0, y), (stile, depth), architrave_height, architrave_z, f"{name}_right_stile", "InteriorTrim")
-            obj.add_box((x, y), (opening_width + stile * 2.0, depth), header_height, architrave_z + architrave_height, f"{name}_header", "ArtFrameGold")
+            obj.add_beveled_box((x - opening_width / 2.0, y), (stile, depth), architrave_height, architrave_z, f"{name}_left_stile", "InteriorTrim", 0.014)
+            obj.add_beveled_box((x + opening_width / 2.0, y), (stile, depth), architrave_height, architrave_z, f"{name}_right_stile", "InteriorTrim", 0.014)
+            obj.add_beveled_box((x, y), (opening_width + stile * 2.0, depth), header_height, architrave_z + architrave_height, f"{name}_header", "ArtFrameGold", 0.016)
             size = (opening_width + stile * 2.0, depth)
         else:
-            obj.add_box((x, y - opening_width / 2.0), (depth, stile), architrave_height, architrave_z, f"{name}_left_stile", "InteriorTrim")
-            obj.add_box((x, y + opening_width / 2.0), (depth, stile), architrave_height, architrave_z, f"{name}_right_stile", "InteriorTrim")
-            obj.add_box((x, y), (depth, opening_width + stile * 2.0), header_height, architrave_z + architrave_height, f"{name}_header", "ArtFrameGold")
+            obj.add_beveled_box((x, y - opening_width / 2.0), (depth, stile), architrave_height, architrave_z, f"{name}_left_stile", "InteriorTrim", 0.014)
+            obj.add_beveled_box((x, y + opening_width / 2.0), (depth, stile), architrave_height, architrave_z, f"{name}_right_stile", "InteriorTrim", 0.014)
+            obj.add_beveled_box((x, y), (depth, opening_width + stile * 2.0), header_height, architrave_z + architrave_height, f"{name}_header", "ArtFrameGold", 0.016)
             size = (depth, opening_width + stile * 2.0)
         add_wall_finish_detail_record(
             records,

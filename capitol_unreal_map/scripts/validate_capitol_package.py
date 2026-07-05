@@ -850,6 +850,7 @@ REQUIRED_WALL_FINISH_DETAIL_KINDS = {
     "wall_pilaster",
     "public_architrave_trim",
     "wall_material_variation_panel",
+    "beveled_wall_trim_profile",
     "baseboard_grime_decal",
     "wall_patina_decal",
     "wainscot_rub_mark",
@@ -2231,8 +2232,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
     summary["wall_finish_details"] = len(wall_finish_details)
     summary["wall_finish_detail_kinds"] = len(wall_finish_detail_kinds)
-    if len(wall_finish_details) < 1260:
-        error(errors, f"expected at least 1260 public wall-finish detail records, got {len(wall_finish_details)}")
+    if len(wall_finish_details) < 1750:
+        error(errors, f"expected at least 1750 public wall-finish detail records, got {len(wall_finish_details)}")
     missing_wall_finish_kinds = sorted(REQUIRED_WALL_FINISH_DETAIL_KINDS - wall_finish_detail_kinds)
     if missing_wall_finish_kinds:
         error(errors, f"missing public wall-finish detail kinds: {', '.join(missing_wall_finish_kinds)}")
@@ -2263,6 +2264,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 public architrave trim records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_material_variation_panel"]) < 44:
         error(errors, "expected at least 44 public wall material-variation panel records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "beveled_wall_trim_profile"]) < 498:
+        error(errors, "expected at least 498 public beveled wall-trim profile records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "baseboard_grime_decal"]) < 44:
         error(errors, "expected at least 44 public baseboard grime decal records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_patina_decal"]) < 44:
