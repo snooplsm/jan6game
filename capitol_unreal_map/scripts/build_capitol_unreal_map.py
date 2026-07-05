@@ -5885,6 +5885,42 @@ def add_generic_chamber_furniture_finish_details(
         (desk_x, desk_y, desk_top_z + 0.013),
         (desk_sx * 0.82, desk_sy),
     )
+    grain_strip_size = (desk_sx * 0.72, max(0.010, desk_sy * 0.026))
+    grain_offsets = [-desk_sy * 0.18, desk_sy * 0.16]
+    for grain_index, offset in enumerate(grain_offsets, start=1):
+        obj.add_box(
+            (desk_x, desk_y + offset),
+            grain_strip_size,
+            0.010,
+            desk_top_z + 0.030 + grain_index * 0.002,
+            f"{prefix}_generic_desk_wood_grain_strip_{grain_index}",
+            "FloorWear",
+        )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_desk_wood_grain_strips",
+        "generic_desk_wood_grain_strip",
+        chamber,
+        (desk_x, desk_y, desk_top_z + 0.036),
+        (desk_sx * 0.72, desk_sy * 0.38),
+    )
+    highlight_size = (desk_sx * 0.34, max(0.010, desk_sy * 0.030))
+    obj.add_box(
+        (desk_x + desk_sx * 0.18, desk_y - desk_sy * 0.08),
+        highlight_size,
+        0.010,
+        desk_top_z + 0.045,
+        f"{prefix}_generic_desk_varnish_highlight",
+        "InteriorTrim",
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_desk_varnish_highlight",
+        "generic_desk_varnish_highlight",
+        chamber,
+        (desk_x + desk_sx * 0.18, desk_y - desk_sy * 0.08, desk_top_z + 0.050),
+        highlight_size,
+    )
 
     chair_x, chair_y = chair_center
     cushion_size = (chair_size[0] * 0.74, chair_size[1] * 0.64)
@@ -5915,6 +5951,55 @@ def add_generic_chamber_furniture_finish_details(
         chamber,
         (chair_x, chair_y, chair_top_z + 0.052),
         cushion_size,
+    )
+    piping_long_size = (cushion_size[0] * 0.88, max(0.010, cushion_size[1] * 0.032))
+    piping_short_size = (max(0.010, cushion_size[0] * 0.032), cushion_size[1] * 0.88)
+    obj.add_box((chair_x, chair_y - cushion_size[1] * 0.45), piping_long_size, 0.012, chair_top_z + 0.064, f"{prefix}_generic_chair_front_piping", "DoorMetal")
+    obj.add_box((chair_x, chair_y + cushion_size[1] * 0.45), piping_long_size, 0.012, chair_top_z + 0.065, f"{prefix}_generic_chair_rear_piping", "DoorMetal")
+    obj.add_box((chair_x - cushion_size[0] * 0.45, chair_y), piping_short_size, 0.012, chair_top_z + 0.066, f"{prefix}_generic_chair_left_piping", "DoorMetal")
+    obj.add_box((chair_x + cushion_size[0] * 0.45, chair_y), piping_short_size, 0.012, chair_top_z + 0.067, f"{prefix}_generic_chair_right_piping", "DoorMetal")
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_cushion_piping",
+        "generic_chair_cushion_piping",
+        chamber,
+        (chair_x, chair_y, chair_top_z + 0.068),
+        cushion_size,
+    )
+    leather_wear_size = (cushion_size[0] * 0.34, cushion_size[1] * 0.24)
+    obj.add_box(
+        (chair_x - cushion_size[0] * 0.15, chair_y + cushion_size[1] * 0.10),
+        leather_wear_size,
+        0.010,
+        chair_top_z + 0.074,
+        f"{prefix}_generic_chair_leather_wear_patch",
+        "FloorWear",
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_leather_wear_patch",
+        "generic_chair_leather_wear_patch",
+        chamber,
+        (chair_x - cushion_size[0] * 0.15, chair_y + cushion_size[1] * 0.10, chair_top_z + 0.079),
+        leather_wear_size,
+    )
+    arm_wear_size = (max(0.018, chair_size[0] * 0.055), chair_size[1] * 0.34)
+    for arm_index, dx in enumerate([-chair_size[0] * 0.62, chair_size[0] * 0.62], start=1):
+        obj.add_box(
+            (chair_x + dx, chair_y),
+            arm_wear_size,
+            0.012,
+            chair_top_z + 0.145,
+            f"{prefix}_generic_chair_arm_wear_{arm_index}",
+            "FloorWear",
+        )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_arm_wear",
+        "generic_chair_arm_wear",
+        chamber,
+        (chair_x, chair_y, chair_top_z + 0.151),
+        (chair_size[0] * 1.24, chair_size[1] * 0.34),
     )
 
     back_x, back_y = chair_back_center
@@ -5955,6 +6040,23 @@ def add_generic_chamber_furniture_finish_details(
         chamber,
         (back_x, button_y, button_z + 0.010),
         (back_panel_size[0] * 0.58, 0.08),
+    )
+    back_scuff_size = (back_panel_size[0] * 0.36, 0.034)
+    obj.add_box(
+        (back_x - back_panel_size[0] * 0.12, back_y - chair_back_size[1] * 0.49),
+        back_scuff_size,
+        0.105,
+        chair_back_z + chair_back_height * 0.48,
+        f"{prefix}_generic_chair_back_leather_scuff",
+        "FloorWear",
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_back_leather_scuff",
+        "generic_chair_back_leather_scuff",
+        chamber,
+        (back_x - back_panel_size[0] * 0.12, back_y - chair_back_size[1] * 0.49, chair_back_z + chair_back_height * 0.53),
+        back_scuff_size,
     )
 
     pull_y = desk_y - desk_sy * 0.50
@@ -6285,6 +6387,38 @@ def add_chamber_realism_details(
                 chamber,
                 (strip_center[0], strip_center[1], z + 0.037),
                 strip_size,
+            )
+        weave_count = 3
+        for weave_index in range(weave_count):
+            ratio = (weave_index + 1) / (weave_count + 1)
+            if horizontal:
+                weave_center = (x - size[0] * 0.35 + size[0] * 0.70 * ratio, y)
+                weave_size = (max(0.040, size[0] * 0.012), size[1] * 0.82)
+            else:
+                weave_center = (x, y - size[1] * 0.35 + size[1] * 0.70 * ratio)
+                weave_size = (size[0] * 0.82, max(0.040, size[1] * 0.012))
+            weave_name = f"{name}_subtle_weave_band_{weave_index+1}"
+            obj.add_box(weave_center, weave_size, 0.010, z + 0.048 + weave_index * 0.002, weave_name, "FloorWear")
+            add_chamber_detail_record(
+                records,
+                weave_name,
+                "chamber_carpet_weave_band",
+                chamber,
+                (weave_center[0], weave_center[1], z + 0.054),
+                weave_size,
+            )
+        for fringe_index, (dx, dy) in enumerate(strip_offsets, start=1):
+            fringe_center = (x + dx * 1.02, y + dy * 1.02)
+            fringe_name = f"{name}_edge_fringe_{fringe_index}"
+            fringe_size = (strip_size[0] * 0.96, max(0.026, strip_size[1] * 0.45)) if horizontal else (max(0.026, strip_size[0] * 0.45), strip_size[1] * 0.96)
+            obj.add_box(fringe_center, fringe_size, 0.009, z + 0.058 + fringe_index * 0.002, fringe_name, "InteriorTrim")
+            add_chamber_detail_record(
+                records,
+                fringe_name,
+                "chamber_carpet_edge_fringe",
+                chamber,
+                (fringe_center[0], fringe_center[1], z + 0.063),
+                fringe_size,
             )
 
     def chamber_carpet_wear_path(
