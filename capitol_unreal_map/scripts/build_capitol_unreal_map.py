@@ -6039,6 +6039,39 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 },
             )
 
+        face_sign = 1.0 if fixed >= 0.0 else -1.0
+        for row_index in range(rows):
+            row_z = z_base + row_height * row_index
+            for column_index in range(columns):
+                if (row_index * 2 + column_index * 3 + len(prefix)) % 5 not in {0, 3}:
+                    continue
+                span_value = min_span + column_width * (column_index + 0.5)
+                offset_jitter = column_width * 0.12 * (((row_index + column_index) % 3) - 1)
+                patch_span = min(column_width * (0.34 + 0.05 * ((row_index + column_index) % 4)), 0.88)
+                patch_height = min(row_height * (0.22 + 0.04 * ((row_index * 2 + column_index) % 3)), 0.34)
+                patch_z = row_z + row_height * (0.24 + 0.12 * ((row_index + column_index) % 4))
+                material = "StepStone" if (row_index + column_index) % 2 else "StoneGrimeOverlay"
+                if orientation == "east_west":
+                    center = (face + face_sign * 0.022, span_value + offset_jitter)
+                    size = (0.024, patch_span)
+                else:
+                    center = (span_value + offset_jitter, face + face_sign * 0.022)
+                    size = (patch_span, 0.024)
+                name = f"{prefix}_limestone_tone_variation_r{row_index+1:02d}_c{column_index+1:02d}"
+                obj.add_box(center, size, patch_height, patch_z, name, material)
+                add_facade_detail(
+                    name,
+                    "facade_limestone_tone_variation_patch",
+                    (center[0], center[1], patch_z + patch_height / 2.0),
+                    {
+                        "orientation": orientation,
+                        "row": row_index + 1,
+                        "column": column_index + 1,
+                        "material_hint": material,
+                        "public_accuracy": "generic_public_surface_wear",
+                    },
+                )
+
     def add_public_step_grime_seams(
         prefix: str,
         orientation: str,

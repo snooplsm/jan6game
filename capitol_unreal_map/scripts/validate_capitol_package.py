@@ -1556,6 +1556,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_limestone_pitting_mark",
     "facade_hairline_crack",
     "facade_thin_rain_streak",
+    "facade_limestone_tone_variation_patch",
     "facade_panel_bevel_strip",
     "facade_beveled_massing",
     "facade_recess_shadow_panel",
@@ -2406,6 +2407,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 40 close-range hairline crack records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_thin_rain_streak"]) < 48:
         error(errors, "expected at least 48 close-range thin rain-streak records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_limestone_tone_variation_patch"]) < 250:
+        error(errors, "expected at least 250 close-range limestone tone-variation patch records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_panel_bevel_strip"]) < 16:
         error(errors, "expected at least 16 close-range facade panel bevel-strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_beveled_massing"]) < 32:
