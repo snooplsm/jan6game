@@ -519,9 +519,12 @@ REQUIRED_FURNISHING_DETAIL_KINDS = {
 
 REQUIRED_WALL_FINISH_DETAIL_KINDS = {
     "baseboard",
+    "picture_rail",
     "raised_wainscot_frame",
+    "decorative_wall_panel",
     "upper_wall_panel_frame",
     "wall_pilaster",
+    "public_architrave_trim",
 }
 
 REQUIRED_ROTUNDA_DETAIL_KINDS = {
@@ -556,6 +559,7 @@ REQUIRED_CEILING_DETAIL_KINDS = {
     "coffer_panel",
     "ceiling_medallion",
     "light_canopy",
+    "ceiling_vent_grille",
 }
 
 REQUIRED_FLOOR_DETAIL_KINDS = {
@@ -1447,8 +1451,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
     summary["wall_finish_details"] = len(wall_finish_details)
     summary["wall_finish_detail_kinds"] = len(wall_finish_detail_kinds)
-    if len(wall_finish_details) < 700:
-        error(errors, f"expected at least 700 public wall-finish detail records, got {len(wall_finish_details)}")
+    if len(wall_finish_details) < 1000:
+        error(errors, f"expected at least 1000 public wall-finish detail records, got {len(wall_finish_details)}")
     missing_wall_finish_kinds = sorted(REQUIRED_WALL_FINISH_DETAIL_KINDS - wall_finish_detail_kinds)
     if missing_wall_finish_kinds:
         error(errors, f"missing public wall-finish detail kinds: {', '.join(missing_wall_finish_kinds)}")
@@ -1465,12 +1469,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"missing wall-finish details for {room}")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "baseboard"]) < 40:
         error(errors, "expected at least 40 public baseboard detail records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "picture_rail"]) < 44:
+        error(errors, "expected at least 44 public picture rail detail records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "raised_wainscot_frame"]) < 300:
         error(errors, "expected at least 300 public raised wainscot frame records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "decorative_wall_panel"]) < 170:
+        error(errors, "expected at least 170 public decorative wall panel records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "upper_wall_panel_frame"]) < 170:
         error(errors, "expected at least 170 public upper wall panel frame records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_pilaster"]) < 230:
         error(errors, "expected at least 230 public wall pilaster records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "public_architrave_trim"]) < 18:
+        error(errors, "expected at least 18 public architrave trim records")
     for detail in wall_finish_details:
         if not detail.get("room"):
             error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} is missing room")
@@ -1536,8 +1546,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ceiling_detail_kinds = {detail.get("kind") for detail in ceiling_details}
     summary["ceiling_details"] = len(ceiling_details)
     summary["ceiling_detail_kinds"] = len(ceiling_detail_kinds)
-    if len(ceiling_details) < 280:
-        error(errors, f"expected at least 280 public ceiling detail records, got {len(ceiling_details)}")
+    if len(ceiling_details) < 320:
+        error(errors, f"expected at least 320 public ceiling detail records, got {len(ceiling_details)}")
     missing_ceiling_kinds = sorted(REQUIRED_CEILING_DETAIL_KINDS - ceiling_detail_kinds)
     if missing_ceiling_kinds:
         error(errors, f"missing public ceiling detail kinds: {', '.join(missing_ceiling_kinds)}")
@@ -1551,6 +1561,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 30 public ceiling medallion records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "light_canopy"]) < 30:
         error(errors, "expected at least 30 public light canopy records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_vent_grille"]) < 40:
+        error(errors, "expected at least 40 public ceiling vent grille records")
     for detail in ceiling_details:
         if not detail.get("room"):
             error(errors, f"ceiling detail {detail.get('name', '<unknown>')} is missing room")

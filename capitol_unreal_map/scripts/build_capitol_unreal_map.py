@@ -3462,6 +3462,11 @@ def add_public_interior_wall_finish_details(
     baseboard_z = 4.42
     pilaster_z = 4.50
     upper_z = 6.34
+    picture_rail_z = 7.20
+    decorative_panel_z = 6.46
+    decorative_panel_height = 0.44
+    architrave_z = 4.50
+    architrave_height = 2.28
 
     def add_baseboard(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
         obj.add_box(center, size, 0.18, baseboard_z, f"{name}_baseboard", "InteriorTrim")
@@ -3504,6 +3509,69 @@ def add_public_interior_wall_finish_details(
             size = (wall_depth, width)
         add_wall_finish_detail_record(records, name, kind, room, (x, y, bottom_z + height / 2.0), size)
 
+    def add_picture_rail(name: str, room: str, center: tuple[float, float], size: tuple[float, float]) -> None:
+        obj.add_box(center, size, 0.11, picture_rail_z, name, "ArtFrameGold")
+        add_wall_finish_detail_record(
+            records,
+            name,
+            "picture_rail",
+            room,
+            (center[0], center[1], picture_rail_z + 0.055),
+            size,
+        )
+
+    def add_decorative_panel(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        if orientation == "east_west":
+            size = (width, 0.064)
+        else:
+            size = (0.064, width)
+        obj.add_box((x, y), size, decorative_panel_height, decorative_panel_z, name, "RotundaWall")
+        add_wall_finish_detail_record(
+            records,
+            name,
+            "decorative_wall_panel",
+            room,
+            (x, y, decorative_panel_z + decorative_panel_height / 2.0),
+            size,
+        )
+
+    def add_architrave(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        opening_width: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        stile = 0.16
+        depth = 0.15
+        header_height = 0.18
+        if orientation == "east_west":
+            obj.add_box((x - opening_width / 2.0, y), (stile, depth), architrave_height, architrave_z, f"{name}_left_stile", "InteriorTrim")
+            obj.add_box((x + opening_width / 2.0, y), (stile, depth), architrave_height, architrave_z, f"{name}_right_stile", "InteriorTrim")
+            obj.add_box((x, y), (opening_width + stile * 2.0, depth), header_height, architrave_z + architrave_height, f"{name}_header", "ArtFrameGold")
+            size = (opening_width + stile * 2.0, depth)
+        else:
+            obj.add_box((x, y - opening_width / 2.0), (depth, stile), architrave_height, architrave_z, f"{name}_left_stile", "InteriorTrim")
+            obj.add_box((x, y + opening_width / 2.0), (depth, stile), architrave_height, architrave_z, f"{name}_right_stile", "InteriorTrim")
+            obj.add_box((x, y), (depth, opening_width + stile * 2.0), header_height, architrave_z + architrave_height, f"{name}_header", "ArtFrameGold")
+            size = (depth, opening_width + stile * 2.0)
+        add_wall_finish_detail_record(
+            records,
+            name,
+            "public_architrave_trim",
+            room,
+            (x, y, architrave_z + architrave_height / 2.0),
+            size,
+        )
+
     def add_room_finish(
         name: str,
         room: str,
@@ -3523,6 +3591,10 @@ def add_public_interior_wall_finish_details(
         add_baseboard(f"{name}_south", room, (cx, south_y), (sx * 0.96, 0.12))
         add_baseboard(f"{name}_east", room, (east_x, cy), (0.12, sy * 0.96))
         add_baseboard(f"{name}_west", room, (west_x, cy), (0.12, sy * 0.96))
+        add_picture_rail(f"{name}_north_picture_rail", room, (cx, north_y), (sx * 0.94, 0.09))
+        add_picture_rail(f"{name}_south_picture_rail", room, (cx, south_y), (sx * 0.94, 0.09))
+        add_picture_rail(f"{name}_east_picture_rail", room, (east_x, cy), (0.09, sy * 0.94))
+        add_picture_rail(f"{name}_west_picture_rail", room, (west_x, cy), (0.09, sy * 0.94))
 
         for index in range(panel_count_long):
             x = cx - sx / 2.0 + sx * (index + 0.5) / panel_count_long
@@ -3533,6 +3605,8 @@ def add_public_interior_wall_finish_details(
                 upper_width = sx / panel_count_long * 0.72
                 add_frame(f"{name}_north_upper_wall_frame_{index+1:02d}", room, (x, north_y), upper_width, "east_west", "upper_wall_panel_frame", upper_z, 0.72, "ArtFrameGold")
                 add_frame(f"{name}_south_upper_wall_frame_{index+1:02d}", room, (x, south_y), upper_width, "east_west", "upper_wall_panel_frame", upper_z, 0.72, "ArtFrameGold")
+                add_decorative_panel(f"{name}_north_decorative_wall_panel_{index+1:02d}", room, (x, north_y), upper_width * 0.70, "east_west")
+                add_decorative_panel(f"{name}_south_decorative_wall_panel_{index+1:02d}", room, (x, south_y), upper_width * 0.70, "east_west")
         for index in range(panel_count_short):
             y = cy - sy / 2.0 + sy * (index + 0.5) / panel_count_short
             width = sy / panel_count_short * 0.64
@@ -3542,6 +3616,8 @@ def add_public_interior_wall_finish_details(
                 upper_width = sy / panel_count_short * 0.70
                 add_frame(f"{name}_east_upper_wall_frame_{index+1:02d}", room, (east_x, y), upper_width, "north_south", "upper_wall_panel_frame", upper_z, 0.68, "ArtFrameGold")
                 add_frame(f"{name}_west_upper_wall_frame_{index+1:02d}", room, (west_x, y), upper_width, "north_south", "upper_wall_panel_frame", upper_z, 0.68, "ArtFrameGold")
+                add_decorative_panel(f"{name}_east_decorative_wall_panel_{index+1:02d}", room, (east_x, y), upper_width * 0.70, "north_south")
+                add_decorative_panel(f"{name}_west_decorative_wall_panel_{index+1:02d}", room, (west_x, y), upper_width * 0.70, "north_south")
 
         pilaster_long_step = max(1, panel_count_long // 4)
         for index in range(0, panel_count_long + 1, pilaster_long_step):
@@ -3569,7 +3645,29 @@ def add_public_interior_wall_finish_details(
     ]:
         add_room_finish(*args)
 
-    add_label(labels, "Raised wall panels, pilasters, and baseboards - schematic", -23.0, -7.5, 7.7, "wall_finish_detail")
+    for args in [
+        ("rotunda_north_public_architrave", "Rotunda", (0.0, 14.53), 4.8, "east_west"),
+        ("rotunda_south_public_architrave", "Rotunda", (0.0, -14.53), 4.8, "east_west"),
+        ("rotunda_east_public_architrave", "Rotunda", (14.53, 0.0), 4.8, "north_south"),
+        ("rotunda_west_public_architrave", "Rotunda", (-14.53, 0.0), 4.8, "north_south"),
+        ("house_north_public_architrave", "House Chamber", (0.0, -51.22), 5.8, "east_west"),
+        ("house_south_gallery_public_architrave", "House Chamber", (0.0, -92.78), 5.2, "east_west"),
+        ("senate_south_public_architrave", "Senate Chamber", (0.0, 49.22), 5.0, "east_west"),
+        ("senate_north_gallery_public_architrave", "Senate Chamber", (0.0, 86.78), 4.8, "east_west"),
+        ("statuary_north_public_architrave", "National Statuary Hall", (28.0, -20.22), 4.2, "east_west"),
+        ("statuary_south_public_architrave", "National Statuary Hall", (28.0, -39.78), 4.2, "east_west"),
+        ("statuary_west_public_architrave", "National Statuary Hall", (13.22, -30.0), 3.8, "north_south"),
+        ("statuary_east_public_architrave", "National Statuary Hall", (42.78, -30.0), 3.8, "north_south"),
+        ("old_senate_north_public_architrave", "Old Senate Chamber", (28.0, 38.78), 3.8, "east_west"),
+        ("old_senate_south_public_architrave", "Old Senate Chamber", (28.0, 21.22), 3.8, "east_west"),
+        ("old_senate_west_public_architrave", "Old Senate Chamber", (15.22, 30.0), 3.4, "north_south"),
+        ("old_senate_east_public_architrave", "Old Senate Chamber", (40.78, 30.0), 3.4, "north_south"),
+        ("west_public_spine_architrave", "West terrace public orientation marker", (-56.22, 0.0), 4.2, "north_south"),
+        ("east_public_spine_architrave", "East public approach / visitor circulation", (56.22, 0.0), 4.2, "north_south"),
+    ]:
+        add_architrave(*args)
+
+    add_label(labels, "Raised wall panels, picture rails, pilasters, and architraves - schematic", -23.0, -7.5, 7.7, "wall_finish_detail")
 
 
 def add_interior_ceiling_detail_record(
@@ -3663,6 +3761,18 @@ def add_coffered_ceiling(
         obj.add_cylinder((x, y), 0.22, z + 0.22, 0.08, canopy_name, "LightFixtureMetal", segments=18)
         add_interior_ceiling_detail_record(records, medallion_name, "ceiling_medallion", room, (x, y, z + 0.19), (1.04, 1.04))
         add_interior_ceiling_detail_record(records, canopy_name, "light_canopy", room, (x, y, z + 0.26), (0.44, 0.44))
+
+    vent_offsets = [(-0.34, -0.34), (0.34, -0.34), (-0.34, 0.34), (0.34, 0.34)]
+    for index, (ox, oy) in enumerate(vent_offsets, start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        vent_name = f"{name}_ceiling_vent_grille_{index:02d}"
+        vent_size = (0.82, 0.34)
+        obj.add_box((x, y), vent_size, 0.028, z + 0.18, vent_name, "LightFixtureMetal")
+        for slat in range(3):
+            slat_y = y - 0.10 + slat * 0.10
+            obj.add_box((x, slat_y), (0.70, 0.028), 0.032, z + 0.215, f"{vent_name}_slat_{slat+1}", "BrassRail")
+        add_interior_ceiling_detail_record(records, vent_name, "ceiling_vent_grille", room, (x, y, z + 0.197), vent_size)
 
 
 def add_public_interior_ceiling_details(
