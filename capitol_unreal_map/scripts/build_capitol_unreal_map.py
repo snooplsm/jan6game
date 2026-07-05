@@ -10318,6 +10318,79 @@ def add_public_circulation_details(
             obj.add_cylinder((px, py), 0.055, 4.58, 0.72, f"{name}_post_{post_index}", "BrassRail", segments=10)
         add_public_circulation_record(records, name, "public_low_guide_rail", area, (x, y, 5.22), (length, 0.72))
 
+    def wall_size(width: float, depth: float, orientation: str) -> tuple[float, float]:
+        if orientation == "east_west":
+            return (width, depth)
+        return (depth, width)
+
+    def wall_along(center: tuple[float, float], offset: float, orientation: str) -> tuple[float, float]:
+        x, y = center
+        if orientation == "east_west":
+            return (x + offset, y)
+        return (x, y + offset)
+
+    def wall_directory_board(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        board_size = wall_size(1.65, 0.12, orientation)
+        obj.add_beveled_box(center, board_size, 0.76, 5.12, f"{name}_board", "MarkerBlue", 0.018)
+        obj.add_box(center, wall_size(1.40, 0.045, orientation), 0.055, 5.78, f"{name}_header_strip", "ArtFrameGold")
+        add_public_circulation_record(records, name, "public_directory_board", area, (x, y, 5.50), board_size)
+        for line_index, (offset, width) in enumerate([(-0.44, 0.54), (-0.15, 0.96), (0.12, 0.78), (0.40, 0.62)], start=1):
+            line_center = wall_along(center, offset, orientation)
+            obj.add_box(line_center, wall_size(width, 0.030, orientation), 0.035, 5.26 + line_index * 0.105, f"{name}_line_glyph_{line_index}", "LaneMarkingWhite")
+            add_public_circulation_record(
+                records,
+                f"{name}_line_glyph_{line_index}",
+                "public_directory_line_glyph",
+                area,
+                (line_center[0], line_center[1], 5.278 + line_index * 0.105),
+                wall_size(width, 0.030, orientation),
+            )
+
+    def wall_clock(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        obj.add_cylinder(center, 0.34, 5.78, 0.055, f"{name}_clock_face", "LaneMarkingWhite", segments=24)
+        obj.add_cylinder(center, 0.37, 5.765, 0.035, f"{name}_clock_rim", "BrassRail", segments=24)
+        hand_angle = 0.0 if orientation == "east_west" else math.pi / 2.0
+        obj.add_oriented_box(center, (0.30, 0.026), 0.030, 5.86, hand_angle, f"{name}_long_hand", "DoorMetal")
+        obj.add_oriented_box(center, (0.20, 0.026), 0.032, 5.895, hand_angle + math.pi / 2.0, f"{name}_short_hand", "DoorMetal")
+        add_public_circulation_record(records, name, "public_wall_clock", area, (x, y, 5.82), (0.74, 0.74))
+        add_public_circulation_record(records, f"{name}_hand_pair", "public_wall_clock_hand_pair", area, (x, y, 5.89), (0.36, 0.36))
+
+    def public_safety_cabinet(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        cabinet_size = wall_size(0.72, 0.13, orientation)
+        glass_size = wall_size(0.46, 0.035, orientation)
+        obj.add_beveled_box(center, cabinet_size, 0.82, 4.92, f"{name}_red_frame", "TrafficSignalRed", 0.020)
+        obj.add_box(center, glass_size, 0.52, 5.08, f"{name}_glass_panel", "DoorGlass")
+        obj.add_box(wall_along(center, 0.31, orientation), wall_size(0.055, 0.040, orientation), 0.34, 5.16, f"{name}_small_pull", "BrassRail")
+        add_public_circulation_record(records, name, "generic_public_safety_cabinet", area, (x, y, 5.33), cabinet_size)
+        add_public_circulation_record(records, f"{name}_glass_panel", "generic_public_safety_cabinet_glass", area, (x, y, 5.34), glass_size)
+
+    def emergency_light_block(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        block_size = wall_size(0.68, 0.12, orientation)
+        lens_size = wall_size(0.18, 0.035, orientation)
+        obj.add_beveled_box(center, block_size, 0.28, 6.24, f"{name}_body", "LightFixtureMetal", 0.014)
+        for lens_index, offset in enumerate([-0.20, 0.20], start=1):
+            lens_center = wall_along(center, offset, orientation)
+            obj.add_box(lens_center, lens_size, 0.14, 6.34, f"{name}_warm_lens_{lens_index}", "WarmLightGlass")
+        add_public_circulation_record(records, name, "generic_public_emergency_light_block", area, (x, y, 6.38), block_size)
+        add_public_circulation_record(records, f"{name}_lens_pair", "generic_public_emergency_light_lens_pair", area, (x, y, 6.41), (0.58, 0.14))
+
+    def wall_service_plates(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        switch_center = wall_along(center, -0.16, orientation)
+        outlet_center = wall_along(center, 0.16, orientation)
+        switch_size = wall_size(0.13, 0.026, orientation)
+        outlet_size = wall_size(0.15, 0.026, orientation)
+        obj.add_box(switch_center, switch_size, 0.20, 5.08, f"{name}_switch_plate", "LaneMarkingWhite")
+        obj.add_box(switch_center, wall_size(0.045, 0.031, orientation), 0.055, 5.16, f"{name}_switch_toggle", "DoorMetal")
+        obj.add_box(outlet_center, outlet_size, 0.18, 4.68, f"{name}_outlet_plate", "LaneMarkingWhite")
+        for socket_index, z_offset in enumerate([0.04, 0.115], start=1):
+            obj.add_box(outlet_center, wall_size(0.060, 0.031, orientation), 0.026, 4.70 + z_offset, f"{name}_outlet_slot_{socket_index}", "DoorMetal")
+        add_public_circulation_record(records, f"{name}_switch_plate", "public_wall_switch_plate", area, (switch_center[0], switch_center[1], 5.18), switch_size)
+        add_public_circulation_record(records, f"{name}_outlet_plate", "public_wall_outlet_plate", area, (outlet_center[0], outlet_center[1], 4.77), outlet_size)
+
     def transition_size(width: float, depth: float, orientation: str) -> tuple[float, float]:
         if orientation == "east_west":
             return (depth, width)
@@ -10542,8 +10615,79 @@ def add_public_circulation_details(
     ]:
         low_guide_rail(name, area, center, length, angle)
 
-    add_label(labels, "Public circulation thresholds, portals, and orientation signs - schematic", -17.0, 0.0, 7.3, "public_circulation_detail")
-    add_label(labels, "Public corridor pilasters, sconces, floor medallions, route arrows, and low guide rails - schematic", 17.0, 0.0, 7.3, "public_circulation_detail")
+    for name, area, center, orientation in [
+        ("west_axis_directory", "Rotunda / east-west public approach", (-48.0, -3.18), "east_west"),
+        ("east_axis_directory", "Rotunda / east-west public approach", (48.0, 3.18), "east_west"),
+        ("house_axis_directory", "Rotunda to House Chamber public orientation", (-2.88, -42.0), "north_south"),
+        ("senate_axis_directory", "Rotunda to Senate Chamber public orientation", (2.88, 42.0), "north_south"),
+        ("house_gallery_directory", "House gallery public orientation", (-16.0, -90.95), "east_west"),
+        ("senate_gallery_directory", "Senate gallery public orientation", (16.0, 88.95), "east_west"),
+    ]:
+        wall_directory_board(name, area, center, orientation)
+
+    for name, area, center, orientation in [
+        ("west_axis_public_clock", "Rotunda / east-west public approach", (-28.0, 3.16), "east_west"),
+        ("east_axis_public_clock", "Rotunda / east-west public approach", (28.0, -3.16), "east_west"),
+        ("rotunda_house_axis_public_clock", "Rotunda to House Chamber public orientation", (2.88, -28.0), "north_south"),
+        ("rotunda_senate_axis_public_clock", "Rotunda to Senate Chamber public orientation", (-2.88, 28.0), "north_south"),
+        ("statuary_public_clock", "Rotunda to National Statuary Hall", (22.4, -19.8), "north_south"),
+        ("old_senate_public_clock", "Rotunda to Old Senate Chamber", (22.4, 19.8), "north_south"),
+        ("house_gallery_public_clock", "House gallery public orientation", (22.0, -90.95), "east_west"),
+        ("senate_gallery_public_clock", "Senate gallery public orientation", (-22.0, 88.95), "east_west"),
+    ]:
+        wall_clock(name, area, center, orientation)
+
+    for index, (area, center, orientation) in enumerate([
+        ("Rotunda / east-west public approach", (-54.0, -3.18), "east_west"),
+        ("Rotunda / east-west public approach", (-18.0, 3.18), "east_west"),
+        ("Rotunda / east-west public approach", (18.0, -3.18), "east_west"),
+        ("Rotunda / east-west public approach", (54.0, 3.18), "east_west"),
+        ("Rotunda to House Chamber public orientation", (-2.88, -36.0), "north_south"),
+        ("Rotunda to House Chamber public orientation", (2.88, -20.0), "north_south"),
+        ("Rotunda to Senate Chamber public orientation", (-2.88, 20.0), "north_south"),
+        ("Rotunda to Senate Chamber public orientation", (2.88, 36.0), "north_south"),
+        ("Rotunda to National Statuary Hall", (20.2, -17.1), "north_south"),
+        ("Rotunda to Old Senate Chamber", (20.2, 17.1), "north_south"),
+        ("House gallery public orientation", (-24.0, -90.95), "east_west"),
+        ("Senate gallery public orientation", (24.0, 88.95), "east_west"),
+    ], start=1):
+        public_safety_cabinet(f"public_corridor_safety_cabinet_{index:02d}", area, center, orientation)
+
+    for index, (area, center, orientation) in enumerate([
+        ("Rotunda / east-west public approach", (-60.0, 3.16), "east_west"),
+        ("Rotunda / east-west public approach", (-44.0, -3.16), "east_west"),
+        ("Rotunda / east-west public approach", (-12.0, 3.16), "east_west"),
+        ("Rotunda / east-west public approach", (12.0, -3.16), "east_west"),
+        ("Rotunda / east-west public approach", (44.0, 3.16), "east_west"),
+        ("Rotunda / east-west public approach", (60.0, -3.16), "east_west"),
+        ("Rotunda to House Chamber public orientation", (-2.88, -46.0), "north_south"),
+        ("Rotunda to House Chamber public orientation", (2.88, -32.0), "north_south"),
+        ("Rotunda to House Chamber public orientation", (-2.88, -18.0), "north_south"),
+        ("Rotunda to Senate Chamber public orientation", (2.88, 18.0), "north_south"),
+        ("Rotunda to Senate Chamber public orientation", (-2.88, 32.0), "north_south"),
+        ("Rotunda to Senate Chamber public orientation", (2.88, 46.0), "north_south"),
+        ("Rotunda to National Statuary Hall", (24.4, -22.0), "north_south"),
+        ("Rotunda to Old Senate Chamber", (24.4, 22.0), "north_south"),
+        ("House gallery public orientation", (8.0, -90.95), "east_west"),
+        ("Senate gallery public orientation", (-8.0, 88.95), "east_west"),
+    ], start=1):
+        emergency_light_block(f"public_corridor_emergency_light_{index:02d}", area, center, orientation)
+
+    service_plate_specs: list[tuple[str, str, tuple[float, float], str]] = []
+    for x in [-58.0, -38.0, -18.0, 18.0, 38.0, 58.0]:
+        service_plate_specs.append(("east_west_axis_south", "Rotunda / east-west public approach", (x, -3.20), "east_west"))
+        service_plate_specs.append(("east_west_axis_north", "Rotunda / east-west public approach", (x, 3.20), "east_west"))
+    for y in [-48.0, -40.0, -30.0, -22.0]:
+        service_plate_specs.append(("house_axis_west", "Rotunda to House Chamber public orientation", (-2.92, y), "north_south"))
+        service_plate_specs.append(("house_axis_east", "Rotunda to House Chamber public orientation", (2.92, y), "north_south"))
+    for y in [22.0, 30.0, 40.0, 48.0]:
+        service_plate_specs.append(("senate_axis_west", "Rotunda to Senate Chamber public orientation", (-2.92, y), "north_south"))
+        service_plate_specs.append(("senate_axis_east", "Rotunda to Senate Chamber public orientation", (2.92, y), "north_south"))
+    for index, (prefix, area, center, orientation) in enumerate(service_plate_specs, start=1):
+        wall_service_plates(f"{prefix}_service_plate_pair_{index:02d}", area, center, orientation)
+
+    add_label(labels, "Public circulation thresholds, portals, orientation signs, and small wall fixtures - schematic", -17.0, 0.0, 7.3, "public_circulation_detail")
+    add_label(labels, "Public corridor pilasters, sconces, floor medallions, route arrows, low guide rails, clocks, directories, and utility plates - schematic", 17.0, 0.0, 7.3, "public_circulation_detail")
 
 
 def add_public_signage_detail_record(

@@ -1034,6 +1034,16 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "public_route_floor_arrow",
     "public_route_chevron",
     "public_low_guide_rail",
+    "public_directory_board",
+    "public_directory_line_glyph",
+    "public_wall_clock",
+    "public_wall_clock_hand_pair",
+    "generic_public_safety_cabinet",
+    "generic_public_safety_cabinet_glass",
+    "generic_public_emergency_light_block",
+    "generic_public_emergency_light_lens_pair",
+    "public_wall_switch_plate",
+    "public_wall_outlet_plate",
 }
 
 REQUIRED_SIGNAGE_DETAIL_KINDS = {
@@ -2639,8 +2649,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
     summary["circulation_details"] = len(circulation_details)
     summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
-    if len(circulation_details) < 255:
-        error(errors, f"expected at least 255 public circulation detail records, got {len(circulation_details)}")
+    if len(circulation_details) < 410:
+        error(errors, f"expected at least 410 public circulation detail records, got {len(circulation_details)}")
     missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
     if missing_circulation_kinds:
         error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
@@ -2678,6 +2688,26 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 14 public route chevron records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_low_guide_rail"]) < 12:
         error(errors, "expected at least 12 public low guide-rail records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_directory_board"]) < 6:
+        error(errors, "expected at least 6 public directory-board records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_directory_line_glyph"]) < 24:
+        error(errors, "expected at least 24 public directory line-glyph records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_wall_clock"]) < 8:
+        error(errors, "expected at least 8 public wall-clock records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_wall_clock_hand_pair"]) < 8:
+        error(errors, "expected at least 8 public wall-clock hand-pair records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "generic_public_safety_cabinet"]) < 12:
+        error(errors, "expected at least 12 generic public safety-cabinet records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "generic_public_safety_cabinet_glass"]) < 12:
+        error(errors, "expected at least 12 generic public safety-cabinet glass records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "generic_public_emergency_light_block"]) < 16:
+        error(errors, "expected at least 16 generic public emergency-light block records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "generic_public_emergency_light_lens_pair"]) < 16:
+        error(errors, "expected at least 16 generic public emergency-light lens-pair records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_wall_switch_plate"]) < 28:
+        error(errors, "expected at least 28 public wall switch-plate records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_wall_outlet_plate"]) < 28:
+        error(errors, "expected at least 28 public wall outlet-plate records")
     for detail in circulation_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} has invalid center_m")
