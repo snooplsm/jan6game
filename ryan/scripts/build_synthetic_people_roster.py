@@ -151,6 +151,25 @@ SKIN_DETAILS = [
     "rough sun-exposed cheek texture",
 ]
 
+DISTINGUISHING_MARKS = [
+    "several small natural facial moles of varied size, asymmetrically placed",
+    "one larger flat mole on one cheek plus a few tiny scattered moles",
+    "old pitted acne scars across both cheeks, subtle but visible",
+    "ice-pick acne scarring on the cheeks and temples with enlarged pores",
+    "uneven old acne scarring around the cheeks, jawline, and temples",
+    "a small natural birthmark near the jawline plus faint cheek acne scars",
+    "multiple tiny flat moles on the face and scalp, all natural-looking",
+    "minor acne-scar texture and shallow pockmarks on one cheek",
+]
+
+# Non-diagnostic visual wear only. Do not label or infer addiction from a face.
+HARD_LIVING_TEXTURES = [
+    "drawn tired face with under-eye shadows, dry uneven skin, and chapped-looking lips; do not imply a specific medical condition or drug use",
+    "sleep-deprived look with hollow under-eyes, dull uneven complexion, and rough dry skin texture; keep it realistic and non-diagnostic",
+    "hard-living facial wear: tired eyelids, mottled complexion, dehydrated-looking skin, and slightly hollow temples; no explicit diagnosis",
+    "fatigued, unhealthy-looking skin texture with under-eye bags, redness around the nose, and dry lips; avoid any specific medical label",
+]
+
 IRISES = ["brown", "dark brown", "hazel", "green", "gray", "blue", "amber"]
 
 
@@ -164,6 +183,7 @@ Complexion target: {complexion_note}
 
 Weathering target: {weathering_note}
 
+{distinguishing_marks_line}{hard_living_line}
 Body-habitus target visible in the head and neck: {habitus_note}
 
 Aesthetic target: strongly prefer plain, rugged, unpolished, below-average conventional attractiveness. Keep the person realistic and anatomically normal, but avoid beauty-model facial symmetry, perfect skin, glamorous proportions, chiseled hero jaws, polished skin, or repeated handsome/pretty archetypes.
@@ -314,6 +334,20 @@ def attractiveness_for(i: int) -> str:
     return labels[i % len(labels)]
 
 
+def distinguishing_marks_note_for(i: int) -> str:
+    if i % 4 == 0 or i % 9 == 0:
+        return DISTINGUISHING_MARKS[(i * 3) % len(DISTINGUISHING_MARKS)]
+    if i % 7 == 0:
+        return DISTINGUISHING_MARKS[(i * 5) % len(DISTINGUISHING_MARKS)]
+    return ""
+
+
+def hard_living_note_for(i: int) -> str:
+    if i % 11 == 0 or i % 17 == 0:
+        return HARD_LIVING_TEXTURES[(i * 2) % len(HARD_LIVING_TEXTURES)]
+    return ""
+
+
 def record_for(i: int) -> dict[str, str | int]:
     category = DEMOGRAPHIC_SEQUENCE[i - 1]
     age = age_for(i)
@@ -325,6 +359,18 @@ def record_for(i: int) -> dict[str, str | int]:
     habitus_group = habitus_group_for(habitus_note)
     aesthetic_note = aesthetic_note_for(i)
     attractiveness_note = attractiveness_for(i)
+    distinguishing_marks_note = distinguishing_marks_note_for(i)
+    hard_living_note = hard_living_note_for(i)
+    distinguishing_marks_line = (
+        f"Distinguishing marks target: {distinguishing_marks_note}\n\n"
+        if distinguishing_marks_note
+        else ""
+    )
+    hard_living_line = (
+        f"Non-diagnostic hard-living texture target: {hard_living_note}\n\n"
+        if hard_living_note
+        else ""
+    )
     prompt = BASE_PROMPT.format(
         person_id=person_id,
         sex=sex,
@@ -333,6 +379,8 @@ def record_for(i: int) -> dict[str, str | int]:
         skin_tone=skin_tone,
         complexion_note=complexion_note_for(category, skin_tone),
         weathering_note=weathering_note,
+        distinguishing_marks_line=distinguishing_marks_line,
+        hard_living_line=hard_living_line,
         habitus_note=habitus_note,
         skull=SKULLS[i % len(SKULLS)],
         nose=NOSES[(i * 2) % len(NOSES)],
@@ -354,6 +402,8 @@ def record_for(i: int) -> dict[str, str | int]:
         "background": background_for(category, i),
         "skin_tone": skin_tone,
         "weathering_note": weathering_note,
+        "distinguishing_marks_note": distinguishing_marks_note,
+        "hard_living_note": hard_living_note,
         "habitus_note": habitus_note,
         "habitus_group": habitus_group,
         "aesthetic_note": aesthetic_note,
@@ -389,6 +439,8 @@ def main() -> None:
                 "background",
                 "skin_tone",
                 "weathering_note",
+                "distinguishing_marks_note",
+                "hard_living_note",
                 "habitus_note",
                 "habitus_group",
                 "aesthetic_note",
@@ -436,6 +488,8 @@ def main() -> None:
                 "- Future prompts intentionally lean toward plain, rugged, unpolished, below-average conventional attractiveness.",
                 "- Avoid model-like symmetry, perfect skin, glamor, and heroic/chiseled faces.",
                 "- Keep anatomy realistic and normal; variation should come from natural asymmetry, weathering, pores, facial fullness, gauntness, and ordinary proportions.",
+                "- Some future prompts explicitly include natural moles, birthmarks, pitted acne scars, and shallow acne-scar texture.",
+                "- For hard-living or substance-use-coded requests, use non-diagnostic visual texture only: tired eyes, dry uneven skin, dull complexion, chapped-looking lips, and drawn features without labeling a person as addicted.",
                 "",
             ]
         ),

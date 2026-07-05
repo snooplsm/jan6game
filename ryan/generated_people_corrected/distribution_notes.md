@@ -27,3 +27,5 @@ Aesthetic bias:
 - Future prompts intentionally lean toward plain, rugged, unpolished, below-average conventional attractiveness.
 - Avoid model-like symmetry, perfect skin, glamor, and heroic/chiseled faces.
 - Keep anatomy realistic and normal; variation should come from natural asymmetry, weathering, pores, facial fullness, gauntness, and ordinary proportions.
+- Some future prompts explicitly include natural moles, birthmarks, pitted acne scars, and shallow acne-scar texture.
+- For hard-living or substance-use-coded requests, use non-diagnostic visual texture only: tired eyes, dry uneven skin, dull complexion, chapped-looking lips, and drawn features without labeling a person as addicted.

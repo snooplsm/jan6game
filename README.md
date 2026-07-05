@@ -71,3 +71,4 @@ The generated people are fictional references for character creation:
 
 - `ryan/generated_people_corrected/manifest.csv`
 - `ryan/generated_people_corrected/distribution_notes.md`
+- `avatars/` - external avatar reference metadata with source URLs, appearance notes, and clothing descriptions
