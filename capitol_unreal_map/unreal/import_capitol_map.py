@@ -868,6 +868,11 @@ def spawn_metadata_lights() -> None:
             for detail in data.get("exterior", {}).get("grounds_details", [])
             if detail.get("kind") == "public_walk_lamp" and detail.get("light_m")
         ]
+        landmark_facade_lights = [
+            detail
+            for detail in data.get("landmark", {}).get("facade_details", [])
+            if detail.get("kind") in {"public_entry_lamp", "facade_uplight"} and detail.get("light_m")
+        ]
     except Exception as exc:
         log(f"Lighting metadata skipped: {exc}")
         return
@@ -895,6 +900,18 @@ def spawn_metadata_lights() -> None:
                 "color": detail.get("color", [1.0, 0.82, 0.55]),
             }
         )
+    for detail in landmark_facade_lights:
+        fixtures.append(
+            {
+                "name": detail.get("name", "landmark_facade_light"),
+                "type": detail.get("kind", "landmark_facade_light"),
+                "location": "Capitol public exterior facade",
+                "center_m": detail.get("light_m"),
+                "intensity": detail.get("intensity", 430.0),
+                "attenuation_radius_m": detail.get("attenuation_radius_m", 8.0),
+                "color": detail.get("color", [1.0, 0.80, 0.55]),
+            }
+        )
     for fixture in fixtures:
         try:
             light = unreal.EditorLevelLibrary.spawn_actor_from_class(
@@ -913,11 +930,12 @@ def spawn_metadata_lights() -> None:
                 set_property(component, "light_color", unreal.Color(int(color[0] * 255), int(color[1] * 255), int(color[2] * 255), 255))
         except Exception as exc:
             log(f"Light fixture skipped ({fixture.get('name', '<unknown>')}): {exc}")
-    if exterior_streetlights:
+    if exterior_streetlights or grounds_walk_lamps or landmark_facade_lights:
         log(
             "Spawned metadata lights including "
             f"{len(exterior_streetlights)} capped exterior streetlights and "
-            f"{len(grounds_walk_lamps)} public grounds walk lamps"
+            f"{len(grounds_walk_lamps)} public grounds walk lamps and "
+            f"{len(landmark_facade_lights)} Capitol facade lights"
         )
 
 
@@ -1038,6 +1056,13 @@ def write_unreal_import_report(
                         detail
                         for detail in data.get("exterior", {}).get("grounds_details", [])
                         if detail.get("kind") == "public_walk_lamp"
+                    ]
+                ),
+                "landmark_facade_lights": len(
+                    [
+                        detail
+                        for detail in data.get("landmark", {}).get("facade_details", [])
+                        if detail.get("kind") in {"public_entry_lamp", "facade_uplight"} and detail.get("light_m")
                     ]
                 ),
                 "rooms": len(data.get("interior", {}).get("rooms", [])),

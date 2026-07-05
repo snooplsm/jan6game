@@ -151,6 +151,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "street_markers",
     "grounds_details",
     "grounds_walk_lamps",
+    "landmark_facade_lights",
     "rooms",
     "seating",
     "office_cells",
@@ -574,6 +575,8 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "public_stair_tread",
     "public_approach_handrail",
     "public_door_surround",
+    "public_entry_lamp",
+    "facade_uplight",
     "plaza_wear_patch",
     "roof_balustrade",
     "roof_articulation_volume",
@@ -923,8 +926,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 1680:
-        error(errors, f"expected at least 1680 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 1710:
+        error(errors, f"expected at least 1710 public facade/furniture visual details, got {len(facade_details)}")
     missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
     if missing_facade_kinds:
         error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
@@ -950,6 +953,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public approach handrail records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_door_surround"]) < 12:
         error(errors, "expected at least 12 public door surround records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_entry_lamp"]) < 16:
+        error(errors, "expected at least 16 public entry lamp records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_uplight"]) < 24:
+        error(errors, "expected at least 24 public facade uplight records")
     if len([detail for detail in facade_details if detail.get("kind") == "plaza_wear_patch"]) < 30:
         error(errors, "expected at least 30 public plaza wear patch records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
@@ -980,6 +987,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 lantern column records")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_balustrade"]) < 1:
         error(errors, "expected public lantern balustrade record")
+    for detail in [item for item in facade_details if item.get("kind") in {"public_entry_lamp", "facade_uplight"}]:
+        if not is_vec3(detail.get("light_m")):
+            error(errors, f"facade light {detail.get('name', '<unknown>')} has invalid light_m")
+            break
+        if not is_number(detail.get("intensity")) or not is_number(detail.get("attenuation_radius_m")):
+            error(errors, f"facade light {detail.get('name', '<unknown>')} has invalid light properties")
+            break
     for detail in facade_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"facade detail {detail.get('name', '<unknown>')} has invalid center_m")

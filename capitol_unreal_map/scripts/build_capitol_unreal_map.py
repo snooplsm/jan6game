@@ -1508,6 +1508,24 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"light_m": [round(x, 3), round(y, 3), 3.55], "intensity": 520.0, "attenuation_radius_m": 8.0},
         )
 
+    def add_facade_uplight(name: str, center: tuple[float, float], aimed_at: tuple[float, float, float]) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.18, 0.12, 0.08, f"{name}_round_base", "LightFixtureMetal", segments=14)
+        obj.add_cylinder((x, y), 0.12, 0.20, 0.16, f"{name}_warm_lens", "WarmLightGlass", segments=14)
+        obj.add_box((x, y), (0.34, 0.12), 0.08, 0.26, f"{name}_metal_yoke", "LightFixtureMetal")
+        add_facade_detail(
+            name,
+            "facade_uplight",
+            (x, y, 0.34),
+            {
+                "light_m": [round(x, 3), round(y, 3), 0.82],
+                "aimed_at_m": [round(aimed_at[0], 3), round(aimed_at[1], 3), round(aimed_at[2], 3)],
+                "intensity": 430.0,
+                "attenuation_radius_m": 8.5,
+                "color": [1.0, 0.80, 0.55],
+            },
+        )
+
     def add_roof_cap(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         obj.add_box(center, size, 0.48, z, f"{name}_parapet_cap", "ColumnStone")
         obj.add_box(center, (size[0] * 0.92, size[1] * 0.92), 0.22, z + 0.48, f"{name}_slightly_recessed_roof", "CapitolDome")
@@ -2165,6 +2183,21 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         for lamp_index, x in enumerate([-18.0, -6.0, 6.0, 18.0], start=1):
             add_public_entry_lamp(f"{side}_wing_lamp_{lamp_index}", (x, y * 0.95))
         add_approach_handrails(f"{side}_wing_approach_handrail", "north_south", (0.0, y * 0.985), 10.0, (-24.5, 24.5))
+
+    for side, x in (("east", 70.0), ("west", -70.0)):
+        for light_index, y in enumerate([-30.0, -20.0, -10.0, 10.0, 20.0, 30.0], start=1):
+            add_facade_uplight(
+                f"{side}_front_facade_uplight_{light_index:02d}",
+                (x, y),
+                (x * 0.88, y, 7.5),
+            )
+    for side, y in (("north", 104.0), ("south", -104.0)):
+        for light_index, x in enumerate([-26.0, -16.0, -6.0, 6.0, 16.0, 26.0], start=1):
+            add_facade_uplight(
+                f"{side}_wing_facade_uplight_{light_index:02d}",
+                (x, y),
+                (x, y * 0.92, 7.0),
+            )
 
     for side, x in (("east", 76.0), ("west", -76.0)):
         for patch_index, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
