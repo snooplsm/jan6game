@@ -23,6 +23,7 @@ SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2026-07-04.json"
 DCGIS_ELEVATION_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
 DCGIS_TRAFFIC_SIGN_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
 DCGIS_FIXTURE_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_public_fixtures.json"
+DCGIS_GROUND_SURFACE_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_ground_surfaces.json"
 GENERATED = ROOT / "generated"
 MESH_DIR = GENERATED / "meshes"
 DATA_DIR = GENERATED / "data"
@@ -72,6 +73,30 @@ class DcgisFixturePoint:
     feature_id: int
     feature_code: int
     angle_degrees: float
+    description: str
+    dxf_layer: str
+    source_layer: str
+    source_label: str
+
+
+@dataclass(frozen=True)
+class DcgisPolylineFeature:
+    points: tuple[tuple[float, float], ...]
+    object_id: int
+    feature_id: int
+    feature_code: int
+    description: str
+    dxf_layer: str
+    source_layer: str
+    source_label: str
+
+
+@dataclass(frozen=True)
+class DcgisPolygonFeature:
+    rings: tuple[tuple[tuple[float, float], ...], ...]
+    object_id: int
+    feature_id: int
+    feature_code: int
     description: str
     dxf_layer: str
     source_layer: str
@@ -947,6 +972,155 @@ def select_spaced_dcgis_points(
     return selected
 
 
+def parse_dcgis_polyline_features(
+    features: list[dict[str, Any]],
+    source_layer: str,
+    source_label: str,
+    id_field: str,
+    code_field: str,
+) -> list[DcgisPolylineFeature]:
+    parsed: list[DcgisPolylineFeature] = []
+    for feature in features:
+        geometry = feature.get("geometry") or {}
+        attributes = feature.get("attributes") or {}
+        raw_paths = geometry.get("paths") or []
+        if not raw_paths:
+            continue
+        points: list[tuple[float, float]] = []
+        for raw_point in raw_paths[0]:
+            if len(raw_point) < 2:
+                continue
+            points.append(local_xy(float(raw_point[1]), float(raw_point[0])))
+        if len(points) < 2:
+            continue
+        parsed.append(
+            DcgisPolylineFeature(
+                points=tuple(points),
+                object_id=dcgis_int(attributes.get("OBJECTID")),
+                feature_id=dcgis_int(attributes.get(id_field)),
+                feature_code=dcgis_int(attributes.get(code_field)),
+                description=str(attributes.get("SNAPS_TO") or attributes.get("DESC_") or source_label),
+                dxf_layer=str(attributes.get("DXF_LAYER") or ""),
+                source_layer=source_layer,
+                source_label=source_label,
+            )
+        )
+    return parsed
+
+
+def parse_dcgis_polygon_features(
+    features: list[dict[str, Any]],
+    source_layer: str,
+    source_label: str,
+    id_field: str,
+    code_field: str,
+) -> list[DcgisPolygonFeature]:
+    parsed: list[DcgisPolygonFeature] = []
+    for feature in features:
+        geometry = feature.get("geometry") or {}
+        attributes = feature.get("attributes") or {}
+        rings: list[tuple[tuple[float, float], ...]] = []
+        for raw_ring in geometry.get("rings") or []:
+            points: list[tuple[float, float]] = []
+            for raw_point in raw_ring:
+                if len(raw_point) < 2:
+                    continue
+                points.append(local_xy(float(raw_point[1]), float(raw_point[0])))
+            if len(points) >= 3:
+                rings.append(tuple(points))
+        if not rings:
+            continue
+        parsed.append(
+            DcgisPolygonFeature(
+                rings=tuple(rings),
+                object_id=dcgis_int(attributes.get("OBJECTID")),
+                feature_id=dcgis_int(attributes.get(id_field)),
+                feature_code=dcgis_int(attributes.get(code_field)),
+                description=str(attributes.get("DESC_") or source_label),
+                dxf_layer=str(attributes.get("DXF_LAYER") or ""),
+                source_layer=source_layer,
+                source_label=source_label,
+            )
+        )
+    return parsed
+
+
+def load_dcgis_ground_surfaces() -> dict[str, Any]:
+    if not DCGIS_GROUND_SURFACE_SOURCE.exists():
+        return {
+            "available": False,
+            "source_file": str(DCGIS_GROUND_SURFACE_SOURCE.relative_to(ROOT)),
+            "curbs": [],
+            "roads": [],
+            "sidewalks": [],
+        }
+    data = json.loads(DCGIS_GROUND_SURFACE_SOURCE.read_text(encoding="utf-8"))
+    layers = data.get("layers", {})
+    curbs = parse_dcgis_polyline_features(
+        layers.get("curbs_1999", {}).get("features", []),
+        "curbs_1999",
+        "Curbs - 1999",
+        "CRBLNC_ID",
+        "CRB_CODE",
+    )
+    roads = parse_dcgis_polygon_features(
+        layers.get("roads_1999", {}).get("features", []),
+        "roads_1999",
+        "Roads - 1999",
+        "RDS_ID",
+        "RDS_CODE",
+    )
+    sidewalks = parse_dcgis_polygon_features(
+        layers.get("sidewalks_1999", {}).get("features", []),
+        "sidewalks_1999",
+        "Sidewalks - 1999",
+        "SDW_ID",
+        "SDW_CODE",
+    )
+    return {
+        "available": True,
+        "source_file": str(DCGIS_GROUND_SURFACE_SOURCE.relative_to(ROOT)),
+        "service_url": data.get("service_url"),
+        "bbox_lonlat": data.get("bbox_lonlat"),
+        "retrieved_utc": data.get("retrieved_utc"),
+        "curbs": curbs,
+        "roads": roads,
+        "sidewalks": sidewalks,
+        "curb_count": len(curbs),
+        "road_polygon_count": len(roads),
+        "sidewalk_polygon_count": len(sidewalks),
+    }
+
+
+def polyline_length(points: tuple[tuple[float, float], ...] | list[tuple[float, float]]) -> float:
+    return sum(math.hypot(x1 - x0, y1 - y0) for (x0, y0), (x1, y1) in zip(points, points[1:]))
+
+
+def polygon_feature_center(feature: DcgisPolygonFeature) -> tuple[float, float]:
+    ring = feature.rings[0]
+    return (sum(point[0] for point in ring) / len(ring), sum(point[1] for point in ring) / len(ring))
+
+
+def polygon_feature_bounds(feature: DcgisPolygonFeature) -> tuple[float, float, float, float]:
+    points = [point for ring in feature.rings for point in ring]
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def select_polygon_features(
+    polygons: list[DcgisPolygonFeature],
+    limit: int,
+    min_area_m2: float,
+) -> list[DcgisPolygonFeature]:
+    ranked = sorted(
+        polygons,
+        key=lambda feature: polygon_area_m2(list(feature.rings[0])),
+        reverse=True,
+    )
+    return [feature for feature in ranked if polygon_area_m2(list(feature.rings[0])) >= min_area_m2][:limit]
+
+
 def dcgis_height_estimate(
     footprint: list[tuple[float, float]],
     current_height: float,
@@ -1260,6 +1434,10 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     dcgis_miscellaneous_points = dcgis_fixture_model.get("miscellaneous_points", [])
     dcgis_street_trees = dcgis_fixture_model.get("street_trees", [])
     dcgis_utility_poles = dcgis_fixture_model.get("utility_poles", [])
+    dcgis_ground_surface_model = load_dcgis_ground_surfaces()
+    dcgis_curb_lines = dcgis_ground_surface_model.get("curbs", [])
+    dcgis_road_polygons = dcgis_ground_surface_model.get("roads", [])
+    dcgis_sidewalk_polygons = dcgis_ground_surface_model.get("sidewalks", [])
     dcgis_height_match_count = 0
     metadata: dict[str, Any] = {
         "buildings": [],
@@ -1326,6 +1504,24 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "Public DCGIS 1999 planimetric hydrant, miscellaneous point, tree, and utility-pole features "
                 "are rendered as generic public streetscape fixtures. Dense layers are spatially sampled for "
                 "performance while retaining source counts and feature IDs in metadata."
+            ),
+        },
+        "ground_surface_model": {
+            "source_file": dcgis_ground_surface_model.get("source_file"),
+            "service_url": dcgis_ground_surface_model.get("service_url"),
+            "retrieved_utc": dcgis_ground_surface_model.get("retrieved_utc"),
+            "bbox_lonlat": dcgis_ground_surface_model.get("bbox_lonlat"),
+            "dcgis_curb_lines": dcgis_ground_surface_model.get("curb_count", 0),
+            "dcgis_road_polygons": dcgis_ground_surface_model.get("road_polygon_count", 0),
+            "dcgis_sidewalk_polygons": dcgis_ground_surface_model.get("sidewalk_polygon_count", 0),
+            "generated_curb_line_props": 0,
+            "generated_sidewalk_edge_props": 0,
+            "generated_sidewalk_surface_patches": 0,
+            "generated_road_edge_props": 0,
+            "generated_road_surface_patches": 0,
+            "dcgis_note": (
+                "Public DCGIS 1999 curb polylines and road/sidewalk polygons are rendered as curb strips, "
+                "edge strips, and bounded surface patches instead of full arbitrary polygon triangulation."
             ),
         },
     }
@@ -2389,6 +2585,91 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             "dcgis_misc_public_fixture",
             (x, y, center_z),
             public_accuracy="public_1999_planimetric_misc_point_generic_visual",
+            extra=extra,
+        )
+
+    def dcgis_surface_extra(feature: DcgisPolylineFeature | DcgisPolygonFeature) -> dict[str, Any]:
+        return {
+            "source": f"DCGIS Planimetrics 1999 {feature.source_label}",
+            "dcgis_object_id": feature.object_id,
+            "dcgis_feature_id": feature.feature_id,
+            "dcgis_feature_code": feature.feature_code,
+            "description": feature.description,
+            "dxf_layer": feature.dxf_layer,
+        }
+
+    def add_dcgis_curb_line(name: str, feature: DcgisPolylineFeature) -> None:
+        roads.add_polyline_strip(list(feature.points), 0.18, 0.218, name, "CurbConcrete")
+        midpoint = feature.points[len(feature.points) // 2]
+        extra = dcgis_surface_extra(feature)
+        extra["length_m"] = round(polyline_length(feature.points), 3)
+        add_streetscape_record(
+            name,
+            "dcgis_curb_line",
+            (midpoint[0], midpoint[1], 0.245),
+            public_accuracy="public_1999_planimetric_curb_line",
+            extra=extra,
+        )
+        metadata["curbs"].append(
+            {
+                "id": feature.object_id,
+                "name": name,
+                "side": "dcgis_planimetric",
+                "offset_m": 0.0,
+                "source": "DCGIS Planimetrics 1999 Curbs",
+                "dcgis_feature_id": feature.feature_id,
+                "length_m": round(polyline_length(feature.points), 3),
+            }
+        )
+
+    def add_dcgis_polygon_edges(
+        name: str,
+        feature: DcgisPolygonFeature,
+        kind: str,
+        material: str,
+        width: float,
+        z: float,
+    ) -> int:
+        count = 0
+        for ring_index, ring in enumerate(feature.rings[:2], start=1):
+            if len(ring) < 2:
+                continue
+            roads.add_polyline_strip(list(ring), width, z, f"{name}_edge_{ring_index}", material)
+            count += 1
+        center = polygon_feature_center(feature)
+        extra = dcgis_surface_extra(feature)
+        extra["edge_ring_count"] = count
+        add_streetscape_record(
+            name,
+            kind,
+            (center[0], center[1], z + 0.025),
+            public_accuracy="public_1999_planimetric_polygon_edge_visual",
+            extra=extra,
+        )
+        return 1 if count else 0
+
+    def add_dcgis_surface_patch(
+        name: str,
+        feature: DcgisPolygonFeature,
+        kind: str,
+        material: str,
+        z: float,
+        max_size: tuple[float, float],
+    ) -> None:
+        min_x, min_y, max_x, max_y = polygon_feature_bounds(feature)
+        center = polygon_feature_center(feature)
+        size = (min(max_x - min_x, max_size[0]), min(max_y - min_y, max_size[1]))
+        if size[0] < 0.8 or size[1] < 0.8:
+            return
+        roads.add_box(center, size, 0.018, z, name, material)
+        extra = dcgis_surface_extra(feature)
+        extra["patch_size_m"] = [round(size[0], 3), round(size[1], 3)]
+        extra["source_area_m2"] = round(polygon_area_m2(list(feature.rings[0])), 3)
+        add_streetscape_record(
+            name,
+            kind,
+            (center[0], center[1], z + 0.020),
+            public_accuracy="public_1999_planimetric_polygon_bounded_patch",
             extra=extra,
         )
 
@@ -3536,6 +3817,75 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     metadata["public_fixture_model"]["generated_misc_fixture_props"] = len(selected_misc)
     metadata["public_fixture_model"]["generated_street_tree_props"] = len(selected_trees)
     metadata["public_fixture_model"]["generated_utility_pole_props"] = len(selected_utility_poles)
+
+    generated_curb_line_props = 0
+    for feature in sorted(dcgis_curb_lines, key=lambda item: item.object_id):
+        add_dcgis_curb_line(f"dcgis_curb_line_{feature.object_id}", feature)
+        generated_curb_line_props += 1
+
+    generated_sidewalk_edge_props = 0
+    for feature in sorted(dcgis_sidewalk_polygons, key=lambda item: item.object_id):
+        generated_sidewalk_edge_props += add_dcgis_polygon_edges(
+            f"dcgis_sidewalk_polygon_{feature.object_id}",
+            feature,
+            "dcgis_sidewalk_edge",
+            "SidewalkConcrete",
+            0.16,
+            0.212,
+        )
+        center = polygon_feature_center(feature)
+        metadata["sidewalks"].append(
+            {
+                "id": feature.object_id,
+                "name": f"dcgis_sidewalk_polygon_{feature.object_id}",
+                "side": "dcgis_planimetric_polygon",
+                "width_m": None,
+                "source_tag": "DCGIS Planimetrics 1999 Sidewalks",
+                "center_m": [round(center[0], 3), round(center[1], 3), 0.22],
+                "dcgis_feature_id": feature.feature_id,
+                "area_m2": round(polygon_area_m2(list(feature.rings[0])), 3),
+            }
+        )
+
+    selected_sidewalk_patches = select_polygon_features(dcgis_sidewalk_polygons, 220, 8.0)
+    for feature in selected_sidewalk_patches:
+        add_dcgis_surface_patch(
+            f"dcgis_sidewalk_surface_patch_{feature.object_id}",
+            feature,
+            "dcgis_sidewalk_surface_patch",
+            "SidewalkConcrete",
+            0.186,
+            (7.5, 7.5),
+        )
+
+    selected_road_edges = select_polygon_features(dcgis_road_polygons, 220, 18.0)
+    generated_road_edge_props = 0
+    for feature in selected_road_edges:
+        generated_road_edge_props += add_dcgis_polygon_edges(
+            f"dcgis_road_polygon_{feature.object_id}",
+            feature,
+            "dcgis_road_edge",
+            "RoadPatchAsphalt",
+            0.14,
+            0.203,
+        )
+
+    selected_road_patches = select_polygon_features(dcgis_road_polygons, 140, 30.0)
+    for feature in selected_road_patches:
+        add_dcgis_surface_patch(
+            f"dcgis_road_surface_patch_{feature.object_id}",
+            feature,
+            "dcgis_road_surface_patch",
+            "RoadPatchAsphalt",
+            0.176,
+            (10.0, 10.0),
+        )
+
+    metadata["ground_surface_model"]["generated_curb_line_props"] = generated_curb_line_props
+    metadata["ground_surface_model"]["generated_sidewalk_edge_props"] = generated_sidewalk_edge_props
+    metadata["ground_surface_model"]["generated_sidewalk_surface_patches"] = len(selected_sidewalk_patches)
+    metadata["ground_surface_model"]["generated_road_edge_props"] = generated_road_edge_props
+    metadata["ground_surface_model"]["generated_road_surface_patches"] = len(selected_road_patches)
 
     add_public_roadway_visual_details()
     add_capitol_grounds_details()
@@ -11131,6 +11481,17 @@ def write_scene_metadata(
                     "Utilities Poles - 1999",
                 ],
                 "usage": "Generic public hydrant, tree, utility-pole, and miscellaneous streetscape fixture props.",
+            },
+            "exterior_dcgis_planimetrics_1999_ground_surfaces": {
+                "file": exterior.get("ground_surface_model", {}).get("source_file"),
+                "service_url": exterior.get("ground_surface_model", {}).get("service_url"),
+                "retrieved_utc": exterior.get("ground_surface_model", {}).get("retrieved_utc"),
+                "layers": [
+                    "Curbs - 1999",
+                    "Roads - 1999",
+                    "Sidewalks - 1999",
+                ],
+                "usage": "Public curb-line, sidewalk-edge, and road/sidewalk surface-patch streetscape details.",
             },
         },
         "meshes": [

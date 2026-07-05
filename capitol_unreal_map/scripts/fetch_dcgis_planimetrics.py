@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ELEVATION_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
 TRAFFIC_SIGN_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
 FIXTURE_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_public_fixtures.json"
+GROUND_SURFACE_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_ground_surfaces.json"
 SERVICE_URL = "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planimetrics_1999/MapServer"
 BBOX_LONLAT = [-77.01770688017783, 38.882303355012574, -76.99693276775105, 38.89802380057492]
 ELEVATION_LAYERS = {
@@ -47,6 +48,20 @@ FIXTURE_LAYERS = {
     "utility_poles_1999": {
         "id": 8,
         "out_fields": "OBJECTID,ELT_ID,ELT_CODE,ELT_ANGL,DESC_,DXF_LAYER",
+    },
+}
+GROUND_SURFACE_LAYERS = {
+    "curbs_1999": {
+        "id": 9,
+        "out_fields": "OBJECTID,CRBLNC_ID,CRB_CODE,DXF_LAYER,SNAPS_TO,LENGTH",
+    },
+    "roads_1999": {
+        "id": 30,
+        "out_fields": "OBJECTID,RDS_ID,RDS_CODE,DXF_LAYER,FNAME,FTYPE,FSUFF,DESC_",
+    },
+    "sidewalks_1999": {
+        "id": 33,
+        "out_fields": "OBJECTID,SDW_ID,SDW_CODE,DXF_LAYER,DESC_",
     },
 }
 
@@ -115,10 +130,18 @@ def main() -> None:
             for name, spec in FIXTURE_LAYERS.items()
         },
     }
+    ground_surface_payload = {
+        **base_payload(),
+        "layers": {
+            name: fetch_layer(int(spec["id"]), str(spec["out_fields"]))
+            for name, spec in GROUND_SURFACE_LAYERS.items()
+        },
+    }
 
     ELEVATION_OUTPUT.write_text(json.dumps(elevation_payload, indent=2, sort_keys=True), encoding="utf-8")
     TRAFFIC_SIGN_OUTPUT.write_text(json.dumps(traffic_sign_payload, indent=2, sort_keys=True), encoding="utf-8")
     FIXTURE_OUTPUT.write_text(json.dumps(fixture_payload, indent=2, sort_keys=True), encoding="utf-8")
+    GROUND_SURFACE_OUTPUT.write_text(json.dumps(ground_surface_payload, indent=2, sort_keys=True), encoding="utf-8")
 
     print(f"Wrote {ELEVATION_OUTPUT}")
     for name, layer in elevation_payload["layers"].items():
@@ -128,6 +151,9 @@ def main() -> None:
         print(f"{name}: {layer['feature_count']} features")
     print(f"Wrote {FIXTURE_OUTPUT}")
     for name, layer in fixture_payload["layers"].items():
+        print(f"{name}: {layer['feature_count']} features")
+    print(f"Wrote {GROUND_SURFACE_OUTPUT}")
+    for name, layer in ground_surface_payload["layers"].items():
         print(f"{name}: {layer['feature_count']} features")
 
 

@@ -3706,6 +3706,6 @@
     }
   },
   "license_note": "Public DC GIS planimetrics data accessed through the DCGIS ArcGIS REST service.",
-  "retrieved_utc": "2026-07-05T15:27:29+00:00",
+  "retrieved_utc": "2026-07-05T15:35:50+00:00",
   "service_url": "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planimetrics_1999/MapServer"
 }

@@ -1201,6 +1201,11 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "dcgis_street_tree",
     "dcgis_utility_pole",
     "dcgis_misc_public_fixture",
+    "dcgis_curb_line",
+    "dcgis_sidewalk_edge",
+    "dcgis_sidewalk_surface_patch",
+    "dcgis_road_edge",
+    "dcgis_road_surface_patch",
     "curb_paint_segment",
     "road_asphalt_patch",
     "road_crack_line",
@@ -1674,6 +1679,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         "generated_street_tree_props": public_fixture_model.get("generated_street_tree_props"),
         "generated_utility_pole_props": public_fixture_model.get("generated_utility_pole_props"),
     }
+    ground_surface_model = exterior.get("ground_surface_model", {})
+    summary["ground_surface_model"] = {
+        "dcgis_curb_lines": ground_surface_model.get("dcgis_curb_lines"),
+        "dcgis_road_polygons": ground_surface_model.get("dcgis_road_polygons"),
+        "dcgis_sidewalk_polygons": ground_surface_model.get("dcgis_sidewalk_polygons"),
+        "generated_curb_line_props": ground_surface_model.get("generated_curb_line_props"),
+        "generated_sidewalk_edge_props": ground_surface_model.get("generated_sidewalk_edge_props"),
+        "generated_sidewalk_surface_patches": ground_surface_model.get("generated_sidewalk_surface_patches"),
+        "generated_road_edge_props": ground_surface_model.get("generated_road_edge_props"),
+        "generated_road_surface_patches": ground_surface_model.get("generated_road_surface_patches"),
+    }
     grounds_details = exterior.get("grounds_details", [])
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
     grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
@@ -1717,6 +1733,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 2000 pedestrian paths/footways")
     if summary["curbs"] < 1000:
         error(errors, "expected at least 1000 curb edge records")
+    if len(exterior.get("sidewalks", [])) < 600:
+        error(errors, "expected at least 600 public sidewalk records")
     if summary["lane_edge_markings"] < 500:
         error(errors, "expected at least 500 lane edge marking records")
     if summary["street_markers"] < 500:
@@ -1890,6 +1908,32 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "public_fixture_model generated street-tree count must match streetscape props")
     if (public_fixture_model.get("generated_utility_pole_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_utility_pole"]):
         error(errors, "public_fixture_model generated utility-pole count must match streetscape props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_curb_line"]) < 1200:
+        error(errors, "expected at least 1200 DCGIS curb-line props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_sidewalk_edge"]) < 600:
+        error(errors, "expected at least 600 DCGIS sidewalk-edge props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_sidewalk_surface_patch"]) < 200:
+        error(errors, "expected at least 200 DCGIS sidewalk surface-patch props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_road_edge"]) < 200:
+        error(errors, "expected at least 200 DCGIS road-edge props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_road_surface_patch"]) < 130:
+        error(errors, "expected at least 130 DCGIS road surface-patch props")
+    if (ground_surface_model.get("dcgis_curb_lines") or 0) < 1200:
+        error(errors, "expected at least 1200 DCGIS curb-line source features")
+    if (ground_surface_model.get("dcgis_road_polygons") or 0) < 1000:
+        error(errors, "expected at least 1000 DCGIS road polygon source features")
+    if (ground_surface_model.get("dcgis_sidewalk_polygons") or 0) < 600:
+        error(errors, "expected at least 600 DCGIS sidewalk polygon source features")
+    if (ground_surface_model.get("generated_curb_line_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_curb_line"]):
+        error(errors, "ground_surface_model generated curb-line count must match streetscape props")
+    if (ground_surface_model.get("generated_sidewalk_edge_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_sidewalk_edge"]):
+        error(errors, "ground_surface_model generated sidewalk-edge count must match streetscape props")
+    if (ground_surface_model.get("generated_sidewalk_surface_patches") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_sidewalk_surface_patch"]):
+        error(errors, "ground_surface_model generated sidewalk surface-patch count must match streetscape props")
+    if (ground_surface_model.get("generated_road_edge_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_road_edge"]):
+        error(errors, "ground_surface_model generated road-edge count must match streetscape props")
+    if (ground_surface_model.get("generated_road_surface_patches") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_road_surface_patch"]):
+        error(errors, "ground_surface_model generated road surface-patch count must match streetscape props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "curb_paint_segment"]) < 16:
         error(errors, "expected at least 16 public curb-paint segment props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "road_asphalt_patch"]) < 24:

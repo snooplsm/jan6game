@@ -7,7 +7,7 @@
     "roads": 3528,
     "bike_lanes": 445,
     "pedestrian_paths": 2533,
-    "curbs": 1216,
+    "curbs": 2523,
     "lane_edge_markings": 608,
     "street_markers": 880,
     "replaced_buildings": 1,
@@ -24,8 +24,8 @@
     },
     "building_details": 8064,
     "building_detail_kinds": 34,
-    "streetscape_props": 3474,
-    "streetscape_prop_kinds": 48,
+    "streetscape_props": 6001,
+    "streetscape_prop_kinds": 53,
     "traffic_sign_model": {
       "dcgis_traffic_sign_points": 252,
       "dcgis_overhead_signs": 6,
@@ -41,6 +41,16 @@
       "generated_misc_fixture_props": 240,
       "generated_street_tree_props": 480,
       "generated_utility_pole_props": 220
+    },
+    "ground_surface_model": {
+      "dcgis_curb_lines": 1307,
+      "dcgis_road_polygons": 1238,
+      "dcgis_sidewalk_polygons": 640,
+      "generated_curb_line_props": 1307,
+      "generated_sidewalk_edge_props": 640,
+      "generated_sidewalk_surface_patches": 220,
+      "generated_road_edge_props": 220,
+      "generated_road_surface_patches": 140
     },
     "grounds_details": 169,
     "grounds_detail_kinds": 12,
@@ -192,12 +202,12 @@
     },
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
-      "vertices": 366496,
-      "uvs": 854512,
-      "faces": 187922,
-      "faces_with_uvs": 187922,
-      "triangles": 478668,
-      "groups": 24297,
+      "vertices": 877004,
+      "uvs": 1370780,
+      "faces": 316989,
+      "faces_with_uvs": 316989,
+      "triangles": 736802,
+      "groups": 27018,
       "materials": [
         "BenchWood",
         "BikeLaneGreen",
@@ -237,12 +247,12 @@
       ],
       "bbox_cm": {
         "min": [
-          -100473.656,
-          -111292.2521,
+          -116165.5184,
+          -948771.2577,
           2.2
         ],
         "max": [
-          151793.6552,
+          191068.8452,
           114351.6042,
           520.0
         ]
