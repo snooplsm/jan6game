@@ -5102,31 +5102,71 @@ def add_light_fixture(
     x, y = center
     if fixture_type == "chandelier":
         obj.add_cylinder((x, y), 0.10, z + 0.18, 0.45, f"{name}_ceiling_chain", "LightFixtureMetal", segments=10)
+        obj.add_cylinder((x, y), 0.28, z + 0.61, 0.045, f"{name}_stepped_ceiling_canopy_outer", "LightFixtureMetal", segments=20)
         obj.add_cylinder((x, y), 0.22, z + 0.58, 0.06, f"{name}_ceiling_canopy", "LightFixtureMetal", segments=16)
+        obj.add_cylinder((x, y), 0.13, z + 0.50, 0.045, f"{name}_ceiling_canopy_inner_ring", "BrassRail", segments=16)
         obj.add_cylinder((x, y), 0.48, z - 0.16, 0.18, f"{name}_metal_ring", "LightFixtureMetal", segments=24)
+        obj.add_cylinder((x, y), 0.54, z - 0.04, 0.040, f"{name}_upper_trim_ring", "BrassRail", segments=24)
+        obj.add_cylinder((x, y), 0.12, z - 0.78, 0.12, f"{name}_center_finial", "BrassRail", segments=14)
         for idx in range(6):
             angle = math.tau * idx / 6.0
             px = x + 0.42 * math.cos(angle)
             py = y + 0.42 * math.sin(angle)
             obj.add_oriented_box((x + 0.21 * math.cos(angle), y + 0.21 * math.sin(angle)), (0.42, 0.045), 0.045, z - 0.20, angle, f"{name}_radial_arm_{idx+1}", "LightFixtureMetal")
+            obj.add_oriented_box((x + 0.36 * math.cos(angle), y + 0.36 * math.sin(angle)), (0.18, 0.026), 0.030, z - 0.34, angle, f"{name}_glass_shade_rib_{idx+1}", "BrassRail")
+            obj.add_cylinder((px, py), 0.13, z - 0.26, 0.040, f"{name}_glass_cup_trim_{idx+1}", "BrassRail", segments=12)
             obj.add_cylinder((px, py), 0.10, z - 0.55, 0.32, f"{name}_glass_bulb_{idx+1}", "WarmLightGlass", segments=12)
         add_light_fixture_detail_record(fixture_details, f"{name}_ceiling_chain_detail", "chandelier_chain", name, fixture_type, location, (x, y, z + 0.40))
         add_light_fixture_detail_record(fixture_details, f"{name}_armature_detail", "chandelier_armature", name, fixture_type, location, (x, y, z - 0.16), {"arm_count": 6})
         add_light_fixture_detail_record(fixture_details, f"{name}_glass_bulb_detail", "chandelier_glass_bulb_cluster", name, fixture_type, location, (x, y, z - 0.40), {"bulb_count": 6})
+        add_light_fixture_detail_record(fixture_details, f"{name}_beveled_mount_detail", "fixture_beveled_mount", name, fixture_type, location, (x, y, z + 0.58))
+        add_light_fixture_detail_record(fixture_details, f"{name}_trim_ring_detail", "fixture_glass_trim_ring", name, fixture_type, location, (x, y, z - 0.04))
+        add_light_fixture_detail_record(fixture_details, f"{name}_finial_detail", "fixture_finial_detail", name, fixture_type, location, (x, y, z - 0.72))
+        for idx in range(6):
+            angle = math.tau * idx / 6.0
+            add_light_fixture_detail_record(
+                fixture_details,
+                f"{name}_glass_shade_rib_detail_{idx+1}",
+                "fixture_glass_shade_rib",
+                name,
+                fixture_type,
+                location,
+                (x + 0.36 * math.cos(angle), y + 0.36 * math.sin(angle), z - 0.32),
+            )
     elif fixture_type == "sconce":
-        obj.add_box((x, y), (0.35, 0.12), 0.55, z - 0.28, f"{name}_sconce_backplate", "LightFixtureMetal")
-        obj.add_box((x, y), (0.44, 0.15), 0.08, z + 0.24, f"{name}_sconce_top_cap", "BrassRail")
-        obj.add_box((x, y), (0.44, 0.15), 0.08, z - 0.40, f"{name}_sconce_bottom_cap", "BrassRail")
+        obj.add_beveled_box((x, y), (0.35, 0.12), 0.55, z - 0.28, f"{name}_sconce_backplate", "LightFixtureMetal", 0.018)
+        obj.add_beveled_box((x, y), (0.44, 0.15), 0.08, z + 0.24, f"{name}_sconce_top_cap", "BrassRail", 0.014)
+        obj.add_beveled_box((x, y), (0.44, 0.15), 0.08, z - 0.40, f"{name}_sconce_bottom_cap", "BrassRail", 0.014)
+        obj.add_cylinder((x, y), 0.15, z + 0.19, 0.035, f"{name}_sconce_glass_top_trim", "BrassRail", segments=12)
+        obj.add_cylinder((x, y), 0.15, z - 0.39, 0.035, f"{name}_sconce_glass_bottom_trim", "BrassRail", segments=12)
         obj.add_cylinder((x, y), 0.13, z - 0.12, 0.32, f"{name}_sconce_glass", "WarmLightGlass", segments=12)
+        obj.add_oriented_box((x - 0.11, y), (0.14, 0.022), 0.030, z - 0.03, 0.0, f"{name}_sconce_glass_left_rib", "BrassRail")
+        obj.add_oriented_box((x + 0.11, y), (0.14, 0.022), 0.030, z - 0.03, 0.0, f"{name}_sconce_glass_right_rib", "BrassRail")
+        obj.add_cylinder((x, y), 0.07, z - 0.52, 0.08, f"{name}_sconce_lower_finial", "BrassRail", segments=10)
         add_light_fixture_detail_record(fixture_details, f"{name}_backplate_detail", "sconce_backplate_detail", name, fixture_type, location, (x, y, z - 0.02))
         add_light_fixture_detail_record(fixture_details, f"{name}_glass_shade_detail", "sconce_glass_shade_detail", name, fixture_type, location, (x, y, z + 0.04))
+        add_light_fixture_detail_record(fixture_details, f"{name}_beveled_mount_detail", "fixture_beveled_mount", name, fixture_type, location, (x, y, z - 0.02))
+        add_light_fixture_detail_record(fixture_details, f"{name}_trim_ring_detail", "fixture_glass_trim_ring", name, fixture_type, location, (x, y, z - 0.10))
+        add_light_fixture_detail_record(fixture_details, f"{name}_glass_rib_detail", "fixture_glass_shade_rib", name, fixture_type, location, (x, y, z - 0.03), {"rib_count": 2})
+        add_light_fixture_detail_record(fixture_details, f"{name}_finial_detail", "fixture_finial_detail", name, fixture_type, location, (x, y, z - 0.48))
     else:
+        obj.add_cylinder((x, y), 0.26, z + 0.55, 0.040, f"{name}_pendant_canopy_outer_step", "LightFixtureMetal", segments=20)
         obj.add_cylinder((x, y), 0.21, z + 0.50, 0.065, f"{name}_pendant_ceiling_canopy", "LightFixtureMetal", segments=16)
+        obj.add_cylinder((x, y), 0.13, z + 0.43, 0.035, f"{name}_pendant_canopy_inner_ring", "BrassRail", segments=16)
+        obj.add_cylinder((x, y), 0.30, z + 0.02, 0.040, f"{name}_pendant_upper_trim", "BrassRail", segments=16)
         obj.add_cylinder((x, y), 0.30, z - 0.28, 0.055, f"{name}_pendant_lower_trim", "BrassRail", segments=16)
         obj.add_cylinder((x, y), 0.26, z - 0.22, 0.32, f"{name}_pendant_glass", "WarmLightGlass", segments=16)
         obj.add_cylinder((x, y), 0.07, z + 0.10, 0.42, f"{name}_pendant_stem", "LightFixtureMetal", segments=10)
+        for idx in range(4):
+            angle = math.tau * idx / 4.0
+            obj.add_oriented_box((x + 0.20 * math.cos(angle), y + 0.20 * math.sin(angle)), (0.15, 0.026), 0.030, z - 0.08, angle, f"{name}_pendant_shade_rib_{idx+1}", "BrassRail")
+        obj.add_cylinder((x, y), 0.08, z - 0.42, 0.085, f"{name}_pendant_bottom_finial", "BrassRail", segments=12)
         add_light_fixture_detail_record(fixture_details, f"{name}_canopy_detail", "pendant_canopy_detail", name, fixture_type, location, (x, y, z + 0.53))
         add_light_fixture_detail_record(fixture_details, f"{name}_glass_shade_detail", "pendant_glass_shade_detail", name, fixture_type, location, (x, y, z - 0.06))
+        add_light_fixture_detail_record(fixture_details, f"{name}_beveled_mount_detail", "fixture_beveled_mount", name, fixture_type, location, (x, y, z + 0.50))
+        add_light_fixture_detail_record(fixture_details, f"{name}_trim_ring_detail", "fixture_glass_trim_ring", name, fixture_type, location, (x, y, z - 0.13))
+        add_light_fixture_detail_record(fixture_details, f"{name}_glass_rib_detail", "fixture_glass_shade_rib", name, fixture_type, location, (x, y, z - 0.08), {"rib_count": 4})
+        add_light_fixture_detail_record(fixture_details, f"{name}_finial_detail", "fixture_finial_detail", name, fixture_type, location, (x, y, z - 0.38))
     fixtures.append(
         {
             "name": name,

@@ -918,6 +918,10 @@ REQUIRED_LIGHT_FIXTURE_DETAIL_KINDS = {
     "pendant_glass_shade_detail",
     "sconce_backplate_detail",
     "sconce_glass_shade_detail",
+    "fixture_beveled_mount",
+    "fixture_glass_trim_ring",
+    "fixture_glass_shade_rib",
+    "fixture_finial_detail",
 }
 
 REQUIRED_CEILING_DETAIL_KINDS = {
@@ -2538,8 +2542,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 56 public art label-plaque records")
     if len(light_fixtures) < 63:
         error(errors, f"expected at least 63 public light fixtures, got {len(light_fixtures)}")
-    if len(light_fixture_details) < 125:
-        error(errors, f"expected at least 125 public light fixture detail records, got {len(light_fixture_details)}")
+    if len(light_fixture_details) < 380:
+        error(errors, f"expected at least 380 public light fixture detail records, got {len(light_fixture_details)}")
     missing_light_fixture_detail_kinds = sorted(REQUIRED_LIGHT_FIXTURE_DETAIL_KINDS - light_fixture_detail_kinds)
     if missing_light_fixture_detail_kinds:
         error(errors, f"missing public light fixture detail kinds: {', '.join(missing_light_fixture_detail_kinds)}")
@@ -2551,6 +2555,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 34 public sconce backplate detail records")
     if len([record for record in light_fixture_details if record.get("kind") == "sconce_glass_shade_detail"]) < 34:
         error(errors, "expected at least 34 public sconce glass-shade detail records")
+    if len([record for record in light_fixture_details if record.get("kind") == "fixture_beveled_mount"]) < 63:
+        error(errors, "expected at least 63 public fixture beveled-mount records")
+    if len([record for record in light_fixture_details if record.get("kind") == "fixture_glass_trim_ring"]) < 63:
+        error(errors, "expected at least 63 public fixture glass trim-ring records")
+    if len([record for record in light_fixture_details if record.get("kind") == "fixture_glass_shade_rib"]) < 68:
+        error(errors, "expected at least 68 public fixture glass shade-rib records")
+    if len([record for record in light_fixture_details if record.get("kind") == "fixture_finial_detail"]) < 63:
+        error(errors, "expected at least 63 public fixture finial-detail records")
     if len(wall_treatments) < 10:
         error(errors, f"expected at least 10 wall-treatment records, got {len(wall_treatments)}")
     for record in public_art[:5] + light_fixtures[:5] + light_fixture_details[:5] + wall_treatments[:5]:
