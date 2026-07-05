@@ -34,8 +34,8 @@
     },
     "building_details": 9748,
     "building_detail_kinds": 50,
-    "streetscape_props": 6751,
-    "streetscape_prop_kinds": 60,
+    "streetscape_props": 6895,
+    "streetscape_prop_kinds": 61,
     "traffic_sign_model": {
       "dcgis_traffic_sign_points": 252,
       "dcgis_overhead_signs": 6,

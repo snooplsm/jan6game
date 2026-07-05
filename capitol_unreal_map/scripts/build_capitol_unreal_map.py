@@ -3014,6 +3014,13 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box((x, y), (0.18, 0.035), 0.045, 0.58, f"{name}_reflective_band_low", "LaneMarkingWhite")
         roads.add_box((x, y), (0.18, 0.035), 0.045, 0.86, f"{name}_reflective_band_high", "LaneMarkingWhite")
         add_streetscape_record(name, "bike_lane_delineator_post", (x, y, 0.58))
+        for band_name, band_z in [("low", 0.602), ("high", 0.882)]:
+            add_streetscape_record(
+                f"{name}_reflective_band_{band_name}",
+                "bike_lane_delineator_reflector_band",
+                (x, y, band_z),
+                extra={"band": band_name, "public_accuracy": "generic_public_bike_lane_safety_marker"},
+            )
         add_streetscape_record(
             f"{name}_base_plate_detail",
             "bike_lane_delineator_base_plate",

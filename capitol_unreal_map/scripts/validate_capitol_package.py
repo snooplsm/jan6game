@@ -1345,6 +1345,7 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "tactile_warning_surface",
     "sidewalk_expansion_joint",
     "bike_lane_delineator_post",
+    "bike_lane_delineator_reflector_band",
     "bike_lane_delineator_base_plate",
     "pedestrian_signal_marker",
     "regulatory_stop_sign",
@@ -2166,6 +2167,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 public sidewalk expansion-joint props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "bike_lane_delineator_post"]) < 64:
         error(errors, "expected at least 64 public bike-lane delineator posts")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "bike_lane_delineator_reflector_band"]) < 140:
+        error(errors, "expected at least 140 public bike-lane delineator reflector-band props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "bike_lane_delineator_base_plate"]) < 64:
         error(errors, "expected at least 64 public bike-lane delineator base-plate props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "pedestrian_signal_marker"]) < 16:
