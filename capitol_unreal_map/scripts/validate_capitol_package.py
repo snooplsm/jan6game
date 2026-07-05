@@ -1074,11 +1074,18 @@ REQUIRED_SIGNAGE_DETAIL_KINDS = {
 REQUIRED_DOOR_DETAIL_KINDS = {
     "public_double_door_panel",
     "door_pull_bar",
+    "door_push_plate",
+    "door_closer_body",
+    "door_closer_arm",
     "hinge_plate",
     "door_kick_plate",
     "transom_panel",
+    "transom_mullion",
     "door_header_trim",
     "side_lite_panel",
+    "side_lite_mullion",
+    "floor_door_stop",
+    "threshold_screw_head",
 }
 
 REQUIRED_FURNISHING_DETAIL_KINDS = {
@@ -2811,8 +2818,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     door_detail_kinds = {detail.get("kind") for detail in door_details}
     summary["door_details"] = len(door_details)
     summary["door_detail_kinds"] = len(door_detail_kinds)
-    if len(door_details) < 180:
-        error(errors, f"expected at least 180 public door detail records, got {len(door_details)}")
+    if len(door_details) < 380:
+        error(errors, f"expected at least 380 public door detail records, got {len(door_details)}")
     missing_door_kinds = sorted(REQUIRED_DOOR_DETAIL_KINDS - door_detail_kinds)
     if missing_door_kinds:
         error(errors, f"missing public door detail kinds: {', '.join(missing_door_kinds)}")
@@ -2820,16 +2827,30 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 public double-door panel records")
     if len([detail for detail in door_details if detail.get("kind") == "door_pull_bar"]) < 24:
         error(errors, "expected at least 24 public door pull bar records")
+    if len([detail for detail in door_details if detail.get("kind") == "door_push_plate"]) < 24:
+        error(errors, "expected at least 24 public door push plate records")
+    if len([detail for detail in door_details if detail.get("kind") == "door_closer_body"]) < 24:
+        error(errors, "expected at least 24 public door closer body records")
+    if len([detail for detail in door_details if detail.get("kind") == "door_closer_arm"]) < 24:
+        error(errors, "expected at least 24 public door closer arm records")
     if len([detail for detail in door_details if detail.get("kind") == "hinge_plate"]) < 72:
         error(errors, "expected at least 72 public hinge plate records")
     if len([detail for detail in door_details if detail.get("kind") == "door_kick_plate"]) < 24:
         error(errors, "expected at least 24 public kick plate records")
     if len([detail for detail in door_details if detail.get("kind") == "transom_panel"]) < 12:
         error(errors, "expected at least 12 public transom panel records")
+    if len([detail for detail in door_details if detail.get("kind") == "transom_mullion"]) < 24:
+        error(errors, "expected at least 24 public transom mullion records")
     if len([detail for detail in door_details if detail.get("kind") == "door_header_trim"]) < 12:
         error(errors, "expected at least 12 public door header trim records")
     if len([detail for detail in door_details if detail.get("kind") == "side_lite_panel"]) < 24:
         error(errors, "expected at least 24 public side-lite panel records")
+    if len([detail for detail in door_details if detail.get("kind") == "side_lite_mullion"]) < 24:
+        error(errors, "expected at least 24 public side-lite mullion records")
+    if len([detail for detail in door_details if detail.get("kind") == "floor_door_stop"]) < 24:
+        error(errors, "expected at least 24 public floor door stop records")
+    if len([detail for detail in door_details if detail.get("kind") == "threshold_screw_head"]) < 48:
+        error(errors, "expected at least 48 public threshold screw head records")
     for detail in door_details:
         if not detail.get("area"):
             error(errors, f"door detail {detail.get('name', '<unknown>')} is missing area")

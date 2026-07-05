@@ -11018,6 +11018,30 @@ def add_public_interior_door_details(
         obj.add_box((cx, cy), size, height, bottom_z, name, material)
         add_public_door_detail_record(records, name, kind, area, (cx, cy, bottom_z + height / 2.0), size)
 
+    def add_floor_round_detail(
+        name: str,
+        kind: str,
+        area: str,
+        center: tuple[float, float],
+        along_offset: float,
+        normal_offset: float,
+        radius: float,
+        height: float,
+        bottom_z: float,
+        orientation: str,
+        material: str,
+    ) -> None:
+        cx, cy = component_center(center, along_offset, normal_offset, orientation)
+        obj.add_cylinder((cx, cy), radius, bottom_z, height, name, material, segments=12)
+        add_public_door_detail_record(
+            records,
+            name,
+            kind,
+            area,
+            (cx, cy, bottom_z + height / 2.0),
+            (radius * 2.0, radius * 2.0),
+        )
+
     def add_doorway(
         name: str,
         area: str,
@@ -11037,6 +11061,10 @@ def add_public_interior_door_details(
             add_component(f"{name}_{suffix}_door_leaf_panel", "public_double_door_panel", area, center, offset, 0.0, leaf_width, 0.12, panel_height, z, orientation, "DoorGlass")
             add_component(f"{name}_{suffix}_brass_pull_bar", "door_pull_bar", area, center, offset, -0.075, 0.10, 0.07, 1.02, z + 0.58, orientation, "BrassRail")
             add_component(f"{name}_{suffix}_kick_plate", "door_kick_plate", area, center, offset, -0.08, leaf_width * 0.82, 0.055, 0.30, z + 0.10, orientation, "DoorMetal")
+            add_component(f"{name}_{suffix}_push_plate", "door_push_plate", area, center, offset, -0.086, 0.28, 0.040, 0.50, z + 0.82, orientation, "DoorMetal")
+            add_component(f"{name}_{suffix}_closer_body", "door_closer_body", area, center, offset * 0.72, -0.078, min(0.56, leaf_width * 0.56), 0.060, 0.12, z + 2.02, orientation, "DoorMetal")
+            add_component(f"{name}_{suffix}_closer_arm", "door_closer_arm", area, center, offset * 0.46, -0.092, min(0.48, leaf_width * 0.50), 0.038, 0.045, z + 1.94, orientation, "BrassRail")
+            add_floor_round_detail(f"{name}_{suffix}_floor_door_stop", "floor_door_stop", area, center, offset, -0.44, 0.065, 0.075, z + 0.02, orientation, "DoorMetal")
             for hinge_index, hinge_z in enumerate([z + 0.30, z + 1.02, z + 1.78], start=1):
                 hinge_offset = offset - leaf_width * 0.47 if suffix == "left" else offset + leaf_width * 0.47
                 add_component(
@@ -11055,9 +11083,56 @@ def add_public_interior_door_details(
                 )
 
         add_component(f"{name}_transom_glass_panel", "transom_panel", area, center, 0.0, 0.0, width * 0.86, 0.12, 0.48, z + panel_height + 0.10, orientation, "DoorGlass")
+        for mullion_index, mullion_offset in enumerate([-width * 0.24, width * 0.24], start=1):
+            add_component(
+                f"{name}_transom_mullion_{mullion_index}",
+                "transom_mullion",
+                area,
+                center,
+                mullion_offset,
+                -0.004,
+                0.052,
+                0.135,
+                0.52,
+                z + panel_height + 0.08,
+                orientation,
+                "InteriorTrim",
+            )
         add_component(f"{name}_header_trim", "door_header_trim", area, center, 0.0, 0.0, width + 0.50, 0.18, 0.18, z + panel_height + 0.62, orientation, "InteriorTrim")
         add_component(f"{name}_left_side_lite", "side_lite_panel", area, center, -width / 2.0 + side_lite_width / 2.0, 0.0, side_lite_width, 0.10, 1.62, z + 0.24, orientation, "DoorGlass")
         add_component(f"{name}_right_side_lite", "side_lite_panel", area, center, width / 2.0 - side_lite_width / 2.0, 0.0, side_lite_width, 0.10, 1.62, z + 0.24, orientation, "DoorGlass")
+        for suffix, offset in [
+            ("left", -width / 2.0 + side_lite_width / 2.0),
+            ("right", width / 2.0 - side_lite_width / 2.0),
+        ]:
+            add_component(
+                f"{name}_{suffix}_side_lite_mullion",
+                "side_lite_mullion",
+                area,
+                center,
+                offset,
+                -0.004,
+                0.042,
+                0.122,
+                1.72,
+                z + 0.18,
+                orientation,
+                "InteriorTrim",
+            )
+        for screw_index, screw_offset in enumerate([-width * 0.34, -width * 0.12, width * 0.12, width * 0.34], start=1):
+            add_floor_round_detail(
+                f"{name}_threshold_screw_head_{screw_index}",
+                "threshold_screw_head",
+                area,
+                center,
+                screw_offset,
+                -0.01,
+                0.038,
+                0.014,
+                z + 0.002,
+                orientation,
+                "DoorMetal",
+            )
         add_label(labels, label, center[0], center[1], z + 3.18, "door_detail")
 
     door_specs = [
@@ -11077,7 +11152,7 @@ def add_public_interior_door_details(
     for args in door_specs:
         add_doorway(*args)
 
-    add_label(labels, "Public doorway panels, pulls, hinges, kick plates, and transoms - schematic", 22.5, -7.5, 7.65, "door_detail")
+    add_label(labels, "Public doorway panels, pulls, hinges, closers, stops, mullions, kick plates, and transoms - schematic", 22.5, -7.5, 7.65, "door_detail")
 
 
 def add_public_furnishing_detail_record(
