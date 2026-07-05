@@ -2649,10 +2649,21 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     def add_street_sign(name: str, point: tuple[float, float], text: str) -> None:
         x, y = point
         roads.add_cylinder((x, y), 0.045, 0.10, 2.15, f"{name}_post", "StreetLightPole", segments=8)
+        roads.add_cylinder((x, y), 0.062, 2.25, 0.065, f"{name}_post_cap", "BollardMetal", segments=8)
+        roads.add_box((x, y + 0.082), (1.34, 0.045), 0.06, 1.89, f"{name}_back_mount_rail_low", "BollardMetal")
+        roads.add_box((x, y + 0.082), (1.34, 0.045), 0.06, 2.19, f"{name}_back_mount_rail_high", "BollardMetal")
+        for bolt_index, (bolt_x, bolt_z) in enumerate([(-0.58, 2.02), (0.58, 2.02), (-0.58, 2.19), (0.58, 2.19)], start=1):
+            roads.add_box((x + bolt_x, y - 0.084), (0.055, 0.018), 0.018, bolt_z, f"{name}_mount_bolt_{bolt_index}", "BollardMetal")
         roads.add_box((x, y), (1.55, 0.12), 0.44, 1.92, f"{name}_blade", "StreetSignGreen")
         for stroke_index, (offset, width) in enumerate([(-0.42, 0.34), (-0.12, 0.24), (0.18, 0.30), (0.46, 0.18)], start=1):
             roads.add_box((x + offset, y - 0.075), (width, 0.026), 0.035, 2.13, f"{name}_abstract_text_stroke_{stroke_index}", "LaneMarkingWhite")
         add_streetscape_record(name, "street_name_sign", (x, y, 1.45), extra={"label": text[:80]})
+        add_streetscape_record(
+            f"{name}_mounting_hardware",
+            "street_name_sign_mounting_hardware",
+            (x, y, 2.08),
+            extra={"parts": ["post_cap", "back_mount_rails", "front_bolts"], "label_source": text[:80]},
+        )
         add_streetscape_record(
             f"{name}_text_strokes",
             "street_name_sign_text_strokes",

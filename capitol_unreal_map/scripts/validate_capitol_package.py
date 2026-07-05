@@ -1324,6 +1324,7 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "streetlight",
     "streetlight_fixture_detail",
     "street_name_sign",
+    "street_name_sign_mounting_hardware",
     "street_name_sign_text_strokes",
     "traffic_signal_prop",
     "traffic_signal_mast_arm",
@@ -2131,6 +2132,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 12 public road stop-bar props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "streetlight_fixture_detail"]) < 250:
         error(errors, "expected at least 250 public streetlight fixture-detail props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "street_name_sign_mounting_hardware"]) < 170:
+        error(errors, "expected at least 170 public street-name sign mounting-hardware props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "street_name_sign_text_strokes"]) < 170:
         error(errors, "expected at least 170 public street-name sign text-stroke props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "traffic_signal_mast_arm"]) < 135:
