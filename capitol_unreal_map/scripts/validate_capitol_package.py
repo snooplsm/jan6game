@@ -503,6 +503,9 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "chamber_wall_acoustic_panel",
     "chamber_wall_sconce_fixture",
     "chamber_wall_pilaster_strip",
+    "gallery_edge_trim",
+    "public_display_board_frame_detail",
+    "chamber_upper_wall_frieze_panel",
 }
 
 REQUIRED_OFFICE_DETAIL_KINDS = {
@@ -1326,8 +1329,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 6600:
-        error(errors, f"expected at least 6600 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 6650:
+        error(errors, f"expected at least 6650 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1398,6 +1401,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 28 public chamber wall sconce fixture records")
     if len([detail for detail in chamber_details if detail.get("kind") == "chamber_wall_pilaster_strip"]) < 44:
         error(errors, "expected at least 44 public chamber wall pilaster-strip records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_edge_trim"]) < 8:
+        error(errors, "expected at least 8 public chamber gallery edge-trim records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_display_board_frame_detail"]) < 4:
+        error(errors, "expected at least 4 public chamber display-board frame detail records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_upper_wall_frieze_panel"]) < 40:
+        error(errors, "expected at least 40 public chamber upper-wall frieze panel records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")
