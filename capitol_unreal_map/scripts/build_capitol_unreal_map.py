@@ -2328,6 +2328,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(name, "facade_window", (x, y, z + 0.64), {"orientation": orientation})
         add_window_mullions(f"{name}_mullions", center, z, orientation, 1.34, 1.28)
         add_window_surround(name, center, z, orientation, 1.34, 1.28)
+        add_window_depth_details(name, center, z, orientation, 1.34, 1.28)
 
     def add_window_mullions(
         name: str,
@@ -2351,6 +2352,88 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "facade_window_mullion",
             (x, y, z + height / 2.0),
             {"orientation": orientation},
+        )
+
+    def add_window_depth_details(
+        name: str,
+        center: tuple[float, float],
+        z: float,
+        orientation: str,
+        width: float,
+        height: float,
+    ) -> None:
+        x, y = center
+        if orientation == "east_west":
+            face_x = x + (0.22 if x >= 0.0 else -0.22)
+            shadow_size_major = (0.065, width + 0.18)
+            shadow_size_minor = (0.065, 0.08)
+            sash_size_major = (0.075, width * 0.86)
+            sash_size_minor = (0.075, 0.055)
+            highlight_size = (0.055, width * 0.18)
+            shadow_centers = [
+                ((face_x, y - width / 2.0 - 0.045), shadow_size_minor, height + 0.16, z - 0.07),
+                ((face_x, y + width / 2.0 + 0.045), shadow_size_minor, height + 0.16, z - 0.07),
+                ((face_x, y), shadow_size_major, 0.055, z - 0.08),
+                ((face_x, y), shadow_size_major, 0.065, z + height + 0.02),
+            ]
+            sash_centers = [
+                ((face_x, y - width * 0.34), sash_size_minor, height * 0.90, z + height * 0.05),
+                ((face_x, y + width * 0.34), sash_size_minor, height * 0.90, z + height * 0.05),
+                ((face_x, y), sash_size_major, 0.045, z + height * 0.18),
+                ((face_x, y), sash_size_major, 0.045, z + height * 0.82),
+            ]
+            highlight_centers = [
+                ((face_x + (0.015 if x >= 0.0 else -0.015), y - width * 0.22), highlight_size, height * 0.24, z + height * 0.62),
+                ((face_x + (0.015 if x >= 0.0 else -0.015), y + width * 0.18), highlight_size, height * 0.16, z + height * 0.72),
+            ]
+        else:
+            face_y = y + (0.22 if y >= 0.0 else -0.22)
+            shadow_size_major = (width + 0.18, 0.065)
+            shadow_size_minor = (0.08, 0.065)
+            sash_size_major = (width * 0.86, 0.075)
+            sash_size_minor = (0.055, 0.075)
+            highlight_size = (width * 0.18, 0.055)
+            shadow_centers = [
+                ((x - width / 2.0 - 0.045, face_y), shadow_size_minor, height + 0.16, z - 0.07),
+                ((x + width / 2.0 + 0.045, face_y), shadow_size_minor, height + 0.16, z - 0.07),
+                ((x, face_y), shadow_size_major, 0.055, z - 0.08),
+                ((x, face_y), shadow_size_major, 0.065, z + height + 0.02),
+            ]
+            sash_centers = [
+                ((x - width * 0.34, face_y), sash_size_minor, height * 0.90, z + height * 0.05),
+                ((x + width * 0.34, face_y), sash_size_minor, height * 0.90, z + height * 0.05),
+                ((x, face_y), sash_size_major, 0.045, z + height * 0.18),
+                ((x, face_y), sash_size_major, 0.045, z + height * 0.82),
+            ]
+            highlight_centers = [
+                ((x - width * 0.22, face_y + (0.015 if y >= 0.0 else -0.015)), highlight_size, height * 0.24, z + height * 0.62),
+                ((x + width * 0.18, face_y + (0.015 if y >= 0.0 else -0.015)), highlight_size, height * 0.16, z + height * 0.72),
+            ]
+
+        for index, (detail_center, detail_size, detail_height, detail_z) in enumerate(shadow_centers, start=1):
+            obj.add_box(detail_center, detail_size, detail_height, detail_z, f"{name}_recess_shadow_{index:02d}", "RoadCrackSealant")
+        for index, (detail_center, detail_size, detail_height, detail_z) in enumerate(sash_centers, start=1):
+            obj.add_box(detail_center, detail_size, detail_height, detail_z, f"{name}_inner_sash_{index:02d}", "DoorMetal")
+        for index, (detail_center, detail_size, detail_height, detail_z) in enumerate(highlight_centers, start=1):
+            obj.add_box(detail_center, detail_size, detail_height, detail_z, f"{name}_pane_highlight_{index:02d}", "DoorGlass")
+
+        add_facade_detail(
+            f"{name}_recess_shadow",
+            "facade_window_recess_shadow",
+            (x, y, z + height / 2.0),
+            {"orientation": orientation, "count": len(shadow_centers)},
+        )
+        add_facade_detail(
+            f"{name}_inner_sash",
+            "facade_window_inner_sash",
+            (x, y, z + height / 2.0),
+            {"orientation": orientation, "count": len(sash_centers)},
+        )
+        add_facade_detail(
+            f"{name}_pane_highlight",
+            "facade_window_pane_highlight",
+            (x, y, z + height * 0.74),
+            {"orientation": orientation, "count": len(highlight_centers)},
         )
 
     def add_arch_window_trim(
@@ -3256,6 +3339,14 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     height,
                 )
                 add_window_surround(
+                    f"{prefix}_window_{level_index:02d}_{value_index:02d}",
+                    (x, y),
+                    z_level,
+                    orientation,
+                    width,
+                    height,
+                )
+                add_window_depth_details(
                     f"{prefix}_window_{level_index:02d}_{value_index:02d}",
                     (x, y),
                     z_level,

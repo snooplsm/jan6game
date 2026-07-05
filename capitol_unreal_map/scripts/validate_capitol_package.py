@@ -1130,6 +1130,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_window",
     "facade_window_surround",
     "facade_window_mullion",
+    "facade_window_recess_shadow",
+    "facade_window_inner_sash",
+    "facade_window_pane_highlight",
     "facade_dentil_course",
     "facade_dentil_block_detail",
     "facade_cornice_bracket",
@@ -1649,6 +1652,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 240 facade window surround records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_window_mullion"]) < 260:
         error(errors, "expected at least 260 facade window mullion records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_window_recess_shadow"]) < 260:
+        error(errors, "expected at least 260 facade window recess-shadow records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_window_inner_sash"]) < 260:
+        error(errors, "expected at least 260 facade window inner-sash records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_window_pane_highlight"]) < 260:
+        error(errors, "expected at least 260 facade window pane-highlight records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_dentil_course"]) < 8:
         error(errors, "expected at least 8 facade dentil course records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_dentil_block_detail"]) < 116:
