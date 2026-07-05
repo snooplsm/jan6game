@@ -729,6 +729,7 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "generic_desk_wood_grain_strip",
     "generic_desk_varnish_highlight",
     "generic_row_modesty_panel",
+    "generic_beveled_chamber_furniture",
     "public_role_zone_floor_overlay",
     "public_role_zone_boundary",
     "public_role_zone_label_plaque",
@@ -1959,6 +1960,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 548 generic chamber desk varnish-highlight records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_row_modesty_panel"]) < 26:
         error(errors, "expected at least 26 generic chamber row modesty-panel records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_beveled_chamber_furniture"]) < 548:
+        error(errors, "expected at least 548 generic beveled chamber furniture records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_floor_overlay"]) < 16:
         error(errors, "expected at least 16 public chamber role-zone floor overlay records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_boundary"]) < 64:

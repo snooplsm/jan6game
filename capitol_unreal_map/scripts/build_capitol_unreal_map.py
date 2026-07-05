@@ -8726,8 +8726,8 @@ def build_house_seats(
             x = (t - 0.5) * width
             # Fan the rows around the rostrum with slight forward curvature.
             curved_y = y - abs(t - 0.5) * row * 0.24
-            obj.add_box((x, curved_y + 0.20), (0.62, 0.28), 0.42, 4.55, f"house_member_desk_{seat_id:03d}", "HouseDesk")
-            obj.add_box((x, curved_y + 0.20), (0.46, 0.18), 0.028, 4.98, f"house_member_desk_top_inset_{seat_id:03d}", "InteriorTrim")
+            obj.add_beveled_box((x, curved_y + 0.20), (0.62, 0.28), 0.42, 4.55, f"house_member_desk_{seat_id:03d}", "HouseDesk", 0.045)
+            obj.add_beveled_box((x, curved_y + 0.20), (0.46, 0.18), 0.028, 4.98, f"house_member_desk_top_inset_{seat_id:03d}", "InteriorTrim", 0.022)
             add_generic_chamber_desk_surface_details(
                 obj,
                 chamber_details,
@@ -8737,10 +8737,10 @@ def build_house_seats(
                 (0.46, 0.18),
                 5.012,
             )
-            obj.add_box((x, curved_y - 0.24), (0.52, 0.45), 0.26, 4.55, f"house_member_chair_seat_{seat_id:03d}", "HouseSeat")
-            obj.add_box((x, curved_y - 0.50), (0.52, 0.14), 0.74, 4.72, f"house_member_chair_back_{seat_id:03d}", "HouseSeat")
-            obj.add_box((x - 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_left_arm_{seat_id:03d}", "HouseSeat")
-            obj.add_box((x + 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_right_arm_{seat_id:03d}", "HouseSeat")
+            obj.add_beveled_box((x, curved_y - 0.24), (0.52, 0.45), 0.26, 4.55, f"house_member_chair_seat_{seat_id:03d}", "HouseSeat", 0.040)
+            obj.add_beveled_box((x, curved_y - 0.50), (0.52, 0.14), 0.74, 4.72, f"house_member_chair_back_{seat_id:03d}", "HouseSeat", 0.025)
+            obj.add_beveled_box((x - 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_left_arm_{seat_id:03d}", "HouseSeat", 0.012)
+            obj.add_beveled_box((x + 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_right_arm_{seat_id:03d}", "HouseSeat", 0.012)
             add_generic_chamber_furniture_finish_details(
                 obj,
                 chamber_details,
@@ -8772,6 +8772,14 @@ def build_house_seats(
                 "House Chamber",
                 (x, curved_y - 0.24, 4.85),
                 (0.70, 0.36),
+            )
+            add_chamber_detail_record(
+                chamber_details,
+                f"house_member_beveled_furniture_{seat_id:03d}",
+                "generic_beveled_chamber_furniture",
+                "House Chamber",
+                (x, curved_y - 0.02, 4.84),
+                (0.74, 0.90),
             )
             seats.append(
                 {
@@ -8825,8 +8833,8 @@ def build_senate_desks(
             t = (col + 0.5) / 10.0
             x = (t - 0.5) * width
             curved_y = y + abs(t - 0.5) * row * 0.20
-            obj.add_box((x, curved_y + 0.16), (0.82, 0.58), 0.54, 4.55, f"senate_desk_{desk_id:03d}", "SenateDesk")
-            obj.add_box((x, curved_y + 0.16), (0.60, 0.38), 0.028, 5.10, f"senate_desk_top_inset_{desk_id:03d}", "InteriorTrim")
+            obj.add_beveled_box((x, curved_y + 0.16), (0.82, 0.58), 0.54, 4.55, f"senate_desk_{desk_id:03d}", "SenateDesk", 0.055)
+            obj.add_beveled_box((x, curved_y + 0.16), (0.60, 0.38), 0.028, 5.10, f"senate_desk_top_inset_{desk_id:03d}", "InteriorTrim", 0.030)
             add_generic_chamber_desk_surface_details(
                 obj,
                 chamber_details,
@@ -8836,10 +8844,10 @@ def build_senate_desks(
                 (0.60, 0.38),
                 5.132,
             )
-            obj.add_box((x, curved_y - 0.40), (0.62, 0.50), 0.32, 4.55, f"senate_chair_seat_{desk_id:03d}", "SenateChair")
-            obj.add_box((x, curved_y - 0.70), (0.62, 0.16), 0.82, 4.72, f"senate_chair_back_{desk_id:03d}", "SenateChair")
-            obj.add_box((x - 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_left_arm_{desk_id:03d}", "SenateChair")
-            obj.add_box((x + 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_right_arm_{desk_id:03d}", "SenateChair")
+            obj.add_beveled_box((x, curved_y - 0.40), (0.62, 0.50), 0.32, 4.55, f"senate_chair_seat_{desk_id:03d}", "SenateChair", 0.045)
+            obj.add_beveled_box((x, curved_y - 0.70), (0.62, 0.16), 0.82, 4.72, f"senate_chair_back_{desk_id:03d}", "SenateChair", 0.030)
+            obj.add_beveled_box((x - 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_left_arm_{desk_id:03d}", "SenateChair", 0.014)
+            obj.add_beveled_box((x + 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_right_arm_{desk_id:03d}", "SenateChair", 0.014)
             add_generic_chamber_furniture_finish_details(
                 obj,
                 chamber_details,
@@ -8871,6 +8879,14 @@ def build_senate_desks(
                 "Senate Chamber",
                 (x, curved_y - 0.40, 4.90),
                 (0.82, 0.40),
+            )
+            add_chamber_detail_record(
+                chamber_details,
+                f"senate_beveled_furniture_{desk_id:03d}",
+                "generic_beveled_chamber_furniture",
+                "Senate Chamber",
+                (x, curved_y - 0.12, 4.90),
+                (0.92, 1.10),
             )
             caucus_side = "generic left-side block" if x < 0 else "generic right-side block"
             seats.append(
