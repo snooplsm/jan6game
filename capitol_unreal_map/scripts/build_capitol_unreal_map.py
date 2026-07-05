@@ -2440,10 +2440,92 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             },
         )
 
+    def add_roof_slope_skirt_panels(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        cx, cy = center
+        sx, sy = size
+        inset = max(0.85, min(2.35, min(sx, sy) * 0.075))
+        outer_z = z + 0.73
+        inner_z = z + 1.02
+        panel_specs = [
+            (
+                "north",
+                [
+                    (cx - sx / 2.0, cy + sy / 2.0, outer_z),
+                    (cx + sx / 2.0, cy + sy / 2.0, outer_z),
+                    (cx + sx / 2.0 - inset, cy + sy / 2.0 - inset, inner_z),
+                    (cx - sx / 2.0 + inset, cy + sy / 2.0 - inset, inner_z),
+                ],
+            ),
+            (
+                "south",
+                [
+                    (cx + sx / 2.0, cy - sy / 2.0, outer_z),
+                    (cx - sx / 2.0, cy - sy / 2.0, outer_z),
+                    (cx - sx / 2.0 + inset, cy - sy / 2.0 + inset, inner_z),
+                    (cx + sx / 2.0 - inset, cy - sy / 2.0 + inset, inner_z),
+                ],
+            ),
+            (
+                "east",
+                [
+                    (cx + sx / 2.0, cy + sy / 2.0, outer_z),
+                    (cx + sx / 2.0, cy - sy / 2.0, outer_z),
+                    (cx + sx / 2.0 - inset, cy - sy / 2.0 + inset, inner_z),
+                    (cx + sx / 2.0 - inset, cy + sy / 2.0 - inset, inner_z),
+                ],
+            ),
+            (
+                "west",
+                [
+                    (cx - sx / 2.0, cy - sy / 2.0, outer_z),
+                    (cx - sx / 2.0, cy + sy / 2.0, outer_z),
+                    (cx - sx / 2.0 + inset, cy + sy / 2.0 - inset, inner_z),
+                    (cx - sx / 2.0 + inset, cy - sy / 2.0 + inset, inner_z),
+                ],
+            ),
+        ]
+        for edge, points in panel_specs:
+            group_name = f"{name}_{edge}_sloped_roof_skirt_panel"
+            obj.add_group(group_name, "CapitolDome")
+            vertices = [obj.add_vertex(x, y, point_z) for x, y, point_z in points]
+            obj.add_face(vertices)
+            obj.add_face(list(reversed(vertices)))
+            center_x = sum(point[0] for point in points) / len(points)
+            center_y = sum(point[1] for point in points) / len(points)
+            center_z = sum(point[2] for point in points) / len(points)
+            add_facade_detail(
+                group_name,
+                "roof_slope_skirt_panel",
+                (center_x, center_y, center_z),
+                {"edge": edge, "inset_m": round(inset, 3), "public_accuracy": "schematic_public_roof_silhouette"},
+            )
+
+    def add_parapet_corner_piers(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        cx, cy = center
+        sx, sy = size
+        pier_size = (0.84, 0.84)
+        for corner, x_sign, y_sign in [
+            ("northeast", 1.0, 1.0),
+            ("northwest", -1.0, 1.0),
+            ("southeast", 1.0, -1.0),
+            ("southwest", -1.0, -1.0),
+        ]:
+            pier_center = (cx + x_sign * (sx / 2.0 - 0.62), cy + y_sign * (sy / 2.0 - 0.62))
+            pier_name = f"{name}_{corner}_parapet_corner_pier"
+            obj.add_box(pier_center, pier_size, 0.54, z + 0.50, pier_name, "ColumnStone")
+            add_facade_detail(
+                pier_name,
+                "parapet_corner_pier",
+                (pier_center[0], pier_center[1], z + 0.77),
+                {"corner": corner, "public_accuracy": "schematic_public_roof_silhouette"},
+            )
+
     def add_roof_cap(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         obj.add_box(center, size, 0.48, z, f"{name}_parapet_cap", "ColumnStone")
         obj.add_box(center, (size[0] * 0.92, size[1] * 0.92), 0.22, z + 0.48, f"{name}_slightly_recessed_roof", "CapitolDome")
         add_facade_detail(name, "roof_parapet_and_recessed_roof", (center[0], center[1], z + 0.48))
+        add_roof_slope_skirt_panels(name, center, size, z)
+        add_parapet_corner_piers(name, center, size, z)
 
     def add_roof_articulation_volume(
         name: str,
@@ -2469,7 +2551,22 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box(center, size, height, z, f"{name}_primary_step", "CapitolStone")
         obj.add_box(center, (sx * 0.86, sy * 0.86), height * 0.32, z + height, f"{name}_upper_setback", "CapitolStone")
         obj.add_box(center, (sx + 0.62, sy + 0.62), 0.18, z + height + height * 0.32, f"{name}_cap_course", "ColumnStone")
+        reveal_z = z + height + 0.03
+        reveal_specs = [
+            ((x, y + sy * 0.43), (sx * 0.86, 0.08), "north"),
+            ((x, y - sy * 0.43), (sx * 0.86, 0.08), "south"),
+            ((x + sx * 0.43, y), (0.08, sy * 0.86), "east"),
+            ((x - sx * 0.43, y), (0.08, sy * 0.86), "west"),
+        ]
+        for reveal_center, reveal_size, edge in reveal_specs:
+            obj.add_box(reveal_center, reveal_size, 0.10, reveal_z, f"{name}_{edge}_upper_setback_shadow_reveal", "DoorMetal")
         add_facade_detail(name, "stepped_pavilion_massing", (x, y, z + height * 0.66), {"size_m": [round(sx, 3), round(sy, 3)]})
+        add_facade_detail(
+            f"{name}_upper_setback_shadow_reveal",
+            "pavilion_setback_reveal",
+            (x, y, reveal_z + 0.05),
+            {"size_m": [round(sx * 0.86, 3), round(sy * 0.86, 3)], "public_accuracy": "schematic_public_roof_silhouette"},
+        )
 
     def add_facade_shadow_return(
         name: str,
@@ -2505,6 +2602,61 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             size = (span_length, 0.34)
         obj.add_box(center, size, 0.26, z, name, "ColumnStone")
         add_facade_detail(name, "facade_water_table", (center[0], center[1], z + 0.13), {"orientation": orientation})
+
+    def add_cornice_shadow_reveal(
+        name: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z: float,
+    ) -> None:
+        face_offset = 0.42 if fixed >= 0.0 else -0.42
+        if orientation == "east_west":
+            center = (fixed + face_offset, span_center)
+            size = (0.075, span_length)
+        else:
+            center = (span_center, fixed + face_offset)
+            size = (span_length, 0.075)
+        obj.add_box(center, size, 0.12, z, name, "DoorMetal")
+        add_facade_detail(
+            name,
+            "cornice_shadow_reveal",
+            (center[0], center[1], z + 0.06),
+            {"orientation": orientation, "length_m": round(span_length, 3), "public_accuracy": "schematic_public_roof_silhouette"},
+        )
+
+    def add_attic_window_band(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        values: list[float],
+        z: float,
+        width: float = 0.78,
+        height: float = 0.46,
+    ) -> None:
+        face_offset = 0.38 if fixed >= 0.0 else -0.38
+        for idx, value in enumerate(values, start=1):
+            if orientation == "east_west":
+                center = (fixed + face_offset, value)
+                window_size = (0.075, width)
+                sill_center = (fixed + face_offset * 1.04, value)
+                sill_size = (0.095, width + 0.28)
+            else:
+                center = (value, fixed + face_offset)
+                window_size = (width, 0.075)
+                sill_center = (value, fixed + face_offset * 1.04)
+                sill_size = (width + 0.28, 0.095)
+            name = f"{prefix}_attic_window_{idx:02d}"
+            obj.add_box(center, window_size, height, z, name, "FacadeWindow")
+            obj.add_box(sill_center, sill_size, 0.075, z - 0.08, f"{name}_stone_sill", "ColumnStone")
+            obj.add_box(sill_center, sill_size, 0.075, z + height + 0.02, f"{name}_stone_lintel", "ColumnStone")
+            add_facade_detail(
+                name,
+                "attic_window_band",
+                (center[0], center[1], z + height / 2.0),
+                {"orientation": orientation, "sequence": idx, "public_accuracy": "schematic_public_facade_rhythm"},
+            )
 
     def add_roof_monitor_ridge(
         name: str,
@@ -3719,6 +3871,36 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ]
     for args in water_table_specs:
         add_facade_water_table(*args)
+
+    cornice_shadow_specs = [
+        ("central_east_cornice_shadow_reveal", "east_west", 39.45, 0.0, 58.0, 15.38),
+        ("central_west_cornice_shadow_reveal", "east_west", -39.45, 0.0, 58.0, 15.38),
+        ("central_north_cornice_shadow_reveal", "north_south", 29.95, 0.0, 78.0, 15.38),
+        ("central_south_cornice_shadow_reveal", "north_south", -29.95, 0.0, 78.0, 15.38),
+        ("east_front_portico_cornice_shadow_reveal", "east_west", 67.72, 0.0, 68.0, 13.86),
+        ("west_front_portico_cornice_shadow_reveal", "east_west", -67.72, 0.0, 68.0, 13.86),
+        ("senate_north_front_cornice_shadow_reveal", "north_south", 102.28, 0.0, 84.0, 12.44),
+        ("house_south_front_cornice_shadow_reveal", "north_south", -102.28, 0.0, 88.0, 12.44),
+        ("senate_inner_south_cornice_shadow_reveal", "north_south", 38.72, 0.0, 70.0, 12.12),
+        ("house_inner_north_cornice_shadow_reveal", "north_south", -37.72, 0.0, 74.0, 12.12),
+    ]
+    for args in cornice_shadow_specs:
+        add_cornice_shadow_reveal(*args)
+
+    attic_window_specs = [
+        ("central_east", "east_west", 39.30, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], 16.13),
+        ("central_west", "east_west", -39.30, [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], 16.13),
+        ("central_north", "north_south", 29.80, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 16.13),
+        ("central_south", "north_south", -29.80, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 16.13),
+        ("east_front_portico", "east_west", 67.35, [-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], 12.68),
+        ("west_front_portico", "east_west", -67.35, [-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], 12.68),
+        ("senate_north_front", "north_south", 101.85, [-36.0, -27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0, 36.0], 11.30),
+        ("house_south_front", "north_south", -101.85, [-36.0, -27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0, 36.0], 11.30),
+        ("senate_inner_south", "north_south", 38.70, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 11.05),
+        ("house_inner_north", "north_south", -37.70, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 11.05),
+    ]
+    for prefix, orientation, fixed, values, z in attic_window_specs:
+        add_attic_window_band(f"{prefix}_upper_attic", orientation, fixed, values, z)
 
     roof_articulation_specs = [
         ("central_roof_north_pavilion_riser", (0.0, 24.0), (48.0, 8.5), 18.06, 0.72),
