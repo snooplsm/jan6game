@@ -4061,6 +4061,135 @@ def add_floor_medallion(
     add_public_floor_detail_record(records, name, "floor_medallion", area, (center[0], center[1], z + 0.018), (radius * 2.0, radius * 2.0))
 
 
+def add_public_room_shape_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    def ellipse_points(
+        center: tuple[float, float],
+        radius_x: float,
+        radius_y: float,
+        segments: int = 72,
+    ) -> list[tuple[float, float]]:
+        cx, cy = center
+        return [
+            (cx + radius_x * math.cos(math.tau * idx / segments), cy + radius_y * math.sin(math.tau * idx / segments))
+            for idx in range(segments + 1)
+        ]
+
+    def outline(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        radii: tuple[float, float],
+        z: float,
+        width: float = 0.16,
+    ) -> None:
+        points = ellipse_points(center, radii[0], radii[1])
+        obj.add_polyline_strip(points, width, z, name, "BrassRail")
+        add_public_floor_detail_record(
+            records,
+            name,
+            "public_room_outline_inlay",
+            area,
+            (center[0], center[1], z),
+            (radii[0] * 2.0, radii[1] * 2.0),
+        )
+
+    def axis_inlay(
+        name: str,
+        area: str,
+        start: tuple[float, float],
+        end: tuple[float, float],
+        z: float,
+        width: float = 0.12,
+    ) -> None:
+        obj.add_polyline_strip([start, end], width, z, name, "ArtFrameGold")
+        center = ((start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0)
+        length = math.hypot(end[0] - start[0], end[1] - start[1])
+        add_public_floor_detail_record(records, name, "public_room_axis_inlay", area, (center[0], center[1], z), (length, width))
+
+    def column_marker(name: str, area: str, center: tuple[float, float], z: float, radius: float = 0.34) -> None:
+        obj.add_ring(center, radius, radius * 0.66, z, 0.030, name, "ColumnStone", segments=18)
+        add_public_floor_detail_record(
+            records,
+            name,
+            "public_column_footprint_marker",
+            area,
+            (center[0], center[1], z + 0.015),
+            (radius * 2.0, radius * 2.0),
+        )
+
+    outline("rotunda_public_room_outer_outline", "Rotunda", (0.0, 0.0), (14.35, 14.35), 4.635, width=0.18)
+    outline("rotunda_public_room_inner_outline", "Rotunda", (0.0, 0.0), (9.25, 9.25), 4.655, width=0.12)
+    outline("statuary_hall_public_room_oval_outline", "National Statuary Hall", (28.0, -30.0), (14.0, 8.8), 4.665)
+    outline("statuary_hall_public_inner_oval_outline", "National Statuary Hall", (28.0, -30.0), (9.8, 5.9), 4.685, width=0.11)
+    outline("old_senate_public_room_oval_outline", "Old Senate Chamber", (28.0, 30.0), (12.0, 7.7), 4.665)
+    outline("old_senate_public_inner_oval_outline", "Old Senate Chamber", (28.0, 30.0), (8.2, 5.0), 4.685, width=0.11)
+    outline("crypt_marker_public_room_outline", "Crypt below Rotunda marker", (0.0, -24.0), (10.7, 5.2), 4.645, width=0.14)
+
+    for name, area, center, starts_ends in [
+        (
+            "rotunda_public_axis",
+            "Rotunda",
+            (0.0, 0.0),
+            [((-12.7, 0.0), (12.7, 0.0)), ((0.0, -12.7), (0.0, 12.7)), ((-8.9, -8.9), (8.9, 8.9)), ((-8.9, 8.9), (8.9, -8.9))],
+        ),
+        (
+            "statuary_public_axis",
+            "National Statuary Hall",
+            (28.0, -30.0),
+            [((16.2, -30.0), (39.8, -30.0)), ((28.0, -37.2), (28.0, -22.8))],
+        ),
+        (
+            "old_senate_public_axis",
+            "Old Senate Chamber",
+            (28.0, 30.0),
+            [((17.4, 30.0), (38.6, 30.0)), ((28.0, 23.8), (28.0, 36.2))],
+        ),
+        (
+            "crypt_marker_public_axis",
+            "Crypt below Rotunda marker",
+            (0.0, -24.0),
+            [((-8.9, -24.0), (8.9, -24.0)), ((0.0, -28.4), (0.0, -19.6))],
+        ),
+    ]:
+        for index, (start, end) in enumerate(starts_ends, start=1):
+            axis_inlay(f"{name}_{index:02d}", area, start, end, 4.705, width=0.10)
+
+    for idx in range(16):
+        angle = math.tau * idx / 16.0
+        column_marker(
+            f"rotunda_public_column_footprint_{idx+1:02d}",
+            "Rotunda",
+            (11.45 * math.cos(angle), 11.45 * math.sin(angle)),
+            4.705,
+            radius=0.30,
+        )
+    for idx, (x, y) in enumerate(
+        [(18.0, -37.2), (23.0, -38.4), (28.0, -38.8), (33.0, -38.4), (38.0, -37.2), (17.2, -30.0), (38.8, -30.0), (18.0, -22.8), (23.0, -21.6), (28.0, -21.2), (33.0, -21.6), (38.0, -22.8)],
+        start=1,
+    ):
+        column_marker(f"statuary_hall_public_column_footprint_{idx:02d}", "National Statuary Hall", (x, y), 4.705)
+    for idx, (x, y) in enumerate(
+        [(19.0, 23.7), (25.0, 22.7), (31.0, 22.7), (37.0, 23.7), (19.0, 36.3), (25.0, 37.3), (31.0, 37.3), (37.0, 36.3)],
+        start=1,
+    ):
+        column_marker(f"old_senate_public_column_footprint_{idx:02d}", "Old Senate Chamber", (x, y), 4.705, radius=0.30)
+    for idx in range(8):
+        angle = math.tau * idx / 8.0
+        column_marker(
+            f"crypt_marker_public_column_footprint_{idx+1:02d}",
+            "Crypt below Rotunda marker",
+            (7.4 * math.cos(angle), -24.0 + 3.6 * math.sin(angle)),
+            4.685,
+            radius=0.28,
+        )
+
+    add_label(labels, "Public room-shape floor outlines and column footprints - schematic", -21.0, -24.0, 5.35, "floor_detail")
+
+
 def add_public_interior_floor_details(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
@@ -4125,6 +4254,7 @@ def add_public_interior_floor_details(
     for name, area, center, radius, z in medallion_specs:
         add_floor_medallion(obj, records, name, area, center, radius, z)
 
+    add_public_room_shape_details(obj, labels, records)
     add_label(labels, "Public floor borders, thresholds, and marble tile joints - schematic", 18.0, 0.0, 5.2, "public_circulation_detail")
 
 

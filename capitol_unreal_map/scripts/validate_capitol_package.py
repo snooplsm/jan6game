@@ -573,6 +573,9 @@ REQUIRED_FLOOR_DETAIL_KINDS = {
     "carpet_border_strip",
     "public_threshold_slab",
     "floor_medallion",
+    "public_room_outline_inlay",
+    "public_room_axis_inlay",
+    "public_column_footprint_marker",
 }
 
 REQUIRED_GROUNDS_DETAIL_KINDS = {
@@ -1607,8 +1610,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     floor_detail_kinds = {detail.get("kind") for detail in floor_details}
     summary["floor_details"] = len(floor_details)
     summary["floor_detail_kinds"] = len(floor_detail_kinds)
-    if len(floor_details) < 130:
-        error(errors, f"expected at least 130 public floor detail records, got {len(floor_details)}")
+    if len(floor_details) < 220:
+        error(errors, f"expected at least 220 public floor detail records, got {len(floor_details)}")
     missing_floor_kinds = sorted(REQUIRED_FLOOR_DETAIL_KINDS - floor_detail_kinds)
     if missing_floor_kinds:
         error(errors, f"missing public floor detail kinds: {', '.join(missing_floor_kinds)}")
@@ -1622,6 +1625,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public threshold slab records")
     if len([detail for detail in floor_details if detail.get("kind") == "floor_medallion"]) < 10:
         error(errors, "expected at least 10 public floor medallion records")
+    if len([detail for detail in floor_details if detail.get("kind") == "public_room_outline_inlay"]) < 7:
+        error(errors, "expected at least 7 public room outline inlay records")
+    if len([detail for detail in floor_details if detail.get("kind") == "public_room_axis_inlay"]) < 10:
+        error(errors, "expected at least 10 public room axis inlay records")
+    if len([detail for detail in floor_details if detail.get("kind") == "public_column_footprint_marker"]) < 44:
+        error(errors, "expected at least 44 public column footprint marker records")
     for detail in floor_details:
         if not detail.get("area"):
             error(errors, f"floor detail {detail.get('name', '<unknown>')} is missing area")
