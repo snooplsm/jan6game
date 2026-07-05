@@ -4653,7 +4653,12 @@ def build_seating_sections(
     return sections
 
 
-def build_house_seats(obj: ObjWriter, seats: list[dict[str, Any]], labels: list[dict[str, Any]]) -> None:
+def build_house_seats(
+    obj: ObjWriter,
+    seats: list[dict[str, Any]],
+    labels: list[dict[str, Any]],
+    chamber_details: list[dict[str, Any]],
+) -> None:
     rows = 16
     seats_per_row = 28
     center_x, center_y = 0.0, -70.0
@@ -4672,8 +4677,27 @@ def build_house_seats(obj: ObjWriter, seats: list[dict[str, Any]], labels: list[
             # Fan the rows around the rostrum with slight forward curvature.
             curved_y = y - abs(t - 0.5) * row * 0.24
             obj.add_box((x, curved_y + 0.20), (0.62, 0.28), 0.42, 4.55, f"house_member_desk_{seat_id:03d}", "HouseDesk")
+            obj.add_box((x, curved_y + 0.20), (0.46, 0.18), 0.028, 4.98, f"house_member_desk_top_inset_{seat_id:03d}", "InteriorTrim")
             obj.add_box((x, curved_y - 0.24), (0.52, 0.45), 0.26, 4.55, f"house_member_chair_seat_{seat_id:03d}", "HouseSeat")
             obj.add_box((x, curved_y - 0.50), (0.52, 0.14), 0.74, 4.72, f"house_member_chair_back_{seat_id:03d}", "HouseSeat")
+            obj.add_box((x - 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_left_arm_{seat_id:03d}", "HouseSeat")
+            obj.add_box((x + 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_right_arm_{seat_id:03d}", "HouseSeat")
+            add_chamber_detail_record(
+                chamber_details,
+                f"house_member_desk_top_inset_{seat_id:03d}",
+                "generic_desk_surface_inset",
+                "House Chamber",
+                (x, curved_y + 0.20, 4.994),
+                (0.46, 0.18),
+            )
+            add_chamber_detail_record(
+                chamber_details,
+                f"house_member_chair_arm_pair_{seat_id:03d}",
+                "generic_chair_arm_pair",
+                "House Chamber",
+                (x, curved_y - 0.24, 4.85),
+                (0.70, 0.36),
+            )
             seats.append(
                 {
                     "id": f"house_member_seat_{seat_id:03d}",
@@ -4686,6 +4710,16 @@ def build_house_seats(obj: ObjWriter, seats: list[dict[str, Any]], labels: list[
                 }
             )
             seat_id += 1
+        row_panel_name = f"house_member_row_modesty_panel_{row+1:02d}"
+        obj.add_box((center_x, y + 0.44), (width * 0.92, 0.055), 0.18, 4.62, row_panel_name, "DeskWood")
+        add_chamber_detail_record(
+            chamber_details,
+            row_panel_name,
+            "generic_row_modesty_panel",
+            "House Chamber",
+            (center_x, y + 0.44, 4.71),
+            (width * 0.92, 0.055),
+        )
     add_label(labels, "House member seating: 448 generic floor seats", center_x, center_y - 13.0, 5.25, "seating")
     add_label(labels, "Speaker rostrum / clerks / press area", center_x, rostrum_y, 5.25, "seating")
     obj.add_box((center_x, rostrum_y), (14.0, 4.2), 0.38, 4.55, "house_rostrum_lower_platform", "PublicGallery")
@@ -4696,7 +4730,12 @@ def build_house_seats(obj: ObjWriter, seats: list[dict[str, Any]], labels: list[
     add_gallery_risers(obj, "house_north_public_gallery", (0.0, -100.0), 66.0, 8.0, 4, 4.55)
 
 
-def build_senate_desks(obj: ObjWriter, seats: list[dict[str, Any]], labels: list[dict[str, Any]]) -> None:
+def build_senate_desks(
+    obj: ObjWriter,
+    seats: list[dict[str, Any]],
+    labels: list[dict[str, Any]],
+    chamber_details: list[dict[str, Any]],
+) -> None:
     desk_id = 1
     center_x, center_y = 0.0, 65.0
     presiding_y = 83.5
@@ -4712,8 +4751,27 @@ def build_senate_desks(obj: ObjWriter, seats: list[dict[str, Any]], labels: list
             x = (t - 0.5) * width
             curved_y = y + abs(t - 0.5) * row * 0.20
             obj.add_box((x, curved_y + 0.16), (0.82, 0.58), 0.54, 4.55, f"senate_desk_{desk_id:03d}", "SenateDesk")
+            obj.add_box((x, curved_y + 0.16), (0.60, 0.38), 0.028, 5.10, f"senate_desk_top_inset_{desk_id:03d}", "InteriorTrim")
             obj.add_box((x, curved_y - 0.40), (0.62, 0.50), 0.32, 4.55, f"senate_chair_seat_{desk_id:03d}", "SenateChair")
             obj.add_box((x, curved_y - 0.70), (0.62, 0.16), 0.82, 4.72, f"senate_chair_back_{desk_id:03d}", "SenateChair")
+            obj.add_box((x - 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_left_arm_{desk_id:03d}", "SenateChair")
+            obj.add_box((x + 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_right_arm_{desk_id:03d}", "SenateChair")
+            add_chamber_detail_record(
+                chamber_details,
+                f"senate_desk_top_inset_{desk_id:03d}",
+                "generic_desk_surface_inset",
+                "Senate Chamber",
+                (x, curved_y + 0.16, 5.114),
+                (0.60, 0.38),
+            )
+            add_chamber_detail_record(
+                chamber_details,
+                f"senate_chair_arm_pair_{desk_id:03d}",
+                "generic_chair_arm_pair",
+                "Senate Chamber",
+                (x, curved_y - 0.40, 4.90),
+                (0.82, 0.40),
+            )
             caucus_side = "generic left-side block" if x < 0 else "generic right-side block"
             seats.append(
                 {
@@ -4728,6 +4786,16 @@ def build_senate_desks(obj: ObjWriter, seats: list[dict[str, Any]], labels: list
                 }
             )
             desk_id += 1
+        row_panel_name = f"senate_desk_row_modesty_panel_{row+1:02d}"
+        obj.add_box((center_x, y + 0.56), (width * 0.90, 0.060), 0.20, 4.64, row_panel_name, "DeskWood")
+        add_chamber_detail_record(
+            chamber_details,
+            row_panel_name,
+            "generic_row_modesty_panel",
+            "Senate Chamber",
+            (center_x, y + 0.56, 4.74),
+            (width * 0.90, 0.060),
+        )
     add_label(labels, "Senate desks: 100 generic desks", center_x, center_y + 8.0, 5.25, "seating")
     add_label(labels, "Presiding officer / clerks", center_x, presiding_y, 5.25, "seating")
     obj.add_box((center_x, presiding_y), (11.5, 3.2), 0.36, 4.55, "senate_presiding_officer_platform", "PublicGallery")
@@ -4799,8 +4867,8 @@ def build_interior() -> dict[str, Any]:
     add_public_interior_signage_details(obj, labels, signage_details)
     add_public_interior_door_details(obj, labels, door_details)
     add_public_interior_furnishing_details(obj, labels, furnishing_details)
-    build_house_seats(obj, seats, labels)
-    build_senate_desks(obj, seats, labels)
+    build_house_seats(obj, seats, labels, chamber_details)
+    build_senate_desks(obj, seats, labels, chamber_details)
     add_joint_session_layout(obj, labels, joint_session)
     seating_sections.extend(build_seating_sections(labels, seats, joint_session))
     add_chamber_realism_details(obj, labels, chamber_details)
