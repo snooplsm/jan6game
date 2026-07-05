@@ -516,6 +516,22 @@ class ObjWriter:
         verts = [self.add_vertex(x, y, z) for x, y, z in points]
         self.add_face(verts)
 
+    def add_sloped_polygon(
+        self,
+        points: list[tuple[float, float, float]],
+        name: str,
+        material: str,
+    ) -> None:
+        if len(points) < 3:
+            return
+        if points[0] == points[-1]:
+            points = points[:-1]
+        if len(points) < 3:
+            return
+        self.add_group(name, material)
+        verts = [self.add_vertex(x, y, z) for x, y, z in points]
+        self.add_face(verts)
+
     def add_polyline_strip(
         self,
         points: list[tuple[float, float]],
@@ -5321,6 +5337,108 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 {"edge": edge, "inset_m": round(inset, 3), "public_accuracy": "schematic_public_roof_silhouette"},
             )
 
+    def add_primary_hipped_roof_planes(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        ridge_axis: str,
+    ) -> None:
+        cx, cy = center
+        sx, sy = size
+        x0 = cx - sx / 2.0
+        x1 = cx + sx / 2.0
+        y0 = cy - sy / 2.0
+        y1 = cy + sy / 2.0
+        ridge_lift = max(0.82, min(1.72, min(sx, sy) * 0.055))
+        ridge_z = z + ridge_lift
+        eave_z = z
+
+        def add_plane(
+            suffix: str,
+            kind_label: str,
+            points: list[tuple[float, float, float]],
+        ) -> None:
+            group_name = f"{name}_{suffix}"
+            obj.add_sloped_polygon(points, group_name, "CapitolDome")
+            center_x = sum(point[0] for point in points) / len(points)
+            center_y = sum(point[1] for point in points) / len(points)
+            center_z = sum(point[2] for point in points) / len(points)
+            add_facade_detail(
+                group_name,
+                "primary_sloped_roof_plane",
+                (center_x, center_y, center_z),
+                {
+                    "roof_zone": name,
+                    "plane": kind_label,
+                    "ridge_axis": ridge_axis,
+                    "public_accuracy": "large_component_schematic_roof_form",
+                },
+            )
+
+        def add_hip_shadow(
+            suffix: str,
+            start: tuple[float, float, float],
+            end: tuple[float, float, float],
+        ) -> None:
+            sx0, sy0, sz0 = start
+            ex0, ey0, ez0 = end
+            center_xy = ((sx0 + ex0) / 2.0, (sy0 + ey0) / 2.0)
+            length = math.hypot(ex0 - sx0, ey0 - sy0)
+            angle = math.atan2(ey0 - sy0, ex0 - sx0)
+            z_mid = (sz0 + ez0) / 2.0 + 0.016
+            group_name = f"{name}_{suffix}_hip_shadow_line"
+            obj.add_oriented_box(center_xy, (length, 0.11), 0.035, z_mid, angle, group_name, "StepStone")
+            add_facade_detail(
+                group_name,
+                "primary_roof_hip_shadow_line",
+                (center_xy[0], center_xy[1], z_mid + 0.018),
+                {
+                    "roof_zone": name,
+                    "length_m": round(length, 3),
+                    "public_accuracy": "large_component_schematic_roof_form",
+                },
+            )
+
+        if ridge_axis == "east_west":
+            ridge_half = sx * 0.28
+            ridge_west = (cx - ridge_half, cy, ridge_z)
+            ridge_east = (cx + ridge_half, cy, ridge_z)
+            add_plane("north_slope", "north slope", [(x0, y1, eave_z), (x1, y1, eave_z), ridge_east, ridge_west])
+            add_plane("south_slope", "south slope", [(x1, y0, eave_z), (x0, y0, eave_z), ridge_west, ridge_east])
+            add_plane("east_hip", "east hip", [(x1, y1, eave_z), (x1, y0, eave_z), ridge_east])
+            add_plane("west_hip", "west hip", [(x0, y0, eave_z), (x0, y1, eave_z), ridge_west])
+            obj.add_box((cx, cy), (ridge_half * 2.0, 0.16), 0.055, ridge_z + 0.010, f"{name}_primary_ridge_line", "ColumnStone")
+            add_hip_shadow("northeast", (x1, y1, eave_z), ridge_east)
+            add_hip_shadow("southeast", (x1, y0, eave_z), ridge_east)
+            add_hip_shadow("northwest", (x0, y1, eave_z), ridge_west)
+            add_hip_shadow("southwest", (x0, y0, eave_z), ridge_west)
+        else:
+            ridge_half = sy * 0.28
+            ridge_south = (cx, cy - ridge_half, ridge_z)
+            ridge_north = (cx, cy + ridge_half, ridge_z)
+            add_plane("east_slope", "east slope", [(x1, y1, eave_z), (x1, y0, eave_z), ridge_south, ridge_north])
+            add_plane("west_slope", "west slope", [(x0, y0, eave_z), (x0, y1, eave_z), ridge_north, ridge_south])
+            add_plane("north_hip", "north hip", [(x0, y1, eave_z), (x1, y1, eave_z), ridge_north])
+            add_plane("south_hip", "south hip", [(x1, y0, eave_z), (x0, y0, eave_z), ridge_south])
+            obj.add_box((cx, cy), (0.16, ridge_half * 2.0), 0.055, ridge_z + 0.010, f"{name}_primary_ridge_line", "ColumnStone")
+            add_hip_shadow("northeast", (x1, y1, eave_z), ridge_north)
+            add_hip_shadow("northwest", (x0, y1, eave_z), ridge_north)
+            add_hip_shadow("southeast", (x1, y0, eave_z), ridge_south)
+            add_hip_shadow("southwest", (x0, y0, eave_z), ridge_south)
+
+        add_facade_detail(
+            f"{name}_primary_ridge_line",
+            "primary_roof_ridge_line",
+            (cx, cy, ridge_z + 0.038),
+            {
+                "roof_zone": name,
+                "ridge_axis": ridge_axis,
+                "ridge_lift_m": round(ridge_lift, 3),
+                "public_accuracy": "large_component_schematic_roof_form",
+            },
+        )
+
     def add_parapet_corner_piers(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         cx, cy = center
         sx, sy = size
@@ -7657,6 +7775,21 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ]
     for name, center, size, z, orientation in roof_monitor_specs:
         add_roof_monitor_ridge(name, center, size, z, orientation)
+
+    primary_roof_plane_specs = [
+        ("central_body_primary_hybrid_roof", (0.0, 0.0), (82.0, 62.0), 18.58, "east_west"),
+        ("senate_main_primary_hybrid_roof", (0.0, 68.0), (84.0, 60.0), 13.28, "east_west"),
+        ("house_main_primary_hybrid_roof", (0.0, -68.0), (92.0, 64.0), 13.28, "east_west"),
+        ("senate_center_pavilion_primary_hybrid_roof", (0.0, 68.0), (28.0, 68.0), 14.66, "north_south"),
+        ("house_center_pavilion_primary_hybrid_roof", (0.0, -68.0), (28.0, 72.0), 14.66, "north_south"),
+        ("east_front_portico_primary_hybrid_roof", (58.5, 0.0), (20.5, 70.0), 15.38, "north_south"),
+        ("west_front_portico_primary_hybrid_roof", (-58.5, 0.0), (20.5, 70.0), 15.38, "north_south"),
+        ("north_wing_portico_primary_hybrid_roof", (0.0, 99.0), (54.0, 15.5), 13.82, "east_west"),
+        ("south_wing_portico_primary_hybrid_roof", (0.0, -99.0), (54.0, 15.5), 13.82, "east_west"),
+        ("central_upper_setback_primary_hybrid_roof", (0.0, 0.0), (62.0, 44.0), 18.96, "east_west"),
+    ]
+    for args in primary_roof_plane_specs:
+        add_primary_hipped_roof_planes(*args)
 
     add_element("Articulated public roof silhouette and courtyard recesses", "landmark", (0.0, 0.0, 18.5))
 

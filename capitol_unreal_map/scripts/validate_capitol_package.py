@@ -1632,6 +1632,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "roof_balustrade_base_rail",
     "roof_articulation_volume",
     "roof_slope_skirt_panel",
+    "primary_sloped_roof_plane",
+    "primary_roof_ridge_line",
+    "primary_roof_hip_shadow_line",
     "roof_surface_joint",
     "roof_monitor_ridge",
     "roof_capstone_block",
@@ -2558,6 +2561,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 10 public roof articulation volume records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_slope_skirt_panel"]) < 28:
         error(errors, "expected at least 28 public roof slope-skirt panel records")
+    if len([detail for detail in facade_details if detail.get("kind") == "primary_sloped_roof_plane"]) < 40:
+        error(errors, "expected at least 40 large-component primary sloped roof plane records")
+    if len([detail for detail in facade_details if detail.get("kind") == "primary_roof_ridge_line"]) < 10:
+        error(errors, "expected at least 10 large-component primary roof ridge-line records")
+    if len([detail for detail in facade_details if detail.get("kind") == "primary_roof_hip_shadow_line"]) < 40:
+        error(errors, "expected at least 40 large-component primary roof hip shadow-line records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_surface_joint"]) < 55:
         error(errors, "expected at least 55 public roof surface joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_monitor_ridge"]) < 8:
