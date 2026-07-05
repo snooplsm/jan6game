@@ -970,12 +970,15 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "generic_desk_surface_inset",
     "generic_desk_edge_trim",
     "generic_document_stack",
+    "generic_document_page_edge",
     "generic_desk_microphone_marker",
     "generic_nameplate_strip",
+    "generic_nameplate_screw_pair",
     "generic_chair_arm_pair",
     "generic_chair_cushion",
     "generic_chair_back_inset",
     "generic_chair_cushion_seam",
+    "generic_chair_cushion_stitch_row",
     "generic_chair_cushion_piping",
     "generic_chair_leather_wear_patch",
     "generic_chair_arm_wear",
@@ -2698,8 +2701,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 11325:
-        error(errors, f"expected at least 11325 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 12969:
+        error(errors, f"expected at least 12969 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -2754,10 +2757,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 548 generic chamber desk-edge trim records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_document_stack"]) < 548:
         error(errors, "expected at least 548 generic chamber document-stack records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_document_page_edge"]) < 548:
+        error(errors, "expected at least 548 generic chamber document page-edge records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_desk_microphone_marker"]) < 548:
         error(errors, "expected at least 548 generic chamber desk microphone-marker records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_nameplate_strip"]) < 548:
         error(errors, "expected at least 548 generic chamber nameplate-strip records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_nameplate_screw_pair"]) < 548:
+        error(errors, "expected at least 548 generic chamber nameplate screw-pair records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_arm_pair"]) < 548:
         error(errors, "expected at least 548 generic chamber chair-arm pair records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_cushion"]) < 548:
@@ -2766,6 +2773,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 548 generic chamber chair-back inset records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_cushion_seam"]) < 548:
         error(errors, "expected at least 548 generic chamber chair-cushion seam records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_cushion_stitch_row"]) < 548:
+        error(errors, "expected at least 548 generic chamber chair-cushion stitch-row records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_cushion_piping"]) < 548:
         error(errors, "expected at least 548 generic chamber chair-cushion piping records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_leather_wear_patch"]) < 548:

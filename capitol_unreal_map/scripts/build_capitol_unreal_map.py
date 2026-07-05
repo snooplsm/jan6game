@@ -10228,14 +10228,42 @@ def add_generic_chamber_desk_surface_details(
     paper_size = (sx * 0.34, sy * 0.34)
     nameplate_size = (sx * 0.58, sy * 0.08)
     obj.add_box((x - sx * 0.14, y + sy * 0.04), paper_size, 0.014, z, f"{prefix}_generic_document_stack", "LaneMarkingWhite")
+    page_edge_size = (paper_size[0] * 0.88, max(0.006, paper_size[1] * 0.036))
+    for page_index, (dx, dy) in enumerate([(-0.010, -0.024), (0.014, 0.012), (-0.004, 0.048)], start=1):
+        obj.add_box(
+            (x - sx * 0.14 + dx, y + sy * 0.04 + dy),
+            page_edge_size,
+            0.004,
+            z + 0.016 + page_index * 0.001,
+            f"{prefix}_generic_document_page_edge_{page_index}",
+            "InteriorTrim",
+        )
     obj.add_box((x + sx * 0.20, y + sy * 0.18), (sx * 0.14, sy * 0.10), 0.042, z, f"{prefix}_generic_microphone_marker", "DoorMetal")
     obj.add_box((x, y - sy * 0.38), nameplate_size, 0.020, z + 0.006, f"{prefix}_generic_nameplate_strip", "BrassRail")
+    for screw_index, dx in enumerate([-nameplate_size[0] * 0.42, nameplate_size[0] * 0.42], start=1):
+        obj.add_cylinder(
+            (x + dx, y - sy * 0.38),
+            max(0.010, min(nameplate_size) * 0.22),
+            z + 0.029,
+            0.006,
+            f"{prefix}_generic_nameplate_screw_{screw_index}",
+            "DoorMetal",
+            segments=8,
+        )
     add_chamber_detail_record(
         records,
         f"{prefix}_generic_document_stack",
         "generic_document_stack",
         chamber,
         (x - sx * 0.14, y + sy * 0.04, z + 0.007),
+        paper_size,
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_document_page_edges",
+        "generic_document_page_edge",
+        chamber,
+        (x - sx * 0.14, y + sy * 0.04, z + 0.021),
         paper_size,
     )
     add_chamber_detail_record(
@@ -10252,6 +10280,14 @@ def add_generic_chamber_desk_surface_details(
         "generic_nameplate_strip",
         chamber,
         (x, y - sy * 0.38, z + 0.016),
+        nameplate_size,
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_nameplate_screw_pair",
+        "generic_nameplate_screw_pair",
+        chamber,
+        (x, y - sy * 0.38, z + 0.032),
         nameplate_size,
     )
 
@@ -10357,6 +10393,24 @@ def add_generic_chamber_furniture_finish_details(
         "generic_chair_cushion_seam",
         chamber,
         (chair_x, chair_y, chair_top_z + 0.052),
+        cushion_size,
+    )
+    stitch_row_size = (cushion_size[0] * 0.70, max(0.006, cushion_size[1] * 0.018))
+    for stitch_index, dy in enumerate([-cushion_size[1] * 0.24, cushion_size[1] * 0.24], start=1):
+        obj.add_box(
+            (chair_x, chair_y + dy),
+            stitch_row_size,
+            0.010,
+            chair_top_z + 0.058 + stitch_index * 0.001,
+            f"{prefix}_generic_chair_cushion_stitch_row_{stitch_index}",
+            "FloorWear",
+        )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_cushion_stitch_rows",
+        "generic_chair_cushion_stitch_row",
+        chamber,
+        (chair_x, chair_y, chair_top_z + 0.064),
         cushion_size,
     )
     piping_long_size = (cushion_size[0] * 0.88, max(0.010, cushion_size[1] * 0.032))
