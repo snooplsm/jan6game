@@ -6557,6 +6557,70 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"orientation": orientation, "size_m": [round(size[0], 3), round(size[1], 3)]},
         )
 
+    def add_public_terrace_depth_details(
+        prefix: str,
+        orientation: str,
+        anchor: tuple[float, float],
+        outward_sign: float,
+        stair_span: float,
+        landing_span: float,
+        stair_run: float,
+        landing_depth: float,
+    ) -> None:
+        ax, ay = anchor
+        cheek_offsets = (-stair_span / 2.0 - 1.05, stair_span / 2.0 + 1.05)
+        for side_index, offset in enumerate(cheek_offsets, start=1):
+            if orientation == "east_west":
+                center = (ax + outward_sign * (stair_run * 0.46), ay + offset)
+                size = (stair_run, 0.42)
+            else:
+                center = (ax + offset, ay + outward_sign * (stair_run * 0.46))
+                size = (0.42, stair_run)
+            name = f"{prefix}_stair_cheek_wall_{side_index}"
+            obj.add_box(center, size, 0.68, 0.10, name, "StepStone")
+            obj.add_box(center, (size[0] * 1.01, size[1] * 1.18), 0.08, 0.78, f"{name}_capstone", "ColumnStone")
+            add_facade_detail(
+                name,
+                "public_terrace_cheek_wall",
+                (center[0], center[1], 0.44),
+                {"orientation": orientation, "side": side_index},
+            )
+
+        for strip_index in range(4):
+            distance = stair_run * (0.30 + strip_index * 0.18)
+            strip_span = stair_span + 4.0 + strip_index * 1.4
+            if orientation == "east_west":
+                center = (ax + outward_sign * distance, ay)
+                size = (0.30, strip_span)
+            else:
+                center = (ax, ay + outward_sign * distance)
+                size = (strip_span, 0.30)
+            name = f"{prefix}_landing_nosing_strip_{strip_index+1:02d}"
+            obj.add_box(center, size, 0.055, 0.24 + strip_index * 0.045, name, "StoneGrimeOverlay")
+            add_facade_detail(
+                name,
+                "public_landing_nosing_strip",
+                (center[0], center[1], 0.268 + strip_index * 0.045),
+                {"orientation": orientation, "sequence": strip_index + 1, "span_m": round(strip_span, 3)},
+            )
+
+        curb_offsets = (-landing_span / 2.0 - 0.46, landing_span / 2.0 + 0.46)
+        for curb_index, offset in enumerate(curb_offsets, start=1):
+            if orientation == "east_west":
+                center = (ax + outward_sign * (stair_run + landing_depth * 0.72), ay + offset)
+                size = (landing_depth + 1.4, 0.32)
+            else:
+                center = (ax + offset, ay + outward_sign * (stair_run + landing_depth * 0.72))
+                size = (0.32, landing_depth + 1.4)
+            name = f"{prefix}_approach_side_curb_{curb_index}"
+            obj.add_box(center, size, 0.34, 0.08, name, "StepStone")
+            add_facade_detail(
+                name,
+                "public_approach_side_curb",
+                (center[0], center[1], 0.25),
+                {"orientation": orientation, "side": curb_index},
+            )
+
     def add_pediment_relief_cluster(
         prefix: str,
         orientation: str,
@@ -7252,6 +7316,16 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             0.06,
             "east_west",
         )
+        add_public_terrace_depth_details(
+            f"{side}_front_approach_depth",
+            "east_west",
+            (x, 0.0),
+            front_sign,
+            82.0,
+            101.0,
+            18.0,
+            8.5,
+        )
         for chip_index, y in enumerate([-36.0, -28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0, 36.0], start=1):
             add_step_edge_chip_shadow(
                 f"{side}_front_step_edge_chip_shadow_{chip_index:02d}",
@@ -7349,6 +7423,16 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (73.0, 7.5),
             0.06,
             "north_south",
+        )
+        add_public_terrace_depth_details(
+            f"{side}_wing_approach_depth",
+            "north_south",
+            (0.0, y),
+            wing_sign,
+            56.0,
+            73.0,
+            16.0,
+            7.5,
         )
         for chip_index, x in enumerate([-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], start=1):
             add_step_edge_chip_shadow(

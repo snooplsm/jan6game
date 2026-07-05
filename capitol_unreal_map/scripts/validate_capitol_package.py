@@ -1525,6 +1525,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "public_step_grime_seam",
     "terrace_stair_riser_band",
     "public_terrace_landing_slab",
+    "public_terrace_cheek_wall",
+    "public_landing_nosing_strip",
+    "public_approach_side_curb",
     "public_approach_handrail",
     "public_door_surround",
     "public_revolving_door_glass_drum",
@@ -2359,6 +2362,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 22 public lower terrace stair/riser band records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_terrace_landing_slab"]) < 4:
         error(errors, "expected at least 4 public lower terrace landing slab records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_terrace_cheek_wall"]) < 8:
+        error(errors, "expected at least 8 public terrace cheek-wall records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_landing_nosing_strip"]) < 16:
+        error(errors, "expected at least 16 public landing/step nosing-strip records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_approach_side_curb"]) < 8:
+        error(errors, "expected at least 8 public approach side-curb records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_approach_handrail"]) < 8:
         error(errors, "expected at least 8 public approach handrail records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_door_surround"]) < 12:
