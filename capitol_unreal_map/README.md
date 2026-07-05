@@ -99,7 +99,7 @@ The validator checks that:
 - every generated MTL material has generated basecolor, normal, roughness, and ambient-occlusion texture bindings
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
 - the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, public Rotunda, signage, door-hardware, furnishing, wall-finish, floor, surface-aging, and ceiling detail layers, fictional gameplay item props, and generated viewpoints are present
-- the authored Capitol landmark mesh max Z validates against the public 87.78m height target recorded in metadata
+- the authored Capitol landmark mesh max Z validates against the public 87.48m height target recorded in metadata
 - the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, first-person setup/collision-proxy marker, photoreal preview marker, and import-report key
 - the Unreal project config still enables the scripting plugins, Nanite/navigation settings, generated Capitol map editor/game defaults, and higher-quality preview renderer settings
 
@@ -114,7 +114,7 @@ The current Unreal importer validation report counts 211 report-key markers, 27 
 The current generated build contains:
 
 - 2,524 surrounding building footprints; the OSM `United States Capitol` footprint is intentionally skipped and replaced by the authored Capitol landmark mesh to avoid concave-roof triangulation artifacts
-- surrounding-building height provenance is tracked in metadata: 22 buildings use explicit OSM/DCGIS height tags, 123 use `building:levels * 3.4m` estimates, and 2,379 fall back to the current 11m default because the source footprint lacks height/level tags; the replaced OSM Capitol footprint carries an explicit 87.6m source height, and the authored Capitol visual mesh now validates against an 87.78m public-height target
+- surrounding-building height provenance is tracked in metadata: 22 buildings use explicit OSM/DCGIS height tags, 123 use `building:levels * 3.4m` estimates, and 2,379 fall back to the current 11m default because the source footprint lacks height/level tags; the replaced OSM Capitol footprint carries an explicit 87.6m source height, and the authored Capitol visual mesh now validates against an 87.48m public-height target
 - 7,948 surrounding-building visual detail records, including nearby facade windows, 822 window-sill records, 822 window-lintel records, 822 window-mullion records, 822 window recess-shadow records, 822 window inner-sash records, 822 window pane-highlight records, 488 floor-band records, 546 facade-pilaster records, roofline caps, cornice bands, 40 parapet-coping records, 160 corner-pier records, public-entry markers, 40 entry frames, 40 entry transoms, 40 entry thresholds, 40 entry pull-bar records, 40 entry center-seam records, awnings, wall signs, rooftop detail blocks, 80 roof-access hatch records, rooftop mechanical units, 80 rooftop-louver records, 80 roof pipe-stack records, 80 roof vent-cap records, and 80 roof-conduit records
 - 3,528 roads/paths
 - 445 bike-lane/cycleway features

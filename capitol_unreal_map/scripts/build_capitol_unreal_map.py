@@ -2661,7 +2661,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     labels: list[dict[str, Any]] = []
     elements: list[dict[str, Any]] = []
     facade_details: list[dict[str, Any]] = []
-    capitol_public_height_m = 87.78
+    capitol_public_height_m = 87.48
     statue_of_freedom_height_m = 5.94
     dome_remap_base_z = 17.90
     dome_stack_source_top_z = 66.10
@@ -5266,7 +5266,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         "facade_details": facade_details,
         "height_profile": {
             "public_height_target_m": round(capitol_public_height_m, 2),
-            "target_source": "public Architect of the Capitol 288 ft height fact converted to meters",
+            "target_source": "public Architect of the Capitol 287 ft height fact converted to meters",
             "dome_remap_base_m": round(dome_remap_base_z, 2),
             "dome_vertical_scale": round(dome_z_scale, 5),
             "statue_of_freedom_height_m": round(statue_of_freedom_height_m, 2),

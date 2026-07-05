@@ -125,8 +125,8 @@
   },
   "landmark_height": {
     "mesh": "generated/meshes/capitol_landmark_visual_details.obj",
-    "public_height_target_m": 87.78,
-    "max_z_m": 87.78,
+    "public_height_target_m": 87.48,
+    "max_z_m": 87.48,
     "tolerance_m": 0.35
   },
   "meshes": [
@@ -267,7 +267,7 @@
         "max": [
           21500.0,
           18000.0,
-          8778.0
+          8748.0
         ]
       }
     },

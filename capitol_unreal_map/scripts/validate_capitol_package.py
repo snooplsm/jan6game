@@ -33,7 +33,7 @@ DEFAULT_ENGINE_PATH = ROOT / "Config" / "DefaultEngine.ini"
 DEFAULT_GAME_PATH = ROOT / "Config" / "DefaultGame.ini"
 VIEWER_PATH = ROOT / "viewer.html"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
-CAPITOL_PUBLIC_HEIGHT_TARGET_M = 87.78
+CAPITOL_PUBLIC_HEIGHT_TARGET_M = 87.48
 LANDMARK_HEIGHT_TOLERANCE_M = 0.35
 LANDMARK_MESH_REL = "generated/meshes/capitol_landmark_visual_details.obj"
 
