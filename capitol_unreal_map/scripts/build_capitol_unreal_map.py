@@ -3672,6 +3672,48 @@ def add_chamber_detail_record(
     records.append(record)
 
 
+def add_generic_chamber_desk_surface_details(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    prefix: str,
+    chamber: str,
+    center: tuple[float, float],
+    surface_size: tuple[float, float],
+    z: float,
+) -> None:
+    x, y = center
+    sx, sy = surface_size
+    paper_size = (sx * 0.34, sy * 0.34)
+    nameplate_size = (sx * 0.58, sy * 0.08)
+    obj.add_box((x - sx * 0.14, y + sy * 0.04), paper_size, 0.014, z, f"{prefix}_generic_document_stack", "LaneMarkingWhite")
+    obj.add_box((x + sx * 0.20, y + sy * 0.18), (sx * 0.14, sy * 0.10), 0.042, z, f"{prefix}_generic_microphone_marker", "DoorMetal")
+    obj.add_box((x, y - sy * 0.38), nameplate_size, 0.020, z + 0.006, f"{prefix}_generic_nameplate_strip", "BrassRail")
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_document_stack",
+        "generic_document_stack",
+        chamber,
+        (x - sx * 0.14, y + sy * 0.04, z + 0.007),
+        paper_size,
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_microphone_marker",
+        "generic_desk_microphone_marker",
+        chamber,
+        (x + sx * 0.20, y + sy * 0.18, z + 0.021),
+        (sx * 0.14, sy * 0.10),
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_nameplate_strip",
+        "generic_nameplate_strip",
+        chamber,
+        (x, y - sy * 0.38, z + 0.016),
+        nameplate_size,
+    )
+
+
 def add_chamber_arc_strip(
     obj: ObjWriter,
     records: list[dict[str, Any]],
@@ -4876,6 +4918,15 @@ def build_house_seats(
             curved_y = y - abs(t - 0.5) * row * 0.24
             obj.add_box((x, curved_y + 0.20), (0.62, 0.28), 0.42, 4.55, f"house_member_desk_{seat_id:03d}", "HouseDesk")
             obj.add_box((x, curved_y + 0.20), (0.46, 0.18), 0.028, 4.98, f"house_member_desk_top_inset_{seat_id:03d}", "InteriorTrim")
+            add_generic_chamber_desk_surface_details(
+                obj,
+                chamber_details,
+                f"house_member_desk_{seat_id:03d}",
+                "House Chamber",
+                (x, curved_y + 0.20),
+                (0.46, 0.18),
+                5.012,
+            )
             obj.add_box((x, curved_y - 0.24), (0.52, 0.45), 0.26, 4.55, f"house_member_chair_seat_{seat_id:03d}", "HouseSeat")
             obj.add_box((x, curved_y - 0.50), (0.52, 0.14), 0.74, 4.72, f"house_member_chair_back_{seat_id:03d}", "HouseSeat")
             obj.add_box((x - 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_left_arm_{seat_id:03d}", "HouseSeat")
@@ -4950,6 +5001,15 @@ def build_senate_desks(
             curved_y = y + abs(t - 0.5) * row * 0.20
             obj.add_box((x, curved_y + 0.16), (0.82, 0.58), 0.54, 4.55, f"senate_desk_{desk_id:03d}", "SenateDesk")
             obj.add_box((x, curved_y + 0.16), (0.60, 0.38), 0.028, 5.10, f"senate_desk_top_inset_{desk_id:03d}", "InteriorTrim")
+            add_generic_chamber_desk_surface_details(
+                obj,
+                chamber_details,
+                f"senate_desk_{desk_id:03d}",
+                "Senate Chamber",
+                (x, curved_y + 0.16),
+                (0.60, 0.38),
+                5.132,
+            )
             obj.add_box((x, curved_y - 0.40), (0.62, 0.50), 0.32, 4.55, f"senate_chair_seat_{desk_id:03d}", "SenateChair")
             obj.add_box((x, curved_y - 0.70), (0.62, 0.16), 0.82, 4.72, f"senate_chair_back_{desk_id:03d}", "SenateChair")
             obj.add_box((x - 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_left_arm_{desk_id:03d}", "SenateChair")

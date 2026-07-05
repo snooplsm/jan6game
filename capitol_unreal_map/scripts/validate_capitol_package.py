@@ -441,6 +441,9 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "rostrum_microphone_cluster",
     "gallery_stanchion",
     "generic_desk_surface_inset",
+    "generic_document_stack",
+    "generic_desk_microphone_marker",
+    "generic_nameplate_strip",
     "generic_chair_arm_pair",
     "generic_row_modesty_panel",
 }
@@ -1199,8 +1202,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 1300:
-        error(errors, f"expected at least 1300 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 3000:
+        error(errors, f"expected at least 3000 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1231,6 +1234,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 public gallery stanchion records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_desk_surface_inset"]) < 548:
         error(errors, "expected at least 548 generic chamber desk-surface inset records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_document_stack"]) < 548:
+        error(errors, "expected at least 548 generic chamber document-stack records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_desk_microphone_marker"]) < 548:
+        error(errors, "expected at least 548 generic chamber desk microphone-marker records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_nameplate_strip"]) < 548:
+        error(errors, "expected at least 548 generic chamber nameplate-strip records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_arm_pair"]) < 548:
         error(errors, "expected at least 548 generic chamber chair-arm pair records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_row_modesty_panel"]) < 26:
