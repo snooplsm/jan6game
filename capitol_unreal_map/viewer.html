@@ -219,6 +219,8 @@
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
       <a class="quick-link" id="quickInteriorOnly" href="#interior-only">Interior Only</a>
       <a class="quick-link" id="quickChambersTop" href="#chambers-top">Chambers Top</a>
+      <a class="quick-link" id="quickHousePlan" href="#house-plan">House Plan</a>
+      <a class="quick-link" id="quickSenatePlan" href="#senate-plan">Senate Plan</a>
     </div>
 
     <div class="row">
@@ -236,6 +238,8 @@
       <button id="presetSenate">Senate</button>
       <button id="presetJoint">Joint Session</button>
       <button id="presetChambersTop">Chambers Top</button>
+      <button id="presetHousePlan">House Plan</button>
+      <button id="presetSenatePlan">Senate Plan</button>
       <button id="presetOffices">Offices</button>
       <button id="presetSignageDetails">Signage</button>
       <button id="presetDoorDetails">Doors</button>
@@ -448,6 +452,8 @@
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
     document.getElementById("presetChambersTop").onclick = () => focusChambersTopRoute();
+    document.getElementById("presetHousePlan").onclick = () => focusHousePlanRoute();
+    document.getElementById("presetSenatePlan").onclick = () => focusSenatePlanRoute();
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
     document.getElementById("presetSignageDetails").onclick = () => focusSignageDetailsRoute();
     document.getElementById("presetDoorDetails").onclick = () => focusDoorDetailsRoute();
@@ -515,6 +521,16 @@
     document.getElementById("quickChambersTop").addEventListener("click", (event) => {
       event.preventDefault();
       focusChambersTopRoute();
+    });
+
+    document.getElementById("quickHousePlan").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusHousePlanRoute();
+    });
+
+    document.getElementById("quickSenatePlan").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusSenatePlanRoute();
     });
 
     document.getElementById("quickGameplayItems").addEventListener("click", (event) => {
@@ -1346,13 +1362,13 @@
       document.getElementById("labelsToggle").checked = true;
       labelLayer.style.display = "block";
 
-      state.labelCategory = "chamber_role_overlay";
+      state.labelCategory = "";
       state.labelQuery = "";
-      document.getElementById("categoryFilter").value = "chamber_role_overlay";
+      document.getElementById("categoryFilter").value = "";
       document.getElementById("labelSearch").value = "";
 
-      setCamera(0.0, 1.43, 33000, [0, -200, 640]);
-      statusEl.textContent = "Top-down chamber view with exterior and roof meshes hidden.";
+      setCamera(0.0, 1.535, 62000, [0, -200, 640]);
+      statusEl.textContent = "High top-down chamber inspection with exterior, roof, roads, and gameplay meshes hidden.";
     }
 
     function focusChambersTopRoute() {
@@ -1360,6 +1376,58 @@
         history.pushState(null, "", "#chambers-top");
       }
       focusChambersTop();
+    }
+
+    function focusHousePlan() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "";
+      state.labelQuery = "house";
+      document.getElementById("categoryFilter").value = "";
+      document.getElementById("labelSearch").value = "house";
+
+      setCamera(0.0, 1.535, 28000, [0, -7200, 640]);
+      statusEl.textContent = "House Chamber plan inspection with exterior and roof meshes hidden.";
+    }
+
+    function focusHousePlanRoute() {
+      if (window.location.hash !== "#house-plan") {
+        history.pushState(null, "", "#house-plan");
+      }
+      focusHousePlan();
+    }
+
+    function focusSenatePlan() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "";
+      state.labelQuery = "senate";
+      document.getElementById("categoryFilter").value = "";
+      document.getElementById("labelSearch").value = "senate";
+
+      setCamera(0.0, 1.535, 28000, [0, 6800, 640]);
+      statusEl.textContent = "Senate Chamber plan inspection with exterior and roof meshes hidden.";
+    }
+
+    function focusSenatePlanRoute() {
+      if (window.location.hash !== "#senate-plan") {
+        history.pushState(null, "", "#senate-plan");
+      }
+      focusSenatePlan();
     }
 
     function applyHashRoute() {
@@ -1410,6 +1478,14 @@
       }
       if (route === "chambers-top" || route === "chamber-top" || route === "top-chambers") {
         focusChambersTop();
+        return;
+      }
+      if (route === "house-plan" || route === "house-chamber-plan" || route === "house-top") {
+        focusHousePlan();
+        return;
+      }
+      if (route === "senate-plan" || route === "senate-chamber-plan" || route === "senate-top") {
+        focusSenatePlan();
         return;
       }
       if (route === "gameplay-items" || route === "game-play-items" || route === "gameplay") {

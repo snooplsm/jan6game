@@ -57,7 +57,7 @@
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 9
+    "viewpoints": 11
   },
   "materials": {
     "manifest_materials": 71,
@@ -103,7 +103,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 113,
+    "required_markers": 129,
     "missing": []
   },
   "meshes": [

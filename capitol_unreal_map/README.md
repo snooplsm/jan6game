@@ -6,6 +6,9 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 
 - Local viewer: `http://127.0.0.1:8765/viewer.html`
 - Interior-only preview: `http://127.0.0.1:8765/viewer.html#interior-only`
+- Chamber top-down preview: `http://127.0.0.1:8765/viewer.html#chambers-top`
+- House Chamber plan preview: `http://127.0.0.1:8765/viewer.html#house-plan`
+- Senate Chamber plan preview: `http://127.0.0.1:8765/viewer.html#senate-plan`
 - Gameplay item preview: `http://127.0.0.1:8765/viewer.html#gameplay-items`
 - Grounds detail preview: `http://127.0.0.1:8765/viewer.html#grounds-details`
 - Capitol facade/roof detail preview: `http://127.0.0.1:8765/viewer.html#facade-details`
@@ -231,7 +234,21 @@ Chamber top-down quick link:
 http://127.0.0.1:8765/viewer.html#chambers-top
 ```
 
-This route hides the exterior, roof/landmark, roads, and gameplay meshes in the browser viewer so the public House and Senate chamber schematic can be inspected from above, including non-person-specific role-zone overlays and plaques.
+This route hides the exterior, roof/landmark, roads, and gameplay meshes in the browser viewer so the public House and Senate chamber schematic can be inspected from a high plan-review camera.
+
+House Chamber plan quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#house-plan
+```
+
+Senate Chamber plan quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#senate-plan
+```
+
+These routes keep only the public interior schematic visible, move the camera to a near-vertical plan-review view over the selected chamber, and filter labels to the selected chamber.
 
 The viewer can toggle:
 
@@ -244,7 +261,7 @@ The viewer can toggle:
 - basecolor texture preview
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, top-down chamber inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 

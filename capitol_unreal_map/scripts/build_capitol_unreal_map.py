@@ -157,6 +157,22 @@ VIEWPOINTS = [
         "viewer_note": "Hide exterior/landmark meshes for unobstructed chamber inspection.",
     },
     {
+        "label": "CapitolMap_Camera_HouseChamber_TopDown",
+        "location_m": [0.0, -72.0, 92.0],
+        "target_m": [0.0, -72.0, 5.4],
+        "fov": 44.0,
+        "category": "public_interior_topdown",
+        "viewer_note": "Hide exterior/landmark meshes for public House Chamber plan inspection.",
+    },
+    {
+        "label": "CapitolMap_Camera_SenateChamber_TopDown",
+        "location_m": [0.0, 68.0, 92.0],
+        "target_m": [0.0, 68.0, 5.4],
+        "fov": 44.0,
+        "category": "public_interior_topdown",
+        "viewer_note": "Hide exterior/landmark meshes for public Senate Chamber plan inspection.",
+    },
+    {
         "label": "CapitolMap_Camera_Interior_Cutaway",
         "location_m": [0.0, -8.0, 120.0],
         "target_m": [0.0, 0.0, 5.2],
