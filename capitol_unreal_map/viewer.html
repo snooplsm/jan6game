@@ -216,6 +216,7 @@
       <a class="quick-link" id="quickWallFinishDetails" href="#wall-finish-details">Wall Finish</a>
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
+      <a class="quick-link" id="quickChambersTop" href="#chambers-top">Chambers Top</a>
     </div>
 
     <div class="row">
@@ -230,6 +231,7 @@
       <button id="presetHouse">House</button>
       <button id="presetSenate">Senate</button>
       <button id="presetJoint">Joint Session</button>
+      <button id="presetChambersTop">Chambers Top</button>
       <button id="presetOffices">Offices</button>
       <button id="presetSignageDetails">Signage</button>
       <button id="presetDoorDetails">Doors</button>
@@ -411,6 +413,7 @@
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
     document.getElementById("presetJoint").onclick = () => setCamera(0.05, 0.72, 21000, [0, -6200, 5900]);
+    document.getElementById("presetChambersTop").onclick = () => focusChambersTopRoute();
     document.getElementById("presetOffices").onclick = () => focusOfficesRoute();
     document.getElementById("presetSignageDetails").onclick = () => focusSignageDetailsRoute();
     document.getElementById("presetDoorDetails").onclick = () => focusDoorDetailsRoute();
@@ -463,6 +466,11 @@
     document.getElementById("quickCeilingDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusCeilingDetailsRoute();
+    });
+
+    document.getElementById("quickChambersTop").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusChambersTopRoute();
     });
 
     document.getElementById("quickGameplayItems").addEventListener("click", (event) => {
@@ -1087,6 +1095,32 @@
       focusGameplayItems();
     }
 
+    function focusChambersTop() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "seating";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "seating";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.0, 1.43, 33000, [0, -200, 640]);
+      statusEl.textContent = "Top-down chamber view with exterior and roof meshes hidden.";
+    }
+
+    function focusChambersTopRoute() {
+      if (window.location.hash !== "#chambers-top") {
+        history.pushState(null, "", "#chambers-top");
+      }
+      focusChambersTop();
+    }
+
     function applyHashRoute() {
       const route = window.location.hash.replace(/^#/, "").toLowerCase();
       if (route === "grounds-details" || route === "grounds") {
@@ -1123,6 +1157,10 @@
       }
       if (route === "ceiling-details" || route === "ceiling-finishes") {
         focusCeilingDetails();
+        return;
+      }
+      if (route === "chambers-top" || route === "chamber-top" || route === "top-chambers") {
+        focusChambersTop();
         return;
       }
       if (route === "gameplay-items" || route === "game-play-items" || route === "gameplay") {

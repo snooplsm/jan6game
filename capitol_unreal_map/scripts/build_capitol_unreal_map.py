@@ -149,6 +149,14 @@ VIEWPOINTS = [
         "category": "public_interior",
     },
     {
+        "label": "CapitolMap_Camera_Chambers_TopDown",
+        "location_m": [0.0, -2.0, 92.0],
+        "target_m": [0.0, -2.0, 5.4],
+        "fov": 48.0,
+        "category": "public_interior_topdown",
+        "viewer_note": "Hide exterior/landmark meshes for unobstructed chamber inspection.",
+    },
+    {
         "label": "CapitolMap_Camera_GameplayItems",
         "location_m": [-145.0, -145.0, 9.0],
         "target_m": [-124.0, -122.0, 1.2],
@@ -2702,7 +2710,11 @@ def add_rotunda_visual_details(
         y = 13.55 * math.sin(angle)
         name = f"rotunda_perimeter_column_{idx+1:02d}"
         obj.add_cylinder((x, y), 0.28, 4.42, 4.25, name, "ColumnStone", segments=16)
+        obj.add_cylinder((x, y), 0.42, 4.38, 0.16, f"{name}_base_ring", "StepStone", segments=16)
+        obj.add_cylinder((x, y), 0.38, 8.52, 0.18, f"{name}_capital_block", "InteriorTrim", segments=16)
         add_rotunda_detail(name, "perimeter_column", (x, y, 6.545), (0.56, 0.56))
+        add_rotunda_detail(f"{name}_base_ring", "perimeter_column_base", (x, y, 4.46), (0.84, 0.84))
+        add_rotunda_detail(f"{name}_capital_block", "perimeter_column_capital", (x, y, 8.61), (0.76, 0.76))
 
     for idx in range(32):
         angle = math.tau * idx / 32.0 + math.pi / 32.0
@@ -2736,6 +2748,15 @@ def add_rotunda_visual_details(
 
     obj.add_ring((0.0, 0.0), 13.05, 12.72, 8.72, 0.32, "rotunda_upper_balustrade_ring", "BrassRail", segments=96)
     add_rotunda_detail("rotunda_upper_balustrade_ring", "upper_balustrade", (0.0, 0.0, 8.88), (26.1, 26.1))
+    obj.add_ring((0.0, 0.0), 4.85, 4.55, 9.22, 0.16, "rotunda_oculus_trim_ring", "ArtFrameGold", segments=96)
+    add_rotunda_detail("rotunda_oculus_trim_ring", "oculus_trim_ring", (0.0, 0.0, 9.3), (9.7, 9.7))
+    for idx in range(32):
+        angle = math.tau * idx / 32.0
+        x = 12.88 * math.cos(angle)
+        y = 12.88 * math.sin(angle)
+        name = f"rotunda_upper_balustrade_post_{idx+1:02d}"
+        obj.add_cylinder((x, y), 0.075, 8.76, 0.62, name, "BrassRail", segments=10)
+        add_rotunda_detail(name, "upper_balustrade_post", (x, y, 9.07), (0.15, 0.15))
 
     rotunda_statue_pedestals = [
         ("washington", 0.0),
@@ -2752,7 +2773,16 @@ def add_rotunda_visual_details(
         y = 11.2 * math.sin(angle)
         name = f"rotunda_{label}_statue_public_pedestal_base"
         obj.add_cylinder((x, y), 0.86, 4.41, 0.18, name, "StepStone", segments=20)
+        plaque_center = (10.55 * math.cos(angle), 10.55 * math.sin(angle))
+        plaque_size = (0.44, 0.08) if abs(math.sin(angle)) > abs(math.cos(angle)) else (0.08, 0.44)
+        obj.add_box(plaque_center, plaque_size, 0.16, 4.63, f"rotunda_{label}_statue_public_pedestal_plaque", "BrassRail")
         add_rotunda_detail(name, "statue_pedestal_base", (x, y, 4.5), (1.72, 1.72))
+        add_rotunda_detail(
+            f"rotunda_{label}_statue_public_pedestal_plaque",
+            "statue_pedestal_plaque",
+            (plaque_center[0], plaque_center[1], 4.71),
+            plaque_size,
+        )
 
     add_label(labels, "Rotunda architectural details - public schematic", 0.0, 11.0, 7.2, "major_public_space")
 

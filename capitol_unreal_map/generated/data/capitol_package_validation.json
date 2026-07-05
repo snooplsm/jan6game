@@ -43,20 +43,21 @@
     "furnishing_detail_kinds": 7,
     "wall_finish_details": 780,
     "wall_finish_detail_kinds": 4,
-    "rotunda_details": 79,
-    "rotunda_detail_kinds": 9,
+    "rotunda_details": 151,
+    "rotunda_detail_kinds": 14,
     "ceiling_details": 283,
     "ceiling_detail_kinds": 5,
     "floor_details": 160,
     "floor_detail_kinds": 5,
     "joint_session_records": 9,
     "public_art": 91,
+    "public_art_types": 6,
     "light_fixtures": 55,
     "wall_treatments": 11,
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 7
+    "viewpoints": 8
   },
   "materials": {
     "manifest_materials": 71,
@@ -100,7 +101,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 83,
+    "required_markers": 91,
     "missing": []
   },
   "meshes": [
@@ -236,12 +237,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 93525,
-      "uvs": 280484,
-      "faces": 66919,
-      "faces_with_uvs": 66919,
-      "triangles": 146646,
-      "groups": 9893,
+      "vertices": 95629,
+      "uvs": 287180,
+      "faces": 68305,
+      "faces_with_uvs": 68305,
+      "triangles": 150570,
+      "groups": 9965,
       "materials": [
         "ArtFrameGold",
         "BrassRail",
@@ -295,7 +296,7 @@
         "max": [
           7521.0,
           10173.0,
-          935.0
+          938.0
         ]
       }
     },

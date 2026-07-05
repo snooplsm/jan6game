@@ -283,6 +283,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickWallFinishDetails"',
     'id="quickFloorDetails"',
     'id="quickCeilingDetails"',
+    'id="quickChambersTop"',
     'id="quickGameplayItems"',
     'href="#grounds-details"',
     'href="#facade-details"',
@@ -293,6 +294,7 @@ REQUIRED_VIEWER_MARKERS = {
     'href="#wall-finish-details"',
     'href="#floor-details"',
     'href="#ceiling-details"',
+    'href="#chambers-top"',
     'href="#gameplay-items"',
     'id="presetGroundsDetails"',
     'id="presetFacadeDetails"',
@@ -303,6 +305,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="presetWallFinishDetails"',
     'id="presetFloorDetails"',
     'id="presetCeilingDetails"',
+    'id="presetChambersTop"',
     'id="presetGameplay"',
     'value="grounds_detail"',
     'value="facade_detail"',
@@ -343,6 +346,8 @@ REQUIRED_VIEWER_MARKERS = {
     "focusFloorDetailsRoute",
     "focusCeilingDetails",
     "focusCeilingDetailsRoute",
+    "focusChambersTop",
+    "focusChambersTopRoute",
     "focusGameplayItems",
     "focusGameplayItemsRoute",
     "humanizeId",
@@ -355,6 +360,9 @@ REQUIRED_VIEWER_MARKERS = {
     "wall-finish-details",
     "floor-details",
     "ceiling-details",
+    "chambers-top",
+    "chamber-top",
+    "top-chambers",
     "gameplay-items",
     "game-play-items",
 }
@@ -487,10 +495,24 @@ REQUIRED_ROTUNDA_DETAIL_KINDS = {
     "center_floor_medallion",
     "floor_radial_inlay",
     "perimeter_column",
+    "perimeter_column_base",
+    "perimeter_column_capital",
     "upper_coffer_panel",
     "public_arch_portal",
     "upper_balustrade",
+    "upper_balustrade_post",
+    "oculus_trim_ring",
     "statue_pedestal_base",
+    "statue_pedestal_plaque",
+}
+
+REQUIRED_PUBLIC_ART_TYPES = {
+    "statue",
+    "historical_painting_panel",
+    "rotunda_frieze_relief_panel",
+    "public_hall_art_panel",
+    "historic_chamber_art_panel",
+    "portrait_panel",
 }
 
 REQUIRED_CEILING_DETAIL_KINDS = {
@@ -558,6 +580,7 @@ REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_Rotunda",
     "CapitolMap_Camera_HouseChamber_JointSession",
     "CapitolMap_Camera_SenateChamber",
+    "CapitolMap_Camera_Chambers_TopDown",
     "CapitolMap_Camera_GameplayItems",
 }
 
@@ -1370,8 +1393,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     rotunda_detail_kinds = {detail.get("kind") for detail in rotunda_details}
     summary["rotunda_details"] = len(rotunda_details)
     summary["rotunda_detail_kinds"] = len(rotunda_detail_kinds)
-    if len(rotunda_details) < 75:
-        error(errors, f"expected at least 75 public Rotunda detail records, got {len(rotunda_details)}")
+    if len(rotunda_details) < 150:
+        error(errors, f"expected at least 150 public Rotunda detail records, got {len(rotunda_details)}")
     missing_rotunda_kinds = sorted(REQUIRED_ROTUNDA_DETAIL_KINDS - rotunda_detail_kinds)
     if missing_rotunda_kinds:
         error(errors, f"missing public Rotunda detail kinds: {', '.join(missing_rotunda_kinds)}")
@@ -1379,12 +1402,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public Rotunda floor radial inlay records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "perimeter_column"]) < 16:
         error(errors, "expected at least 16 public Rotunda perimeter column records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "perimeter_column_base"]) < 16:
+        error(errors, "expected at least 16 public Rotunda column-base records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "perimeter_column_capital"]) < 16:
+        error(errors, "expected at least 16 public Rotunda column-capital records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "upper_coffer_panel"]) < 32:
         error(errors, "expected at least 32 public Rotunda upper coffer panel records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "public_arch_portal"]) < 4:
         error(errors, "expected at least 4 public Rotunda arch portal records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "upper_balustrade_post"]) < 32:
+        error(errors, "expected at least 32 public Rotunda upper balustrade post records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "oculus_trim_ring"]) < 1:
+        error(errors, "expected public Rotunda oculus trim ring record")
     if len([detail for detail in rotunda_details if detail.get("kind") == "statue_pedestal_base"]) < 7:
         error(errors, "expected at least 7 public Rotunda statue pedestal records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "statue_pedestal_plaque"]) < 7:
+        error(errors, "expected at least 7 public Rotunda statue pedestal plaque records")
     for detail in rotunda_details:
         if detail.get("location") != "Rotunda":
             error(errors, f"Rotunda detail {detail.get('name', '<unknown>')} has invalid location")
@@ -1470,13 +1503,26 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, f"missing joint-session visual records: {', '.join(missing_joint)}")
 
     public_art = interior.get("public_art", [])
+    public_art_types = {record.get("type") for record in public_art}
     light_fixtures = interior.get("light_fixtures", [])
     wall_treatments = interior.get("wall_treatments", [])
     summary["public_art"] = len(public_art)
+    summary["public_art_types"] = len(public_art_types)
     summary["light_fixtures"] = len(light_fixtures)
     summary["wall_treatments"] = len(wall_treatments)
     if len(public_art) < 90:
         error(errors, f"expected at least 90 public-art visuals, got {len(public_art)}")
+    missing_art_types = sorted(REQUIRED_PUBLIC_ART_TYPES - public_art_types)
+    if missing_art_types:
+        error(errors, f"missing public-art visual types: {', '.join(missing_art_types)}")
+    if len([record for record in public_art if record.get("type") == "statue"]) < 35:
+        error(errors, "expected at least 35 public statue visual records")
+    if len([record for record in public_art if record.get("type") == "historical_painting_panel"]) < 8:
+        error(errors, "expected at least 8 Rotunda historical painting panel records")
+    if len([record for record in public_art if record.get("type") == "rotunda_frieze_relief_panel"]) < 16:
+        error(errors, "expected at least 16 Rotunda frieze relief panel records")
+    if len([record for record in public_art if record.get("type") == "portrait_panel"]) < 18:
+        error(errors, "expected at least 18 public portrait panel records")
     if len(light_fixtures) < 55:
         error(errors, f"expected at least 55 public light fixtures, got {len(light_fixtures)}")
     if len(wall_treatments) < 10:
