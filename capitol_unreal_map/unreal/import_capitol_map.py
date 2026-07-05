@@ -1030,6 +1030,8 @@ LABEL_COLORS = {
     "landmark": (235, 235, 220, 255),
     "street_name": (210, 230, 210, 255),
     "building": (226, 226, 214, 255),
+    "height_audit": (255, 205, 92, 255),
+    "height_review_target": (255, 116, 92, 255),
     "gameplay_item": (255, 155, 105, 255),
 }
 
@@ -2151,6 +2153,8 @@ def label_color(category: str) -> unreal.Color:
 def label_folder(category: str) -> str:
     if category in {"street_name", "building"}:
         return "CapitolMap/Labels/Exterior"
+    if category in {"height_audit", "height_review_target"}:
+        return "CapitolMap/Labels/HeightAudit"
     if category in {"landmark"}:
         return "CapitolMap/Labels/Landmark"
     if category in {"gameplay_item"}:
@@ -2210,6 +2214,30 @@ def spawn_metadata_labels() -> None:
         location = [center[0], center[1], max(center[2] * 2.0 + 3.0, 6.0)]
         spawn_text_label(name, location, "building")
 
+    for building in data["exterior"]["buildings"]:
+        if building.get("height_source") != "footprint_type_area_estimate":
+            continue
+        center = building.get("center_m", [0.0, 0.0, 0.0])
+        if (center[0] ** 2 + center[1] ** 2) ** 0.5 > 900.0:
+            continue
+        name = building.get("name") or f"Building {building.get('id')}"
+        if str(name).startswith("osm_way_"):
+            name = f"Building {building.get('id')}"
+        location = [center[0], center[1], max(center[2] * 2.0 + 8.0, 10.0)]
+        spawn_text_label(f"{name} - est {building.get('height_m')}m", location, "height_audit")
+
+    for target in data.get("exterior", {}).get("height_model", {}).get("height_review_targets", []):
+        center = target.get("center_m", [0.0, 0.0, 0.0])
+        name = target.get("name") or f"Building {target.get('id')}"
+        if str(name).startswith("osm_way_"):
+            name = f"Building {target.get('id')}"
+        location = [center[0], center[1], max(center[2] * 2.0 + 12.0, 12.0)]
+        spawn_text_label(
+            f"{name} - review {target.get('height_m')}m / priority {target.get('height_review_priority')}",
+            location,
+            "height_review_target",
+        )
+
 
 def save_generated_level() -> None:
     """Save the generated level and imported assets when possible."""
@@ -2263,6 +2291,16 @@ def write_unreal_import_report(
             "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
             "collision_proxy_setup": FIRST_PERSON_COLLISION_PROXIES,
             "collision_proxy_coverage": FIRST_PERSON_COLLISION_PROXY_COVERAGE,
+            "height_audit_setup": {
+                "label_folder": "CapitolMap/Labels/HeightAudit",
+                "height_audit_label_category": "height_audit",
+                "height_review_target_label_category": "height_review_target",
+                "height_review_target_count": len(
+                    data.get("exterior", {}).get("height_model", {}).get("height_review_targets", [])
+                ),
+                "source_backed_buildings": data.get("exterior", {}).get("height_model", {}).get("source_backed_buildings", 0),
+                "heuristic_estimated_buildings": data.get("exterior", {}).get("height_model", {}).get("heuristic_estimated_buildings", 0),
+            },
             "metadata_counts": {
                 "buildings": len(data.get("exterior", {}).get("buildings", [])),
                 "roads": len(data.get("exterior", {}).get("roads", [])),

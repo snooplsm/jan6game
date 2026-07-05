@@ -131,9 +131,9 @@
     "destination_paths": 4,
     "required_functions": 23,
     "required_calls": 21,
-    "report_keys": 223,
-    "label_categories": 21,
-    "outliner_folders": 13,
+    "report_keys": 229,
+    "label_categories": 23,
+    "outliner_folders": 14,
     "first_person_markers": 50,
     "material_markers": 27,
     "environment_markers": 58,
@@ -162,7 +162,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 225,
+    "required_markers": 235,
     "missing": []
   },
   "landmark_height": {
