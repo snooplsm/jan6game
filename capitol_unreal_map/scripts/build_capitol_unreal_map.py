@@ -3981,15 +3981,19 @@ def add_public_circulation_details(
         if orientation == "east_west":
             post_size = (0.16, 0.24)
             lintel_size = (0.20, width + 0.50)
+            transom_size = (0.075, width * 0.64)
             post_offsets = [(0.0, -width / 2.0), (0.0, width / 2.0)]
         else:
             post_size = (0.24, 0.16)
             lintel_size = (width + 0.50, 0.20)
+            transom_size = (width * 0.64, 0.075)
             post_offsets = [(-width / 2.0, 0.0), (width / 2.0, 0.0)]
         for idx, (dx, dy) in enumerate(post_offsets, start=1):
             obj.add_box((x + dx, y + dy), post_size, 2.35, 4.43, f"{name}_side_trim_{idx}", "InteriorTrim")
         obj.add_box((x, y), lintel_size, 0.22, 6.78, f"{name}_header_trim", "InteriorTrim")
+        obj.add_box((x, y), transom_size, 0.28, 6.34, f"{name}_public_transom_marker", "DoorGlass")
         add_public_circulation_record(records, name, "room_portal_trim", area, (x, y, 5.65), (width, 0.42))
+        add_public_circulation_record(records, f"{name}_public_transom_marker", "public_portal_transom", area, (x, y, 6.48), transom_size)
 
     def sign(name: str, area: str, center: tuple[float, float], text: str) -> None:
         x, y = center
@@ -4001,6 +4005,30 @@ def add_public_circulation_details(
     def inlay(name: str, area: str, center: tuple[float, float], size: tuple[float, float]) -> None:
         obj.add_box(center, size, 0.035, z + 0.005, name, "BrassRail")
         add_public_circulation_record(records, name, "floor_inlay", area, (center[0], center[1], z + 0.02), size)
+
+    def corridor_pilaster(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        shaft_size = (0.34, 0.16) if orientation == "east_west" else (0.16, 0.34)
+        cap_size = (0.52, 0.22) if orientation == "east_west" else (0.22, 0.52)
+        obj.add_box((x, y), shaft_size, 1.86, 4.45, f"{name}_shaft", "InteriorTrim")
+        obj.add_box((x, y), cap_size, 0.16, 6.28, f"{name}_capital", "ArtFrameGold")
+        obj.add_box((x, y), cap_size, 0.14, 4.36, f"{name}_base", "InteriorTrim")
+        add_public_circulation_record(records, name, "public_corridor_pilaster", area, (x, y, 5.38), shaft_size)
+
+    def corridor_sconce(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        plate_size = (0.12, 0.42) if orientation == "east_west" else (0.42, 0.12)
+        arm_size = (0.42, 0.08) if orientation == "east_west" else (0.08, 0.42)
+        obj.add_box((x, y), plate_size, 0.42, 5.68, f"{name}_backplate", "LightFixtureMetal")
+        obj.add_box((x, y), arm_size, 0.07, 5.92, f"{name}_arm", "LightFixtureMetal")
+        obj.add_cylinder((x, y), 0.13, 5.92, 0.22, f"{name}_warm_glass", "WarmLightGlass", segments=12)
+        add_public_circulation_record(records, name, "public_corridor_sconce", area, (x, y, 5.98), plate_size)
+
+    def floor_medallion(name: str, area: str, center: tuple[float, float], radius: float) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), radius, z + 0.012, 0.035, f"{name}_brass_outer_ring", "BrassRail", segments=32)
+        obj.add_cylinder((x, y), radius * 0.58, z + 0.052, 0.026, f"{name}_stone_center", "RotundaFloor", segments=32)
+        add_public_circulation_record(records, name, "public_floor_medallion", area, (x, y, z + 0.045), (radius * 2.0, radius * 2.0))
 
     corridor("east_west_public_axis_band", "Rotunda / east-west public approach", [(-68.0, 0.0), (-22.0, 0.0), (22.0, 0.0), (68.0, 0.0)], 5.2)
     corridor("rotunda_to_house_public_band", "Rotunda to House Chamber public orientation", [(0.0, -12.0), (0.0, -38.0), (0.0, -52.0)], 4.6)
@@ -4043,7 +4071,49 @@ def add_public_circulation_details(
     ]:
         inlay(name, area, center, size)
 
+    pilaster_specs: list[tuple[str, str, tuple[float, float], str]] = []
+    for x in [-52.0, -36.0, -20.0, 20.0, 36.0, 52.0]:
+        pilaster_specs.append(("east_west_axis_south", "Rotunda / east-west public approach", (x, -3.05), "east_west"))
+        pilaster_specs.append(("east_west_axis_north", "Rotunda / east-west public approach", (x, 3.05), "east_west"))
+    for y in [-44.0, -32.0, -20.0]:
+        pilaster_specs.append(("house_axis_west", "Rotunda to House Chamber public orientation", (-2.75, y), "north_south"))
+        pilaster_specs.append(("house_axis_east", "Rotunda to House Chamber public orientation", (2.75, y), "north_south"))
+    for y in [20.0, 32.0, 44.0]:
+        pilaster_specs.append(("senate_axis_west", "Rotunda to Senate Chamber public orientation", (-2.75, y), "north_south"))
+        pilaster_specs.append(("senate_axis_east", "Rotunda to Senate Chamber public orientation", (2.75, y), "north_south"))
+    for x in [-24.0, -12.0, 0.0, 12.0, 24.0]:
+        pilaster_specs.append(("house_gallery_front", "House gallery public orientation", (x, -90.8), "east_west"))
+        pilaster_specs.append(("senate_gallery_front", "Senate gallery public orientation", (x, 88.8), "east_west"))
+    for index, (prefix, area, center, orientation) in enumerate(pilaster_specs, start=1):
+        corridor_pilaster(f"{prefix}_public_corridor_pilaster_{index:02d}", area, center, orientation)
+
+    sconce_specs: list[tuple[str, str, tuple[float, float], str]] = []
+    for x in [-48.0, -28.0, -8.0, 8.0, 28.0, 48.0]:
+        sconce_specs.append(("east_west_axis_south", "Rotunda / east-west public approach", (x, -2.72), "east_west"))
+        sconce_specs.append(("east_west_axis_north", "Rotunda / east-west public approach", (x, 2.72), "east_west"))
+    for y in [-42.0, -24.0]:
+        sconce_specs.append(("house_axis_west", "Rotunda to House Chamber public orientation", (-2.42, y), "north_south"))
+        sconce_specs.append(("house_axis_east", "Rotunda to House Chamber public orientation", (2.42, y), "north_south"))
+    for y in [24.0, 42.0]:
+        sconce_specs.append(("senate_axis_west", "Rotunda to Senate Chamber public orientation", (-2.42, y), "north_south"))
+        sconce_specs.append(("senate_axis_east", "Rotunda to Senate Chamber public orientation", (2.42, y), "north_south"))
+    for index, (prefix, area, center, orientation) in enumerate(sconce_specs, start=1):
+        corridor_sconce(f"{prefix}_public_sconce_{index:02d}", area, center, orientation)
+
+    for name, area, center, radius in [
+        ("west_axis_public_floor_medallion", "Rotunda / east-west public approach", (-36.0, 0.0), 0.88),
+        ("east_axis_public_floor_medallion", "Rotunda / east-west public approach", (36.0, 0.0), 0.88),
+        ("house_axis_public_floor_medallion", "Rotunda to House Chamber public orientation", (0.0, -26.0), 0.78),
+        ("senate_axis_public_floor_medallion", "Rotunda to Senate Chamber public orientation", (0.0, 26.0), 0.78),
+        ("statuary_axis_public_floor_medallion", "Rotunda to National Statuary Hall", (18.0, -18.0), 0.68),
+        ("old_senate_axis_public_floor_medallion", "Rotunda to Old Senate Chamber", (18.0, 18.0), 0.68),
+        ("house_gallery_public_floor_medallion", "House gallery public orientation", (0.0, -91.0), 0.72),
+        ("senate_gallery_public_floor_medallion", "Senate gallery public orientation", (0.0, 89.0), 0.72),
+    ]:
+        floor_medallion(name, area, center, radius)
+
     add_label(labels, "Public circulation thresholds, portals, and orientation signs - schematic", -17.0, 0.0, 7.3, "public_circulation_detail")
+    add_label(labels, "Public corridor pilasters, sconces, and floor medallions - schematic", 17.0, 0.0, 7.3, "public_circulation_detail")
 
 
 def add_public_signage_detail_record(
