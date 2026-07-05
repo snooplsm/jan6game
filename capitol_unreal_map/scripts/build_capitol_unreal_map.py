@@ -11167,6 +11167,62 @@ def add_chamber_public_role_zone_overlays(
             return (x, y + sy / 2.0 - min(0.70, sy * 0.22))
         return (x, y - sy / 2.0 + min(0.70, sy * 0.22))
 
+    def add_count_ticks(
+        section: dict[str, Any],
+        base_name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        zone_z: float,
+    ) -> None:
+        count = section.get("count")
+        if not isinstance(count, int) or count <= 0:
+            return
+        x, y = center
+        sx, sy = size
+        seats_per_tick = 10 if count > 10 else 1
+        tick_count = min(24, max(1, math.ceil(count / seats_per_tick)))
+        if sx >= sy:
+            tick_width = min(0.34, max(0.10, sx / (tick_count * 2.8)))
+            tick_depth = min(0.32, max(0.12, sy * 0.10))
+            usable_width = max(tick_width, sx - 1.0)
+            start_x = x - usable_width / 2.0
+            tick_y = y + sy / 2.0 - min(1.05, sy * 0.24)
+        else:
+            tick_width = min(0.32, max(0.12, sx * 0.10))
+            tick_depth = min(0.34, max(0.10, sy / (tick_count * 2.8)))
+            usable_depth = max(tick_depth, sy - 1.0)
+            start_y = y - usable_depth / 2.0
+            tick_x = x - sx / 2.0 + min(1.05, sx * 0.24)
+        for tick_index in range(tick_count):
+            if sx >= sy:
+                t = 0.5 if tick_count == 1 else tick_index / (tick_count - 1)
+                tick_center = (start_x + usable_width * t, tick_y)
+                tick_size = (tick_width, tick_depth)
+            else:
+                t = 0.5 if tick_count == 1 else tick_index / (tick_count - 1)
+                tick_center = (tick_x, start_y + usable_depth * t)
+                tick_size = (tick_width, tick_depth)
+            tick_name = f"{base_name}_count_tick_{tick_index+1:02d}"
+            obj.add_box(tick_center, tick_size, 0.040, zone_z + 0.165, tick_name, "LaneMarkingWhite")
+            add_chamber_detail_record(
+                records,
+                tick_name,
+                "public_role_zone_count_tick",
+                chamber,
+                (tick_center[0], tick_center[1], zone_z + 0.185),
+                tick_size,
+            )
+            records[-1].update(
+                {
+                    "section_id": section.get("id"),
+                    "represented_count": count,
+                    "seats_per_tick": seats_per_tick,
+                    "tick_index": tick_index + 1,
+                    "tick_count": tick_count,
+                }
+            )
+
     for section in seating_sections:
         section_id = str(section.get("id", "unknown_role_zone"))
         chamber = str(section.get("chamber", "House Chamber"))
@@ -11233,6 +11289,7 @@ def add_chamber_public_role_zone_overlays(
             plaque_z + 0.90,
             "chamber_role_overlay",
         )
+        add_count_ticks(section, base_name, chamber, (x, y), (sx, sy), zone_z)
 
 
 def build_house_seats(

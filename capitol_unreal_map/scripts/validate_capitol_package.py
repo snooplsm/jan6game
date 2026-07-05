@@ -945,6 +945,7 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "public_role_zone_floor_overlay",
     "public_role_zone_boundary",
     "public_role_zone_label_plaque",
+    "public_role_zone_count_tick",
     "gallery_rail_baluster",
     "chamber_wall_acoustic_panel",
     "chamber_wall_sconce_fixture",
@@ -2474,6 +2475,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 64 public chamber role-zone boundary records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_label_plaque"]) < 16:
         error(errors, "expected at least 16 public chamber role-zone label plaque records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_role_zone_count_tick"]) < 50:
+        error(errors, "expected at least 50 public chamber role-zone count tick records")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_rail_baluster"]) < 64:
         error(errors, "expected at least 64 public chamber gallery rail baluster records")
     if len([detail for detail in chamber_details if detail.get("kind") == "chamber_wall_acoustic_panel"]) < 40:
