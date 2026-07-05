@@ -612,6 +612,8 @@ REQUIRED_SIGNAGE_DETAIL_KINDS = {
     "chamber_role_sign",
     "generic_office_zone_sign",
     "public_map_kiosk",
+    "sign_typography_stroke",
+    "map_kiosk_route_line",
 }
 
 REQUIRED_DOOR_DETAIL_KINDS = {
@@ -626,12 +628,20 @@ REQUIRED_DOOR_DETAIL_KINDS = {
 
 REQUIRED_FURNISHING_DETAIL_KINDS = {
     "public_bench",
+    "bench_seat_slat",
+    "bench_arm_rest",
     "display_case",
+    "display_case_edge_trim",
+    "display_case_object_silhouette",
     "display_case_light_strip",
     "display_case_label_plaque",
     "information_lectern",
+    "lectern_text_line",
     "waste_receptacle",
+    "receptacle_sorting_label",
     "plant_urn",
+    "plant_urn_rim",
+    "plant_leaf_cluster",
     "public_queue_post",
     "queue_rope_segment",
 }
@@ -1580,8 +1590,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     signage_detail_kinds = {detail.get("kind") for detail in signage_details}
     summary["signage_details"] = len(signage_details)
     summary["signage_detail_kinds"] = len(signage_detail_kinds)
-    if len(signage_details) < 50:
-        error(errors, f"expected at least 50 public signage detail records, got {len(signage_details)}")
+    if len(signage_details) < 260:
+        error(errors, f"expected at least 260 public signage detail records, got {len(signage_details)}")
     missing_signage_kinds = sorted(REQUIRED_SIGNAGE_DETAIL_KINDS - signage_detail_kinds)
     if missing_signage_kinds:
         error(errors, f"missing public signage detail kinds: {', '.join(missing_signage_kinds)}")
@@ -1597,6 +1607,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 6 generic office-zone sign records")
     if len([detail for detail in signage_details if detail.get("kind") == "public_map_kiosk"]) < 4:
         error(errors, "expected at least 4 public map kiosk records")
+    if len([detail for detail in signage_details if detail.get("kind") == "sign_typography_stroke"]) < 196:
+        error(errors, "expected at least 196 public sign typography-stroke records")
+    if len([detail for detail in signage_details if detail.get("kind") == "map_kiosk_route_line"]) < 12:
+        error(errors, "expected at least 12 public map kiosk route-line records")
     for detail in signage_details:
         if not detail.get("area"):
             error(errors, f"signage detail {detail.get('name', '<unknown>')} is missing area")
@@ -1662,25 +1676,41 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     furnishing_detail_kinds = {detail.get("kind") for detail in furnishing_details}
     summary["furnishing_details"] = len(furnishing_details)
     summary["furnishing_detail_kinds"] = len(furnishing_detail_kinds)
-    if len(furnishing_details) < 210:
-        error(errors, f"expected at least 210 public furnishing detail records, got {len(furnishing_details)}")
+    if len(furnishing_details) < 530:
+        error(errors, f"expected at least 530 public furnishing detail records, got {len(furnishing_details)}")
     missing_furnishing_kinds = sorted(REQUIRED_FURNISHING_DETAIL_KINDS - furnishing_detail_kinds)
     if missing_furnishing_kinds:
         error(errors, f"missing public furnishing detail kinds: {', '.join(missing_furnishing_kinds)}")
     if len([detail for detail in furnishing_details if detail.get("kind") == "public_bench"]) < 24:
         error(errors, "expected at least 24 public interior bench records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "bench_seat_slat"]) < 72:
+        error(errors, "expected at least 72 public bench seat-slat records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "bench_arm_rest"]) < 48:
+        error(errors, "expected at least 48 public bench arm-rest records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "display_case"]) < 24:
         error(errors, "expected at least 24 public display case records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "display_case_edge_trim"]) < 96:
+        error(errors, "expected at least 96 public display case edge-trim records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "display_case_object_silhouette"]) < 24:
+        error(errors, "expected at least 24 public display case object-silhouette records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "display_case_light_strip"]) < 48:
         error(errors, "expected at least 48 public display case light-strip records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "display_case_label_plaque"]) < 24:
         error(errors, "expected at least 24 public display case label-plaque records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "information_lectern"]) < 10:
         error(errors, "expected at least 10 public information lectern records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "lectern_text_line"]) < 30:
+        error(errors, "expected at least 30 public lectern text-line records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "waste_receptacle"]) < 16:
         error(errors, "expected at least 16 public receptacle records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "receptacle_sorting_label"]) < 16:
+        error(errors, "expected at least 16 public receptacle sorting-label records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "plant_urn"]) < 20:
         error(errors, "expected at least 20 public plant urn records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "plant_urn_rim"]) < 20:
+        error(errors, "expected at least 20 public plant urn rim records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "plant_leaf_cluster"]) < 20:
+        error(errors, "expected at least 20 public plant leaf-cluster records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "public_queue_post"]) < 24:
         error(errors, "expected at least 24 public queue post records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "queue_rope_segment"]) < 20:

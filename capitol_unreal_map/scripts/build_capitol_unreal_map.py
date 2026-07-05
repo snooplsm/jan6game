@@ -5742,6 +5742,44 @@ def add_public_interior_signage_details(
             return (thickness, width)
         return (width, thickness)
 
+    def sign_offset_center(
+        center: tuple[float, float],
+        longitudinal_offset: float,
+        lateral_offset: float,
+        orientation: str,
+    ) -> tuple[float, float]:
+        if orientation == "north_south":
+            return (center[0] + lateral_offset, center[1] + longitudinal_offset)
+        return (center[0] + longitudinal_offset, center[1] + lateral_offset)
+
+    def add_sign_typography_strokes(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+        z: float,
+    ) -> None:
+        stroke_specs = [
+            (-0.30, -0.014, 0.18),
+            (-0.11, 0.014, 0.13),
+            (0.08, -0.014, 0.22),
+            (0.29, 0.014, 0.12),
+        ]
+        for index, (offset_factor, lateral_offset, length_factor) in enumerate(stroke_specs, start=1):
+            stroke_center = sign_offset_center(center, width * offset_factor, lateral_offset, orientation)
+            stroke_size = sign_size(width * length_factor, 0.022, orientation)
+            stroke_name = f"{name}_typography_stroke_{index:02d}"
+            obj.add_box(stroke_center, stroke_size, 0.032, z, stroke_name, "LaneMarkingWhite")
+            add_public_signage_detail_record(
+                records,
+                stroke_name,
+                "sign_typography_stroke",
+                area,
+                (stroke_center[0], stroke_center[1], z + 0.016),
+                stroke_size,
+            )
+
     def wall_sign(
         name: str,
         kind: str,
@@ -5756,6 +5794,7 @@ def add_public_interior_signage_details(
         obj.add_box(center, size, 0.42, sign_z, f"{name}_panel", material)
         obj.add_box(center, sign_size(width * 0.88, 0.035, orientation), 0.045, sign_z + 0.32, f"{name}_letter_bar_primary", "LaneMarkingWhite")
         obj.add_box(center, sign_size(width * 0.52, 0.030, orientation), 0.045, sign_z + 0.17, f"{name}_letter_bar_secondary", "LaneMarkingWhite")
+        add_sign_typography_strokes(name, area, center, width, orientation, sign_z + 0.055)
         add_public_signage_detail_record(records, name, kind, area, (center[0], center[1], sign_z + 0.21), size, message)
         add_label(labels, message, center[0], center[1], label_z, "signage_detail")
 
@@ -5776,6 +5815,7 @@ def add_public_interior_signage_details(
         obj.add_box(center, size, 0.48, 5.58, f"{name}_blade", material)
         obj.add_box(center, sign_size(width * 0.82, 0.035, orientation), 0.050, 5.93, f"{name}_arrow_bar", "LaneMarkingWhite")
         obj.add_box(center, sign_size(width * 0.46, 0.030, orientation), 0.050, 5.75, f"{name}_caption_bar", "LaneMarkingWhite")
+        add_sign_typography_strokes(name, area, center, width, orientation, 5.62)
         add_public_signage_detail_record(records, name, kind, area, (x, y, 5.82), size, message)
         add_label(labels, message, x, y, 6.55, "signage_detail")
 
@@ -5786,6 +5826,20 @@ def add_public_interior_signage_details(
         obj.add_box((x, y), (1.55, 0.22), 1.12, 5.18, f"{name}_map_panel", "MarkerBlue")
         obj.add_box((x, y - 0.03), (1.26, 0.055), 0.62, 5.42, f"{name}_map_graphic_field", "LaneMarkingWhite")
         obj.add_box((x, y - 0.07), (0.92, 0.065), 0.08, 5.98, f"{name}_header_bar", "ArtFrameGold")
+        for route_index, (offset_y, length) in enumerate([(-0.075, 0.96), (0.0, 0.70), (0.075, 1.10)], start=1):
+            route_center = (x, y + offset_y)
+            route_size = (length, 0.020)
+            route_name = f"{name}_route_line_{route_index:02d}"
+            obj.add_box(route_center, route_size, 0.030, 5.68 + route_index * 0.035, route_name, "StreetSignGreen")
+            add_public_signage_detail_record(
+                records,
+                route_name,
+                "map_kiosk_route_line",
+                area,
+                (route_center[0], route_center[1], 5.695 + route_index * 0.035),
+                route_size,
+                message,
+            )
         add_public_signage_detail_record(records, name, "public_map_kiosk", area, (x, y, 5.74), (1.55, 0.22), message)
         add_label(labels, message, x, y, 6.65, "signage_detail")
 
@@ -6033,6 +6087,17 @@ def add_public_interior_furnishing_details(
             return (depth, length)
         return (length, depth)
 
+    def oriented_center(
+        center: tuple[float, float],
+        length_offset: float,
+        depth_offset: float,
+        orientation: str,
+    ) -> tuple[float, float]:
+        x, y = center
+        if orientation == "north_south":
+            return (x + depth_offset, y + length_offset)
+        return (x + length_offset, y + depth_offset)
+
     def add_bench(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
         x, y = center
         seat_size = oriented_size(2.25, 0.52, orientation)
@@ -6049,6 +6114,18 @@ def add_public_interior_furnishing_details(
             else:
                 leg_center = (x + dx, y + dy)
             obj.add_box(leg_center, (0.10, 0.10), 0.34, floor_z, f"{name}_leg_{index}", "BrassRail")
+        for slat_index, depth_offset in enumerate([-0.17, 0.0, 0.17], start=1):
+            slat_center = oriented_center(center, 0.0, depth_offset, orientation)
+            slat_size = oriented_size(2.06, 0.075, orientation)
+            slat_name = f"{name}_seat_slat_{slat_index:02d}"
+            obj.add_box(slat_center, slat_size, 0.040, floor_z + 0.50, slat_name, "BenchWood")
+            add_public_furnishing_detail_record(records, slat_name, "bench_seat_slat", area, (slat_center[0], slat_center[1], floor_z + 0.52), slat_size)
+        for arm_index, length_offset in enumerate([-1.02, 1.02], start=1):
+            arm_center = oriented_center(center, length_offset, 0.0, orientation)
+            arm_size = oriented_size(0.10, 0.64, orientation)
+            arm_name = f"{name}_arm_rest_{arm_index:02d}"
+            obj.add_box(arm_center, arm_size, 0.14, floor_z + 0.54, arm_name, "ChairLeather")
+            add_public_furnishing_detail_record(records, arm_name, "bench_arm_rest", area, (arm_center[0], arm_center[1], floor_z + 0.61), arm_size)
         add_public_furnishing_detail_record(records, name, "public_bench", area, (x, y, floor_z + 0.42), seat_size)
 
     def add_display_case(name: str, area: str, center: tuple[float, float], orientation: str) -> None:
@@ -6058,6 +6135,21 @@ def add_public_interior_furnishing_details(
         obj.add_box((x, y), base_size, 0.42, floor_z, f"{name}_stone_base", "InteriorTrim")
         obj.add_box((x, y), glass_size, 0.74, floor_z + 0.42, f"{name}_glass_case", "DoorGlass")
         obj.add_box((x, y), oriented_size(1.10, 0.34, orientation), 0.12, floor_z + 0.54, f"{name}_object_plinth", "StatueMarble")
+        trim_specs = [
+            ("front", 0.0, -0.285, 1.40, 0.045),
+            ("back", 0.0, 0.285, 1.40, 0.045),
+            ("left", -0.70, 0.0, 0.045, 0.58),
+            ("right", 0.70, 0.0, 0.045, 0.58),
+        ]
+        for trim_index, (side, length_offset, depth_offset, length, depth) in enumerate(trim_specs, start=1):
+            trim_center = oriented_center(center, length_offset, depth_offset, orientation)
+            trim_size = oriented_size(length, depth, orientation)
+            trim_name = f"{name}_glass_edge_trim_{side}"
+            obj.add_box(trim_center, trim_size, 0.040, floor_z + 1.14, trim_name, "BrassRail")
+            add_public_furnishing_detail_record(records, trim_name, "display_case_edge_trim", area, (trim_center[0], trim_center[1], floor_z + 1.16), trim_size)
+        silhouette_name = f"{name}_object_silhouette"
+        obj.add_cylinder((x, y), 0.13, floor_z + 0.66, 0.30, silhouette_name, "StatueBronze", segments=12)
+        add_public_furnishing_detail_record(records, silhouette_name, "display_case_object_silhouette", area, (x, y, floor_z + 0.81), (0.26, 0.26))
         light_strip_size = oriented_size(1.22, 0.045, orientation)
         light_offsets = [-0.24, 0.24]
         for edge_index, edge_offset in enumerate(light_offsets, start=1):
@@ -6090,6 +6182,12 @@ def add_public_interior_furnishing_details(
         panel_size = oriented_size(0.96, 0.08, orientation)
         obj.add_box((x, y), panel_size, 0.32, floor_z + 0.90, f"{name}_map_panel", "MarkerBlue")
         obj.add_box((x, y), oriented_size(0.78, 0.04, orientation), 0.05, floor_z + 1.20, f"{name}_header_strip", "LaneMarkingWhite")
+        for line_index, (length_offset, length) in enumerate([(-0.24, 0.34), (0.0, 0.56), (0.24, 0.28)], start=1):
+            line_center = oriented_center(center, length_offset, 0.0, orientation)
+            line_size = oriented_size(length, 0.024, orientation)
+            line_name = f"{name}_text_line_{line_index:02d}"
+            obj.add_box(line_center, line_size, 0.030, floor_z + 1.08 + line_index * 0.025, line_name, "LaneMarkingWhite")
+            add_public_furnishing_detail_record(records, line_name, "lectern_text_line", area, (line_center[0], line_center[1], floor_z + 1.095 + line_index * 0.025), line_size)
         add_public_furnishing_detail_record(records, name, "information_lectern", area, (x, y, floor_z + 0.70), panel_size)
 
     def add_receptacle(name: str, area: str, center: tuple[float, float], material: str) -> None:
@@ -6097,12 +6195,21 @@ def add_public_interior_furnishing_details(
         obj.add_cylinder((x, y), 0.24, floor_z, 0.72, f"{name}_cylindrical_body", material, segments=14)
         obj.add_cylinder((x, y), 0.26, floor_z + 0.72, 0.08, f"{name}_rim_lid", "DoorMetal", segments=14)
         obj.add_box((x, y), (0.30, 0.045), 0.04, floor_z + 0.79, f"{name}_slot_marker", "LaneMarkingWhite")
+        label_name = f"{name}_sorting_label"
+        obj.add_box((x, y - 0.20), (0.22, 0.035), 0.16, floor_z + 0.38, label_name, "LaneMarkingWhite")
+        add_public_furnishing_detail_record(records, label_name, "receptacle_sorting_label", area, (x, y - 0.20, floor_z + 0.46), (0.22, 0.035))
         add_public_furnishing_detail_record(records, name, "waste_receptacle", area, (x, y, floor_z + 0.40), (0.52, 0.52))
 
     def add_plant_urn(name: str, area: str, center: tuple[float, float]) -> None:
         x, y = center
         obj.add_cylinder((x, y), 0.36, floor_z, 0.45, f"{name}_stone_urn", "PlanterStone", segments=18)
+        rim_name = f"{name}_raised_rim"
+        obj.add_ring((x, y), 0.43, 0.28, floor_z + 0.43, 0.07, rim_name, "PlanterStone", segments=18)
         obj.add_cylinder((x, y), 0.30, floor_z + 0.43, 0.30, f"{name}_greenery_mass", "GroundGrass", segments=16)
+        for leaf_index, (dx, dy, radius) in enumerate([(-0.12, 0.08, 0.16), (0.10, 0.12, 0.14), (0.06, -0.11, 0.15)], start=1):
+            obj.add_cylinder((x + dx, y + dy), radius, floor_z + 0.62, 0.16, f"{name}_leaf_cluster_{leaf_index:02d}", "TreeCanopy", segments=10)
+        add_public_furnishing_detail_record(records, rim_name, "plant_urn_rim", area, (x, y, floor_z + 0.465), (0.86, 0.86))
+        add_public_furnishing_detail_record(records, f"{name}_leaf_clusters", "plant_leaf_cluster", area, (x, y, floor_z + 0.70), (0.72, 0.72))
         add_public_furnishing_detail_record(records, name, "plant_urn", area, (x, y, floor_z + 0.42), (0.72, 0.72))
 
     def add_queue_line(name: str, area: str, start: tuple[float, float], step: tuple[float, float], count: int) -> None:
