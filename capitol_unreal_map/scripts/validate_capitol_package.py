@@ -455,11 +455,16 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "row_marker_plaque",
     "rostrum_microphone_cluster",
     "gallery_stanchion",
+    "gallery_support_column",
+    "public_display_board",
     "generic_desk_surface_inset",
+    "generic_desk_edge_trim",
     "generic_document_stack",
     "generic_desk_microphone_marker",
     "generic_nameplate_strip",
     "generic_chair_arm_pair",
+    "generic_chair_cushion",
+    "generic_chair_back_inset",
     "generic_row_modesty_panel",
 }
 
@@ -1257,8 +1262,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 3000:
-        error(errors, f"expected at least 3000 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 4650:
+        error(errors, f"expected at least 4650 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1287,8 +1292,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 7 public rostrum microphone-cluster records")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_stanchion"]) < 32:
         error(errors, "expected at least 32 public gallery stanchion records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_support_column"]) < 24:
+        error(errors, "expected at least 24 public gallery support-column records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_display_board"]) < 4:
+        error(errors, "expected at least 4 public chamber display-board records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_desk_surface_inset"]) < 548:
         error(errors, "expected at least 548 generic chamber desk-surface inset records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_desk_edge_trim"]) < 548:
+        error(errors, "expected at least 548 generic chamber desk-edge trim records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_document_stack"]) < 548:
         error(errors, "expected at least 548 generic chamber document-stack records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_desk_microphone_marker"]) < 548:
@@ -1297,6 +1308,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 548 generic chamber nameplate-strip records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_arm_pair"]) < 548:
         error(errors, "expected at least 548 generic chamber chair-arm pair records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_cushion"]) < 548:
+        error(errors, "expected at least 548 generic chamber chair-cushion records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_chair_back_inset"]) < 548:
+        error(errors, "expected at least 548 generic chamber chair-back inset records")
     if len([detail for detail in chamber_details if detail.get("kind") == "generic_row_modesty_panel"]) < 26:
         error(errors, "expected at least 26 generic chamber row modesty-panel records")
     for detail in chamber_details[:12]:

@@ -4191,6 +4191,83 @@ def add_generic_chamber_desk_surface_details(
     )
 
 
+def add_generic_chamber_furniture_finish_details(
+    obj: ObjWriter,
+    records: list[dict[str, Any]],
+    prefix: str,
+    chamber: str,
+    desk_center: tuple[float, float],
+    desk_size: tuple[float, float],
+    desk_top_z: float,
+    chair_center: tuple[float, float],
+    chair_size: tuple[float, float],
+    chair_top_z: float,
+    chair_back_center: tuple[float, float],
+    chair_back_size: tuple[float, float],
+    chair_back_z: float,
+    chair_back_height: float,
+) -> None:
+    desk_x, desk_y = desk_center
+    desk_sx, desk_sy = desk_size
+    edge_size = (desk_sx * 0.82, desk_sy * 0.075)
+    for side, offset in [("front", -desk_sy * 0.44), ("rear", desk_sy * 0.44)]:
+        obj.add_box(
+            (desk_x, desk_y + offset),
+            edge_size,
+            0.026,
+            desk_top_z,
+            f"{prefix}_generic_desk_{side}_edge_trim",
+            "BrassRail",
+        )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_desk_edge_trim",
+        "generic_desk_edge_trim",
+        chamber,
+        (desk_x, desk_y, desk_top_z + 0.013),
+        (desk_sx * 0.82, desk_sy),
+    )
+
+    chair_x, chair_y = chair_center
+    cushion_size = (chair_size[0] * 0.74, chair_size[1] * 0.64)
+    obj.add_box(
+        (chair_x, chair_y),
+        cushion_size,
+        0.040,
+        chair_top_z,
+        f"{prefix}_generic_chair_cushion_inset",
+        "ChairLeather",
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_cushion",
+        "generic_chair_cushion",
+        chamber,
+        (chair_x, chair_y, chair_top_z + 0.020),
+        cushion_size,
+    )
+
+    back_x, back_y = chair_back_center
+    back_panel_size = (chair_back_size[0] * 0.70, 0.040)
+    back_panel_height = chair_back_height * 0.54
+    obj.add_box(
+        (back_x, back_y - chair_back_size[1] * 0.34),
+        back_panel_size,
+        back_panel_height,
+        chair_back_z + chair_back_height * 0.22,
+        f"{prefix}_generic_chair_back_inset",
+        "InteriorTrim",
+    )
+    add_chamber_detail_record(
+        records,
+        f"{prefix}_generic_chair_back_inset",
+        "generic_chair_back_inset",
+        chamber,
+        (back_x, back_y - chair_back_size[1] * 0.34, chair_back_z + chair_back_height * 0.49),
+        back_panel_size,
+    )
+
+
 def add_chamber_arc_strip(
     obj: ObjWriter,
     records: list[dict[str, Any]],
@@ -4342,6 +4419,35 @@ def add_chamber_realism_details(
         obj.add_cylinder((x, y), 0.085, z + 0.70, 0.08, f"{name}_cap", "BrassRail", segments=10)
         add_chamber_detail_record(records, name, "gallery_stanchion", chamber, (x, y, z + 0.38), (0.24, 0.24))
 
+    def gallery_support_column(name: str, chamber: str, center: tuple[float, float], z: float, height: float) -> None:
+        x, y = center
+        obj.add_cylinder((x, y), 0.18, z, height, f"{name}_shaft", "ColumnStone", segments=14)
+        obj.add_cylinder((x, y), 0.30, z - 0.08, 0.12, f"{name}_base", "ColumnStone", segments=14)
+        obj.add_cylinder((x, y), 0.28, z + height - 0.02, 0.14, f"{name}_capital", "ColumnStone", segments=14)
+        add_chamber_detail_record(records, name, "gallery_support_column", chamber, (x, y, z + height / 2.0), (0.60, 0.60))
+
+    def public_display_board(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        obj.add_box(center, size, 1.05, z, f"{name}_dark_panel", "DoorMetal")
+        obj.add_box(center, (size[0] * 1.18, size[1] * 1.18), 0.08, z - 0.05, f"{name}_lower_frame", "BrassRail")
+        obj.add_box(center, (size[0] * 1.18, size[1] * 1.18), 0.08, z + 1.05, f"{name}_upper_frame", "BrassRail")
+        for idx in range(4):
+            if orientation == "east_west":
+                indicator_center = (x, y - size[1] * 0.30 + idx * size[1] * 0.20)
+                indicator_size = (size[0] * 1.25, size[1] * 0.055)
+            else:
+                indicator_center = (x - size[0] * 0.30 + idx * size[0] * 0.20, y)
+                indicator_size = (size[0] * 0.055, size[1] * 1.25)
+            obj.add_box(indicator_center, indicator_size, 0.035, z + 0.52, f"{name}_indicator_strip_{idx+1}", "WarmLightGlass")
+        add_chamber_detail_record(records, name, "public_display_board", chamber, (x, y, z + 0.52), size)
+
     # House chamber public visual details.
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
@@ -4397,6 +4503,11 @@ def add_chamber_realism_details(
     for idx, x in enumerate([-32.0, -24.0, -16.0, -8.0, 8.0, 16.0, 24.0, 32.0], start=1):
         gallery_stanchion(f"house_gallery_front_stanchion_{idx:02d}", "House Chamber", (x, -94.55), 5.28)
         gallery_stanchion(f"house_gallery_rear_stanchion_{idx:02d}", "House Chamber", (x, -103.35), 5.60)
+    for idx, x in enumerate([-30.0, -18.0, -6.0, 6.0, 18.0, 30.0], start=1):
+        gallery_support_column(f"house_gallery_front_support_column_{idx:02d}", "House Chamber", (x, -94.35), 4.72, 2.10)
+        gallery_support_column(f"house_gallery_rear_support_column_{idx:02d}", "House Chamber", (x, -103.15), 4.88, 2.00)
+    public_display_board("house_west_public_display_board", "House Chamber", (-30.8, -68.0), (0.10, 5.4), 6.25, "east_west")
+    public_display_board("house_east_public_display_board", "House Chamber", (30.8, -68.0), (0.10, 5.4), 6.25, "east_west")
 
     # Senate chamber public visual details.
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
@@ -4453,6 +4564,11 @@ def add_chamber_realism_details(
     for idx, x in enumerate([-24.5, -17.5, -10.5, -3.5, 3.5, 10.5, 17.5, 24.5], start=1):
         gallery_stanchion(f"senate_gallery_front_stanchion_{idx:02d}", "Senate Chamber", (x, 93.55), 5.26)
         gallery_stanchion(f"senate_gallery_rear_stanchion_{idx:02d}", "Senate Chamber", (x, 101.00), 5.58)
+    for idx, x in enumerate([-24.0, -14.4, -4.8, 4.8, 14.4, 24.0], start=1):
+        gallery_support_column(f"senate_gallery_front_support_column_{idx:02d}", "Senate Chamber", (x, 93.35), 4.72, 2.02)
+        gallery_support_column(f"senate_gallery_rear_support_column_{idx:02d}", "Senate Chamber", (x, 100.85), 4.88, 1.92)
+    public_display_board("senate_west_public_display_board", "Senate Chamber", (-23.8, 70.0), (0.10, 4.6), 6.15, "east_west")
+    public_display_board("senate_east_public_display_board", "Senate Chamber", (23.8, 70.0), (0.10, 4.6), 6.15, "east_west")
 
     add_label(labels, "House and Senate chamber rails, dais steps, flags, and aisle trim - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
@@ -5408,6 +5524,22 @@ def build_house_seats(
             obj.add_box((x, curved_y - 0.50), (0.52, 0.14), 0.74, 4.72, f"house_member_chair_back_{seat_id:03d}", "HouseSeat")
             obj.add_box((x - 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_left_arm_{seat_id:03d}", "HouseSeat")
             obj.add_box((x + 0.32, curved_y - 0.24), (0.055, 0.36), 0.14, 4.78, f"house_member_chair_right_arm_{seat_id:03d}", "HouseSeat")
+            add_generic_chamber_furniture_finish_details(
+                obj,
+                chamber_details,
+                f"house_member_{seat_id:03d}",
+                "House Chamber",
+                (x, curved_y + 0.20),
+                (0.62, 0.28),
+                5.015,
+                (x, curved_y - 0.24),
+                (0.52, 0.45),
+                4.82,
+                (x, curved_y - 0.50),
+                (0.52, 0.14),
+                4.72,
+                0.74,
+            )
             add_chamber_detail_record(
                 chamber_details,
                 f"house_member_desk_top_inset_{seat_id:03d}",
@@ -5491,6 +5623,22 @@ def build_senate_desks(
             obj.add_box((x, curved_y - 0.70), (0.62, 0.16), 0.82, 4.72, f"senate_chair_back_{desk_id:03d}", "SenateChair")
             obj.add_box((x - 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_left_arm_{desk_id:03d}", "SenateChair")
             obj.add_box((x + 0.38, curved_y - 0.40), (0.06, 0.40), 0.16, 4.82, f"senate_chair_right_arm_{desk_id:03d}", "SenateChair")
+            add_generic_chamber_furniture_finish_details(
+                obj,
+                chamber_details,
+                f"senate_desk_{desk_id:03d}",
+                "Senate Chamber",
+                (x, curved_y + 0.16),
+                (0.82, 0.58),
+                5.125,
+                (x, curved_y - 0.40),
+                (0.62, 0.50),
+                4.88,
+                (x, curved_y - 0.70),
+                (0.62, 0.16),
+                4.72,
+                0.82,
+            )
             add_chamber_detail_record(
                 chamber_details,
                 f"senate_desk_top_inset_{desk_id:03d}",
