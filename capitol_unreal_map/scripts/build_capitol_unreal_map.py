@@ -6573,6 +6573,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (x, y, 1.625),
             {"facade": facade, "public_accuracy": "approximate_public_entrance_visual"},
         )
+        add_public_revolving_door_closeup_details(name, center, facade)
         add_public_door_surround(f"{name}_stone_surround", center, facade)
         add_element(f"{name.replace('_', ' ').title()} revolving door visual", "public_entrance_visual", (x, y, 1.5))
 
@@ -6591,6 +6592,135 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             obj.add_box((x, face_y), (4.22, 0.48), 0.34, 3.32, f"{name}_flat_lintel", "ColumnStone")
             obj.add_box((x, face_y), (3.05, 0.30), 0.32, 3.78, f"{name}_transom_glass", "DoorGlass")
         add_facade_detail(name, "public_door_surround", (x, y, 1.95), {"facade": facade})
+
+    def add_public_revolving_door_closeup_details(name: str, center: tuple[float, float], facade: str) -> None:
+        x, y = center
+        if facade in {"east", "west"}:
+            face_sign = 1.0 if x >= 0.0 else -1.0
+            mat_center = (x + face_sign * 1.72, y)
+            mat_size = (0.82, 2.86)
+            header_center = (x + face_sign * 0.52, y)
+            header_size = (0.075, 3.78)
+            transom_values = [-0.92, 0.0, 0.92]
+            plate_specs = [
+                (x + face_sign * 1.18, y - 0.72),
+                (x + face_sign * 1.18, y + 0.72),
+            ]
+            screw_specs = [
+                (x + face_sign * 1.16, y - 1.22),
+                (x + face_sign * 1.16, y - 0.48),
+                (x + face_sign * 1.16, y + 0.48),
+                (x + face_sign * 1.16, y + 1.22),
+                (x - face_sign * 0.92, y - 0.82),
+                (x - face_sign * 0.92, y + 0.82),
+            ]
+            for index, offset in enumerate(transom_values, start=1):
+                center_xy = (x + face_sign * 0.42, y + offset)
+                obj.add_box(center_xy, (0.085, 0.070), 0.46, 3.56, f"{name}_transom_mullion_{index:02d}", "DoorMetal")
+                add_facade_detail(
+                    f"{name}_transom_mullion_{index:02d}",
+                    "public_revolving_door_transom_mullion",
+                    (center_xy[0], center_xy[1], 3.79),
+                    {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+                )
+            for index, plate_center in enumerate(plate_specs, start=1):
+                obj.add_box(plate_center, (0.055, 0.26), 0.74, 0.96, f"{name}_bronze_pull_plate_{index:02d}", "BrassRail")
+                obj.add_box((plate_center[0] + face_sign * 0.04, plate_center[1]), (0.060, 0.58), 0.060, 1.38, f"{name}_horizontal_push_bar_{index:02d}", "BrassRail")
+                add_facade_detail(
+                    f"{name}_bronze_pull_plate_{index:02d}",
+                    "public_revolving_door_pull_plate",
+                    (plate_center[0], plate_center[1], 1.33),
+                    {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+                )
+                add_facade_detail(
+                    f"{name}_horizontal_push_bar_{index:02d}",
+                    "public_revolving_door_push_bar",
+                    (plate_center[0] + face_sign * 0.04, plate_center[1], 1.41),
+                    {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+                )
+        else:
+            face_sign = 1.0 if y >= 0.0 else -1.0
+            mat_center = (x, y + face_sign * 1.72)
+            mat_size = (2.86, 0.82)
+            header_center = (x, y + face_sign * 0.52)
+            header_size = (3.78, 0.075)
+            transom_values = [-0.92, 0.0, 0.92]
+            plate_specs = [
+                (x - 0.72, y + face_sign * 1.18),
+                (x + 0.72, y + face_sign * 1.18),
+            ]
+            screw_specs = [
+                (x - 1.22, y + face_sign * 1.16),
+                (x - 0.48, y + face_sign * 1.16),
+                (x + 0.48, y + face_sign * 1.16),
+                (x + 1.22, y + face_sign * 1.16),
+                (x - 0.82, y - face_sign * 0.92),
+                (x + 0.82, y - face_sign * 0.92),
+            ]
+            for index, offset in enumerate(transom_values, start=1):
+                center_xy = (x + offset, y + face_sign * 0.42)
+                obj.add_box(center_xy, (0.070, 0.085), 0.46, 3.56, f"{name}_transom_mullion_{index:02d}", "DoorMetal")
+                add_facade_detail(
+                    f"{name}_transom_mullion_{index:02d}",
+                    "public_revolving_door_transom_mullion",
+                    (center_xy[0], center_xy[1], 3.79),
+                    {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+                )
+            for index, plate_center in enumerate(plate_specs, start=1):
+                obj.add_box(plate_center, (0.26, 0.055), 0.74, 0.96, f"{name}_bronze_pull_plate_{index:02d}", "BrassRail")
+                obj.add_box((plate_center[0], plate_center[1] + face_sign * 0.04), (0.58, 0.060), 0.060, 1.38, f"{name}_horizontal_push_bar_{index:02d}", "BrassRail")
+                add_facade_detail(
+                    f"{name}_bronze_pull_plate_{index:02d}",
+                    "public_revolving_door_pull_plate",
+                    (plate_center[0], plate_center[1], 1.33),
+                    {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+                )
+                add_facade_detail(
+                    f"{name}_horizontal_push_bar_{index:02d}",
+                    "public_revolving_door_push_bar",
+                    (plate_center[0], plate_center[1] + face_sign * 0.04, 1.41),
+                    {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+                )
+
+        obj.add_box(mat_center, mat_size, 0.028, 0.105, f"{name}_ribbed_floor_mat", "RoadCrackSealant")
+        add_facade_detail(
+            f"{name}_ribbed_floor_mat",
+            "public_revolving_door_floor_mat",
+            (mat_center[0], mat_center[1], 0.119),
+            {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+        )
+        for ridge_index in range(5):
+            offset = -0.44 + ridge_index * 0.22
+            if facade in {"east", "west"}:
+                ridge_center = (mat_center[0], mat_center[1] + offset)
+                ridge_size = (mat_size[0] * 0.84, 0.024)
+            else:
+                ridge_center = (mat_center[0] + offset, mat_center[1])
+                ridge_size = (0.024, mat_size[1] * 0.84)
+            obj.add_box(ridge_center, ridge_size, 0.014, 0.135, f"{name}_floor_mat_rib_{ridge_index+1:02d}", "DoorMetal")
+        add_facade_detail(
+            f"{name}_floor_mat_ribs",
+            "public_revolving_door_floor_mat_rib",
+            (mat_center[0], mat_center[1], 0.142),
+            {"facade": facade, "count": 5, "public_accuracy": "generic_public_entrance_closeup_detail"},
+        )
+
+        obj.add_box(header_center, header_size, 0.090, 3.28, f"{name}_door_header_shadow_line", "StoneGrimeOverlay")
+        add_facade_detail(
+            f"{name}_door_header_shadow_line",
+            "public_revolving_door_header_shadow",
+            (header_center[0], header_center[1], 3.325),
+            {"facade": facade, "public_accuracy": "generic_public_entrance_closeup_detail"},
+        )
+
+        for index, screw_center in enumerate(screw_specs, start=1):
+            obj.add_cylinder(screw_center, 0.055, 0.155, 0.018, f"{name}_threshold_screw_head_{index:02d}", "BrassRail", segments=8)
+            add_facade_detail(
+                f"{name}_threshold_screw_head_{index:02d}",
+                "public_revolving_door_threshold_screw",
+                (screw_center[0], screw_center[1], 0.164),
+                {"facade": facade, "sequence": index, "public_accuracy": "generic_public_entrance_closeup_detail"},
+            )
 
     def add_cornice_bracket_row(prefix: str, orientation: str, fixed: float, values: list[float], z: float) -> None:
         for idx, value in enumerate(values, start=1):
