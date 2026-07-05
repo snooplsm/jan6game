@@ -97,6 +97,42 @@ STATIC_MESH_REALISM_BUILD_SETTINGS = {
     "nanite_enabled": True,
     "realism_note": "Best-effort Unreal static-mesh build settings for sharper PBR response; true photorealism still requires bevelled/sculpted modular assets and licensed/scanned PBR sources.",
 }
+PHOTOREAL_PREVIEW_PROFILE = {
+    "profile_name": "CapitolMap_PhotoRealPreview",
+    "renderer_features": [
+        "lumen_dynamic_global_illumination",
+        "lumen_reflections",
+        "nanite_static_meshes",
+        "virtual_shadow_maps",
+        "screen_space_ambient_occlusion",
+        "contact_shadows",
+        "reflection_capture",
+        "filmic_post_process",
+    ],
+    "directional_light_use_temperature": True,
+    "directional_light_temperature": 5600.0,
+    "directional_light_source_angle": 0.72,
+    "directional_light_contact_shadow_length": 0.18,
+    "sky_light_indirect_lighting_intensity": 1.18,
+    "reflection_capture_brightness": 1.05,
+    "fog_density": 0.0038,
+    "fog_height_falloff": 0.16,
+    "post_process_settings": {
+        "bloom_intensity": 0.18,
+        "bloom_threshold": 2.6,
+        "ambient_occlusion_intensity": 0.78,
+        "ambient_occlusion_radius": 135.0,
+        "ambient_occlusion_power": 1.35,
+        "vignette_intensity": 0.08,
+        "film_slope": 0.92,
+        "film_toe": 0.42,
+        "film_shoulder": 0.24,
+        "film_black_clip": 0.0,
+        "film_white_clip": 0.04,
+        "motion_blur_amount": 0.0,
+    },
+    "realism_note": "Renderer and camera-profile tuning for a stronger photoreal preview of the generated public-data blockout; mesh fidelity and licensed/scanned PBR sources remain the limiting factors.",
+}
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
 PLAYER_START_ROTATION_DEG = [0.0, 4.0, 0.0]
@@ -276,7 +312,163 @@ FIRST_PERSON_COLLISION_PROXIES = [
         "scale": [72.0, 8.0, 0.12],
         "purpose": "public east-west interior connector schematic walkable proxy",
     },
+    {
+        "label": "CapitolMap_Collision_WestApproachRoadSurface",
+        "location_cm": [-26000.0, 0.0, 35.0],
+        "scale": [98.0, 24.0, 0.14],
+        "group": "public_exterior_road_surface",
+        "purpose": "public west approach road and bike-lane surface for first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_EastApproachRoadSurface",
+        "location_cm": [16400.0, 0.0, 35.0],
+        "scale": [58.0, 24.0, 0.14],
+        "group": "public_exterior_road_surface",
+        "purpose": "public east approach road and bike-lane surface for first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_NorthApproachRoadSurface",
+        "location_cm": [0.0, 16400.0, 35.0],
+        "scale": [24.0, 72.0, 0.14],
+        "group": "public_exterior_road_surface",
+        "purpose": "public north approach road surface for first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_SouthApproachRoadSurface",
+        "location_cm": [0.0, -16400.0, 35.0],
+        "scale": [24.0, 72.0, 0.14],
+        "group": "public_exterior_road_surface",
+        "purpose": "public south approach road surface for first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_WestApproachNorthSidewalk",
+        "location_cm": [-26000.0, 3200.0, 38.0],
+        "scale": [104.0, 5.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public west approach north sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_WestApproachSouthSidewalk",
+        "location_cm": [-26000.0, -3200.0, 38.0],
+        "scale": [104.0, 5.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public west approach south sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_EastApproachNorthSidewalk",
+        "location_cm": [16400.0, 3200.0, 38.0],
+        "scale": [56.0, 5.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public east approach north sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_EastApproachSouthSidewalk",
+        "location_cm": [16400.0, -3200.0, 38.0],
+        "scale": [56.0, 5.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public east approach south sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_NorthApproachWestSidewalk",
+        "location_cm": [-6200.0, 16400.0, 38.0],
+        "scale": [5.0, 76.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public north approach west sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_NorthApproachEastSidewalk",
+        "location_cm": [6200.0, 16400.0, 38.0],
+        "scale": [5.0, 76.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public north approach east sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_SouthApproachWestSidewalk",
+        "location_cm": [-6200.0, -16400.0, 38.0],
+        "scale": [5.0, 76.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public south approach west sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_SouthApproachEastSidewalk",
+        "location_cm": [6200.0, -16400.0, 38.0],
+        "scale": [5.0, 76.0, 0.12],
+        "group": "public_exterior_sidewalk_surface",
+        "purpose": "public south approach east sidewalk visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_WestBikeLaneNorthSurface",
+        "location_cm": [-26000.0, 2100.0, 39.0],
+        "scale": [96.0, 3.0, 0.10],
+        "group": "public_bike_lane_surface",
+        "purpose": "public west approach north bike-lane visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_WestBikeLaneSouthSurface",
+        "location_cm": [-26000.0, -2100.0, 39.0],
+        "scale": [96.0, 3.0, 0.10],
+        "group": "public_bike_lane_surface",
+        "purpose": "public west approach south bike-lane visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_EastBikeLaneSouthSurface",
+        "location_cm": [16400.0, -2100.0, 39.0],
+        "scale": [54.0, 3.0, 0.10],
+        "group": "public_bike_lane_surface",
+        "purpose": "public east approach bike-lane visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_NorthBikeLaneWestSurface",
+        "location_cm": [-6800.0, 16400.0, 39.0],
+        "scale": [3.0, 70.0, 0.10],
+        "group": "public_bike_lane_surface",
+        "purpose": "public north approach bike-lane visual-inspection surface",
+    },
+    {
+        "label": "CapitolMap_Collision_SouthBikeLaneEastSurface",
+        "location_cm": [6800.0, -16400.0, 39.0],
+        "scale": [3.0, 70.0, 0.10],
+        "group": "public_bike_lane_surface",
+        "purpose": "public south approach bike-lane visual-inspection surface",
+    },
 ]
+
+
+def collision_proxy_group(proxy: dict[str, Any]) -> str:
+    explicit_group = proxy.get("group")
+    if explicit_group:
+        return str(explicit_group)
+    label = str(proxy.get("label", "")).lower()
+    purpose = str(proxy.get("purpose", "")).lower()
+    if "road" in label or "road" in purpose:
+        return "public_exterior_road_surface"
+    if "sidewalk" in label or "sidewalk" in purpose:
+        return "public_exterior_sidewalk_surface"
+    if "bike" in label or "bike" in purpose:
+        return "public_bike_lane_surface"
+    if any(token in label for token in ["plaza", "approach", "grounds", "axial", "walk"]):
+        return "public_exterior_walk_surface"
+    if any(token in label for token in ["rotunda", "chamber", "gallery", "office", "support", "connector", "crypt", "statuary", "senate", "house"]):
+        return "public_interior_surface"
+    return "public_first_person_surface"
+
+
+def build_collision_proxy_coverage(proxies: list[dict[str, Any]]) -> dict[str, Any]:
+    groups: dict[str, int] = {}
+    for proxy in proxies:
+        group = collision_proxy_group(proxy)
+        groups[group] = groups.get(group, 0) + 1
+    return {
+        "total": len(proxies),
+        "groups": groups,
+        "public_exterior_surface_total": sum(
+            count for group, count in groups.items() if group.startswith("public_exterior") or group == "public_bike_lane_surface"
+        ),
+        "public_interior_surface_total": groups.get("public_interior_surface", 0),
+    }
+
+
+FIRST_PERSON_COLLISION_PROXY_COVERAGE = build_collision_proxy_coverage(FIRST_PERSON_COLLISION_PROXIES)
 ENVIRONMENT_IMPORT_SETUP = {
     "directional_light_actor_class": "DirectionalLight",
     "directional_light_label": "CapitolMap_Sun_DirectionalLight",
@@ -432,6 +624,10 @@ FIRST_PERSON_IMPORT_SETUP = {
     "collision_proxy_folder": COLLISION_PROXY_FOLDER,
     "collision_proxy_tag": FIRST_PERSON_COLLISION_PROXY_TAG,
     "collision_proxy_count": len(FIRST_PERSON_COLLISION_PROXIES),
+    "collision_proxy_coverage": FIRST_PERSON_COLLISION_PROXY_COVERAGE,
+    "collision_proxy_groups": sorted(FIRST_PERSON_COLLISION_PROXY_COVERAGE["groups"]),
+    "public_exterior_surface_proxy_count": FIRST_PERSON_COLLISION_PROXY_COVERAGE["public_exterior_surface_total"],
+    "public_interior_surface_proxy_count": FIRST_PERSON_COLLISION_PROXY_COVERAGE["public_interior_surface_total"],
 }
 
 MESH_FILES = [
@@ -1405,6 +1601,14 @@ def spawn_player_starts() -> None:
             log(f"PlayerStart setup skipped ({start.get('label', '<unknown>')}): {exc}")
 
 
+def apply_photoreal_post_process_settings(settings: Any) -> None:
+    """Best-effort filmic preview settings for generated inspection levels."""
+    override_prefix = "b_override_"
+    for property_name, value in PHOTOREAL_PREVIEW_PROFILE["post_process_settings"].items():
+        set_property(settings, f"{override_prefix}{property_name}", True)
+        set_property(settings, property_name, value)
+
+
 def spawn_environment_setup() -> None:
     """Place guarded atmosphere, lighting, reflection, and exposure helpers."""
     try:
@@ -1420,6 +1624,10 @@ def spawn_environment_setup() -> None:
             if component:
                 set_property(component, "intensity", ENVIRONMENT_IMPORT_SETUP["directional_light_intensity"])
                 set_property(component, "cast_shadows", True)
+                set_property(component, "use_temperature", PHOTOREAL_PREVIEW_PROFILE["directional_light_use_temperature"])
+                set_property(component, "temperature", PHOTOREAL_PREVIEW_PROFILE["directional_light_temperature"])
+                set_property(component, "source_angle", PHOTOREAL_PREVIEW_PROFILE["directional_light_source_angle"])
+                set_property(component, "contact_shadow_length", PHOTOREAL_PREVIEW_PROFILE["directional_light_contact_shadow_length"])
     except Exception as exc:
         log(f"Lighting setup skipped: {exc}")
 
@@ -1435,6 +1643,7 @@ def spawn_environment_setup() -> None:
             if component:
                 set_property(component, "intensity", ENVIRONMENT_IMPORT_SETUP["sky_light_intensity"])
                 set_property(component, "real_time_capture", True)
+                set_property(component, "indirect_lighting_intensity", PHOTOREAL_PREVIEW_PROFILE["sky_light_indirect_lighting_intensity"])
     except Exception as exc:
         log(f"Sky light setup skipped: {exc}")
 
@@ -1455,8 +1664,8 @@ def spawn_environment_setup() -> None:
         if fog and hasattr(unreal, "ExponentialHeightFogComponent"):
             component = fog.get_component_by_class(unreal.ExponentialHeightFogComponent)
             if component:
-                set_property(component, "fog_density", 0.006)
-                set_property(component, "fog_height_falloff", 0.18)
+                set_property(component, "fog_density", PHOTOREAL_PREVIEW_PROFILE["fog_density"])
+                set_property(component, "fog_height_falloff", PHOTOREAL_PREVIEW_PROFILE["fog_height_falloff"])
     except Exception as exc:
         log(f"Atmospheric fog setup skipped: {exc}")
 
@@ -1471,6 +1680,7 @@ def spawn_environment_setup() -> None:
             component = capture.get_component_by_class(unreal.SphereReflectionCaptureComponent)
             if component:
                 set_property(component, "influence_radius", ENVIRONMENT_IMPORT_SETUP["reflection_capture_radius_cm"])
+                set_property(component, "brightness", PHOTOREAL_PREVIEW_PROFILE["reflection_capture_brightness"])
     except Exception as exc:
         log(f"Reflection capture setup skipped: {exc}")
 
@@ -1492,6 +1702,7 @@ def spawn_environment_setup() -> None:
                     set_property(settings, "auto_exposure_method", 1)
                     set_property(settings, "auto_exposure_min_brightness", ENVIRONMENT_IMPORT_SETUP["post_process_exposure_min"])
                     set_property(settings, "auto_exposure_max_brightness", ENVIRONMENT_IMPORT_SETUP["post_process_exposure_max"])
+                    apply_photoreal_post_process_settings(settings)
     except Exception as exc:
         log(f"Post process setup skipped: {exc}")
 
@@ -1608,17 +1819,18 @@ def spawn_first_person_collision_proxies() -> None:
         return
     for proxy in FIRST_PERSON_COLLISION_PROXIES:
         try:
+            rotation = proxy.get("rotation_deg", [0.0, 0.0, 0.0])
             volume = unreal.EditorLevelLibrary.spawn_actor_from_class(
                 unreal.BlockingVolume,
                 unreal.Vector(*proxy["location_cm"]),
-                unreal.Rotator(0.0, 0.0, 0.0),
+                unreal.Rotator(float(rotation[0]), float(rotation[1]), float(rotation[2])),
             )
             if not volume:
                 continue
             volume.set_actor_label(proxy["label"])
             volume.set_folder_path(COLLISION_PROXY_FOLDER)
             volume.set_actor_scale3d(unreal.Vector(*proxy["scale"]))
-            set_actor_tags(volume, ["CapitolMap_Collision", FIRST_PERSON_COLLISION_PROXY_TAG])
+            set_actor_tags(volume, ["CapitolMap_Collision", FIRST_PERSON_COLLISION_PROXY_TAG, collision_proxy_group(proxy)])
             try:
                 volume.set_actor_hidden_in_game(True)
             except Exception:
@@ -1931,9 +2143,11 @@ def write_unreal_import_report(
             "environment_setup": ENVIRONMENT_IMPORT_SETUP,
             "public_accent_light_setup": PUBLIC_ACCENT_LIGHT_SETUP,
             "public_accent_light_kind_settings": PUBLIC_ACCENT_LIGHT_KIND_SETTINGS,
+            "photoreal_preview_profile": PHOTOREAL_PREVIEW_PROFILE,
             "scene_setup_stats": scene_setup_stats or {},
             "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
             "collision_proxy_setup": FIRST_PERSON_COLLISION_PROXIES,
+            "collision_proxy_coverage": FIRST_PERSON_COLLISION_PROXY_COVERAGE,
             "metadata_counts": {
                 "buildings": len(data.get("exterior", {}).get("buildings", [])),
                 "roads": len(data.get("exterior", {}).get("roads", [])),

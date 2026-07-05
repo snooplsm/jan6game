@@ -356,6 +356,7 @@
       <label><input type="checkbox" data-mesh="capitol_public_interior_schematic" checked /> Public interior schematic</label>
       <label><input type="checkbox" data-mesh="capitol_gameplay_items" checked /> Gameplay item props</label>
       <label><input type="checkbox" id="texturesToggle" checked /> PBR texture preview</label>
+      <label><input type="checkbox" id="photoRealToggle" checked /> Photoreal shader preview</label>
       <label><input type="checkbox" id="labelsToggle" checked /> Labels</label>
     </div>
 
@@ -452,6 +453,7 @@
       materialTextureManifest: null,
       textureCache: new Map(),
       texturesEnabled: true,
+      photoRealEnabled: true,
       textureStats: { loaded: 0, total: 0 },
       labels: [],
       labelsVisible: true,
@@ -509,6 +511,7 @@
       uniform bool uUseRoughnessTexture;
       uniform bool uUseAoTexture;
       uniform vec3 uCameraPosition;
+      uniform float uPhotoRealStrength;
 
       vec3 srgbToLinear(vec3 color) {
         return pow(max(color, vec3(0.0)), vec3(2.2));
@@ -520,6 +523,30 @@
 
       vec3 acesApprox(vec3 color) {
         return clamp((color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14), 0.0, 1.0);
+      }
+
+      float hash13(vec3 p) {
+        p = fract(p * 0.1031);
+        p += dot(p, p.yzx + 33.33);
+        return fract((p.x + p.y) * p.z);
+      }
+
+      float worldSpacePatina(vec3 p) {
+        float large = hash13(floor(p * 0.00042));
+        float medium = hash13(floor(p * 0.00125 + vec3(17.0, 5.0, 31.0)));
+        float fine = hash13(floor(p * 0.005 + vec3(3.0, 29.0, 11.0)));
+        return clamp(large * 0.52 + medium * 0.32 + fine * 0.16, 0.0, 1.0);
+      }
+
+      vec3 filmicContrast(vec3 color) {
+        color = pow(max(color, vec3(0.0)), vec3(0.94));
+        color = (color - 0.5) * 1.08 + 0.5;
+        return clamp(color, 0.0, 1.0);
+      }
+
+      vec3 atmosphericDepthFade(vec3 color, float distanceToCamera) {
+        float haze = smoothstep(65000.0, 280000.0, distanceToCamera) * 0.16;
+        return mix(color, vec3(0.66, 0.70, 0.75), haze);
       }
 
       void main() {
@@ -534,11 +561,16 @@
           : 0.5;
         float roughness = uUseRoughnessTexture ? texture2D(uRoughnessTexture, uv).r : 0.78;
         float ao = uUseAoTexture ? texture2D(uAoTexture, uv).r : 1.0;
+        float patina = worldSpacePatina(vWorldPosition);
+        float grime = smoothstep(0.18, 0.92, patina) * uPhotoRealStrength;
+        base *= mix(vec3(1.0), mix(vec3(0.88, 0.86, 0.80), vec3(1.08, 1.06, 1.00), patina), 0.22 * uPhotoRealStrength);
+        ao *= mix(1.0, mix(0.78, 1.04, patina), 0.42 * uPhotoRealStrength);
+        roughness = mix(roughness, clamp(roughness * 0.92 + grime * 0.18, 0.04, 0.98), uPhotoRealStrength);
         float sun = max(dot(n, sunDir), 0.0);
         float sky = 0.48 + 0.22 * max(n.z, 0.0);
         float microShadow = mix(0.86, 1.16, normalDetail);
-        vec3 ambient = sky * vec3(0.52, 0.58, 0.66) + vec3(0.035);
-        vec3 direct = sun * vec3(1.16, 1.04, 0.88) * microShadow;
+        vec3 ambient = sky * mix(vec3(0.52, 0.58, 0.66), vec3(0.34, 0.38, 0.42), uPhotoRealStrength) + vec3(0.035);
+        vec3 direct = sun * mix(vec3(1.16, 1.04, 0.88), vec3(1.46, 1.28, 1.02), uPhotoRealStrength) * microShadow;
         vec3 viewDir = normalize(uCameraPosition - vWorldPosition);
         vec3 halfDir = normalize(sunDir + viewDir);
         float specPower = mix(72.0, 12.0, clamp(roughness, 0.0, 1.0));
@@ -546,7 +578,9 @@
           * mix(0.32, 0.035, clamp(roughness, 0.0, 1.0))
           * (0.55 + 0.45 * normalDetail);
         vec3 color = base * (ambient + direct) * ao + specular * vec3(1.0, 0.92, 0.78) * (0.65 + sun * 0.35);
-        gl_FragColor = vec4(linearToSrgb(acesApprox(color)), 1.0);
+        vec3 srgb = linearToSrgb(acesApprox(color));
+        vec3 photoReal = atmosphericDepthFade(filmicContrast(srgb), length(uCameraPosition - vWorldPosition));
+        gl_FragColor = vec4(mix(srgb, photoReal, uPhotoRealStrength), 1.0);
       }
     `;
 
@@ -567,7 +601,8 @@
       useNormalTexture: gl.getUniformLocation(program, "uUseNormalTexture"),
       useRoughnessTexture: gl.getUniformLocation(program, "uUseRoughnessTexture"),
       useAoTexture: gl.getUniformLocation(program, "uUseAoTexture"),
-      cameraPosition: gl.getUniformLocation(program, "uCameraPosition")
+      cameraPosition: gl.getUniformLocation(program, "uCameraPosition"),
+      photoRealStrength: gl.getUniformLocation(program, "uPhotoRealStrength")
     };
 
     gl.enable(gl.DEPTH_TEST);
@@ -602,6 +637,14 @@
       statusEl.textContent = state.texturesEnabled
         ? "PBR texture preview enabled."
         : "PBR texture preview disabled; showing MTL fallback colors.";
+      updateStats();
+    });
+
+    document.getElementById("photoRealToggle").addEventListener("change", (event) => {
+      state.photoRealEnabled = event.target.checked;
+      statusEl.textContent = state.photoRealEnabled
+        ? "Photoreal shader preview enabled."
+        : "Photoreal shader preview disabled; showing flatter inspection lighting.";
       updateStats();
     });
 
@@ -1255,6 +1298,7 @@
         <span>Meshes</span><strong>${state.meshes.length}</strong>
         <span>Triangles</span><strong>${triangles.toLocaleString()}</strong>
         <span>Texture previews</span><strong>${state.textureStats.loaded.toLocaleString()}/${state.textureStats.total.toLocaleString()}</strong>
+        <span>Photoreal shader</span><strong>${state.photoRealEnabled ? "on" : "off"}</strong>
         <span>Labels</span><strong>${state.labels.length.toLocaleString()}</strong>
       `;
     }
@@ -1288,6 +1332,7 @@
       gl.useProgram(program);
       gl.uniformMatrix4fv(uniforms.viewProj, false, state.viewProj);
       gl.uniform3f(uniforms.cameraPosition, eye[0], eye[1], eye[2]);
+      gl.uniform1f(uniforms.photoRealStrength, state.photoRealEnabled ? 1.0 : 0.0);
 
       for (const mesh of state.meshes) {
         if (!mesh.visible) continue;

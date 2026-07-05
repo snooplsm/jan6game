@@ -82,15 +82,17 @@
     "path": "unreal/import_capitol_map.py",
     "mesh_files": 5,
     "destination_paths": 4,
-    "required_functions": 22,
-    "required_calls": 20,
-    "report_keys": 168,
+    "required_functions": 23,
+    "required_calls": 21,
+    "report_keys": 211,
     "label_categories": 21,
     "outliner_folders": 13,
-    "first_person_markers": 36,
+    "first_person_markers": 50,
     "material_markers": 27,
-    "environment_markers": 38,
+    "environment_markers": 58,
     "inspection_markers": 24,
+    "collision_proxy_specs": 42,
+    "collision_proxy_groups": 6,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],
@@ -100,6 +102,7 @@
       "label_categories": [],
       "outliner_folders": [],
       "first_person_markers": [],
+      "collision_proxy_groups": [],
       "material_markers": [],
       "environment_markers": [],
       "inspection_markers": []
@@ -107,12 +110,12 @@
   },
   "unreal_project_config": {
     "files": 3,
-    "required_markers": 26,
+    "required_markers": 37,
     "missing": {}
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 218,
+    "required_markers": 225,
     "missing": []
   },
   "meshes": [

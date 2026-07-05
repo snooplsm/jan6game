@@ -73,6 +73,7 @@ REQUIRED_UNREAL_FUNCTIONS = {
     "spawn_scene_setup",
     "spawn_environment_setup",
     "spawn_optional_environment_actor",
+    "apply_photoreal_post_process_settings",
     "spawn_playtest_pawn",
     "spawn_player_starts",
     "spawn_camera_viewpoints",
@@ -98,6 +99,7 @@ REQUIRED_UNREAL_CALLS = {
     "spawn_scene_setup",
     "spawn_environment_setup",
     "spawn_optional_environment_actor",
+    "apply_photoreal_post_process_settings",
     "spawn_playtest_pawn",
     "spawn_player_starts",
     "spawn_camera_viewpoints",
@@ -164,6 +166,36 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "two_sided_by_default",
     "adds_editor_comment",
     "environment_setup",
+    "photoreal_preview_profile",
+    "profile_name",
+    "renderer_features",
+    "lumen_dynamic_global_illumination",
+    "lumen_reflections",
+    "nanite_static_meshes",
+    "virtual_shadow_maps",
+    "screen_space_ambient_occlusion",
+    "contact_shadows",
+    "reflection_capture",
+    "filmic_post_process",
+    "directional_light_use_temperature",
+    "directional_light_temperature",
+    "directional_light_source_angle",
+    "directional_light_contact_shadow_length",
+    "sky_light_indirect_lighting_intensity",
+    "reflection_capture_brightness",
+    "post_process_settings",
+    "bloom_intensity",
+    "bloom_threshold",
+    "ambient_occlusion_intensity",
+    "ambient_occlusion_radius",
+    "ambient_occlusion_power",
+    "vignette_intensity",
+    "film_slope",
+    "film_toe",
+    "film_shoulder",
+    "film_black_clip",
+    "film_white_clip",
+    "motion_blur_amount",
     "public_accent_light_setup",
     "public_accent_light_kind_settings",
     "scene_setup_stats",
@@ -236,6 +268,19 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "collision_proxy_folder",
     "collision_proxy_tag",
     "collision_proxy_count",
+    "collision_proxy_coverage",
+    "collision_proxy_groups",
+    "public_exterior_surface_proxy_count",
+    "public_interior_surface_proxy_count",
+    "public_exterior_surface_total",
+    "public_interior_surface_total",
+    "group",
+    "rotation_deg",
+    "public_exterior_road_surface",
+    "public_exterior_sidewalk_surface",
+    "public_bike_lane_surface",
+    "public_exterior_walk_surface",
+    "public_interior_surface",
     "label",
     "location_cm",
     "scale",
@@ -358,7 +403,30 @@ REQUIRED_UNREAL_FIRST_PERSON_MARKERS = {
     "CapitolMap_Collision_PublicEastWestConnector",
     "CapitolMap_Collision_HouseChamberPublicFloor",
     "CapitolMap_Collision_SenateChamberPublicFloor",
+    "CapitolMap_Collision_WestApproachRoadSurface",
+    "CapitolMap_Collision_EastApproachRoadSurface",
+    "CapitolMap_Collision_NorthApproachRoadSurface",
+    "CapitolMap_Collision_SouthApproachRoadSurface",
+    "CapitolMap_Collision_WestApproachNorthSidewalk",
+    "CapitolMap_Collision_WestApproachSouthSidewalk",
+    "CapitolMap_Collision_EastApproachNorthSidewalk",
+    "CapitolMap_Collision_EastApproachSouthSidewalk",
+    "CapitolMap_Collision_WestBikeLaneNorthSurface",
+    "CapitolMap_Collision_WestBikeLaneSouthSurface",
+    "CapitolMap_Collision_EastBikeLaneSouthSurface",
+    "public_exterior_road_surface",
+    "public_exterior_sidewalk_surface",
+    "public_bike_lane_surface",
     "nanite_settings",
+}
+
+MIN_UNREAL_COLLISION_PROXY_SPECS = 40
+REQUIRED_UNREAL_COLLISION_PROXY_GROUPS = {
+    "public_exterior_road_surface",
+    "public_exterior_sidewalk_surface",
+    "public_bike_lane_surface",
+    "public_exterior_walk_surface",
+    "public_interior_surface",
 }
 
 REQUIRED_UNREAL_MATERIAL_MARKERS = {
@@ -411,6 +479,7 @@ REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
     "CapitolMap_AtmosphericFog",
     "CapitolMap_CampusReflectionCapture",
     "CapitolMap_GlobalPostProcess",
+    "CapitolMap_PhotoRealPreview",
     "CapitolMap_PublicAccentLight",
     "CapitolMap/Lighting/PublicAccent",
     "CapitolMap_AccentLight",
@@ -421,13 +490,32 @@ REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
     "soft_source_radius",
     "source_length",
     "cast_shadows",
+    "use_temperature",
+    "temperature",
+    "source_angle",
+    "contact_shadow_length",
     "light_color",
     "attenuation_radius",
     "real_time_capture",
+    "indirect_lighting_intensity",
     "fog_density",
     "fog_height_falloff",
     "influence_radius",
+    "brightness",
     "b_unbound",
+    "b_override_",
+    "bloom_intensity",
+    "bloom_threshold",
+    "ambient_occlusion_intensity",
+    "ambient_occlusion_radius",
+    "ambient_occlusion_power",
+    "vignette_intensity",
+    "film_slope",
+    "film_toe",
+    "film_shoulder",
+    "film_black_clip",
+    "film_white_clip",
+    "motion_blur_amount",
     "auto_exposure_min_brightness",
     "auto_exposure_max_brightness",
 }
@@ -456,7 +544,18 @@ REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS = {
         "r.TemporalAA.Upsampling=True",
         "r.Tonemapper.Quality=5",
         "r.SSR.Quality=4",
-        "r.Streaming.PoolSize=4096",
+        "r.SSR.Temporal=True",
+        "r.ReflectionCaptureResolution=1024",
+        "r.ContactShadows=True",
+        "r.AmbientOcclusionLevels=3",
+        "r.AmbientOcclusionRadiusScale=1.150000",
+        "r.MaxAnisotropy=16",
+        "r.Shadow.Virtual.ResolutionLodBiasDirectional=-1",
+        "r.Shadow.Virtual.SMRT.RayCountDirectional=8",
+        "r.Lumen.Reflections.MaxRoughnessToTrace=0.800000",
+        "r.Lumen.ScreenProbeGather.Temporal=1",
+        "r.Streaming.PoolSize=8192",
+        "r.Streaming.MaxTempMemoryAllowed=512",
         "r.TextureStreaming=True",
         "bAutoCreateNavigationData=True",
         "bSpawnNavDataInNavBoundsLevel=True",
@@ -492,6 +591,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickSenateGallery"',
     'id="quickGameplayItems"',
     'id="texturesToggle"',
+    'id="photoRealToggle"',
     'href="#grounds-details"',
     'href="#facade-details"',
     'href="#roof-details"',
@@ -572,6 +672,12 @@ REQUIRED_VIEWER_MARKERS = {
     "generated/data/material_texture_manifest.json",
     "loadViewerTextures",
     "createViewerTexture",
+    "photoRealEnabled",
+    "uPhotoRealStrength",
+    "worldSpacePatina",
+    "filmicContrast",
+    "atmosphericDepthFade",
+    "Photoreal shader preview",
     "viewerTextureDimension",
     "VIEWER_TEXTURE_MAX_SIZE",
     "VIEWER_SECONDARY_TEXTURE_MAX_SIZE",
@@ -2845,6 +2951,37 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     return summary
 
 
+def infer_unreal_collision_proxy_group(proxy: dict[str, Any]) -> str:
+    explicit_group = proxy.get("group")
+    if explicit_group:
+        return str(explicit_group)
+    label = str(proxy.get("label", "")).lower()
+    purpose = str(proxy.get("purpose", "")).lower()
+    if "road" in label or "road" in purpose:
+        return "public_exterior_road_surface"
+    if "sidewalk" in label or "sidewalk" in purpose:
+        return "public_exterior_sidewalk_surface"
+    if "bike" in label or "bike" in purpose:
+        return "public_bike_lane_surface"
+    if any(token in label for token in ["plaza", "approach", "grounds", "axial", "walk"]):
+        return "public_exterior_walk_surface"
+    if any(token in label for token in ["rotunda", "chamber", "gallery", "office", "support", "connector", "crypt", "statuary", "senate", "house"]):
+        return "public_interior_surface"
+    return "public_first_person_surface"
+
+
+def literal_assignment(tree: ast.AST, name: str) -> Any:
+    for node in getattr(tree, "body", []):
+        if not isinstance(node, ast.Assign):
+            continue
+        if any(isinstance(target, ast.Name) and target.id == name for target in node.targets):
+            try:
+                return ast.literal_eval(node.value)
+            except Exception:
+                return None
+    return None
+
+
 def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     summary: dict[str, Any] = {
         "path": str(UNREAL_IMPORTER_PATH.relative_to(ROOT)),
@@ -2859,6 +2996,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "material_markers": 0,
         "environment_markers": 0,
         "inspection_markers": 0,
+        "collision_proxy_specs": 0,
+        "collision_proxy_groups": 0,
     }
     if not UNREAL_IMPORTER_PATH.exists():
         error(errors, f"missing Unreal import script: {UNREAL_IMPORTER_PATH}")
@@ -2880,6 +3019,13 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     name_tokens = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     marker_tokens = string_literals | attribute_names
     functions = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+    collision_proxy_specs_raw = literal_assignment(tree, "FIRST_PERSON_COLLISION_PROXIES")
+    collision_proxy_specs = collision_proxy_specs_raw if isinstance(collision_proxy_specs_raw, list) else []
+    collision_proxy_groups = {
+        infer_unreal_collision_proxy_group(proxy)
+        for proxy in collision_proxy_specs
+        if isinstance(proxy, dict)
+    }
     calls: set[str] = set()
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -2898,6 +3044,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     missing_label_categories = sorted(REQUIRED_UNREAL_LABEL_CATEGORIES - string_literals)
     missing_outliner_folders = sorted(REQUIRED_UNREAL_OUTLINER_FOLDERS - string_literals)
     missing_first_person_markers = sorted(REQUIRED_UNREAL_FIRST_PERSON_MARKERS - string_literals)
+    missing_collision_proxy_groups = sorted(REQUIRED_UNREAL_COLLISION_PROXY_GROUPS - collision_proxy_groups)
     missing_material_markers = sorted(REQUIRED_UNREAL_MATERIAL_MARKERS - inspection_tokens)
     missing_environment_markers = sorted(REQUIRED_UNREAL_ENVIRONMENT_MARKERS - marker_tokens)
     missing_inspection_markers = sorted(REQUIRED_UNREAL_INSPECTION_MARKERS - inspection_tokens)
@@ -2910,6 +3057,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     summary["label_categories"] = len(REQUIRED_UNREAL_LABEL_CATEGORIES) - len(missing_label_categories)
     summary["outliner_folders"] = len(REQUIRED_UNREAL_OUTLINER_FOLDERS) - len(missing_outliner_folders)
     summary["first_person_markers"] = len(REQUIRED_UNREAL_FIRST_PERSON_MARKERS) - len(missing_first_person_markers)
+    summary["collision_proxy_specs"] = len(collision_proxy_specs)
+    summary["collision_proxy_groups"] = len(collision_proxy_groups)
     summary["material_markers"] = len(REQUIRED_UNREAL_MATERIAL_MARKERS) - len(missing_material_markers)
     summary["environment_markers"] = len(REQUIRED_UNREAL_ENVIRONMENT_MARKERS) - len(missing_environment_markers)
     summary["inspection_markers"] = len(REQUIRED_UNREAL_INSPECTION_MARKERS) - len(missing_inspection_markers)
@@ -2922,6 +3071,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "label_categories": missing_label_categories,
         "outliner_folders": missing_outliner_folders,
         "first_person_markers": missing_first_person_markers,
+        "collision_proxy_groups": missing_collision_proxy_groups,
         "material_markers": missing_material_markers,
         "environment_markers": missing_environment_markers,
         "inspection_markers": missing_inspection_markers,
@@ -2943,6 +3093,10 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         error(errors, f"Unreal importer missing outliner folders: {', '.join(missing_outliner_folders)}")
     if missing_first_person_markers:
         error(errors, f"Unreal importer missing first-person setup markers: {', '.join(missing_first_person_markers)}")
+    if len(collision_proxy_specs) < MIN_UNREAL_COLLISION_PROXY_SPECS:
+        error(errors, f"Unreal importer expected at least {MIN_UNREAL_COLLISION_PROXY_SPECS} first-person collision proxy specs, got {len(collision_proxy_specs)}")
+    if missing_collision_proxy_groups:
+        error(errors, f"Unreal importer missing first-person collision proxy groups: {', '.join(missing_collision_proxy_groups)}")
     if missing_material_markers:
         error(errors, f"Unreal importer missing material setup markers: {', '.join(missing_material_markers)}")
     if missing_environment_markers:
