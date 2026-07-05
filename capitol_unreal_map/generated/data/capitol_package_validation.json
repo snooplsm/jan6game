@@ -74,6 +74,7 @@
     "texture_material_bindings": 75,
     "texture_files": 172,
     "texture_styles": 19,
+    "photoreal_texture_features": 10,
     "min_texture_size_px": 4096,
     "expected_min_texture_size_px": 4096
   },

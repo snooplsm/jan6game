@@ -3,7 +3,19 @@
   "texture_root": "generated/textures",
   "source_type": "deterministic_procedural_local",
   "external_texture_sources": [],
-  "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness/ambient-occlusion maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
+  "photoreal_readiness_features": [
+    "tileable_4k_basecolor_normal_roughness_ao",
+    "material_micro_pores_and_pinholes",
+    "stone_mineral_flecks_and_joint_grime",
+    "asphalt_aggregate_tar_and_crack_breakup",
+    "concrete_pitting_trowel_and_edge_wear",
+    "fabric_canvas_fiber_weave_breakup",
+    "wood_open_grain_knots_and_plank_seams",
+    "metal_brushing_scratches_and_tarnish_variation",
+    "height_derived_normal_maps",
+    "height_and_cavity_driven_roughness_ao"
+  ],
+  "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks/tar breakup, concrete pitting/trowel variation, textile/canvas fiber breakup, metal brushing/scratches/tarnish variation, micro pores, mineral flecks, stain masks, and height-derived normal/roughness/ambient-occlusion maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
   "target_size_px": [
     4096,
     4096

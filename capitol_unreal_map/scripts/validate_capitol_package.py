@@ -33,6 +33,19 @@ DEFAULT_GAME_PATH = ROOT / "Config" / "DefaultGame.ini"
 VIEWER_PATH = ROOT / "viewer.html"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 
+REQUIRED_PHOTOREAL_TEXTURE_FEATURES = {
+    "tileable_4k_basecolor_normal_roughness_ao",
+    "material_micro_pores_and_pinholes",
+    "stone_mineral_flecks_and_joint_grime",
+    "asphalt_aggregate_tar_and_crack_breakup",
+    "concrete_pitting_trowel_and_edge_wear",
+    "fabric_canvas_fiber_weave_breakup",
+    "wood_open_grain_knots_and_plank_seams",
+    "metal_brushing_scratches_and_tarnish_variation",
+    "height_derived_normal_maps",
+    "height_and_cavity_driven_roughness_ao",
+}
+
 EXPECTED_MESHES = {
     "generated/meshes/capitol_exterior_buildings.obj",
     "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
@@ -2737,6 +2750,7 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
         "texture_material_bindings": 0,
         "texture_files": 0,
         "texture_styles": 0,
+        "photoreal_texture_features": 0,
         "min_texture_size_px": None,
         "expected_min_texture_size_px": MIN_TEXTURE_SIZE_PX,
     }
@@ -2747,9 +2761,12 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     sets = manifest.get("sets", {})
     bindings = manifest.get("materials", {})
     styles = {spec.get("style") for spec in sets.values() if isinstance(spec, dict)}
+    photoreal_features_raw = manifest.get("photoreal_readiness_features", [])
+    photoreal_features = set(photoreal_features_raw if isinstance(photoreal_features_raw, list) else [])
     summary["texture_sets"] = len(sets)
     summary["texture_material_bindings"] = len(bindings)
     summary["texture_styles"] = len(styles)
+    summary["photoreal_texture_features"] = len(photoreal_features)
     missing_bindings = sorted(materials - set(bindings))
     if missing_bindings:
         error(errors, f"texture manifest missing material bindings: {', '.join(missing_bindings)}")
@@ -2796,6 +2813,9 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     missing_styles = sorted(REQUIRED_TEXTURE_STYLES - styles)
     if missing_styles:
         error(errors, f"texture manifest missing required realism styles: {', '.join(missing_styles)}")
+    missing_photoreal_features = sorted(REQUIRED_PHOTOREAL_TEXTURE_FEATURES - photoreal_features)
+    if missing_photoreal_features:
+        error(errors, f"texture manifest missing photoreal-readiness features: {', '.join(missing_photoreal_features)}")
     return summary
 
 
@@ -3037,6 +3057,7 @@ def main() -> int:
     print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
     print(f"Texture sets: {texture_summary.get('texture_sets', 0):,}")
     print(f"Texture styles: {texture_summary.get('texture_styles', 0):,}")
+    print(f"Photoreal texture features: {texture_summary.get('photoreal_texture_features', 0):,}")
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
     print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")

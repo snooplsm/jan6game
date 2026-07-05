@@ -153,6 +153,19 @@ MATERIAL_TEXTURE_BINDINGS = {
     "ItemCloth": "cloth_red",
 }
 
+PHOTOREAL_TEXTURE_FEATURES = [
+    "tileable_4k_basecolor_normal_roughness_ao",
+    "material_micro_pores_and_pinholes",
+    "stone_mineral_flecks_and_joint_grime",
+    "asphalt_aggregate_tar_and_crack_breakup",
+    "concrete_pitting_trowel_and_edge_wear",
+    "fabric_canvas_fiber_weave_breakup",
+    "wood_open_grain_knots_and_plank_seams",
+    "metal_brushing_scratches_and_tarnish_variation",
+    "height_derived_normal_maps",
+    "height_and_cavity_driven_roughness_ao",
+]
+
 
 def png_chunk(kind: bytes, data: bytes) -> bytes:
     return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
@@ -214,6 +227,68 @@ def periodic_knot_field(xx: np.ndarray, yy: np.ndarray, seed: int) -> np.ndarray
     dx = np.sin(xx * 2.0 + phase_a)
     dy = np.sin(yy * 3.0 + phase_b)
     return np.exp(-((dx * dx) / 0.035 + (dy * dy) / 0.055)).astype(np.float32, copy=False)
+
+
+def photoreal_height_detail(height: np.ndarray, style: str, seed: int) -> np.ndarray:
+    """Layer small-scale physical surface detail over the broad material pattern."""
+    size = height.shape[0]
+    x = np.linspace(0.0, math.tau, size, endpoint=False, dtype=np.float32)
+    xx = x.reshape(1, size)
+    yy = x.reshape(size, 1)
+    micro = tile_noise(size, seed + 211, 11)
+    speckle = tile_noise(size, seed + 229, 9)
+    pinholes = threshold_soft(speckle, 0.82, 0.14)
+    pores = threshold_soft(micro, 0.68, 0.22)
+    scratch = band_mask(xx * 21.0 + yy * 4.0 + micro * 2.8, 0.018)
+    hairline = band_mask(xx * 13.0 - yy * 9.0 + speckle * 4.0, 0.014)
+
+    if style in {"ashlar_limestone", "weathered_ashlar_limestone", "worn_stone", "marble_wall", "marble_floor", "pavers"}:
+        mineral_flecks = threshold_soft(micro, 0.88, 0.10)
+        detail = (micro - 0.5) * 0.045 - pores * 0.055 - pinholes * 0.035 + mineral_flecks * 0.030
+        if style == "weathered_ashlar_limestone":
+            rain_channels = band_mask(xx * 18.0 + tile_noise(size, seed + 241, 4) * 2.2, 0.020)
+            detail += rain_channels * threshold_soft(speckle, 0.45, 0.35) * 0.045
+        return np.clip(height + detail, 0.0, 1.0)
+
+    if style == "asphalt":
+        exposed_aggregate = threshold_soft(micro, 0.44, 0.30)
+        loose_stone = threshold_soft(speckle, 0.86, 0.11)
+        alligator_cracks = band_mask(xx * 16.0 + yy * 11.0 + speckle * 6.0, 0.016)
+        return np.clip(height + exposed_aggregate * 0.070 + loose_stone * 0.045 + alligator_cracks * 0.055 - pores * 0.025, 0.0, 1.0)
+
+    if style == "concrete":
+        aggregate = threshold_soft(micro, 0.78, 0.18)
+        trowel_swirls = band_mask(xx * 19.0 + np.sin(yy * 7.0 + micro * 2.0), 0.028) * 0.035
+        return np.clip(height + (micro - 0.5) * 0.040 + aggregate * 0.040 + trowel_swirls - pinholes * 0.045, 0.0, 1.0)
+
+    if style in {"fabric", "carpet", "canvas"}:
+        lint = threshold_soft(speckle, 0.84, 0.12) * 0.035
+        cross_threads = (np.sin(xx * 166.0 + micro) + np.sin(yy * 154.0 + speckle)) * 0.018
+        return np.clip(height + cross_threads + lint, 0.0, 1.0)
+
+    if style in {"wood_planks", "leather"}:
+        open_grain = band_mask(xx * 44.0 + micro * 4.0, 0.034) * 0.045
+        pores_low = pores * 0.035
+        return np.clip(height + open_grain - pores_low + (speckle - 0.5) * 0.025, 0.0, 1.0)
+
+    if style in {"brushed_metal", "painted_metal", "painted_dome_panels"}:
+        oxidation = threshold_soft(micro, 0.78, 0.16) * 0.030
+        return np.clip(height + scratch * 0.040 + hairline * 0.024 + oxidation + (speckle - 0.5) * 0.018, 0.0, 1.0)
+
+    if style == "worn_paint":
+        paint_lift = threshold_soft(micro, 0.74, 0.18) * 0.045
+        undercoat_chips = pinholes * 0.040
+        return np.clip(height + paint_lift - undercoat_chips + scratch * 0.026, 0.0, 1.0)
+
+    if style == "grass":
+        clumps = threshold_soft(micro, 0.66, 0.24) * 0.045
+        dry_low_spots = threshold_soft(0.42 - speckle, 0.00, 0.18) * 0.035
+        return np.clip(height + clumps - dry_low_spots, 0.0, 1.0)
+
+    if style == "glass":
+        return np.clip(height + scratch * 0.012 + (micro - 0.5) * 0.006, 0.0, 1.0)
+
+    return np.clip(height + (micro - 0.5) * 0.024 + pinholes * 0.018, 0.0, 1.0)
 
 
 def style_height(style: str, size: int, seed: int) -> np.ndarray:
@@ -430,6 +505,33 @@ def color_map(base_color: list[float], height: np.ndarray, style: str, seed: int
         color += cool_shadow * np.clip(0.36 - height[:, :, None], 0.0, 1.0)
         color += polish * np.clip(height[:, :, None] - 0.48, 0.0, 1.0)
 
+    cavity = np.clip(0.42 - height[:, :, None], 0.0, 1.0)
+    raised = np.clip(height[:, :, None] - 0.62, 0.0, 1.0)
+    fleck = np.clip(detail_noise + 0.18, 0.0, 1.0)
+    stain = np.clip(tint_noise + 0.32, 0.0, 1.0)
+    if style in {"ashlar_limestone", "weathered_ashlar_limestone", "worn_stone", "marble_floor", "marble_wall", "pavers"}:
+        color += np.array([-0.070, -0.066, -0.056], dtype=np.float32).reshape(1, 1, 3) * cavity
+        color += np.array([0.034, 0.028, 0.010], dtype=np.float32).reshape(1, 1, 3) * fleck * raised
+        if style == "weathered_ashlar_limestone":
+            color += np.array([-0.090, -0.086, -0.074], dtype=np.float32).reshape(1, 1, 3) * stain * np.clip(height[:, :, None] - 0.52, 0.0, 1.0)
+    elif style == "asphalt":
+        color += np.array([0.085, 0.083, 0.078], dtype=np.float32).reshape(1, 1, 3) * fleck * raised
+        color += np.array([-0.040, -0.038, -0.036], dtype=np.float32).reshape(1, 1, 3) * cavity
+    elif style in {"concrete", "pavers"}:
+        color += np.array([0.045, 0.042, 0.034], dtype=np.float32).reshape(1, 1, 3) * fleck * raised
+        color += np.array([-0.060, -0.058, -0.052], dtype=np.float32).reshape(1, 1, 3) * stain * cavity
+    elif style in {"fabric", "carpet", "canvas"}:
+        color *= 1.0 + (detail_noise * 0.055)
+        color += np.array([0.026, 0.024, 0.022], dtype=np.float32).reshape(1, 1, 3) * fleck * 0.35
+    elif style in {"wood_planks", "leather"}:
+        color += np.array([-0.052, -0.030, -0.016], dtype=np.float32).reshape(1, 1, 3) * cavity
+        color += np.array([0.036, 0.018, 0.002], dtype=np.float32).reshape(1, 1, 3) * raised
+    elif style in {"brushed_metal", "painted_metal", "painted_dome_panels"}:
+        color += np.array([0.038, 0.036, 0.032], dtype=np.float32).reshape(1, 1, 3) * fleck * 0.25
+        color += np.array([-0.040, -0.038, -0.034], dtype=np.float32).reshape(1, 1, 3) * cavity
+    elif style == "glass":
+        color += np.array([0.018, 0.024, 0.030], dtype=np.float32).reshape(1, 1, 3) * fleck * 0.18
+
     return (np.clip(color, 0.0, 1.0) * 255.0).astype(np.uint8)
 
 
@@ -455,6 +557,19 @@ def roughness_map(base_roughness: float, height: np.ndarray, style: str) -> np.n
         roughness = base_roughness + (height - 0.5) * 0.10 + np.clip(0.34 - height, 0.0, 1.0) * 0.10
     if style in {"worn_paint"}:
         roughness = base_roughness + np.clip(height - 0.45, 0.0, 1.0) * 0.18
+    neighbor_mean = (
+        np.roll(height, -1, axis=0)
+        + np.roll(height, 1, axis=0)
+        + np.roll(height, -1, axis=1)
+        + np.roll(height, 1, axis=1)
+    ) * np.float32(0.25)
+    micro_breakup = np.clip(np.abs(height - neighbor_mean) * 3.5, 0.0, 1.0)
+    if style in {"glass"}:
+        roughness += micro_breakup * 0.025
+    elif style in {"brushed_metal", "painted_metal"}:
+        roughness += micro_breakup * 0.055
+    else:
+        roughness += micro_breakup * 0.085
     gray = np.clip(roughness, 0.0, 1.0) * 255.0
     return np.repeat(gray[:, :, None], 3, axis=2).astype(np.uint8)
 
@@ -499,7 +614,7 @@ def ambient_occlusion_map(height: np.ndarray, style: str) -> np.ndarray:
 def generate_set(name: str, spec: dict[str, Any]) -> dict[str, str]:
     seed = int.from_bytes(hashlib.sha256(name.encode("utf-8")).digest()[:8], "big") % 1_000_000
     style = str(spec["style"])
-    height = style_height(style, SIZE, seed)
+    height = photoreal_height_detail(style_height(style, SIZE, seed), style, seed)
     basecolor = color_map(spec["base"], height, style, seed)
     normal = normal_from_height(height, float(spec["normal_strength"]))
     roughness = roughness_map(float(spec["roughness"]), height, style)
@@ -540,7 +655,8 @@ def main() -> None:
         "texture_root": "generated/textures",
         "source_type": "deterministic_procedural_local",
         "external_texture_sources": [],
-        "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness/ambient-occlusion maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
+        "photoreal_readiness_features": PHOTOREAL_TEXTURE_FEATURES,
+        "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks/tar breakup, concrete pitting/trowel variation, textile/canvas fiber breakup, metal brushing/scratches/tarnish variation, micro pores, mineral flecks, stain masks, and height-derived normal/roughness/ambient-occlusion maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
         "target_size_px": [SIZE, SIZE],
         "png_compression_level": PNG_COMPRESSION_LEVEL,
         "sets": sets,
