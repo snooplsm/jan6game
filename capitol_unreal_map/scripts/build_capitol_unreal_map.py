@@ -10510,6 +10510,97 @@ def add_public_circulation_details(
         obj.add_box(center, glow_size, 0.018, z + 0.218, f"{name}_warm_transition_light_pool", "WarmLightGlass")
         add_public_circulation_record(records, f"{name}_warm_transition_light_pool", "public_transition_light_pool", area, (x, y, z + 0.227), glow_size)
 
+    def public_level_transition_detail(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        landing_size = transition_size(width * 0.92, 1.18, orientation)
+        obj.add_box(center, landing_size, 0.040, z + 0.242, f"{name}_landing_slab", "StepStone")
+        add_public_circulation_record(records, f"{name}_landing_slab", "public_level_transition_landing", area, (x, y, z + 0.262), landing_size)
+
+        for tread_index, normal_offset in enumerate([-0.72, -0.42, 0.42, 0.72], start=1):
+            tread_center = transition_component_center(center, 0.0, normal_offset, orientation)
+            tread_size = transition_size(width * 0.86, 0.26, orientation)
+            obj.add_box(tread_center, tread_size, 0.034, z + 0.265 + tread_index * 0.010, f"{name}_public_tread_{tread_index:02d}", "StepStone")
+            add_public_circulation_record(
+                records,
+                f"{name}_public_tread_{tread_index:02d}",
+                "public_level_transition_tread",
+                area,
+                (tread_center[0], tread_center[1], z + 0.292 + tread_index * 0.010),
+                tread_size,
+            )
+            nosing_size = transition_size(width * 0.88, 0.045, orientation)
+            nosing_center = transition_component_center(center, 0.0, normal_offset + (0.12 if normal_offset < 0.0 else -0.12), orientation)
+            obj.add_box(nosing_center, nosing_size, 0.030, z + 0.318 + tread_index * 0.010, f"{name}_brass_nosing_{tread_index:02d}", "BrassRail")
+            add_public_circulation_record(
+                records,
+                f"{name}_brass_nosing_{tread_index:02d}",
+                "public_level_transition_nosing",
+                area,
+                (nosing_center[0], nosing_center[1], z + 0.333 + tread_index * 0.010),
+                nosing_size,
+            )
+
+        for strip_index, normal_offset in enumerate([-0.96, 0.96], start=1):
+            strip_center = transition_component_center(center, 0.0, normal_offset, orientation)
+            strip_size = transition_size(width * 0.82, 0.075, orientation)
+            obj.add_box(strip_center, strip_size, 0.026, z + 0.355, f"{name}_tactile_edge_strip_{strip_index:02d}", "LaneMarkingYellow")
+            add_public_circulation_record(
+                records,
+                f"{name}_tactile_edge_strip_{strip_index:02d}",
+                "public_level_transition_tactile_strip",
+                area,
+                (strip_center[0], strip_center[1], z + 0.368),
+                strip_size,
+            )
+
+        ramp_center = transition_component_center(center, -width * 0.32, 0.0, orientation)
+        ramp_size = transition_size(width * 0.18, 1.92, orientation)
+        obj.add_box(ramp_center, ramp_size, 0.026, z + 0.335, f"{name}_schematic_ramp_panel", "InteriorFloor")
+        add_public_circulation_record(records, f"{name}_schematic_ramp_panel", "public_accessibility_ramp_panel", area, (ramp_center[0], ramp_center[1], z + 0.348), ramp_size)
+
+        for edge_index, along_delta in enumerate([-width * 0.11, width * 0.11], start=1):
+            edge_center = transition_component_center(center, -width * 0.32 + along_delta, 0.0, orientation)
+            edge_size = transition_size(0.045, 1.88, orientation)
+            obj.add_box(edge_center, edge_size, 0.055, z + 0.350, f"{name}_schematic_ramp_edge_{edge_index:02d}", "BrassRail")
+            add_public_circulation_record(
+                records,
+                f"{name}_schematic_ramp_edge_{edge_index:02d}",
+                "public_accessibility_ramp_edge",
+                area,
+                (edge_center[0], edge_center[1], z + 0.378),
+                edge_size,
+            )
+
+        rail_angle = 0.0 if orientation == "east_west" else math.pi / 2.0
+        for rail_index, along_offset in enumerate([-width * 0.50, width * 0.50], start=1):
+            rail_center = transition_component_center(center, along_offset, 0.0, orientation)
+            obj.add_oriented_box(rail_center, (1.78, 0.075), 0.080, z + 0.930, rail_angle, f"{name}_public_handrail_{rail_index:02d}", "BrassRail")
+            add_public_circulation_record(
+                records,
+                f"{name}_public_handrail_{rail_index:02d}",
+                "public_level_transition_handrail",
+                area,
+                (rail_center[0], rail_center[1], z + 0.970),
+                (1.78, 0.075),
+            )
+            for post_index, normal_offset in enumerate([-0.72, 0.72], start=1):
+                post_center = transition_component_center(center, along_offset, normal_offset, orientation)
+                obj.add_cylinder(post_center, 0.040, z + 0.330, 0.66, f"{name}_public_handrail_post_{rail_index:02d}_{post_index:02d}", "BrassRail", segments=8)
+                add_public_circulation_record(
+                    records,
+                    f"{name}_public_handrail_post_{rail_index:02d}_{post_index:02d}",
+                    "public_level_transition_handrail_post",
+                    area,
+                    (post_center[0], post_center[1], z + 0.660),
+                    (0.08, 0.08),
+                )
+
     corridor("east_west_public_axis_band", "Rotunda / east-west public approach", [(-68.0, 0.0), (-22.0, 0.0), (22.0, 0.0), (68.0, 0.0)], 5.2)
     corridor("rotunda_to_house_public_band", "Rotunda to House Chamber public orientation", [(0.0, -12.0), (0.0, -38.0), (0.0, -52.0)], 4.6)
     corridor("rotunda_to_senate_public_band", "Rotunda to Senate Chamber public orientation", [(0.0, 12.0), (0.0, 38.0), (0.0, 52.0)], 4.6)
@@ -10532,6 +10623,7 @@ def add_public_circulation_details(
         portal(f"{name}_portal", area, center, width, orientation)
         public_transition_surround(f"{name}_public_transition", area, center, width, orientation)
         threshold_material_variation(f"{name}_material_variation", area, center, width, orientation)
+        public_level_transition_detail(f"{name}_level_transition", area, center, width, orientation)
 
     for name, area, center, text in [
         ("rotunda_orientation_sign_west", "Rotunda", (-11.2, -3.8), "Rotunda / west public orientation"),

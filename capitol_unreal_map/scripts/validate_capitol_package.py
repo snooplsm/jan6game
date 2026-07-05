@@ -1058,6 +1058,14 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "generic_public_emergency_light_lens_pair",
     "public_wall_switch_plate",
     "public_wall_outlet_plate",
+    "public_level_transition_landing",
+    "public_level_transition_tread",
+    "public_level_transition_nosing",
+    "public_level_transition_tactile_strip",
+    "public_accessibility_ramp_panel",
+    "public_accessibility_ramp_edge",
+    "public_level_transition_handrail",
+    "public_level_transition_handrail_post",
 }
 
 REQUIRED_SIGNAGE_DETAIL_KINDS = {
@@ -2702,8 +2710,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
     summary["circulation_details"] = len(circulation_details)
     summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
-    if len(circulation_details) < 410:
-        error(errors, f"expected at least 410 public circulation detail records, got {len(circulation_details)}")
+    if len(circulation_details) < 570:
+        error(errors, f"expected at least 570 public circulation detail records, got {len(circulation_details)}")
     missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
     if missing_circulation_kinds:
         error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
@@ -2761,6 +2769,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 28 public wall switch-plate records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_wall_outlet_plate"]) < 28:
         error(errors, "expected at least 28 public wall outlet-plate records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_level_transition_landing"]) < 8:
+        error(errors, "expected at least 8 public level-transition landing records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_level_transition_tread"]) < 32:
+        error(errors, "expected at least 32 public level-transition tread records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_level_transition_nosing"]) < 32:
+        error(errors, "expected at least 32 public level-transition nosing records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_level_transition_tactile_strip"]) < 16:
+        error(errors, "expected at least 16 public level-transition tactile strip records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_accessibility_ramp_panel"]) < 8:
+        error(errors, "expected at least 8 public schematic ramp panel records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_accessibility_ramp_edge"]) < 16:
+        error(errors, "expected at least 16 public schematic ramp edge records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_level_transition_handrail"]) < 16:
+        error(errors, "expected at least 16 public level-transition handrail records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_level_transition_handrail_post"]) < 32:
+        error(errors, "expected at least 32 public level-transition handrail post records")
     for detail in circulation_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} has invalid center_m")
