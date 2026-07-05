@@ -7435,16 +7435,24 @@ def add_public_circulation_details(
             post_size = (0.16, 0.24)
             lintel_size = (0.20, width + 0.50)
             transom_size = (0.075, width * 0.64)
+            opening_size = (0.055, width * 0.74)
+            jamb_size = (0.18, 0.34)
             post_offsets = [(0.0, -width / 2.0), (0.0, width / 2.0)]
         else:
             post_size = (0.24, 0.16)
             lintel_size = (width + 0.50, 0.20)
             transom_size = (width * 0.64, 0.075)
+            opening_size = (width * 0.74, 0.055)
+            jamb_size = (0.34, 0.18)
             post_offsets = [(-width / 2.0, 0.0), (width / 2.0, 0.0)]
         for idx, (dx, dy) in enumerate(post_offsets, start=1):
             obj.add_box((x + dx, y + dy), post_size, 2.35, 4.43, f"{name}_side_trim_{idx}", "InteriorTrim")
+            obj.add_box((x + dx * 0.96, y + dy * 0.96), jamb_size, 2.05, 4.58, f"{name}_jamb_return_{idx}", "DoorMetal")
+            add_public_circulation_record(records, f"{name}_jamb_return_{idx}", "public_portal_jamb_return", area, (x + dx * 0.96, y + dy * 0.96, 5.605), jamb_size)
+        obj.add_box((x, y), opening_size, 1.98, 4.50, f"{name}_opening_shadow_panel", "DoorMetal")
         obj.add_box((x, y), lintel_size, 0.22, 6.78, f"{name}_header_trim", "InteriorTrim")
         obj.add_box((x, y), transom_size, 0.28, 6.34, f"{name}_public_transom_marker", "DoorGlass")
+        add_public_circulation_record(records, f"{name}_opening_shadow_panel", "public_portal_opening_shadow", area, (x, y, 5.49), opening_size)
         add_public_circulation_record(records, name, "room_portal_trim", area, (x, y, 5.65), (width, 0.42))
         add_public_circulation_record(records, f"{name}_public_transom_marker", "public_portal_transom", area, (x, y, 6.48), transom_size)
 

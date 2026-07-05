@@ -748,6 +748,8 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "door_threshold",
     "room_portal_trim",
     "public_portal_transom",
+    "public_portal_opening_shadow",
+    "public_portal_jamb_return",
     "orientation_sign",
     "floor_inlay",
     "public_corridor_pilaster",
@@ -1994,13 +1996,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
     summary["circulation_details"] = len(circulation_details)
     summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
-    if len(circulation_details) < 185:
-        error(errors, f"expected at least 185 public circulation detail records, got {len(circulation_details)}")
+    if len(circulation_details) < 209:
+        error(errors, f"expected at least 209 public circulation detail records, got {len(circulation_details)}")
     missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
     if missing_circulation_kinds:
         error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_portal_transom"]) < 8:
         error(errors, "expected at least 8 public portal transom records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_portal_opening_shadow"]) < 8:
+        error(errors, "expected at least 8 public portal opening-shadow records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_portal_jamb_return"]) < 16:
+        error(errors, "expected at least 16 public portal jamb-return records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_corridor_pilaster"]) < 30:
         error(errors, "expected at least 30 public corridor pilaster records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_corridor_sconce"]) < 20:
