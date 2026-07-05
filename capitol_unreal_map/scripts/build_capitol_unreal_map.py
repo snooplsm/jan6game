@@ -59,6 +59,7 @@ MATERIALS = {
     "BrassRail": (0.82, 0.63, 0.24, 1.0),
     "RotundaFloor": (0.78, 0.68, 0.50, 1.0),
     "RotundaWall": (0.88, 0.84, 0.74, 1.0),
+    "FloorWear": (0.36, 0.34, 0.30, 0.42),
     "HouseSeat": (0.12, 0.23, 0.55, 1.0),
     "HouseDesk": (0.28, 0.18, 0.10, 1.0),
     "SenateDesk": (0.34, 0.18, 0.08, 1.0),
@@ -3525,6 +3526,21 @@ def add_rotunda_visual_details(
         add_rotunda_detail(name, "perimeter_column", (x, y, 6.545), (0.56, 0.56))
         add_rotunda_detail(f"{name}_base_ring", "perimeter_column_base", (x, y, 4.46), (0.84, 0.84))
         add_rotunda_detail(f"{name}_capital_block", "perimeter_column_capital", (x, y, 8.61), (0.76, 0.76))
+        for groove_idx, groove_offset in enumerate([-0.42, -0.14, 0.14, 0.42], start=1):
+            groove_angle = angle + groove_offset
+            groove_x = x + 0.285 * math.cos(groove_angle)
+            groove_y = y + 0.285 * math.sin(groove_angle)
+            groove_name = f"{name}_fluting_groove_{groove_idx:02d}"
+            obj.add_oriented_box(
+                (groove_x, groove_y),
+                (0.035, 0.135),
+                3.52,
+                4.82,
+                groove_angle,
+                groove_name,
+                "StepStone",
+            )
+            add_rotunda_detail(groove_name, "column_fluting_groove", (groove_x, groove_y, 6.58), (0.035, 0.135))
 
     for idx in range(32):
         angle = math.tau * idx / 32.0 + math.pi / 32.0
@@ -3547,12 +3563,26 @@ def add_rotunda_visual_details(
             obj.add_box((cx + 3.15, cy), (0.46, 0.72), 3.35, 4.48, f"{name}_right_post", "InteriorTrim")
             obj.add_box((cx, cy), (6.75, 0.72), 0.55, 7.62, f"{name}_lintel", "InteriorTrim")
             obj.add_box((cx, cy - sign * 0.18), (5.65, 0.16), 0.42, 7.12, f"{name}_inner_shadow_line", "BrassRail")
+            for side_label, x_offset in [("left", -2.08), ("right", 2.08)]:
+                inlay_name = f"{name}_{side_label}_spandrel_inlay"
+                obj.add_box((cx + x_offset, cy - sign * 0.28), (1.12, 0.105), 0.42, 7.04, inlay_name, "ArtFrameGold")
+                add_rotunda_detail(inlay_name, "arch_spandrel_inlay", (cx + x_offset, cy - sign * 0.28, 7.25), (1.12, 0.105))
+            keystone_name = f"{name}_keystone_block"
+            obj.add_box((cx, cy - sign * 0.32), (0.54, 0.14), 0.72, 7.38, keystone_name, "ColumnStone")
+            add_rotunda_detail(keystone_name, "arch_keystone_block", (cx, cy - sign * 0.32, 7.74), (0.54, 0.14))
             size = (6.75, 0.72)
         else:
             obj.add_box((cx, cy - 3.15), (0.72, 0.46), 3.35, 4.48, f"{name}_left_post", "InteriorTrim")
             obj.add_box((cx, cy + 3.15), (0.72, 0.46), 3.35, 4.48, f"{name}_right_post", "InteriorTrim")
             obj.add_box((cx, cy), (0.72, 6.75), 0.55, 7.62, f"{name}_lintel", "InteriorTrim")
             obj.add_box((cx - sign * 0.18, cy), (0.16, 5.65), 0.42, 7.12, f"{name}_inner_shadow_line", "BrassRail")
+            for side_label, y_offset in [("left", -2.08), ("right", 2.08)]:
+                inlay_name = f"{name}_{side_label}_spandrel_inlay"
+                obj.add_box((cx - sign * 0.28, cy + y_offset), (0.105, 1.12), 0.42, 7.04, inlay_name, "ArtFrameGold")
+                add_rotunda_detail(inlay_name, "arch_spandrel_inlay", (cx - sign * 0.28, cy + y_offset, 7.25), (0.105, 1.12))
+            keystone_name = f"{name}_keystone_block"
+            obj.add_box((cx - sign * 0.32, cy), (0.14, 0.54), 0.72, 7.38, keystone_name, "ColumnStone")
+            add_rotunda_detail(keystone_name, "arch_keystone_block", (cx - sign * 0.32, cy, 7.74), (0.14, 0.54))
             size = (0.72, 6.75)
         add_rotunda_detail(name, "public_arch_portal", (cx, cy, 6.1), size)
 
@@ -4365,8 +4395,14 @@ def add_coffered_ceiling(
         canopy_name = f"{name}_light_canopy_{index:02d}"
         obj.add_cylinder((x, y), 0.52, z + 0.16, 0.06, medallion_name, "ArtFrameGold", segments=24)
         obj.add_cylinder((x, y), 0.22, z + 0.22, 0.08, canopy_name, "LightFixtureMetal", segments=18)
+        trim_name = f"{canopy_name}_trim_ring"
+        glass_name = f"{canopy_name}_glass_dome"
+        obj.add_ring((x, y), 0.31, 0.235, z + 0.255, 0.032, trim_name, "BrassRail", segments=18)
+        obj.add_cylinder((x, y), 0.155, z + 0.298, 0.105, glass_name, "WarmLightGlass", segments=16)
         add_interior_ceiling_detail_record(records, medallion_name, "ceiling_medallion", room, (x, y, z + 0.19), (1.04, 1.04))
         add_interior_ceiling_detail_record(records, canopy_name, "light_canopy", room, (x, y, z + 0.26), (0.44, 0.44))
+        add_interior_ceiling_detail_record(records, trim_name, "light_fixture_trim_ring", room, (x, y, z + 0.271), (0.62, 0.62))
+        add_interior_ceiling_detail_record(records, glass_name, "light_fixture_glass_dome", room, (x, y, z + 0.35), (0.31, 0.31))
 
     vent_offsets = [(-0.34, -0.34), (0.34, -0.34), (-0.34, 0.34), (0.34, 0.34)]
     for index, (ox, oy) in enumerate(vent_offsets, start=1):
@@ -4685,6 +4721,55 @@ def add_public_interior_floor_details(
     ]
     for name, area, center, radius, z in medallion_specs:
         add_floor_medallion(obj, records, name, area, center, radius, z)
+
+    wear_band_specs = [
+        ("rotunda_floor_wear_band_north_south", "Rotunda", [(0.0, -11.8), (0.0, 11.8)], 0.92, 4.735),
+        ("rotunda_floor_wear_band_east_west", "Rotunda", [(-11.8, 0.0), (11.8, 0.0)], 0.82, 4.735),
+        ("south_public_spine_floor_wear_band", "Rotunda / House Chamber orientation", [(0.0, -48.0), (0.0, -18.0)], 0.78, 4.615),
+        ("north_public_spine_floor_wear_band", "Rotunda / Senate public spine", [(0.0, 18.0), (0.0, 48.0)], 0.78, 4.615),
+        ("statuary_hall_floor_wear_band", "National Statuary Hall", [(17.0, -30.0), (39.0, -30.0)], 0.70, 4.565),
+        ("old_senate_floor_wear_band", "Old Senate Chamber", [(18.0, 30.0), (38.0, 30.0)], 0.64, 4.565),
+        ("house_chamber_public_well_floor_wear_band", "House Chamber public well", [(-8.0, -56.0), (8.0, -56.0)], 0.62, 4.635),
+        ("senate_presiding_floor_wear_band", "Senate presiding-officer public well", [(-6.5, 83.0), (6.5, 83.0)], 0.58, 4.635),
+        ("house_gallery_floor_wear_band", "House galleries", [(-25.0, -100.0), (25.0, -100.0)], 0.54, 4.985),
+        ("senate_gallery_floor_wear_band", "Senate galleries", [(-20.0, 97.5), (20.0, 97.5)], 0.50, 4.985),
+    ]
+    for name, area, points, width, z in wear_band_specs:
+        obj.add_polyline_strip(points, width, z, name, "FloorWear")
+        start, end = points[0], points[-1]
+        center = ((start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0)
+        length = math.hypot(end[0] - start[0], end[1] - start[1])
+        add_public_floor_detail_record(records, name, "floor_wear_band", area, (center[0], center[1], z), (length, width))
+
+    scuff_specs = [
+        ("rotunda_north_threshold_floor_scuff", "Rotunda", (0.0, 11.6), (2.8, 0.55), 0.0, 4.742),
+        ("rotunda_south_threshold_floor_scuff", "Rotunda", (0.0, -11.6), (2.8, 0.55), 0.0, 4.742),
+        ("rotunda_east_threshold_floor_scuff", "Rotunda", (11.6, 0.0), (0.55, 2.8), 0.0, 4.742),
+        ("rotunda_west_threshold_floor_scuff", "Rotunda", (-11.6, 0.0), (0.55, 2.8), 0.0, 4.742),
+        ("statuary_center_floor_scuff", "National Statuary Hall", (28.0, -30.0), (3.6, 1.15), 8.0, 4.575),
+        ("statuary_east_floor_scuff", "National Statuary Hall", (36.0, -30.8), (2.4, 0.72), -5.0, 4.575),
+        ("statuary_west_floor_scuff", "National Statuary Hall", (20.0, -29.2), (2.4, 0.72), 6.0, 4.575),
+        ("old_senate_center_floor_scuff", "Old Senate Chamber", (28.0, 30.0), (3.0, 0.98), -6.0, 4.575),
+        ("old_senate_east_floor_scuff", "Old Senate Chamber", (35.2, 30.6), (2.0, 0.66), 4.0, 4.575),
+        ("old_senate_west_floor_scuff", "Old Senate Chamber", (20.8, 29.4), (2.0, 0.66), -4.0, 4.575),
+        ("house_rostrum_floor_scuff", "House Chamber public well", (0.0, -55.2), (4.8, 0.74), 0.0, 4.642),
+        ("house_well_left_floor_scuff", "House Chamber public well", (-7.8, -53.8), (2.0, 0.58), -8.0, 4.642),
+        ("house_well_right_floor_scuff", "House Chamber public well", (7.8, -53.8), (2.0, 0.58), 8.0, 4.642),
+        ("senate_presiding_center_floor_scuff", "Senate presiding-officer public well", (0.0, 83.0), (3.6, 0.70), 0.0, 4.642),
+        ("senate_presiding_left_floor_scuff", "Senate presiding-officer public well", (-5.4, 82.2), (1.7, 0.52), 5.0, 4.642),
+        ("senate_presiding_right_floor_scuff", "Senate presiding-officer public well", (5.4, 82.2), (1.7, 0.52), -5.0, 4.642),
+        ("east_public_circulation_north_floor_scuff", "East public approach / visitor circulation", (62.0, 22.0), (1.2, 3.0), 0.0, 4.548),
+        ("east_public_circulation_south_floor_scuff", "East public approach / visitor circulation", (62.0, -22.0), (1.2, 3.0), 0.0, 4.548),
+        ("west_public_circulation_north_floor_scuff", "West terrace public orientation marker", (-62.0, 22.0), (1.2, 3.0), 0.0, 4.548),
+        ("west_public_circulation_south_floor_scuff", "West terrace public orientation marker", (-62.0, -22.0), (1.2, 3.0), 0.0, 4.548),
+        ("house_gallery_left_floor_scuff", "House galleries", (-18.0, -100.0), (3.2, 0.46), 0.0, 4.992),
+        ("house_gallery_right_floor_scuff", "House galleries", (18.0, -100.0), (3.2, 0.46), 0.0, 4.992),
+        ("senate_gallery_left_floor_scuff", "Senate galleries", (-15.0, 97.5), (2.7, 0.42), 0.0, 4.992),
+        ("senate_gallery_right_floor_scuff", "Senate galleries", (15.0, 97.5), (2.7, 0.42), 0.0, 4.992),
+    ]
+    for name, area, center, size, angle_degrees, z in scuff_specs:
+        obj.add_oriented_box(center, size, 0.012, z, math.radians(angle_degrees), name, "FloorWear")
+        add_public_floor_detail_record(records, name, "floor_wear_scuff_patch", area, (center[0], center[1], z + 0.006), size)
 
     add_public_room_shape_details(obj, labels, records)
     add_label(labels, "Public floor borders, thresholds, and marble tile joints - schematic", 18.0, 0.0, 5.2, "public_circulation_detail")

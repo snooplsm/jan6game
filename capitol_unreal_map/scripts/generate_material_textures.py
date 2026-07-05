@@ -102,6 +102,7 @@ MATERIAL_TEXTURE_BINDINGS = {
     "BrassRail": "brass",
     "RotundaFloor": "rotunda_floor",
     "RotundaWall": "rotunda_wall",
+    "FloorWear": "step_stone",
     "HouseSeat": "house_blue_fabric",
     "HouseDesk": "polished_wood",
     "SenateDesk": "polished_wood",

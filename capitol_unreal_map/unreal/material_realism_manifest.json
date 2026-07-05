@@ -285,6 +285,18 @@
     "specular": 0.34,
     "note": "Rotunda floor stone"
   },
+  "FloorWear": {
+    "base_color": [
+      0.36,
+      0.34,
+      0.3
+    ],
+    "roughness": 0.92,
+    "metallic": 0.0,
+    "specular": 0.16,
+    "opacity": 0.42,
+    "note": "Transparent public floor wear and scuff overlay"
+  },
   "RotundaWall": {
     "base_color": [
       0.84,

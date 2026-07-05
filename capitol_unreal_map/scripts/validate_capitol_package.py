@@ -655,8 +655,11 @@ REQUIRED_ROTUNDA_DETAIL_KINDS = {
     "perimeter_column",
     "perimeter_column_base",
     "perimeter_column_capital",
+    "column_fluting_groove",
     "upper_coffer_panel",
     "public_arch_portal",
+    "arch_spandrel_inlay",
+    "arch_keystone_block",
     "upper_balustrade",
     "upper_balustrade_post",
     "oculus_trim_ring",
@@ -679,6 +682,8 @@ REQUIRED_CEILING_DETAIL_KINDS = {
     "coffer_panel",
     "ceiling_medallion",
     "light_canopy",
+    "light_fixture_trim_ring",
+    "light_fixture_glass_dome",
     "ceiling_vent_grille",
     "ceiling_material_variation_panel",
 }
@@ -689,6 +694,8 @@ REQUIRED_FLOOR_DETAIL_KINDS = {
     "carpet_border_strip",
     "public_threshold_slab",
     "floor_medallion",
+    "floor_wear_band",
+    "floor_wear_scuff_patch",
     "public_room_outline_inlay",
     "public_room_axis_inlay",
     "public_column_footprint_marker",
@@ -1757,8 +1764,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     rotunda_detail_kinds = {detail.get("kind") for detail in rotunda_details}
     summary["rotunda_details"] = len(rotunda_details)
     summary["rotunda_detail_kinds"] = len(rotunda_detail_kinds)
-    if len(rotunda_details) < 150:
-        error(errors, f"expected at least 150 public Rotunda detail records, got {len(rotunda_details)}")
+    if len(rotunda_details) < 220:
+        error(errors, f"expected at least 220 public Rotunda detail records, got {len(rotunda_details)}")
     missing_rotunda_kinds = sorted(REQUIRED_ROTUNDA_DETAIL_KINDS - rotunda_detail_kinds)
     if missing_rotunda_kinds:
         error(errors, f"missing public Rotunda detail kinds: {', '.join(missing_rotunda_kinds)}")
@@ -1770,10 +1777,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public Rotunda column-base records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "perimeter_column_capital"]) < 16:
         error(errors, "expected at least 16 public Rotunda column-capital records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "column_fluting_groove"]) < 64:
+        error(errors, "expected at least 64 public Rotunda column fluting groove records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "upper_coffer_panel"]) < 32:
         error(errors, "expected at least 32 public Rotunda upper coffer panel records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "public_arch_portal"]) < 4:
         error(errors, "expected at least 4 public Rotunda arch portal records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "arch_spandrel_inlay"]) < 8:
+        error(errors, "expected at least 8 public Rotunda arch spandrel inlay records")
+    if len([detail for detail in rotunda_details if detail.get("kind") == "arch_keystone_block"]) < 4:
+        error(errors, "expected at least 4 public Rotunda arch keystone block records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "upper_balustrade_post"]) < 32:
         error(errors, "expected at least 32 public Rotunda upper balustrade post records")
     if len([detail for detail in rotunda_details if detail.get("kind") == "oculus_trim_ring"]) < 1:
@@ -1799,8 +1812,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ceiling_detail_kinds = {detail.get("kind") for detail in ceiling_details}
     summary["ceiling_details"] = len(ceiling_details)
     summary["ceiling_detail_kinds"] = len(ceiling_detail_kinds)
-    if len(ceiling_details) < 363:
-        error(errors, f"expected at least 363 public ceiling detail records, got {len(ceiling_details)}")
+    if len(ceiling_details) < 425:
+        error(errors, f"expected at least 425 public ceiling detail records, got {len(ceiling_details)}")
     missing_ceiling_kinds = sorted(REQUIRED_CEILING_DETAIL_KINDS - ceiling_detail_kinds)
     if missing_ceiling_kinds:
         error(errors, f"missing public ceiling detail kinds: {', '.join(missing_ceiling_kinds)}")
@@ -1814,6 +1827,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 30 public ceiling medallion records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "light_canopy"]) < 30:
         error(errors, "expected at least 30 public light canopy records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "light_fixture_trim_ring"]) < 30:
+        error(errors, "expected at least 30 public light fixture trim ring records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "light_fixture_glass_dome"]) < 30:
+        error(errors, "expected at least 30 public light fixture glass dome records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_vent_grille"]) < 40:
         error(errors, "expected at least 40 public ceiling vent grille records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_material_variation_panel"]) < 40:
@@ -1835,8 +1852,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     floor_detail_kinds = {detail.get("kind") for detail in floor_details}
     summary["floor_details"] = len(floor_details)
     summary["floor_detail_kinds"] = len(floor_detail_kinds)
-    if len(floor_details) < 220:
-        error(errors, f"expected at least 220 public floor detail records, got {len(floor_details)}")
+    if len(floor_details) < 250:
+        error(errors, f"expected at least 250 public floor detail records, got {len(floor_details)}")
     missing_floor_kinds = sorted(REQUIRED_FLOOR_DETAIL_KINDS - floor_detail_kinds)
     if missing_floor_kinds:
         error(errors, f"missing public floor detail kinds: {', '.join(missing_floor_kinds)}")
@@ -1850,6 +1867,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public threshold slab records")
     if len([detail for detail in floor_details if detail.get("kind") == "floor_medallion"]) < 10:
         error(errors, "expected at least 10 public floor medallion records")
+    if len([detail for detail in floor_details if detail.get("kind") == "floor_wear_band"]) < 10:
+        error(errors, "expected at least 10 public floor wear band records")
+    if len([detail for detail in floor_details if detail.get("kind") == "floor_wear_scuff_patch"]) < 24:
+        error(errors, "expected at least 24 public floor wear scuff patch records")
     if len([detail for detail in floor_details if detail.get("kind") == "public_room_outline_inlay"]) < 7:
         error(errors, "expected at least 7 public room outline inlay records")
     if len([detail for detail in floor_details if detail.get("kind") == "public_room_axis_inlay"]) < 10:
