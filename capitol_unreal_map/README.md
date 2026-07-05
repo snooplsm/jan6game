@@ -146,6 +146,8 @@ Then open:
 http://127.0.0.1:8765/viewer.html
 ```
 
+The viewer reads `generated/data/material_texture_manifest.json` and can preview the generated basecolor texture maps on the OBJ geometry. For browser performance, the full 4096px production maps are downsampled to 1024px WebGL preview textures at load time; Unreal still imports the original 4K basecolor, normal, and roughness maps.
+
 Interior-only quick link:
 
 ```text
@@ -232,6 +234,7 @@ The viewer can toggle:
 - Capitol visual details, facade details, and public approach furniture
 - public interior schematic
 - gameplay item props
+- basecolor texture preview
 - labels
 
 Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, public interior, interior-only cutaway, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, top-down chamber inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.

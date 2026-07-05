@@ -279,6 +279,7 @@
       <label><input type="checkbox" data-mesh="capitol_landmark_visual_details" checked /> Capitol visual details</label>
       <label><input type="checkbox" data-mesh="capitol_public_interior_schematic" checked /> Public interior schematic</label>
       <label><input type="checkbox" data-mesh="capitol_gameplay_items" checked /> Gameplay item props</label>
+      <label><input type="checkbox" id="texturesToggle" checked /> Basecolor texture preview</label>
       <label><input type="checkbox" id="labelsToggle" checked /> Labels</label>
     </div>
 
@@ -331,11 +332,16 @@
       }
     ];
 
+    const VIEWER_TEXTURE_MAX_SIZE = 1024;
     const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "wall_finish_detail", "floor_detail", "ceiling_detail"]);
 
     const state = {
       meshes: [],
       materials: new Map(),
+      materialTextureManifest: null,
+      textureCache: new Map(),
+      texturesEnabled: true,
+      textureStats: { loaded: 0, total: 0 },
       labels: [],
       labelsVisible: true,
       labelQuery: "",
@@ -355,12 +361,17 @@
       attribute vec3 aPosition;
       attribute vec3 aNormal;
       attribute vec3 aColor;
+      attribute vec2 aTexCoord;
       uniform mat4 uViewProj;
       varying vec3 vColor;
+      varying vec2 vTexCoord;
+      varying float vLit;
       void main() {
         vec3 lightDir = normalize(vec3(0.35, 0.28, 0.89));
         float lit = max(dot(normalize(aNormal), lightDir), 0.0);
-        vColor = aColor * (0.42 + 0.58 * lit);
+        vLit = 0.42 + 0.58 * lit;
+        vColor = aColor;
+        vTexCoord = aTexCoord;
         gl_Position = uViewProj * vec4(aPosition, 1.0);
       }
     `;
@@ -368,8 +379,13 @@
     const fragmentShaderSource = `
       precision mediump float;
       varying vec3 vColor;
+      varying vec2 vTexCoord;
+      varying float vLit;
+      uniform sampler2D uTexture;
+      uniform bool uUseTexture;
       void main() {
-        gl_FragColor = vec4(vColor, 1.0);
+        vec3 base = uUseTexture ? texture2D(uTexture, fract(vTexCoord)).rgb : vColor;
+        gl_FragColor = vec4(base * vLit, 1.0);
       }
     `;
 
@@ -377,10 +393,13 @@
     const attribs = {
       position: gl.getAttribLocation(program, "aPosition"),
       normal: gl.getAttribLocation(program, "aNormal"),
-      color: gl.getAttribLocation(program, "aColor")
+      color: gl.getAttribLocation(program, "aColor"),
+      texCoord: gl.getAttribLocation(program, "aTexCoord")
     };
     const uniforms = {
-      viewProj: gl.getUniformLocation(program, "uViewProj")
+      viewProj: gl.getUniformLocation(program, "uViewProj"),
+      texture: gl.getUniformLocation(program, "uTexture"),
+      useTexture: gl.getUniformLocation(program, "uUseTexture")
     };
 
     gl.enable(gl.DEPTH_TEST);
@@ -402,6 +421,14 @@
     document.getElementById("labelsToggle").addEventListener("change", (event) => {
       state.labelsVisible = event.target.checked;
       labelLayer.style.display = state.labelsVisible ? "block" : "none";
+    });
+
+    document.getElementById("texturesToggle").addEventListener("change", (event) => {
+      state.texturesEnabled = event.target.checked;
+      statusEl.textContent = state.texturesEnabled
+        ? "Basecolor texture preview enabled."
+        : "Basecolor texture preview disabled; showing MTL fallback colors.";
+      updateStats();
     });
 
     document.getElementById("presetOverview").onclick = () => setCamera(0.72, 0.72, 180000, [0, 0, 2200]);
@@ -508,7 +535,8 @@
     async function boot() {
       try {
         statusEl.textContent = "Loading materials...";
-        state.materials = parseMtl(await fetchText("generated/meshes/capitol_materials.mtl"));
+        state.materialTextureManifest = await fetchJson("generated/data/material_texture_manifest.json");
+        state.materials = parseMtl(await fetchText("generated/meshes/capitol_materials.mtl"), state.materialTextureManifest);
 
         for (const config of meshConfigs) {
           statusEl.textContent = `Loading ${config.id}...`;
@@ -525,6 +553,10 @@
         updateStats();
         statusEl.textContent = "Loaded. Use the presets or orbit the scene.";
         applyHashRoute();
+        loadViewerTextures(state.materialTextureManifest, state.materials).catch((error) => {
+          console.warn(error);
+          statusEl.textContent = `Texture preview load warning: ${error.message}`;
+        });
       } catch (error) {
         console.error(error);
         statusEl.textContent = `Failed to load assets: ${error.message}`;
@@ -541,19 +573,99 @@
       return JSON.parse(await fetchText(url));
     }
 
-    function parseMtl(text) {
+    async function loadViewerTextures(textureManifest, materials) {
+      const textureSets = new Set();
+      for (const material of materials.values()) {
+        if (material.textureSet) textureSets.add(material.textureSet);
+      }
+      const setNames = Array.from(textureSets).filter((setName) => textureManifest?.sets?.[setName]?.basecolor);
+      state.textureStats = { loaded: 0, total: setNames.length };
+      updateStats();
+
+      for (const setName of setNames) {
+        if (state.textureCache.has(setName)) continue;
+        const textureSet = textureManifest.sets[setName];
+        statusEl.textContent = `Loading texture preview ${state.textureStats.loaded + 1}/${state.textureStats.total}: ${setName}`;
+        try {
+          const image = await loadImage(textureSet.basecolor);
+          state.textureCache.set(setName, createViewerTexture(image));
+          state.textureStats.loaded += 1;
+          updateStats();
+        } catch (error) {
+          console.warn(`Failed to load texture preview ${setName}`, error);
+        }
+      }
+
+      statusEl.textContent = `Loaded. Texture previews ready: ${state.textureStats.loaded}/${state.textureStats.total}.`;
+    }
+
+    function loadImage(url) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error(`${url}: image load failed`));
+        image.src = url;
+      });
+    }
+
+    function createViewerTexture(image) {
+      const texture = gl.createTexture();
+      const inputWidth = image.naturalWidth || image.width;
+      const inputHeight = image.naturalHeight || image.height;
+      const width = viewerTextureDimension(inputWidth);
+      const height = viewerTextureDimension(inputHeight);
+      const source = document.createElement("canvas");
+      source.width = width;
+      source.height = height;
+      const ctx = source.getContext("2d", { alpha: false });
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(image, 0, 0, width, height);
+
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, source);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.generateMipmap(gl.TEXTURE_2D);
+
+      const anisotropy = gl.getExtension("EXT_texture_filter_anisotropic")
+        || gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic")
+        || gl.getExtension("MOZ_EXT_texture_filter_anisotropic");
+      if (anisotropy) {
+        const max = gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+        gl.texParameterf(gl.TEXTURE_2D, anisotropy.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, max));
+      }
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      return texture;
+    }
+
+    function viewerTextureDimension(value) {
+      const capped = Math.min(Math.max(1, value), VIEWER_TEXTURE_MAX_SIZE);
+      return 2 ** Math.floor(Math.log2(capped));
+    }
+
+    function parseMtl(text, textureManifest) {
       const materials = new Map();
       let current = "Default";
-      materials.set(current, [0.72, 0.72, 0.72]);
+      materials.set(current, { color: [0.72, 0.72, 0.72], textureSet: null });
       for (const raw of text.split(/\r?\n/)) {
         const line = raw.trim();
         if (!line || line.startsWith("#")) continue;
         const parts = line.split(/\s+/);
         if (parts[0] === "newmtl") {
           current = parts.slice(1).join(" ");
-          materials.set(current, [0.72, 0.72, 0.72]);
+          materials.set(current, {
+            color: [0.72, 0.72, 0.72],
+            textureSet: textureManifest?.materials?.[current] || null
+          });
         } else if (parts[0] === "Kd" && parts.length >= 4) {
-          materials.set(current, [Number(parts[1]), Number(parts[2]), Number(parts[3])]);
+          const material = materials.get(current) || { color: [0.72, 0.72, 0.72], textureSet: null };
+          material.color = [Number(parts[1]), Number(parts[2]), Number(parts[3])];
+          materials.set(current, material);
         }
       }
       return materials;
@@ -561,11 +673,27 @@
 
     function parseObj(text, materials) {
       const sourceVertices = [[0, 0, 0]];
-      const positions = [];
-      const normals = [];
-      const colors = [];
+      const sourceTexCoords = [[0, 0]];
+      const batches = new Map();
       let currentMaterial = "Default";
       let triangleCount = 0;
+
+      const getBatch = (materialName) => {
+        if (!batches.has(materialName)) {
+          const material = materials.get(materialName) || materials.get("Default") || { color: [0.72, 0.72, 0.72], textureSet: null };
+          batches.set(materialName, {
+            materialName,
+            textureSet: material.textureSet,
+            color: material.color,
+            positions: [],
+            normals: [],
+            colors: [],
+            texCoords: [],
+            triangleCount: 0
+          });
+        }
+        return batches.get(materialName);
+      };
 
       for (const raw of text.split(/\r?\n/)) {
         const line = raw.trim();
@@ -573,40 +701,56 @@
         const parts = line.split(/\s+/);
         if (parts[0] === "v") {
           sourceVertices.push([Number(parts[1]), Number(parts[2]), Number(parts[3])]);
+        } else if (parts[0] === "vt") {
+          sourceTexCoords.push([Number(parts[1]), Number(parts[2])]);
         } else if (parts[0] === "usemtl") {
           currentMaterial = parts.slice(1).join(" ");
         } else if (parts[0] === "f" && parts.length >= 4) {
-          const indexes = parts.slice(1).map((token) => {
-            const rawIndex = Number(token.split("/")[0]);
-            return rawIndex < 0 ? sourceVertices.length + rawIndex : rawIndex;
+          const refs = parts.slice(1).map((token) => {
+            const [rawVertex, rawTexCoord] = token.split("/");
+            const vertexIndex = Number(rawVertex);
+            const texCoordIndex = rawTexCoord ? Number(rawTexCoord) : 0;
+            return {
+              vertex: vertexIndex < 0 ? sourceVertices.length + vertexIndex : vertexIndex,
+              texCoord: texCoordIndex < 0 ? sourceTexCoords.length + texCoordIndex : texCoordIndex
+            };
           });
-          for (let i = 1; i < indexes.length - 1; i++) {
-            const a = sourceVertices[indexes[0]];
-            const b = sourceVertices[indexes[i]];
-            const c = sourceVertices[indexes[i + 1]];
+          const batch = getBatch(currentMaterial);
+          for (let i = 1; i < refs.length - 1; i++) {
+            const a = sourceVertices[refs[0].vertex];
+            const b = sourceVertices[refs[i].vertex];
+            const c = sourceVertices[refs[i + 1].vertex];
             if (!a || !b || !c) continue;
             const normal = triangleNormal(a, b, c);
-            const color = materials.get(currentMaterial) || materials.get("Default") || [0.72, 0.72, 0.72];
-            pushVertex(positions, normals, colors, a, normal, color);
-            pushVertex(positions, normals, colors, b, normal, color);
-            pushVertex(positions, normals, colors, c, normal, color);
+            pushVertex(batch, a, normal, sourceTexCoords[refs[0].texCoord] || sourceTexCoords[0]);
+            pushVertex(batch, b, normal, sourceTexCoords[refs[i].texCoord] || sourceTexCoords[0]);
+            pushVertex(batch, c, normal, sourceTexCoords[refs[i + 1].texCoord] || sourceTexCoords[0]);
+            batch.triangleCount += 1;
             triangleCount += 1;
           }
         }
       }
 
       return {
-        positions: new Float32Array(positions),
-        normals: new Float32Array(normals),
-        colors: new Float32Array(colors),
+        batches: Array.from(batches.values()).map((batch) => ({
+          materialName: batch.materialName,
+          textureSet: batch.textureSet,
+          color: batch.color,
+          positions: new Float32Array(batch.positions),
+          normals: new Float32Array(batch.normals),
+          colors: new Float32Array(batch.colors),
+          texCoords: new Float32Array(batch.texCoords),
+          triangleCount: batch.triangleCount
+        })),
         triangleCount
       };
     }
 
-    function pushVertex(positions, normals, colors, position, normal, color) {
-      positions.push(position[0], position[1], position[2]);
-      normals.push(normal[0], normal[1], normal[2]);
-      colors.push(color[0], color[1], color[2]);
+    function pushVertex(batch, position, normal, texCoord) {
+      batch.positions.push(position[0], position[1], position[2]);
+      batch.normals.push(normal[0], normal[1], normal[2]);
+      batch.colors.push(batch.color[0], batch.color[1], batch.color[2]);
+      batch.texCoords.push(texCoord[0], texCoord[1]);
     }
 
     function triangleNormal(a, b, c) {
@@ -622,25 +766,40 @@
     }
 
     function makeGpuMesh(id, parsed, visible) {
-      const positionBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, parsed.positions, gl.STATIC_DRAW);
+      const batches = parsed.batches.map((batch) => {
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, batch.positions, gl.STATIC_DRAW);
 
-      const normalBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, parsed.normals, gl.STATIC_DRAW);
+        const normalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, batch.normals, gl.STATIC_DRAW);
 
-      const colorBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, parsed.colors, gl.STATIC_DRAW);
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, batch.colors, gl.STATIC_DRAW);
+
+        const texCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, batch.texCoords, gl.STATIC_DRAW);
+
+        return {
+          materialName: batch.materialName,
+          textureSet: batch.textureSet,
+          positionBuffer,
+          normalBuffer,
+          colorBuffer,
+          texCoordBuffer,
+          vertexCount: batch.positions.length / 3,
+          triangleCount: batch.triangleCount
+        };
+      });
 
       return {
         id,
         visible,
-        positionBuffer,
-        normalBuffer,
-        colorBuffer,
-        vertexCount: parsed.positions.length / 3,
+        batches,
+        vertexCount: batches.reduce((sum, batch) => sum + batch.vertexCount, 0),
         triangleCount: parsed.triangleCount
       };
     }
@@ -774,6 +933,7 @@
       statsEl.innerHTML = `
         <span>Meshes</span><strong>${state.meshes.length}</strong>
         <span>Triangles</span><strong>${triangles.toLocaleString()}</strong>
+        <span>Texture previews</span><strong>${state.textureStats.loaded.toLocaleString()}/${state.textureStats.total.toLocaleString()}</strong>
         <span>Labels</span><strong>${state.labels.length.toLocaleString()}</strong>
       `;
     }
@@ -802,23 +962,35 @@
 
       gl.useProgram(program);
       gl.uniformMatrix4fv(uniforms.viewProj, false, state.viewProj);
+      gl.uniform1i(uniforms.texture, 0);
 
       for (const mesh of state.meshes) {
         if (!mesh.visible) continue;
-        bindAttribute(attribs.position, mesh.positionBuffer);
-        bindAttribute(attribs.normal, mesh.normalBuffer);
-        bindAttribute(attribs.color, mesh.colorBuffer);
-        gl.drawArrays(gl.TRIANGLES, 0, mesh.vertexCount);
+        for (const batch of mesh.batches) {
+          const texture = state.texturesEnabled && batch.textureSet
+            ? state.textureCache.get(batch.textureSet)
+            : null;
+          gl.uniform1i(uniforms.useTexture, texture ? 1 : 0);
+          if (texture) {
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+          }
+          bindAttribute(attribs.position, batch.positionBuffer, 3);
+          bindAttribute(attribs.normal, batch.normalBuffer, 3);
+          bindAttribute(attribs.color, batch.colorBuffer, 3);
+          bindAttribute(attribs.texCoord, batch.texCoordBuffer, 2);
+          gl.drawArrays(gl.TRIANGLES, 0, batch.vertexCount);
+        }
       }
 
       updateLabels();
       requestAnimationFrame(draw);
     }
 
-    function bindAttribute(location, buffer) {
+    function bindAttribute(location, buffer, size) {
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.enableVertexAttribArray(location);
-      gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
     }
 
     function updateLabels() {
