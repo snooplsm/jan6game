@@ -104,7 +104,7 @@ The current validation report counts 1,941,530 generated texture coordinates acr
 
 The current texture validation report counts 43 generated texture sets, 19 procedural texture styles, 129 PNG texture files, 75 material bindings, and a minimum generated texture dimension of 4096px.
 
-The current Unreal importer validation report counts 135 report-key markers, 24 material-setup markers, and 38 environment/lighting markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, material texture feature reporting, and capped public accent-light spawning from visible fixture-detail records.
+The current Unreal importer validation report counts 146 report-key markers, 24 material-setup markers, 38 environment/lighting markers, and 24 inspection-workflow markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
 
 The current generated build contains:
 
@@ -309,7 +309,7 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 7. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json`, configures imported basecolor/normal/roughness texture assets with kind-specific sRGB, compression, texture-group, mip, filter, and sampler settings, wires generated texture samples from `generated/data/material_texture_manifest.json`, sets two-sided/tangent-space material flags for generated inspection meshes, adds editor comments to generated material graphs, and applies those materials to matching imported material slots.
 8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors with collision/navigation settings, guarded Unreal environment helpers, interior lights, capped public accent lights, a capped set of exterior streetlight actors, labels, PlayerStart, a guarded DefaultPawn playtest helper, camera viewpoints, first-person `BlockingVolume` collision proxies under `CapitolMap/Collision`, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
 9. The script saves the current level when the Unreal editor API allows it.
-10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, material texture bindings/features, material graph features, environment setup, first-person collision/navigation/playtest setup, collision proxy setup, interior-inspection visibility tags, and metadata counts.
+10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, material texture bindings/features, material graph features, environment setup, first-person collision/navigation/playtest setup, collision proxy setup, interior-inspection visibility tags, public schematic inspection workflows, and metadata counts.
 
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
 
@@ -318,6 +318,8 @@ For Unreal full-interior inspection, use `CapitolMap_Camera_Interior_Cutaway` an
 For Unreal full-interior top-down inspection, use `CapitolMap_Camera_PublicInterior_TopDown` with the same `CapitolMap_HideForInteriorCutaway` hidden actors.
 
 For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide actors in `CapitolMap/Meshes/HideForInteriorTopDown` or tagged `CapitolMap_HideForInteriorTopDown`. The public interior mesh is foldered under `CapitolMap/Meshes/InteriorTopDownVisible` and tagged `CapitolMap_VisibleForInteriorTopDown`. For generic public seating/role overlays, use `CapitolMap_Camera_ChamberRoleZones_TopDown`; for gallery inspection use `CapitolMap_Camera_HouseGallery_TopDown` or `CapitolMap_Camera_SenateGallery_TopDown`.
+
+The Unreal import report also writes an `inspection_workflows` table that maps the browser inspection routes (`#interior-only`, `#interior-plan`, `#chambers-top`, `#house-plan`, `#senate-plan`, `#role-zones`, `#house-gallery`, and `#senate-gallery`) to the matching Unreal camera labels, visible mesh, label filter, and hide/visible actor tags. These workflows are public schematic and non-person-specific.
 
 `Config/DefaultEngine.ini` points both `EditorStartupMap` and `GameDefaultMap` at `/Game/CapitolMap/Maps/CapitolMap_Level`; run the import script once before relying on those startup-map defaults in a fresh checkout.
 
