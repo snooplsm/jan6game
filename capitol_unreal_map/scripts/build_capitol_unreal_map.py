@@ -10370,6 +10370,77 @@ def add_public_interior_floor_details(
     add_label(labels, "Public floor borders, thresholds, and marble tile joints - schematic", 18.0, 0.0, 5.2, "public_circulation_detail")
 
 
+def add_public_light_pool_floor_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+    light_fixtures: list[dict[str, Any]],
+) -> None:
+    floor_z_by_area = {
+        "Rotunda": 4.744,
+        "House Chamber": 4.666,
+        "Senate Chamber": 4.666,
+        "House galleries": 5.012,
+        "Senate galleries": 5.012,
+        "National Statuary Hall": 4.585,
+        "Old Senate Chamber": 4.585,
+        "Generic office/support zone": 4.685,
+        "West terrace public orientation marker": 4.565,
+        "East public approach / visitor circulation": 4.565,
+        "Rotunda / National Statuary Hall": 4.575,
+        "Rotunda / Old Senate Chamber": 4.575,
+        "Rotunda / House Chamber orientation": 4.615,
+        "Rotunda / Senate Chamber orientation": 4.615,
+        "House Chamber / public gallery": 4.815,
+        "Senate Chamber / public gallery": 4.815,
+    }
+    size_by_type = {
+        "chandelier": (6.8, 6.8),
+        "pendant": (3.2, 2.6),
+        "sconce": (1.85, 1.15),
+    }
+    for index, fixture in enumerate(light_fixtures, start=1):
+        center = fixture.get("center_m")
+        area = str(fixture.get("location", "Public interior"))
+        fixture_type = str(fixture.get("type", "pendant"))
+        if not isinstance(center, list) or len(center) < 2:
+            continue
+        x = float(center[0])
+        y = float(center[1])
+        z = floor_z_by_area.get(area, 4.64)
+        base_size = size_by_type.get(fixture_type, (2.6, 2.0))
+        radius = float(fixture.get("attenuation_radius_m", 5.0))
+        scale = max(0.70, min(1.35, radius / 7.0))
+        size = (base_size[0] * scale, base_size[1] * scale)
+        name = f"{fixture['name']}_public_floor_light_pool"
+        ellipse_points = [
+            (
+                x + size[0] * 0.5 * math.cos(math.tau * point_index / 32),
+                y + size[1] * 0.5 * math.sin(math.tau * point_index / 32),
+            )
+            for point_index in range(32)
+        ]
+        obj.add_flat_polygon(ellipse_points, z, name, "WarmLightGlass")
+        add_public_floor_detail_record(
+            records,
+            name,
+            "public_light_pool_decal",
+            area,
+            (x, y, z + 0.006),
+            size,
+        )
+        records[-1].update(
+            {
+                "fixture_name": fixture.get("name"),
+                "fixture_type": fixture_type,
+                "light_intensity": fixture.get("intensity"),
+                "attenuation_radius_m": fixture.get("attenuation_radius_m"),
+                "public_accuracy": "schematic_public_interior_light_pool",
+            }
+        )
+    add_label(labels, "Warm fixture light-pool decals on public floors - schematic", 4.0, 6.0, 5.35, "floor_detail")
+
+
 def add_surface_aging_detail_record(
     records: list[dict[str, Any]],
     name: str,
@@ -13726,6 +13797,7 @@ def build_interior() -> dict[str, Any]:
     add_public_interior_wall_finish_details(obj, labels, wall_finish_details)
     add_public_interior_ceiling_details(obj, labels, ceiling_details)
     add_public_interior_floor_details(obj, labels, floor_details)
+    add_public_light_pool_floor_details(obj, labels, floor_details, light_fixtures)
     add_public_interior_surface_aging_details(obj, labels, surface_aging_details)
     add_label(labels, "Wainscot panels, chair rails, and picture rails - schematic", 0.0, -6.5, 7.6, "wall_treatment")
 

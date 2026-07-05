@@ -1292,6 +1292,7 @@ REQUIRED_FLOOR_DETAIL_KINDS = {
     "public_room_outline_inlay",
     "public_room_axis_inlay",
     "public_column_footprint_marker",
+    "public_light_pool_decal",
 }
 
 REQUIRED_SURFACE_AGING_DETAIL_KINDS = {
@@ -3393,8 +3394,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     floor_detail_kinds = {detail.get("kind") for detail in floor_details}
     summary["floor_details"] = len(floor_details)
     summary["floor_detail_kinds"] = len(floor_detail_kinds)
-    if len(floor_details) < 347:
-        error(errors, f"expected at least 347 public floor detail records, got {len(floor_details)}")
+    if len(floor_details) < 410:
+        error(errors, f"expected at least 410 public floor detail records, got {len(floor_details)}")
     missing_floor_kinds = sorted(REQUIRED_FLOOR_DETAIL_KINDS - floor_detail_kinds)
     if missing_floor_kinds:
         error(errors, f"missing public floor detail kinds: {', '.join(missing_floor_kinds)}")
@@ -3424,6 +3425,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 10 public room axis inlay records")
     if len([detail for detail in floor_details if detail.get("kind") == "public_column_footprint_marker"]) < 44:
         error(errors, "expected at least 44 public column footprint marker records")
+    if len([detail for detail in floor_details if detail.get("kind") == "public_light_pool_decal"]) < 63:
+        error(errors, "expected at least 63 public light-pool floor decal records")
     for detail in floor_details:
         if not detail.get("area"):
             error(errors, f"floor detail {detail.get('name', '<unknown>')} is missing area")
