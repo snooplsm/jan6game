@@ -109,11 +109,11 @@ The validator checks that:
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 1,557,376 vertices, 3,484,152 generated texture coordinates, and 1,868,852 triangles across the five OBJ meshes.
+The current validation report counts 1,600,160 vertices, 3,612,504 generated texture coordinates, and 1,937,700 triangles across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 19 procedural texture styles, 10 photoreal-readiness feature markers, 172 PNG texture files, 75 material bindings, and a minimum generated texture dimension of 4096px.
 
-The current Unreal importer validation report counts 232 report-key markers, 27 material-setup markers, 58 environment/lighting markers, 35 inspection-workflow markers, 58 Unreal project config markers, and 264 viewer markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, ambient-occlusion map support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, photoreal preview profile reporting, expanded public PlayerStart coverage, explicit Unreal DefaultPawn input mappings, browser photoreal shader/first-person walk HUD/reset/floor-bound markers, public exterior collision proxy coverage, street-level surrounding-building inspection labels, surrounding-building rooftop inspection labels, building-height audit labels, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
+The current Unreal importer validation report counts 232 report-key markers, 27 material-setup markers, 58 environment/lighting markers, 40 inspection-workflow markers, 58 Unreal project config markers, and 264 viewer markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, ambient-occlusion map support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, photoreal preview profile reporting, expanded public PlayerStart coverage, explicit Unreal DefaultPawn input mappings, browser photoreal shader/first-person walk HUD/reset/floor-bound markers, public exterior collision proxy coverage, street-level surrounding-building inspection labels, surrounding-building rooftop inspection labels, Capitol roofline/facade close-up inspection labels, building-height audit labels, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
 
 The current generated build contains:
 
@@ -386,9 +386,11 @@ For Unreal first-person whole-map inspection, use `CapitolMap_PlayerStart_WestFr
 
 For Unreal first-person public-interior inspection, use `CapitolMap_PlayerStart_PublicInteriorWalk`, `CapitolMap_PlayerStart_Rotunda`, `CapitolMap_PlayerStart_HouseChamber`, `CapitolMap_PlayerStart_SenateChamber`, `CapitolMap_PlayerStart_HouseGallery`, `CapitolMap_PlayerStart_SenateGallery`, `CapitolMap_PlayerStart_HouseOfficeWest`, `CapitolMap_PlayerStart_SenateOfficeEast`, the auto-possessed `CapitolMap_Playtest_DefaultPawn`, or the `CapitolMap_Camera_PublicInteriorWalk` camera marker. `Config/DefaultInput.ini` pins DefaultPawn controls for immediate Play-in-Editor inspection: WASD/arrow movement, mouse look, Q/E or LeftControl/SpaceBar vertical movement, and left/right-stick gamepad movement/look. The importer adds public schematic floor proxies for the Rotunda, chambers, galleries, Statuary Hall, Old Senate Chamber, public approach/orientation zones, and generic office/support zones, plus generic public chamber seating, rostrum/dais, gallery bench, pedestal/display, and support-furniture blocker proxies so immediate playtesting has broad walkable coverage without walking through the densest schematic furniture.
 
+For Unreal Capitol roofline/facade close-up inspection, use `CapitolMap_Camera_CapitolRooflineCloseup`. It maps to the browser `#roof-details` route and focuses `capitol_landmark_visual_details.obj` with `facade_detail` labels.
+
 For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide actors in `CapitolMap/Meshes/HideForInteriorTopDown` or tagged `CapitolMap_HideForInteriorTopDown`. The public interior mesh is foldered under `CapitolMap/Meshes/InteriorTopDownVisible` and tagged `CapitolMap_VisibleForInteriorTopDown`. For generic public seating/role overlays, use `CapitolMap_Camera_ChamberRoleZones_TopDown`; for gallery inspection use `CapitolMap_Camera_HouseGallery_TopDown` or `CapitolMap_Camera_SenateGallery_TopDown`.
 
-The Unreal import report also writes an `inspection_workflows` table that maps the browser inspection routes (`#interior-only`, `#interior-plan`, `#chambers-top`, `#house-plan`, `#senate-plan`, `#role-zones`, `#house-gallery`, and `#senate-gallery`) to the matching Unreal camera labels, visible mesh, label filter, and hide/visible actor tags. These workflows are public schematic and non-person-specific.
+The Unreal import report also writes an `inspection_workflows` table that maps the browser inspection routes (`#interior-only`, `#interior-plan`, `#chambers-top`, `#house-plan`, `#senate-plan`, `#role-zones`, `#house-gallery`, `#senate-gallery`, `#street-level`, `#surrounding-rooftops`, and `#roof-details`) to the matching Unreal camera labels, visible mesh, label filter, and applicable hide/visible actor tags or context mesh. These workflows are public schematic and non-person-specific.
 
 `Config/DefaultEngine.ini` points both `EditorStartupMap` and `GameDefaultMap` at `/Game/CapitolMap/Maps/CapitolMap_Level`; run the import script once before relying on those startup-map defaults in a fresh checkout.
 
@@ -428,6 +430,7 @@ Generated camera viewpoints:
 - `CapitolMap_Camera_WestGrounds`
 - `CapitolMap_Camera_SurroundingStreetLevel`
 - `CapitolMap_Camera_SurroundingRooftops`
+- `CapitolMap_Camera_CapitolRooflineCloseup`
 - `CapitolMap_Camera_Rotunda`
 - `CapitolMap_Camera_HouseChamber_JointSession`
 - `CapitolMap_Camera_SenateChamber`

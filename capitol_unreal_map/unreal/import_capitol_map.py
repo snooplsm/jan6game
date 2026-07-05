@@ -943,6 +943,16 @@ UNREAL_INSPECTION_WORKFLOWS = {
         "public_accuracy": "generic_non_operational_rooftop_visual",
         "person_specific": False,
     },
+    "capitol_roofline_closeup": {
+        "browser_route": "#roof-details",
+        "camera_label": "CapitolMap_Camera_CapitolRooflineCloseup",
+        "visible_mesh": "capitol_landmark_visual_details.obj",
+        "context_mesh": "capitol_exterior_roads_bike_lanes_markers.obj",
+        "label_filter": "facade_detail",
+        "purpose": "Public Capitol roofline, dormer, portico, and facade close-up inspection.",
+        "public_accuracy": "approximate_public_capitol_visual",
+        "person_specific": False,
+    },
 }
 
 MESH_INSPECTION_VISIBILITY = {
@@ -1023,6 +1033,18 @@ DEFAULT_VIEWPOINTS = [
         "location_m": [-492.0, -528.0, 18.0],
         "target_m": [-446.0, -471.0, 2.2],
         "fov": 60.0,
+    },
+    {
+        "label": "CapitolMap_Camera_SurroundingRooftops",
+        "location_m": [430.0, -735.0, 64.0],
+        "target_m": [395.0, -614.0, 12.0],
+        "fov": 54.0,
+    },
+    {
+        "label": "CapitolMap_Camera_CapitolRooflineCloseup",
+        "location_m": [-118.0, -46.0, 33.0],
+        "target_m": [-60.0, -4.0, 16.0],
+        "fov": 42.0,
     },
     {
         "label": "CapitolMap_Camera_Rotunda",

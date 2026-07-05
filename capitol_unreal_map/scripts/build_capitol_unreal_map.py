@@ -241,6 +241,14 @@ VIEWPOINTS = [
         "viewer_note": "Inspect generic non-operational surrounding-building rooftop equipment, skylight, drain, and weathering detail records.",
     },
     {
+        "label": "CapitolMap_Camera_CapitolRooflineCloseup",
+        "location_m": [-118.0, -46.0, 33.0],
+        "target_m": [-60.0, -4.0, 16.0],
+        "fov": 42.0,
+        "category": "public_capitol_roofline",
+        "viewer_note": "Inspect public Capitol roofline, dormer, portico, and facade close-up detail records.",
+    },
+    {
         "label": "CapitolMap_Camera_Rotunda",
         "location_m": [-23.0, -24.0, 7.5],
         "target_m": [0.0, 0.0, 5.0],
