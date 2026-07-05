@@ -997,6 +997,13 @@ REQUIRED_OFFICE_DETAIL_KINDS = {
     "generic_office_keyboard",
     "generic_office_paper_stack",
     "generic_office_task_lamp",
+    "generic_office_partition_panel",
+    "generic_office_partition_top_cap",
+    "generic_office_monitor_stand",
+    "generic_office_desk_cable_grommet",
+    "generic_office_cable_tray",
+    "generic_office_wall_outlet_plate",
+    "generic_office_data_plate",
     "generic_office_chair_back",
     "generic_office_chair_arm_pair",
     "generic_office_chair_swivel_base",
@@ -2385,8 +2392,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     office_detail_kinds = {detail.get("kind") for detail in office_details}
     summary["office_details"] = len(office_details)
     summary["office_detail_kinds"] = len(office_detail_kinds)
-    if len(office_details) < 790:
-        error(errors, f"expected at least 790 public office detail records, got {len(office_details)}")
+    if len(office_details) < 1330:
+        error(errors, f"expected at least 1330 public office detail records, got {len(office_details)}")
     missing_office_kinds = sorted(REQUIRED_OFFICE_DETAIL_KINDS - office_detail_kinds)
     if missing_office_kinds:
         error(errors, f"missing public office detail kinds: {', '.join(missing_office_kinds)}")
@@ -2410,6 +2417,20 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 60 generic office paper-stack records")
     if len([detail for detail in office_details if detail.get("kind") == "generic_office_task_lamp"]) < 60:
         error(errors, "expected at least 60 generic office task-lamp records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_partition_panel"]) < 180:
+        error(errors, "expected at least 180 generic office partition-panel records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_partition_top_cap"]) < 60:
+        error(errors, "expected at least 60 generic office partition top-cap records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_monitor_stand"]) < 60:
+        error(errors, "expected at least 60 generic office monitor-stand records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_desk_cable_grommet"]) < 60:
+        error(errors, "expected at least 60 generic office desk cable-grommet records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_cable_tray"]) < 60:
+        error(errors, "expected at least 60 generic office cable-tray records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_wall_outlet_plate"]) < 60:
+        error(errors, "expected at least 60 generic office wall outlet-plate records")
+    if len([detail for detail in office_details if detail.get("kind") == "generic_office_data_plate"]) < 60:
+        error(errors, "expected at least 60 generic office data-plate records")
     if len([detail for detail in office_details if detail.get("kind") == "generic_office_chair_back"]) < 60:
         error(errors, "expected at least 60 generic office chair-back records")
     if len([detail for detail in office_details if detail.get("kind") == "generic_office_chair_arm_pair"]) < 60:
