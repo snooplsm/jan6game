@@ -2853,8 +2853,10 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ) -> None:
         obj.add_cylinder(center, radius * 1.34, z_base - 0.12, 0.16, f"{prefix}_round_plinth", "ColumnStone", segments=24)
         obj.add_ring(center, radius * 1.24, radius * 0.92, z_base + 0.08, 0.20, f"{prefix}_base_torus", "ColumnStone", segments=24)
+        obj.add_ring(center, radius * 1.16, radius * 0.98, z_base + 0.34, 0.075, f"{prefix}_base_reed_ring", "ColumnStone", segments=24)
         obj.add_ring(center, radius * 1.18, radius * 0.90, z_base + height - 0.32, 0.22, f"{prefix}_capital_torus", "ColumnStone", segments=24)
         obj.add_box(center, (radius * 2.65, radius * 2.65), 0.18, z_base + height - 0.02, f"{prefix}_square_abacus", "ColumnStone")
+        obj.add_box(center, (radius * 2.28, radius * 2.28), 0.075, z_base + height + 0.17, f"{prefix}_abacus_top_bevel", "ColumnStone")
 
         flute_count = 12
         flute_height = max(0.5, height - 1.24)
@@ -2873,6 +2875,16 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 f"{prefix}_flute_shadow_{flute_index + 1:02d}",
                 "StepStone",
             )
+            add_facade_detail(
+                f"{prefix}_flute_groove_{flute_index + 1:02d}",
+                "exterior_column_fluting_groove",
+                (flute_center[0], flute_center[1], z_base + 0.58 + flute_height / 2.0),
+                {
+                    "orientation": orientation,
+                    "angle_degrees": round(math.degrees(angle), 2),
+                    "public_accuracy": "generic_public_column_flute_shadow",
+                },
+            )
 
         add_facade_detail(
             f"{prefix}_column_base",
@@ -2884,6 +2896,18 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             f"{prefix}_column_capital",
             "exterior_column_capital",
             (center[0], center[1], z_base + height - 0.12),
+            {"orientation": orientation, "radius_m": round(radius, 3)},
+        )
+        add_facade_detail(
+            f"{prefix}_column_base_ring_detail",
+            "exterior_column_base_ring_detail",
+            (center[0], center[1], z_base + 0.38),
+            {"orientation": orientation, "radius_m": round(radius, 3)},
+        )
+        add_facade_detail(
+            f"{prefix}_column_capital_abacus_detail",
+            "exterior_column_capital_abacus_detail",
+            (center[0], center[1], z_base + height + 0.21),
             {"orientation": orientation, "radius_m": round(radius, 3)},
         )
         add_facade_detail(
@@ -2912,6 +2936,12 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 center = (value, y)
                 size = (0.42, 0.34)
             obj.add_box(center, size, 0.34, z, f"{prefix}_dentil_{idx:02d}", "ColumnStone")
+            add_facade_detail(
+                f"{prefix}_dentil_block_{idx:02d}",
+                "facade_dentil_block_detail",
+                (center[0], center[1], z + 0.17),
+                {"orientation": orientation, "sequence": idx},
+            )
         if values:
             center = (fixed, sum(values) / len(values), z + 0.17) if orientation == "east_west" else (sum(values) / len(values), fixed, z + 0.17)
             add_facade_detail(f"{prefix}_dentil_course", "facade_dentil_course", center, {"orientation": orientation, "count": len(values)})
@@ -3400,10 +3430,32 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 detail_size = (0.42, 0.16)
             name = f"{prefix}_pediment_relief_block_{idx+1:02d}"
             obj.add_box(detail_center, detail_size, relief_height, z + lift, name, "ColumnStone")
+            rosette_size = (0.115, 0.115) if orientation == "east_west" else (0.115, 0.115)
+            garland_offset = 0.22 if normalized <= 0.0 else -0.22
+            garland_center = (
+                (detail_center[0], detail_center[1] + garland_offset)
+                if orientation == "east_west"
+                else (detail_center[0] + garland_offset, detail_center[1])
+            )
+            garland_size = (0.075, 0.34) if orientation == "east_west" else (0.34, 0.075)
+            obj.add_box(detail_center, rosette_size, 0.050, z + lift + relief_height + 0.020, f"{name}_rosette", "ColumnStone")
+            obj.add_box(garland_center, garland_size, 0.044, z + lift + relief_height * 0.56, f"{name}_garland", "ColumnStone")
             add_facade_detail(
                 name,
                 "pediment_sculptural_relief_block",
                 (detail_center[0], detail_center[1], z + lift + relief_height / 2.0),
+                {"orientation": orientation, "public_accuracy": "generic_public_visual_relief"},
+            )
+            add_facade_detail(
+                f"{name}_rosette",
+                "pediment_rosette_relief_detail",
+                (detail_center[0], detail_center[1], z + lift + relief_height + 0.045),
+                {"orientation": orientation, "public_accuracy": "generic_public_visual_relief"},
+            )
+            add_facade_detail(
+                f"{name}_garland",
+                "pediment_garland_relief_detail",
+                (garland_center[0], garland_center[1], z + lift + relief_height * 0.56 + 0.022),
                 {"orientation": orientation, "public_accuracy": "generic_public_visual_relief"},
             )
 
@@ -3456,6 +3508,25 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 kind,
                 (cx, cy, z + z_offset + height / 2.0),
                 {"orientation": orientation, "span_m": round(layer_span, 3)},
+            )
+
+        panel_count = 10 if span >= 55.0 else 8
+        panel_spacing = span * 0.82 / max(1, panel_count - 1)
+        for panel_index in range(panel_count):
+            offset = -span * 0.41 + panel_index * panel_spacing
+            if orientation == "east_west":
+                panel_center = (cx, cy + offset)
+                panel_size = (0.10, max(1.28, span / panel_count * 0.34))
+            else:
+                panel_center = (cx + offset, cy)
+                panel_size = (max(1.28, span / panel_count * 0.34), 0.10)
+            name = f"{prefix}_frieze_panel_detail_{panel_index + 1:02d}"
+            obj.add_box(panel_center, panel_size, 0.13, z + 0.48, name, "StepStone")
+            add_facade_detail(
+                name,
+                "portico_frieze_panel_detail",
+                (panel_center[0], panel_center[1], z + 0.545),
+                {"orientation": orientation, "public_accuracy": "generic_public_frieze_paneling"},
             )
 
     def add_portico_intercolumn_shadows(
