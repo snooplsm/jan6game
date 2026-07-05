@@ -63,6 +63,58 @@ PLAYTEST_PAWN_ROTATION_DEG = [0.0, 4.0, 0.0]
 NAV_MESH_BOUNDS_LABEL = "CapitolMap_NavMeshBounds_CentralCampus"
 NAV_MESH_BOUNDS_LOCATION_CM = [0.0, 0.0, 2500.0]
 NAV_MESH_BOUNDS_SCALE = [750.0, 750.0, 45.0]
+COLLISION_PROXY_FOLDER = "CapitolMap/Collision"
+FIRST_PERSON_COLLISION_PROXY_TAG = "CapitolMap_FirstPersonCollisionProxy"
+FIRST_PERSON_COLLISION_PROXIES = [
+    {
+        "label": "CapitolMap_Collision_WestFrontPlaza",
+        "location_cm": [-7600.0, 0.0, 42.0],
+        "scale": [48.0, 88.0, 0.22],
+        "purpose": "public west-front plaza and entry approach walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_EastFrontPlaza",
+        "location_cm": [7600.0, 0.0, 42.0],
+        "scale": [48.0, 88.0, 0.22],
+        "purpose": "public east-front plaza and entry approach walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_NorthWingApproach",
+        "location_cm": [0.0, 10100.0, 48.0],
+        "scale": [34.0, 32.0, 0.22],
+        "purpose": "public north wing approach walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_SouthWingApproach",
+        "location_cm": [0.0, -10100.0, 48.0],
+        "scale": [34.0, 32.0, 0.22],
+        "purpose": "public south wing approach walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_RotundaPublicFloor",
+        "location_cm": [0.0, 0.0, 448.0],
+        "scale": [15.5, 15.5, 0.16],
+        "purpose": "public Rotunda floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseChamberPublicFloor",
+        "location_cm": [0.0, -7000.0, 448.0],
+        "scale": [48.0, 32.0, 0.16],
+        "purpose": "public House chamber schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateChamberPublicFloor",
+        "location_cm": [0.0, 7000.0, 448.0],
+        "scale": [38.0, 30.0, 0.16],
+        "purpose": "public Senate chamber schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_PublicConnectorSpine",
+        "location_cm": [0.0, 0.0, 448.0],
+        "scale": [20.0, 92.0, 0.14],
+        "purpose": "public schematic connector spine walkable proxy",
+    },
+]
 ENVIRONMENT_IMPORT_SETUP = {
     "directional_light_actor_class": "DirectionalLight",
     "directional_light_label": "CapitolMap_Sun_DirectionalLight",
@@ -106,6 +158,10 @@ FIRST_PERSON_IMPORT_SETUP = {
     "nav_mesh_bounds_label": NAV_MESH_BOUNDS_LABEL,
     "nav_mesh_bounds_location_cm": NAV_MESH_BOUNDS_LOCATION_CM,
     "nav_mesh_bounds_scale_cm": NAV_MESH_BOUNDS_SCALE,
+    "collision_proxy_actor_class": "BlockingVolume",
+    "collision_proxy_folder": COLLISION_PROXY_FOLDER,
+    "collision_proxy_tag": FIRST_PERSON_COLLISION_PROXY_TAG,
+    "collision_proxy_count": len(FIRST_PERSON_COLLISION_PROXIES),
 }
 
 MESH_FILES = [
@@ -815,6 +871,7 @@ def spawn_scene_setup() -> None:
 
     spawn_playtest_pawn()
     spawn_camera_viewpoints()
+    spawn_first_person_collision_proxies()
     spawn_navigation_bounds()
     spawn_metadata_lights()
 
@@ -1002,6 +1059,34 @@ def spawn_navigation_bounds() -> None:
         volume.set_actor_scale3d(unreal.Vector(*NAV_MESH_BOUNDS_SCALE))
     except Exception as exc:
         log(f"Navigation bounds setup skipped: {exc}")
+
+
+def spawn_first_person_collision_proxies() -> None:
+    """Add simple walkable blocking volumes for first-person playtest stability."""
+    if not hasattr(unreal, "BlockingVolume"):
+        log("First-person collision proxies skipped: BlockingVolume unavailable")
+        return
+    for proxy in FIRST_PERSON_COLLISION_PROXIES:
+        try:
+            volume = unreal.EditorLevelLibrary.spawn_actor_from_class(
+                unreal.BlockingVolume,
+                unreal.Vector(*proxy["location_cm"]),
+                unreal.Rotator(0.0, 0.0, 0.0),
+            )
+            if not volume:
+                continue
+            volume.set_actor_label(proxy["label"])
+            volume.set_folder_path(COLLISION_PROXY_FOLDER)
+            volume.set_actor_scale3d(unreal.Vector(*proxy["scale"]))
+            set_actor_tags(volume, ["CapitolMap_Collision", FIRST_PERSON_COLLISION_PROXY_TAG])
+            try:
+                volume.set_actor_hidden_in_game(True)
+            except Exception:
+                set_property(volume, "hidden", True)
+            component = volume.get_component_by_class(unreal.BrushComponent) if hasattr(unreal, "BrushComponent") else None
+            configure_static_mesh_component(component)
+        except Exception as exc:
+            log(f"First-person collision proxy skipped ({proxy.get('label', '<unknown>')}): {exc}")
 
 
 def spawn_metadata_lights() -> None:
@@ -1196,6 +1281,7 @@ def write_unreal_import_report(
             "texture_asset_count": sum(len(value) for value in texture_assets.values()),
             "environment_setup": ENVIRONMENT_IMPORT_SETUP,
             "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
+            "collision_proxy_setup": FIRST_PERSON_COLLISION_PROXIES,
             "metadata_counts": {
                 "buildings": len(data.get("exterior", {}).get("buildings", [])),
                 "roads": len(data.get("exterior", {}).get("roads", [])),
