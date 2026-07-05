@@ -209,6 +209,7 @@
       <a class="quick-link primary" id="quickGameplayItems" href="#gameplay-items" title="Jump to the fictional gameplay item preview lane">Gameplay Items</a>
       <a class="quick-link" id="quickGroundsDetails" href="#grounds-details">Grounds Details</a>
       <a class="quick-link" id="quickFacadeDetails" href="#facade-details">Facade Details</a>
+      <a class="quick-link" id="quickRoofDetails" href="#roof-details">Roof Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
       <a class="quick-link" id="quickSignageDetails" href="#signage-details">Signage</a>
       <a class="quick-link" id="quickDoorDetails" href="#door-details">Doors</a>
@@ -229,6 +230,7 @@
       <button id="presetGrounds">Grounds</button>
       <button id="presetGroundsDetails">Grounds Details</button>
       <button id="presetFacadeDetails">Facade Details</button>
+      <button id="presetRoofDetails">Roof Details</button>
       <button id="presetRotunda">Rotunda</button>
       <button id="presetHouse">House</button>
       <button id="presetSenate">Senate</button>
@@ -439,6 +441,7 @@
     document.getElementById("presetGrounds").onclick = () => setCamera(-0.72, 0.58, 82000, [-25000, 0, 1200]);
     document.getElementById("presetGroundsDetails").onclick = () => focusGroundsDetailsRoute();
     document.getElementById("presetFacadeDetails").onclick = () => focusFacadeDetailsRoute();
+    document.getElementById("presetRoofDetails").onclick = () => focusRoofDetailsRoute();
     document.getElementById("presetRotunda").onclick = () => setCamera(0.62, 0.64, 26000, [0, 0, 5600]);
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
     document.getElementById("presetSenate").onclick = () => setCamera(3.08, 0.76, 24000, [0, 6800, 5600]);
@@ -461,6 +464,11 @@
     document.getElementById("quickFacadeDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusFacadeDetailsRoute();
+    });
+
+    document.getElementById("quickRoofDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusRoofDetailsRoute();
     });
 
     document.getElementById("quickOffices").addEventListener("click", (event) => {
@@ -1099,6 +1107,32 @@
       focusFacadeDetails();
     }
 
+    function focusRoofDetails() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", true);
+      setMeshVisible("capitol_public_interior_schematic", false);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "facade_detail";
+      state.labelQuery = "roof";
+      document.getElementById("categoryFilter").value = "facade_detail";
+      document.getElementById("labelSearch").value = "roof";
+
+      setCamera(0.74, 0.92, 50000, [0, 0, 15800]);
+      statusEl.textContent = "Focused public roof detail layer: capstones, scuppers, parapet gaps, vents, dormers, skylights, and dome trim.";
+    }
+
+    function focusRoofDetailsRoute() {
+      if (window.location.hash !== "#roof-details") {
+        history.pushState(null, "", "#roof-details");
+      }
+      focusRoofDetails();
+    }
+
     function focusOffices() {
       setMeshVisible("capitol_public_interior_schematic", true);
       state.labelsVisible = true;
@@ -1333,8 +1367,12 @@
         focusGroundsDetails();
         return;
       }
-      if (route === "facade-details" || route === "capitol-details" || route === "roof-details") {
+      if (route === "facade-details" || route === "capitol-details") {
         focusFacadeDetails();
+        return;
+      }
+      if (route === "roof-details" || route === "roof" || route === "roof-inspection") {
+        focusRoofDetails();
         return;
       }
       if (route === "offices" || route === "office-details") {
