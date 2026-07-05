@@ -3193,6 +3193,139 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 {"orientation": orientation, "public_accuracy": "generic_public_visual_relief"},
             )
 
+    def add_facade_corner_quoin_stack(
+        prefix: str,
+        corners: list[tuple[float, float]],
+        z_base: float,
+        z_top: float,
+        block_size: float,
+        block_count: int,
+    ) -> None:
+        spacing = (z_top - z_base) / block_count
+        block_height = min(0.58, spacing * 0.46)
+        for corner_index, (x, y) in enumerate(corners, start=1):
+            for block_index in range(block_count):
+                z = z_base + block_index * spacing + spacing * 0.18
+                offset = 0.08 if block_index % 2 == 0 else -0.08
+                center = (x + math.copysign(offset, x or 1.0), y + math.copysign(offset, y or 1.0))
+                name = f"{prefix}_corner_{corner_index:02d}_quoin_{block_index+1:02d}"
+                obj.add_box(center, (block_size, block_size), block_height, z, name, "ColumnStone")
+                add_facade_detail(
+                    name,
+                    "facade_corner_quoin_block",
+                    (center[0], center[1], z + block_height / 2.0),
+                    {"block_size_m": round(block_size, 3), "public_accuracy": "generic_public_facade_depth"},
+                )
+
+    def add_portico_entablature_layers(
+        prefix: str,
+        orientation: str,
+        center: tuple[float, float],
+        span: float,
+        z: float,
+    ) -> None:
+        cx, cy = center
+        layer_specs = [
+            ("architrave", "portico_architrave_band", 0.00, 0.24, 0.46, span * 0.98),
+            ("frieze", "portico_frieze_band", 0.36, 0.34, 0.38, span * 0.92),
+            ("projecting_cornice", "portico_cornice_band", 0.86, 0.24, 0.70, span + 1.4),
+        ]
+        for label, kind, z_offset, height, depth, layer_span in layer_specs:
+            if orientation == "east_west":
+                size = (depth, layer_span)
+            else:
+                size = (layer_span, depth)
+            name = f"{prefix}_{label}"
+            obj.add_box(center, size, height, z + z_offset, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                kind,
+                (cx, cy, z + z_offset + height / 2.0),
+                {"orientation": orientation, "span_m": round(layer_span, 3)},
+            )
+
+    def add_portico_intercolumn_shadows(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        values: list[float],
+        z: float,
+        height: float,
+    ) -> None:
+        for bay_index, (a, b) in enumerate(zip(values, values[1:]), start=1):
+            bay_width = abs(b - a)
+            value = (a + b) / 2.0
+            if orientation == "east_west":
+                center = (fixed, value)
+                size = (0.08, bay_width * 0.62)
+            else:
+                center = (value, fixed)
+                size = (bay_width * 0.62, 0.08)
+            name = f"{prefix}_intercolumn_shadow_{bay_index:02d}"
+            obj.add_box(center, size, height, z, name, "DoorMetal")
+            add_facade_detail(
+                name,
+                "portico_intercolumn_shadow",
+                (center[0], center[1], z + height / 2.0),
+                {"orientation": orientation, "bay_width_m": round(bay_width, 3)},
+            )
+
+    def add_pediment_raking_cornice(
+        prefix: str,
+        orientation: str,
+        center: tuple[float, float],
+        width: float,
+        z: float,
+        height: float,
+    ) -> None:
+        cx, cy = center
+        segments = 5
+        segment_span = width / (segments * 2.25)
+        for side_sign in (-1.0, 1.0):
+            for segment_index in range(segments):
+                t = (segment_index + 0.5) / segments
+                lateral = side_sign * (width / 2.0) * t
+                block_z = z + height * (1.0 - t) + 0.08
+                if orientation == "east_west":
+                    block_center = (cx, cy + lateral)
+                    size = (0.55, segment_span)
+                else:
+                    block_center = (cx + lateral, cy)
+                    size = (segment_span, 0.55)
+                name = f"{prefix}_raking_cornice_{'left' if side_sign < 0 else 'right'}_{segment_index+1:02d}"
+                obj.add_box(block_center, size, 0.16, block_z, name, "ColumnStone")
+                add_facade_detail(
+                    name,
+                    "pediment_raking_cornice_block",
+                    (block_center[0], block_center[1], block_z + 0.08),
+                    {"orientation": orientation, "stepped_visual": True},
+                )
+
+    def add_portico_side_cornice_returns(
+        prefix: str,
+        orientation: str,
+        center: tuple[float, float],
+        half_span: float,
+        return_depth: float,
+        z: float,
+    ) -> None:
+        cx, cy = center
+        for side_index, side_sign in enumerate((-1.0, 1.0), start=1):
+            if orientation == "east_west":
+                return_center = (cx, cy + side_sign * half_span)
+                size = (return_depth, 0.34)
+            else:
+                return_center = (cx + side_sign * half_span, cy)
+                size = (0.34, return_depth)
+            name = f"{prefix}_side_cornice_return_{side_index}"
+            obj.add_box(return_center, size, 0.28, z, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                "portico_side_cornice_return",
+                (return_center[0], return_center[1], z + 0.14),
+                {"orientation": orientation, "return_depth_m": round(return_depth, 3)},
+            )
+
     obj.add_box((0.0, 0.0), (430.0, 360.0), 0.08, -0.06, "capitol_campus_ground_plane", "GroundGrass")
     obj.add_box((0.0, 0.0), (185.0, 165.0), 0.10, 0.0, "capitol_plaza_walkable_stone_plane", "PlazaStone")
 
@@ -3224,6 +3357,34 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_roof_cap(f"{wing_name}_main_roof", (0.0, y), (width + 2.0, depth + 2.0), 12.05)
         add_roof_cap(f"{wing_name}_center_pavilion_roof", (0.0, y), (28.0, depth + 10.0), 13.55)
         add_facade_detail(f"{wing_name}_articulated_pavilions", "wing_pavilion_massing", (0.0, y, 7.2))
+
+    add_facade_corner_quoin_stack(
+        "central_lower_body",
+        [(-39.4, -29.4), (-39.4, 29.4), (39.4, -29.4), (39.4, 29.4)],
+        1.25,
+        13.15,
+        0.86,
+        8,
+    )
+    add_facade_corner_quoin_stack(
+        "central_upper_setback",
+        [(-31.4, -22.4), (-31.4, 22.4), (31.4, -22.4), (31.4, 22.4)],
+        13.70,
+        17.55,
+        0.72,
+        3,
+    )
+    for wing_name, y, width, depth in (("senate_north_wing", 68.0, 82.0, 58.0), ("house_south_wing", -68.0, 90.0, 62.0)):
+        half_width = width / 2.0
+        half_depth = depth / 2.0
+        add_facade_corner_quoin_stack(
+            wing_name,
+            [(-half_width, y - half_depth), (-half_width, y + half_depth), (half_width, y - half_depth), (half_width, y + half_depth)],
+            1.25,
+            12.0,
+            0.78,
+            7,
+        )
 
     stepped_pavilion_specs = [
         ("central_northeast_hyphen_stepped_pavilion", (34.5, 36.5), (14.5, 12.0), 1.13, 11.4),
@@ -3354,7 +3515,18 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         face_sign = 1.0 if x > 0.0 else -1.0
         obj.add_box((x, 0.0), (17.0, 68.0), 13.7, 1.13, f"{side}_front_projecting_portico_block", "CapitolStone")
         obj.add_box((x, 0.0), (20.0, 72.0), 0.55, 14.83, f"{side}_front_entablature", "ColumnStone")
+        add_facade_corner_quoin_stack(
+            f"{side}_front_portico",
+            [(x - 8.5, -34.0), (x - 8.5, 34.0), (x + 8.5, -34.0), (x + 8.5, 34.0)],
+            1.25,
+            14.30,
+            0.76,
+            7,
+        )
+        add_portico_entablature_layers(f"{side}_front_portico", "east_west", (x + face_sign * 4.75, 0.0), 58.0, 13.35)
         obj.add_pediment((x + (2.2 if x > 0 else -2.2), 0.0), 56.0, 4.4, 15.38, 4.2, f"{side}_front_triangular_pediment", "ColumnStone", "east_west")
+        add_pediment_raking_cornice(f"{side}_front_pediment", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.38, 4.2)
+        add_portico_side_cornice_returns(f"{side}_front_portico", "east_west", (x, 0.0), 36.0, 18.0, 14.72)
         obj.add_box((x + (2.7 if x > 0 else -2.7), 0.0), (0.18, 12.0), 0.42, 16.25, f"{side}_front_pediment_public_relief_panel", "ColumnStone")
         add_pediment_relief_cluster(f"{side}_front", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.95, 9)
         add_roof_cap(f"{side}_front_portico_roof", (x, 0.0), (20.5, 70.0), 13.95)
@@ -3373,7 +3545,18 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         face_sign = 1.0 if y > 0.0 else -1.0
         obj.add_box((0.0, y), (50.0, 13.0), 11.8, 1.13, f"{side}_wing_public_portico_block", "CapitolStone")
         obj.add_box((0.0, y), (54.0, 15.5), 0.48, 13.15, f"{side}_wing_entablature", "ColumnStone")
+        add_facade_corner_quoin_stack(
+            f"{side}_wing_portico",
+            [(-25.0, y - 6.5), (-25.0, y + 6.5), (25.0, y - 6.5), (25.0, y + 6.5)],
+            1.25,
+            12.70,
+            0.74,
+            6,
+        )
+        add_portico_entablature_layers(f"{side}_wing_portico", "north_south", (0.0, y + face_sign * 4.05), 46.0, 12.60)
         obj.add_pediment((0.0, y + (2.0 if y > 0 else -2.0)), 44.0, 4.0, 13.63, 3.3, f"{side}_wing_triangular_pediment", "ColumnStone", "north_south")
+        add_pediment_raking_cornice(f"{side}_wing_pediment", "north_south", (0.0, y + face_sign * 4.15), 44.0, 13.63, 3.3)
+        add_portico_side_cornice_returns(f"{side}_wing_portico", "north_south", (0.0, y), 27.0, 13.5, 13.08)
         obj.add_box((0.0, y + (2.4 if y > 0 else -2.4)), (10.0, 0.18), 0.38, 14.52, f"{side}_wing_pediment_public_relief_panel", "ColumnStone")
         add_pediment_relief_cluster(f"{side}_wing", "north_south", (0.0, y + face_sign * 4.15), 44.0, 14.10, 7)
         add_portico_soffit_coffers(
@@ -3604,6 +3787,14 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             obj.add_cylinder(column_center, 0.62, 0.2, 13.5, column_name, "ColumnStone", segments=20)
             add_exterior_column_ornament(column_name, column_center, 0.62, 0.2, 13.5, "east_west")
             add_facade_detail(column_name, "exterior_column", (column_center[0], column_center[1], 6.95))
+        add_portico_intercolumn_shadows(
+            f"{side}_front_portico",
+            "east_west",
+            x * 0.91,
+            [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0],
+            2.05,
+            9.8,
+        )
         add_arcade_shadow_bays(
             f"{side}_front_portico",
             "east_west",
@@ -3625,6 +3816,14 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     for side, y in (("north", 99.0), ("south", -99.0)):
         wing_sign = 1.0 if y > 0.0 else -1.0
         add_column_row(f"{side}_wing_portico", "north_south", y * 0.98, [-19.0, -12.5, -6.0, 0.0, 6.0, 12.5, 19.0], 1.3, 10.9)
+        add_portico_intercolumn_shadows(
+            f"{side}_wing_portico",
+            "north_south",
+            y * 0.97,
+            [-19.0, -12.5, -6.0, 0.0, 6.0, 12.5, 19.0],
+            2.05,
+            8.3,
+        )
         add_arcade_shadow_bays(
             f"{side}_wing_portico",
             "north_south",
