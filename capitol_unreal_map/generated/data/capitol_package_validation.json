@@ -61,7 +61,7 @@
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 15
+    "viewpoints": 16
   },
   "materials": {
     "manifest_materials": 75,
@@ -81,12 +81,12 @@
     "path": "unreal/import_capitol_map.py",
     "mesh_files": 5,
     "destination_paths": 4,
-    "required_functions": 21,
-    "required_calls": 19,
-    "report_keys": 147,
+    "required_functions": 22,
+    "required_calls": 20,
+    "report_keys": 150,
     "label_categories": 21,
     "outliner_folders": 13,
-    "first_person_markers": 23,
+    "first_person_markers": 32,
     "material_markers": 24,
     "environment_markers": 38,
     "inspection_markers": 24,

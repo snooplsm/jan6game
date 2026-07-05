@@ -125,6 +125,14 @@ VIEWPOINTS = [
         "category": "first_person",
     },
     {
+        "label": "CapitolMap_Camera_PublicInteriorWalk",
+        "location_m": [0.0, -14.0, 5.7],
+        "target_m": [0.0, 0.0, 5.2],
+        "fov": 78.0,
+        "category": "first_person_public_interior",
+        "viewer_note": "Human-scale public-interior walk inspection start; hide exterior/landmark/roads/gameplay meshes for browser parity.",
+    },
+    {
         "label": "CapitolMap_Camera_WestGrounds",
         "location_m": [-360.0, -125.0, 42.0],
         "target_m": [-235.0, 0.0, 1.0],

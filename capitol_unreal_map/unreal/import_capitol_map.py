@@ -72,9 +72,27 @@ MATERIAL_GRAPH_FEATURES = {
 }
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
+PLAYER_START_ROTATION_DEG = [0.0, 4.0, 0.0]
+PUBLIC_INTERIOR_WALK_START_LABEL = "CapitolMap_PlayerStart_PublicInteriorWalk"
+PUBLIC_INTERIOR_WALK_START_LOCATION_CM = [0.0, -1400.0, 570.0]
+PUBLIC_INTERIOR_WALK_START_ROTATION_DEG = [0.0, 90.0, 0.0]
 PLAYTEST_PAWN_LABEL = "CapitolMap_Playtest_DefaultPawn"
-PLAYTEST_PAWN_LOCATION_CM = [-9600.0, -650.0, 160.0]
-PLAYTEST_PAWN_ROTATION_DEG = [0.0, 4.0, 0.0]
+PLAYTEST_PAWN_LOCATION_CM = PUBLIC_INTERIOR_WALK_START_LOCATION_CM
+PLAYTEST_PAWN_ROTATION_DEG = PUBLIC_INTERIOR_WALK_START_ROTATION_DEG
+FIRST_PERSON_PLAYER_STARTS = [
+    {
+        "label": PLAYER_START_LABEL,
+        "location_cm": PLAYER_START_LOCATION_CM,
+        "rotation_deg": PLAYER_START_ROTATION_DEG,
+        "purpose": "public west-front exterior inspection start",
+    },
+    {
+        "label": PUBLIC_INTERIOR_WALK_START_LABEL,
+        "location_cm": PUBLIC_INTERIOR_WALK_START_LOCATION_CM,
+        "rotation_deg": PUBLIC_INTERIOR_WALK_START_ROTATION_DEG,
+        "purpose": "public interior walk inspection start near the Rotunda schematic",
+    },
+]
 NAV_MESH_BOUNDS_LABEL = "CapitolMap_NavMeshBounds_CentralCampus"
 NAV_MESH_BOUNDS_LOCATION_CM = [0.0, 0.0, 2500.0]
 NAV_MESH_BOUNDS_SCALE = [750.0, 750.0, 45.0]
@@ -128,6 +146,84 @@ FIRST_PERSON_COLLISION_PROXIES = [
         "location_cm": [0.0, 0.0, 448.0],
         "scale": [20.0, 92.0, 0.14],
         "purpose": "public schematic connector spine walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_PublicInteriorFootprint",
+        "location_cm": [0.0, 0.0, 440.0],
+        "scale": [76.0, 96.0, 0.10],
+        "purpose": "broad public schematic interior floor coverage for first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_NationalStatuaryHallPublicFloor",
+        "location_cm": [2800.0, -3000.0, 448.0],
+        "scale": [16.5, 11.5, 0.14],
+        "purpose": "public National Statuary Hall schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_OldSenatePublicFloor",
+        "location_cm": [2800.0, 3000.0, 448.0],
+        "scale": [14.5, 10.5, 0.14],
+        "purpose": "public Old Senate Chamber schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_CryptPublicMarkerFloor",
+        "location_cm": [0.0, -2400.0, 448.0],
+        "scale": [13.0, 7.0, 0.14],
+        "purpose": "public Crypt marker schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseGalleryPublicFloor",
+        "location_cm": [0.0, -9600.0, 448.0],
+        "scale": [36.0, 6.0, 0.14],
+        "purpose": "public House gallery schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateGalleryPublicFloor",
+        "location_cm": [0.0, 9400.0, 448.0],
+        "scale": [29.0, 6.0, 0.14],
+        "purpose": "public Senate gallery schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseWestSupportZoneFloor",
+        "location_cm": [-5300.0, -5500.0, 448.0],
+        "scale": [13.0, 24.0, 0.14],
+        "purpose": "generic public House west support-zone schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseEastSupportZoneFloor",
+        "location_cm": [5300.0, -5500.0, 448.0],
+        "scale": [13.0, 24.0, 0.14],
+        "purpose": "generic public House east support-zone schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateWestSupportZoneFloor",
+        "location_cm": [-5200.0, 5500.0, 448.0],
+        "scale": [13.0, 24.0, 0.14],
+        "purpose": "generic public Senate west support-zone schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateEastSupportZoneFloor",
+        "location_cm": [5200.0, 5500.0, 448.0],
+        "scale": [13.0, 24.0, 0.14],
+        "purpose": "generic public Senate east support-zone schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_EastPublicApproachFloor",
+        "location_cm": [6200.0, 0.0, 448.0],
+        "scale": [8.5, 37.0, 0.14],
+        "purpose": "public east approach circulation schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_WestPublicTerraceFloor",
+        "location_cm": [-6200.0, 0.0, 448.0],
+        "scale": [8.5, 37.0, 0.14],
+        "purpose": "public west terrace orientation schematic floor walkable proxy",
+    },
+    {
+        "label": "CapitolMap_Collision_PublicEastWestConnector",
+        "location_cm": [0.0, 0.0, 448.0],
+        "scale": [72.0, 8.0, 0.12],
+        "purpose": "public east-west interior connector schematic walkable proxy",
     },
 ]
 ENVIRONMENT_IMPORT_SETUP = {
@@ -269,6 +365,9 @@ FIRST_PERSON_IMPORT_SETUP = {
     "player_start_actor_class": "PlayerStart",
     "player_start_label": PLAYER_START_LABEL,
     "player_start_location_cm": PLAYER_START_LOCATION_CM,
+    "player_start_points": FIRST_PERSON_PLAYER_STARTS,
+    "public_interior_walk_start_label": PUBLIC_INTERIOR_WALK_START_LABEL,
+    "public_interior_walk_start_location_cm": PUBLIC_INTERIOR_WALK_START_LOCATION_CM,
     "playtest_pawn_actor_class": "DefaultPawn",
     "playtest_pawn_label": PLAYTEST_PAWN_LABEL,
     "playtest_pawn_location_cm": PLAYTEST_PAWN_LOCATION_CM,
@@ -460,6 +559,12 @@ DEFAULT_VIEWPOINTS = [
         "label": "CapitolMap_Camera_WestFront_FirstPerson",
         "location_m": [-105.0, 0.0, 1.8],
         "target_m": [0.0, 0.0, 5.0],
+        "fov": 78.0,
+    },
+    {
+        "label": "CapitolMap_Camera_PublicInteriorWalk",
+        "location_m": [0.0, -14.0, 5.7],
+        "target_m": [0.0, 0.0, 5.2],
         "fov": 78.0,
     },
     {
@@ -1167,25 +1272,30 @@ def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -
 def spawn_scene_setup() -> dict[str, Any]:
     """Add lighting, environment, and first-person spawn helpers."""
     spawn_environment_setup()
-
-    try:
-        player_start = unreal.EditorLevelLibrary.spawn_actor_from_class(
-            unreal.PlayerStart,
-            unreal.Vector(*PLAYER_START_LOCATION_CM),
-            unreal.Rotator(0, 0, 0),
-        )
-        if player_start:
-            player_start.set_actor_label(PLAYER_START_LABEL)
-            player_start.set_folder_path("CapitolMap/SceneSetup")
-    except Exception as exc:
-        log(f"PlayerStart setup skipped: {exc}")
-
+    spawn_player_starts()
     spawn_playtest_pawn()
     spawn_camera_viewpoints()
     spawn_first_person_collision_proxies()
     spawn_navigation_bounds()
     light_stats = spawn_metadata_lights()
     return {"lighting": light_stats}
+
+
+def spawn_player_starts() -> None:
+    """Place public exterior/interior start points for PIE inspection."""
+    for start in FIRST_PERSON_PLAYER_STARTS:
+        try:
+            player_start = unreal.EditorLevelLibrary.spawn_actor_from_class(
+                unreal.PlayerStart,
+                unreal.Vector(*start["location_cm"]),
+                unreal.Rotator(*start.get("rotation_deg", [0.0, 0.0, 0.0])),
+            )
+            if player_start:
+                player_start.set_actor_label(start["label"])
+                player_start.set_folder_path("CapitolMap/SceneSetup")
+                set_actor_tags(player_start, ["CapitolMap_PlayerStart", "CapitolMap_FirstPersonInspection"])
+        except Exception as exc:
+            log(f"PlayerStart setup skipped ({start.get('label', '<unknown>')}): {exc}")
 
 
 def spawn_environment_setup() -> None:
