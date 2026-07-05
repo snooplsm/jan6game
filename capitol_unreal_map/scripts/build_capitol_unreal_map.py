@@ -2116,6 +2116,280 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             {"face": face, "material": sign_material},
         )
 
+        front_span = depth if face in {"east", "west"} else width
+        entry_lateral_span = entry_size[1] if face in {"east", "west"} else entry_size[0]
+
+        def face_point(lateral_offset: float, outward_offset: float = 0.0) -> tuple[float, float]:
+            if face == "west":
+                return (x_face - outward_offset, y + lateral_offset)
+            if face == "east":
+                return (x_face + outward_offset, y + lateral_offset)
+            if face == "south":
+                return (x_face + lateral_offset, y - outward_offset)
+            return (x_face + lateral_offset, y + outward_offset)
+
+        def face_size(lateral_length: float, wall_depth: float) -> tuple[float, float]:
+            if face in {"east", "west"}:
+                return (wall_depth, lateral_length)
+            return (lateral_length, wall_depth)
+
+        def add_face_detail_box(
+            detail_name: str,
+            lateral_offset: float,
+            outward_offset: float,
+            lateral_length: float,
+            wall_depth: float,
+            box_height: float,
+            z: float,
+            material: str,
+        ) -> tuple[float, float]:
+            detail_center = face_point(lateral_offset, outward_offset)
+            buildings.add_box(detail_center, face_size(lateral_length, wall_depth), box_height, z, detail_name, material)
+            return detail_center
+
+        stoop_lateral = min(max(entry_lateral_span + 0.86, 1.55), max(1.55, front_span * 0.54))
+        stoop_center = add_face_detail_box(
+            f"{safe_prefix}_entry_stoop_slab",
+            0.0,
+            0.50,
+            stoop_lateral,
+            0.92,
+            0.075,
+            0.015,
+            "StepStone",
+        )
+        add_face_detail_box(f"{safe_prefix}_entry_stoop_front_lip", 0.0, 0.98, stoop_lateral * 0.94, 0.16, 0.055, 0.012, "StoneGrimeOverlay")
+        add_building_detail_record(
+            f"{safe_prefix}_entry_stoop_slab",
+            "surrounding_building_entry_stoop_slab",
+            way_id,
+            name,
+            (stoop_center[0], stoop_center[1], 0.052),
+            {"face": face, "size_m": [round(stoop_lateral, 3), 0.92]},
+        )
+
+        window_offset = min(front_span * 0.28, max(1.15, entry_lateral_span * 0.66 + 0.72))
+        window_lateral = min(1.35, max(0.82, front_span * 0.16))
+        ground_floor_offsets = [-window_offset, window_offset]
+        for panel_index, lateral_offset in enumerate(ground_floor_offsets, start=1):
+            panel_name = f"{safe_prefix}_ground_floor_window_panel_{panel_index}"
+            panel_center = add_face_detail_box(panel_name, lateral_offset, 0.066, window_lateral, 0.070, 1.18, 0.54, "FacadeWindow")
+            add_building_detail_record(
+                panel_name,
+                "surrounding_building_ground_floor_window_panel",
+                way_id,
+                name,
+                (panel_center[0], panel_center[1], 1.13),
+                {"face": face, "sequence": panel_index},
+            )
+            for slat_index in range(5):
+                slat_z = 0.74 + slat_index * 0.18
+                add_face_detail_box(
+                    f"{panel_name}_blind_slat_{slat_index+1:02d}",
+                    lateral_offset,
+                    0.096,
+                    window_lateral * 0.78,
+                    0.044,
+                    0.026,
+                    slat_z,
+                    "LaneMarkingWhite",
+                )
+            add_building_detail_record(
+                f"{panel_name}_blind_slats",
+                "surrounding_building_ground_floor_blind",
+                way_id,
+                name,
+                (panel_center[0], panel_center[1], 1.11),
+                {"face": face, "sequence": panel_index, "slat_count": 5},
+            )
+            sill_center = add_face_detail_box(
+                f"{panel_name}_stone_sill",
+                lateral_offset,
+                0.082,
+                window_lateral + 0.22,
+                0.105,
+                0.070,
+                0.42,
+                "StepStone",
+            )
+            add_building_detail_record(
+                f"{panel_name}_stone_sill",
+                "surrounding_building_ground_floor_sill",
+                way_id,
+                name,
+                (sill_center[0], sill_center[1], 0.455),
+                {"face": face, "sequence": panel_index},
+            )
+
+        for grime_index, lateral_offset in enumerate([-front_span * 0.31, front_span * 0.31], start=1):
+            patch_length = min(2.35, max(0.90, front_span * (0.12 + 0.015 * grime_index)))
+            patch_center = add_face_detail_box(
+                f"{safe_prefix}_street_level_wall_grime_patch_{grime_index}",
+                lateral_offset,
+                0.101,
+                patch_length,
+                0.048,
+                0.58 + 0.10 * grime_index,
+                0.08,
+                "StoneGrimeOverlay",
+            )
+            add_building_detail_record(
+                f"{safe_prefix}_street_level_wall_grime_patch_{grime_index}",
+                "surrounding_building_wall_grime_patch",
+                way_id,
+                name,
+                (patch_center[0], patch_center[1], 0.38 + 0.05 * grime_index),
+                {"face": face, "sequence": grime_index},
+            )
+
+        for vent_index, lateral_offset in enumerate([-front_span * 0.40, front_span * 0.40], start=1):
+            vent_center = face_point(lateral_offset, 0.104)
+            for slat_index in range(4):
+                add_face_detail_box(
+                    f"{safe_prefix}_facade_vent_grille_{vent_index}_slat_{slat_index+1}",
+                    lateral_offset,
+                    0.104,
+                    0.72,
+                    0.042,
+                    0.026,
+                    0.36 + slat_index * 0.085,
+                    "RoadCrackSealant",
+                )
+            add_building_detail_record(
+                f"{safe_prefix}_facade_vent_grille_{vent_index}",
+                "surrounding_building_facade_vent_grille",
+                way_id,
+                name,
+                (vent_center[0], vent_center[1], 0.50),
+                {"face": face, "sequence": vent_index, "slat_count": 4},
+            )
+
+        meter_offset = -min(front_span * 0.44, max(1.60, window_offset + 0.58))
+        meter_backer_center = add_face_detail_box(
+            f"{safe_prefix}_utility_meter_backer",
+            meter_offset,
+            0.110,
+            0.92,
+            0.070,
+            0.72,
+            0.54,
+            "DoorMetal",
+        )
+        for meter_index, meter_lateral_delta in enumerate([-0.27, 0.0, 0.27], start=1):
+            meter_center = add_face_detail_box(
+                f"{safe_prefix}_utility_meter_{meter_index}",
+                meter_offset + meter_lateral_delta,
+                0.142,
+                0.16,
+                0.082,
+                0.20,
+                0.80,
+                "FacadeWindow",
+            )
+            add_face_detail_box(
+                f"{safe_prefix}_utility_meter_{meter_index}_conduit",
+                meter_offset + meter_lateral_delta,
+                0.132,
+                0.045,
+                0.052,
+                0.74,
+                0.16,
+                "DoorMetal",
+            )
+        add_building_detail_record(
+            f"{safe_prefix}_utility_meter_bank",
+            "surrounding_building_utility_meter_bank",
+            way_id,
+            name,
+            (meter_backer_center[0], meter_backer_center[1], 0.90),
+            {"face": face, "meter_count": 3},
+        )
+
+        service_offset = min(front_span * 0.43, max(1.55, window_offset + 0.52))
+        service_center = add_face_detail_box(
+            f"{safe_prefix}_street_level_service_panel",
+            service_offset,
+            0.116,
+            0.62,
+            0.072,
+            0.98,
+            0.58,
+            "DoorMetal",
+        )
+        add_face_detail_box(f"{safe_prefix}_street_level_service_panel_handle", service_offset + 0.22, 0.152, 0.055, 0.045, 0.18, 1.00, "BrassRail")
+        add_building_detail_record(
+            f"{safe_prefix}_street_level_service_panel",
+            "surrounding_building_service_panel",
+            way_id,
+            name,
+            (service_center[0], service_center[1], 1.07),
+            {"face": face},
+        )
+
+        plaque_lateral = min(entry_lateral_span * 0.62 + 0.44, front_span * 0.30)
+        plaque_center = add_face_detail_box(
+            f"{safe_prefix}_address_plaque",
+            plaque_lateral,
+            0.126,
+            0.52,
+            0.048,
+            0.24,
+            2.18,
+            "BrassRail",
+        )
+        for bar_index, bar_z in enumerate([2.25, 2.32], start=1):
+            add_face_detail_box(
+                f"{safe_prefix}_address_plaque_mark_{bar_index}",
+                plaque_lateral,
+                0.154,
+                0.34 - 0.06 * (bar_index - 1),
+                0.034,
+                0.020,
+                bar_z,
+                "RoadCrackSealant",
+            )
+        add_building_detail_record(
+            f"{safe_prefix}_address_plaque",
+            "surrounding_building_address_plaque",
+            way_id,
+            name,
+            (plaque_center[0], plaque_center[1], 2.30),
+            {"face": face},
+        )
+
+        downspout_limit = max(0.45, front_span / 2.0 - 0.28)
+        downspout_offsets = [-downspout_limit, downspout_limit]
+        downspout_height = max(2.1, min(height - 0.65, 5.20))
+        for pipe_index, lateral_offset in enumerate(downspout_offsets, start=1):
+            pipe_center = add_face_detail_box(
+                f"{safe_prefix}_downspout_pipe_{pipe_index}",
+                lateral_offset,
+                0.116,
+                0.075,
+                0.075,
+                downspout_height,
+                0.18,
+                "DoorMetal",
+            )
+            add_face_detail_box(
+                f"{safe_prefix}_downspout_elbow_{pipe_index}",
+                lateral_offset,
+                0.28,
+                0.26,
+                0.070,
+                0.080,
+                0.20,
+                "DoorMetal",
+            )
+            add_building_detail_record(
+                f"{safe_prefix}_downspout_pipe_{pipe_index}",
+                "surrounding_building_downspout_pipe",
+                way_id,
+                name,
+                (pipe_center[0], pipe_center[1], 0.18 + downspout_height / 2.0),
+                {"face": face, "sequence": pipe_index},
+            )
+
         for unit_index, (ox, oy) in enumerate([(-0.18, -0.12), (0.20, 0.16)], start=1):
             unit_center = (cx + width * ox, cy + depth * oy)
             unit_size = (max(0.8, min(3.8, width * 0.22)), max(0.65, min(2.4, depth * 0.18)))

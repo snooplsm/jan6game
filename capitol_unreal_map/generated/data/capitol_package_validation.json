@@ -32,8 +32,8 @@
       },
       "height_review_targets": 40
     },
-    "building_details": 8548,
-    "building_detail_kinds": 34,
+    "building_details": 9188,
+    "building_detail_kinds": 44,
     "streetscape_props": 6337,
     "streetscape_prop_kinds": 59,
     "traffic_sign_model": {
@@ -174,12 +174,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 196264,
-      "uvs": 588792,
-      "faces": 136558,
-      "faces_with_uvs": 136558,
-      "triangles": 315676,
-      "groups": 19213,
+      "vertices": 209704,
+      "uvs": 629112,
+      "faces": 146638,
+      "faces_with_uvs": 146638,
+      "triangles": 335836,
+      "groups": 20893,
       "materials": [
         "BrassRail",
         "BuildingCapitol",
@@ -187,6 +187,7 @@
         "DoorGlass",
         "DoorMetal",
         "FacadeWindow",
+        "LaneMarkingWhite",
         "MarkerBlue",
         "RoadCrackSealant",
         "RoadPatchAsphalt",

@@ -1364,6 +1364,16 @@ REQUIRED_BUILDING_DETAIL_KINDS = {
     "surrounding_building_entry_center_seam",
     "surrounding_building_awning",
     "surrounding_building_wall_sign",
+    "surrounding_building_entry_stoop_slab",
+    "surrounding_building_ground_floor_window_panel",
+    "surrounding_building_ground_floor_blind",
+    "surrounding_building_ground_floor_sill",
+    "surrounding_building_wall_grime_patch",
+    "surrounding_building_facade_vent_grille",
+    "surrounding_building_utility_meter_bank",
+    "surrounding_building_service_panel",
+    "surrounding_building_address_plaque",
+    "surrounding_building_downspout_pipe",
     "surrounding_building_roof_setback_surface",
     "surrounding_building_parapet_inner_shadow",
     "surrounding_building_roof_gravel_patch",
@@ -1964,6 +1974,26 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 35 surrounding building awning records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_wall_sign"]) < 35:
         error(errors, "expected at least 35 surrounding building wall-sign records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_entry_stoop_slab"]) < 35:
+        error(errors, "expected at least 35 surrounding building entry stoop-slab records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_ground_floor_window_panel"]) < 70:
+        error(errors, "expected at least 70 surrounding building ground-floor window-panel records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_ground_floor_blind"]) < 70:
+        error(errors, "expected at least 70 surrounding building ground-floor blind records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_ground_floor_sill"]) < 70:
+        error(errors, "expected at least 70 surrounding building ground-floor sill records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_wall_grime_patch"]) < 70:
+        error(errors, "expected at least 70 surrounding building wall-grime patch records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_facade_vent_grille"]) < 70:
+        error(errors, "expected at least 70 surrounding building facade vent-grille records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_utility_meter_bank"]) < 35:
+        error(errors, "expected at least 35 surrounding building utility meter-bank records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_service_panel"]) < 35:
+        error(errors, "expected at least 35 surrounding building service-panel records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_address_plaque"]) < 35:
+        error(errors, "expected at least 35 surrounding building address-plaque records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_downspout_pipe"]) < 70:
+        error(errors, "expected at least 70 surrounding building downspout-pipe records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_setback_surface"]) < 35:
         error(errors, "expected at least 35 surrounding building roof setback-surface records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_parapet_inner_shadow"]) < 35:
