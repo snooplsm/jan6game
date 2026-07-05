@@ -672,9 +672,13 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_ashlar_course",
     "facade_vertical_stone_joint",
     "facade_weathering_stain",
+    "facade_recess_shadow_panel",
+    "facade_arcade_shadow_bay",
     "exterior_column_base",
     "exterior_column_capital",
     "exterior_column_fluting",
+    "portico_soffit_coffer",
+    "terrace_retaining_wall",
     "public_stair_tread",
     "public_approach_handrail",
     "public_door_surround",
@@ -1059,8 +1063,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 1850:
-        error(errors, f"expected at least 1850 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 2100:
+        error(errors, f"expected at least 2100 public facade/furniture visual details, got {len(facade_details)}")
     missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
     if missing_facade_kinds:
         error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
@@ -1080,12 +1084,20 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 68 public facade vertical stone joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_weathering_stain"]) < 90:
         error(errors, "expected at least 90 public facade weathering stain records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_recess_shadow_panel"]) < 130:
+        error(errors, "expected at least 130 public facade recess shadow panel records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_arcade_shadow_bay"]) < 24:
+        error(errors, "expected at least 24 public facade arcade shadow bay records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_base"]) < 28:
         error(errors, "expected at least 28 public exterior column base records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital"]) < 28:
         error(errors, "expected at least 28 public exterior column capital records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_fluting"]) < 28:
         error(errors, "expected at least 28 public exterior column fluting records")
+    if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
+        error(errors, "expected at least 70 public portico soffit coffer records")
+    if len([detail for detail in facade_details if detail.get("kind") == "terrace_retaining_wall"]) < 8:
+        error(errors, "expected at least 8 public terrace retaining wall records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_stair_tread"]) < 18:
         error(errors, "expected at least 18 public stair tread records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_approach_handrail"]) < 8:
