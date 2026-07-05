@@ -255,6 +255,8 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
 
+For Unreal full-interior inspection, use `CapitolMap_Camera_Interior_Cutaway` and hide actors tagged `CapitolMap_HideForInteriorCutaway`. The public interior mesh is tagged `CapitolMap_VisibleForInteriorCutaway`, so it remains visible while exterior, roof/landmark, roads, and gameplay preview meshes are hidden.
+
 For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide actors in `CapitolMap/Meshes/HideForInteriorTopDown` or tagged `CapitolMap_HideForInteriorTopDown`. The public interior mesh is foldered under `CapitolMap/Meshes/InteriorTopDownVisible` and tagged `CapitolMap_VisibleForInteriorTopDown`.
 
 `Config/DefaultEngine.ini` points both `EditorStartupMap` and `GameDefaultMap` at `/Game/CapitolMap/Maps/CapitolMap_Level`; run the import script once before relying on those startup-map defaults in a fresh checkout.
@@ -278,6 +280,7 @@ Generated camera viewpoints:
 - `CapitolMap_Camera_HouseChamber_JointSession`
 - `CapitolMap_Camera_SenateChamber`
 - `CapitolMap_Camera_Chambers_TopDown`
+- `CapitolMap_Camera_Interior_Cutaway`
 - `CapitolMap_Camera_GameplayItems`
 
 Those viewpoints are also written into `generated/data/capitol_scene_metadata.json` so downstream tools can reuse the same inspection positions.

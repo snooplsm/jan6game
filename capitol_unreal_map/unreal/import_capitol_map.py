@@ -99,26 +99,60 @@ INTERIOR_TOPDOWN_INSPECTION = {
     "note": "Hide actors tagged CapitolMap_HideForInteriorTopDown to inspect chambers from the top-down camera.",
 }
 
+INTERIOR_CUTAWAY_INSPECTION = {
+    "camera_label": "CapitolMap_Camera_Interior_Cutaway",
+    "visible_tag": "CapitolMap_VisibleForInteriorCutaway",
+    "hide_tag": "CapitolMap_HideForInteriorCutaway",
+    "visible_folder": INTERIOR_TOPDOWN_INSPECTION["visible_folder"],
+    "hide_folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
+    "note": "Hide actors tagged CapitolMap_HideForInteriorCutaway to inspect the public interior schematic without exterior, roof, road, or gameplay meshes.",
+}
+
 MESH_INSPECTION_VISIBILITY = {
     "capitol_exterior_buildings.obj": {
         "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
-        "tags": ["CapitolMap_Mesh", "CapitolMap_Exterior", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+        "tags": [
+            "CapitolMap_Mesh",
+            "CapitolMap_Exterior",
+            INTERIOR_TOPDOWN_INSPECTION["hide_tag"],
+            INTERIOR_CUTAWAY_INSPECTION["hide_tag"],
+        ],
     },
     "capitol_exterior_roads_bike_lanes_markers.obj": {
         "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
-        "tags": ["CapitolMap_Mesh", "CapitolMap_Exterior", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+        "tags": [
+            "CapitolMap_Mesh",
+            "CapitolMap_Exterior",
+            INTERIOR_TOPDOWN_INSPECTION["hide_tag"],
+            INTERIOR_CUTAWAY_INSPECTION["hide_tag"],
+        ],
     },
     "capitol_landmark_visual_details.obj": {
         "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
-        "tags": ["CapitolMap_Mesh", "CapitolMap_Landmark", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+        "tags": [
+            "CapitolMap_Mesh",
+            "CapitolMap_Landmark",
+            INTERIOR_TOPDOWN_INSPECTION["hide_tag"],
+            INTERIOR_CUTAWAY_INSPECTION["hide_tag"],
+        ],
     },
     "capitol_public_interior_schematic.obj": {
         "folder": INTERIOR_TOPDOWN_INSPECTION["visible_folder"],
-        "tags": ["CapitolMap_Mesh", "CapitolMap_PublicInterior", INTERIOR_TOPDOWN_INSPECTION["visible_tag"]],
+        "tags": [
+            "CapitolMap_Mesh",
+            "CapitolMap_PublicInterior",
+            INTERIOR_TOPDOWN_INSPECTION["visible_tag"],
+            INTERIOR_CUTAWAY_INSPECTION["visible_tag"],
+        ],
     },
     "capitol_gameplay_items.obj": {
         "folder": INTERIOR_TOPDOWN_INSPECTION["hide_folder"],
-        "tags": ["CapitolMap_Mesh", "CapitolMap_GameplayPreview", INTERIOR_TOPDOWN_INSPECTION["hide_tag"]],
+        "tags": [
+            "CapitolMap_Mesh",
+            "CapitolMap_GameplayPreview",
+            INTERIOR_TOPDOWN_INSPECTION["hide_tag"],
+            INTERIOR_CUTAWAY_INSPECTION["hide_tag"],
+        ],
     },
 }
 
@@ -164,6 +198,12 @@ DEFAULT_VIEWPOINTS = [
         "location_m": [0.0, -2.0, 92.0],
         "target_m": [0.0, -2.0, 5.4],
         "fov": 48.0,
+    },
+    {
+        "label": "CapitolMap_Camera_Interior_Cutaway",
+        "location_m": [0.0, -8.0, 120.0],
+        "target_m": [0.0, 0.0, 5.2],
+        "fov": 64.0,
     },
     {
         "label": "CapitolMap_Camera_GameplayItems",
@@ -1134,6 +1174,7 @@ def write_unreal_import_report(
                 "viewpoints": len(data.get("viewpoints", [])),
             },
             "inspection_visibility": INTERIOR_TOPDOWN_INSPECTION,
+            "interior_cutaway_inspection": INTERIOR_CUTAWAY_INSPECTION,
             "mesh_inspection_visibility": MESH_INSPECTION_VISIBILITY,
         }
         UNREAL_IMPORT_REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")

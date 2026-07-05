@@ -157,6 +157,14 @@ VIEWPOINTS = [
         "viewer_note": "Hide exterior/landmark meshes for unobstructed chamber inspection.",
     },
     {
+        "label": "CapitolMap_Camera_Interior_Cutaway",
+        "location_m": [0.0, -8.0, 120.0],
+        "target_m": [0.0, 0.0, 5.2],
+        "fov": 64.0,
+        "category": "public_interior_cutaway",
+        "viewer_note": "Hide exterior/landmark/roads/gameplay meshes for unobstructed public interior inspection.",
+    },
+    {
         "label": "CapitolMap_Camera_GameplayItems",
         "location_m": [-145.0, -145.0, 9.0],
         "target_m": [-124.0, -122.0, 1.2],

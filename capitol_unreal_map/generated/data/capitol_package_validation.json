@@ -57,7 +57,7 @@
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 8
+    "viewpoints": 9
   },
   "materials": {
     "manifest_materials": 71,
@@ -77,12 +77,12 @@
     "destination_paths": 4,
     "required_functions": 16,
     "required_calls": 16,
-    "report_keys": 80,
+    "report_keys": 81,
     "label_categories": 20,
     "outliner_folders": 11,
     "first_person_markers": 15,
     "environment_markers": 24,
-    "inspection_markers": 7,
+    "inspection_markers": 12,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],

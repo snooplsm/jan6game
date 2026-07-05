@@ -146,6 +146,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "nav_mesh_bounds_scale_cm",
     "metadata_counts",
     "inspection_visibility",
+    "interior_cutaway_inspection",
     "mesh_inspection_visibility",
     "buildings",
     "roads",
@@ -593,14 +594,20 @@ REQUIRED_VIEWPOINTS = {
     "CapitolMap_Camera_HouseChamber_JointSession",
     "CapitolMap_Camera_SenateChamber",
     "CapitolMap_Camera_Chambers_TopDown",
+    "CapitolMap_Camera_Interior_Cutaway",
     "CapitolMap_Camera_GameplayItems",
 }
 
 REQUIRED_UNREAL_INSPECTION_MARKERS = {
     "INTERIOR_TOPDOWN_INSPECTION",
+    "INTERIOR_CUTAWAY_INSPECTION",
     "MESH_INSPECTION_VISIBILITY",
     "CapitolMap_VisibleForInteriorTopDown",
     "CapitolMap_HideForInteriorTopDown",
+    "CapitolMap_Camera_Interior_Cutaway",
+    "CapitolMap_VisibleForInteriorCutaway",
+    "CapitolMap_HideForInteriorCutaway",
+    "interior_cutaway_inspection",
     "CapitolMap/Meshes/InteriorTopDownVisible",
     "CapitolMap/Meshes/HideForInteriorTopDown",
     "set_actor_tags",
