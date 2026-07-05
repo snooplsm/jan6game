@@ -1654,6 +1654,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "dome_balustrade_posts",
     "dome_vertical_rib",
     "dome_curved_rib",
+    "dome_transition_skirt_panel",
+    "dome_transition_step_ring",
+    "dome_transition_radial_buttress",
     "dome_drum_arcade_bay",
     "dome_shell_panel_frame",
     "dome_drum_window_trim",
@@ -2606,6 +2609,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 dome vertical rib records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_curved_rib"]) < 24:
         error(errors, "expected at least 24 visible dome curved rib records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_skirt_panel"]) < 24:
+        error(errors, "expected at least 24 public dome transition skirt panel records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_step_ring"]) < 3:
+        error(errors, "expected at least 3 public dome transition step-ring records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_radial_buttress"]) < 16:
+        error(errors, "expected at least 16 public dome transition radial-buttress records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_arcade_bay"]) < 32:
         error(errors, "expected at least 32 dome drum arcade bay records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_frame"]) < 96:

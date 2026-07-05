@@ -6793,6 +6793,75 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     {"angle_degrees": round(math.degrees(angle), 2), "public_accuracy": "generic_public_dome_panel_relief"},
                 )
 
+    def add_dome_transition_skirt_details() -> None:
+        segment_count = 24
+        outer_radius = 29.8
+        inner_radius = 20.65
+        outer_z = dome_z(17.72)
+        inner_z = dome_z(18.55)
+        for index in range(segment_count):
+            angle0 = math.tau * index / segment_count
+            angle1 = math.tau * (index + 1) / segment_count
+            points = [
+                (outer_radius * math.cos(angle0), outer_radius * math.sin(angle0), outer_z),
+                (outer_radius * math.cos(angle1), outer_radius * math.sin(angle1), outer_z),
+                (inner_radius * math.cos(angle1), inner_radius * math.sin(angle1), inner_z),
+                (inner_radius * math.cos(angle0), inner_radius * math.sin(angle0), inner_z),
+            ]
+            name = f"dome_transition_skirt_panel_{index+1:02d}"
+            obj.add_sloped_polygon(points, name, "CapitolDome")
+            mid_angle = (angle0 + angle1) / 2.0
+            mid_radius = (outer_radius + inner_radius) / 2.0
+            add_facade_detail(
+                name,
+                "dome_transition_skirt_panel",
+                (mid_radius * math.cos(mid_angle), mid_radius * math.sin(mid_angle), (outer_z + inner_z) / 2.0),
+                {
+                    "radial_index": index + 1,
+                    "outer_radius_m": round(outer_radius, 3),
+                    "inner_radius_m": round(inner_radius, 3),
+                    "public_accuracy": "large_component_schematic_dome_base_transition",
+                },
+            )
+
+        ring_specs = [
+            ("outer_attic_ring", 30.30, 29.60, 17.68, 0.30),
+            ("middle_transition_step_ring", 24.80, 24.10, 18.05, 0.24),
+            ("inner_drum_seat_ring", 21.00, 20.30, 18.46, 0.30),
+        ]
+        for ring_index, (label, outer, inner, z, height) in enumerate(ring_specs, start=1):
+            name = f"dome_transition_{label}"
+            add_dome_ring((0.0, 0.0), outer, inner, z, height, name, "ColumnStone", segments=128)
+            add_facade_detail(
+                name,
+                "dome_transition_step_ring",
+                (0.0, 0.0, dome_z(z + height / 2.0)),
+                {
+                    "ring_index": ring_index,
+                    "outer_radius_m": round(outer, 3),
+                    "inner_radius_m": round(inner, 3),
+                    "public_accuracy": "large_component_schematic_dome_base_transition",
+                },
+            )
+
+        for index in range(16):
+            angle = math.tau * index / 16.0
+            radial_mid = 25.15
+            center = (radial_mid * math.cos(angle), radial_mid * math.sin(angle))
+            name = f"dome_transition_radial_buttress_{index+1:02d}"
+            obj.add_oriented_box(center, (7.30, 0.52), 0.68, dome_z(17.92), angle, name, "ColumnStone")
+            obj.add_oriented_box(center, (6.45, 0.30), 0.10, dome_z(18.44), angle, f"{name}_capstone", "ColumnStone")
+            add_facade_detail(
+                name,
+                "dome_transition_radial_buttress",
+                (center[0], center[1], dome_z(18.28)),
+                {
+                    "radial_index": index + 1,
+                    "angle_degrees": round(math.degrees(angle), 2),
+                    "public_accuracy": "large_component_schematic_dome_base_transition",
+                },
+            )
+
     def add_lantern_window_trim(index: int, angle: float) -> None:
         radius = 4.78
         add_radial_trim_bar(f"dome_lantern_window_glass_pane_{index:02d}", angle, radius - 0.16, 0.0, 56.10, 1.86, 0.58, 0.07, "DoorGlass")
@@ -8346,6 +8415,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_bench(f"east_public_bench_{idx:02d}", (86.0, x * 0.55))
         add_bench(f"west_public_bench_{idx:02d}", (-86.0, x * 0.55))
 
+    add_dome_transition_skirt_details()
     add_dome_cylinder((0.0, 0.0), 20.5, 17.9, 1.2, "dome_base_octagonal_plinth", "ColumnStone", segments=32)
     add_dome_cylinder((0.0, 0.0), 18.0, 18.0, 16.0, "dome_drum_cylinder", "CapitolDome", segments=96)
     add_dome_ring((0.0, 0.0), 18.4, 17.8, 20.6, 0.55, "dome_lower_balustrade_ring", "ColumnStone", segments=96)
