@@ -696,6 +696,10 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "roof_balustrade",
     "roof_articulation_volume",
     "roof_surface_joint",
+    "roof_capstone_block",
+    "roof_parapet_shadow_gap",
+    "roof_drain_scupper",
+    "generic_roof_vent_housing",
     "wing_transition_block",
     "courtyard_notch_shadow",
     "roof_dormer",
@@ -1071,8 +1075,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 2100:
-        error(errors, f"expected at least 2100 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 2400:
+        error(errors, f"expected at least 2400 public facade/furniture visual details, got {len(facade_details)}")
     missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
     if missing_facade_kinds:
         error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
@@ -1124,6 +1128,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 10 public roof articulation volume records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_surface_joint"]) < 55:
         error(errors, "expected at least 55 public roof surface joint records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_capstone_block"]) < 220:
+        error(errors, "expected at least 220 public roof capstone block records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_parapet_shadow_gap"]) < 28:
+        error(errors, "expected at least 28 public roof parapet shadow gap records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_drain_scupper"]) < 56:
+        error(errors, "expected at least 56 public roof drain/scupper visual records")
+    if len([detail for detail in facade_details if detail.get("kind") == "generic_roof_vent_housing"]) < 18:
+        error(errors, "expected at least 18 generic non-operational roof vent housing records")
     if len([detail for detail in facade_details if detail.get("kind") == "wing_transition_block"]) < 8:
         error(errors, "expected at least 8 public wing transition block records")
     if len([detail for detail in facade_details if detail.get("kind") == "courtyard_notch_shadow"]) < 8:

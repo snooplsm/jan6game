@@ -1973,6 +1973,92 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             obj.add_box((cx, y), (sx * 0.84, 0.08), 0.035, z, name, "StepStone")
             add_facade_detail(name, "roof_surface_joint", (cx, y, z + 0.018), {"axis": "y", "length_m": round(sx * 0.84, 3)})
 
+    def add_roof_edge_realism_details(
+        prefix: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        x_blocks: int,
+        y_blocks: int,
+    ) -> None:
+        cx, cy = center
+        sx, sy = size
+
+        def capstone(name: str, block_center: tuple[float, float], block_size: tuple[float, float], edge: str) -> None:
+            obj.add_box(block_center, block_size, 0.13, z, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                "roof_capstone_block",
+                (block_center[0], block_center[1], z + 0.065),
+                {"edge": edge, "size_m": [round(block_size[0], 3), round(block_size[1], 3)]},
+            )
+
+        for index in range(x_blocks):
+            x = cx - sx / 2.0 + sx * (index + 0.5) / x_blocks
+            block_width = sx / x_blocks * 0.72
+            capstone(f"{prefix}_north_capstone_block_{index+1:02d}", (x, cy + sy / 2.0 + 0.08), (block_width, 0.30), "north")
+            capstone(f"{prefix}_south_capstone_block_{index+1:02d}", (x, cy - sy / 2.0 - 0.08), (block_width, 0.30), "south")
+        for index in range(y_blocks):
+            y = cy - sy / 2.0 + sy * (index + 0.5) / y_blocks
+            block_depth = sy / y_blocks * 0.72
+            capstone(f"{prefix}_east_capstone_block_{index+1:02d}", (cx + sx / 2.0 + 0.08, y), (0.30, block_depth), "east")
+            capstone(f"{prefix}_west_capstone_block_{index+1:02d}", (cx - sx / 2.0 - 0.08, y), (0.30, block_depth), "west")
+
+        shadow_specs = [
+            ("north", (cx, cy + sy / 2.0 - 0.18), (sx * 0.92, 0.08)),
+            ("south", (cx, cy - sy / 2.0 + 0.18), (sx * 0.92, 0.08)),
+            ("east", (cx + sx / 2.0 - 0.18, cy), (0.08, sy * 0.92)),
+            ("west", (cx - sx / 2.0 + 0.18, cy), (0.08, sy * 0.92)),
+        ]
+        for edge, shadow_center, shadow_size in shadow_specs:
+            name = f"{prefix}_{edge}_parapet_shadow_gap"
+            obj.add_box(shadow_center, shadow_size, 0.035, z + 0.012, name, "DoorMetal")
+            add_facade_detail(
+                name,
+                "roof_parapet_shadow_gap",
+                (shadow_center[0], shadow_center[1], z + 0.030),
+                {"edge": edge, "length_m": round(max(shadow_size), 3)},
+            )
+
+        scupper_specs = [
+            ("north", (cx - sx * 0.30, cy + sy / 2.0 + 0.12), (0.48, 0.12)),
+            ("north", (cx + sx * 0.30, cy + sy / 2.0 + 0.12), (0.48, 0.12)),
+            ("south", (cx - sx * 0.30, cy - sy / 2.0 - 0.12), (0.48, 0.12)),
+            ("south", (cx + sx * 0.30, cy - sy / 2.0 - 0.12), (0.48, 0.12)),
+            ("east", (cx + sx / 2.0 + 0.12, cy - sy * 0.30), (0.12, 0.48)),
+            ("east", (cx + sx / 2.0 + 0.12, cy + sy * 0.30), (0.12, 0.48)),
+            ("west", (cx - sx / 2.0 - 0.12, cy - sy * 0.30), (0.12, 0.48)),
+            ("west", (cx - sx / 2.0 - 0.12, cy + sy * 0.30), (0.12, 0.48)),
+        ]
+        for index, (edge, scupper_center, scupper_size) in enumerate(scupper_specs, start=1):
+            name = f"{prefix}_{edge}_roof_scupper_{index:02d}"
+            obj.add_box(scupper_center, scupper_size, 0.08, z + 0.02, name, "DoorMetal")
+            add_facade_detail(
+                name,
+                "roof_drain_scupper",
+                (scupper_center[0], scupper_center[1], z + 0.06),
+                {"edge": edge, "public_accuracy": "generic_non_operational_roof_detail"},
+            )
+
+    def add_generic_roof_vent_housing(
+        name: str,
+        center: tuple[float, float],
+        z: float,
+        size: tuple[float, float] = (1.25, 0.92),
+    ) -> None:
+        x, y = center
+        obj.add_box((x, y), size, 0.42, z, f"{name}_low_stone_curb", "StepStone")
+        obj.add_box((x, y), (size[0] * 0.72, size[1] * 0.62), 0.34, z + 0.42, f"{name}_metal_louvered_housing", "LightFixtureMetal")
+        obj.add_box((x, y), (size[0] * 0.82, 0.08), 0.06, z + 0.62, f"{name}_louver_slats_a", "DoorMetal")
+        obj.add_box((x, y), (size[0] * 0.82, 0.08), 0.06, z + 0.76, f"{name}_louver_slats_b", "DoorMetal")
+        obj.add_cylinder((x + size[0] * 0.18, y - size[1] * 0.16), 0.11, z + 0.78, 0.44, f"{name}_short_vent_pipe", "LightFixtureMetal", segments=10)
+        add_facade_detail(
+            name,
+            "generic_roof_vent_housing",
+            (x, y, z + 0.55),
+            {"size_m": [round(size[0], 3), round(size[1], 3)], "public_accuracy": "generic_non_operational_roof_detail"},
+        )
+
     def add_facade_weathering_stains(
         prefix: str,
         orientation: str,
@@ -2653,6 +2739,42 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ]
     for name, center, size, z, x_lines, y_lines in roof_joint_specs:
         add_roof_surface_joint_grid(name, center, size, z, x_lines, y_lines)
+
+    roof_edge_detail_specs = [
+        ("central_body", (0.0, 0.0), (82.0, 62.0), 18.52, 12, 10),
+        ("senate_main_roof", (0.0, 68.0), (84.0, 60.0), 12.98, 12, 8),
+        ("house_main_roof", (0.0, -68.0), (92.0, 64.0), 12.98, 12, 8),
+        ("senate_center_pavilion_roof", (0.0, 68.0), (28.0, 68.0), 14.42, 5, 9),
+        ("house_center_pavilion_roof", (0.0, -68.0), (28.0, 72.0), 14.42, 5, 9),
+        ("east_front_portico_roof", (58.5, 0.0), (20.5, 70.0), 14.86, 4, 9),
+        ("west_front_portico_roof", (-58.5, 0.0), (20.5, 70.0), 14.86, 4, 9),
+    ]
+    for name, center, size, z, x_blocks, y_blocks in roof_edge_detail_specs:
+        add_roof_edge_realism_details(name, center, size, z, x_blocks, y_blocks)
+
+    roof_vent_specs = [
+        ("central_roof_generic_vent_01", (-22.0, -18.0), 18.72),
+        ("central_roof_generic_vent_02", (-22.0, 18.0), 18.72),
+        ("central_roof_generic_vent_03", (22.0, -18.0), 18.72),
+        ("central_roof_generic_vent_04", (22.0, 18.0), 18.72),
+        ("senate_main_generic_vent_01", (-31.0, 55.0), 13.18),
+        ("senate_main_generic_vent_02", (31.0, 55.0), 13.18),
+        ("senate_main_generic_vent_03", (-31.0, 81.0), 13.18),
+        ("senate_main_generic_vent_04", (31.0, 81.0), 13.18),
+        ("house_main_generic_vent_01", (-34.0, -55.0), 13.18),
+        ("house_main_generic_vent_02", (34.0, -55.0), 13.18),
+        ("house_main_generic_vent_03", (-34.0, -81.0), 13.18),
+        ("house_main_generic_vent_04", (34.0, -81.0), 13.18),
+        ("east_front_portico_generic_vent_01", (58.5, -26.0), 15.05),
+        ("east_front_portico_generic_vent_02", (58.5, 26.0), 15.05),
+        ("west_front_portico_generic_vent_01", (-58.5, -26.0), 15.05),
+        ("west_front_portico_generic_vent_02", (-58.5, 26.0), 15.05),
+        ("senate_center_pavilion_generic_vent", (0.0, 82.0), 14.62),
+        ("house_center_pavilion_generic_vent", (0.0, -82.0), 14.62),
+    ]
+    for name, center, z in roof_vent_specs:
+        add_generic_roof_vent_housing(name, center, z)
+    add_element("Generic roof capstones, scuppers, and non-operational vent housings", "landmark", (0.0, 0.0, 19.2))
 
     # Facade rhythm: public visual windows, belt courses, and cornice bands.
     y_window_positions = [value * 5.0 for value in range(-6, 7)]
