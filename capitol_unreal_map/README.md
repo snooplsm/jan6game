@@ -26,6 +26,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Floor finish detail preview: `http://127.0.0.1:8765/viewer.html#floor-details`
 - Surface aging detail preview: `http://127.0.0.1:8765/viewer.html#surface-aging-details`
 - Ceiling/crown detail preview: `http://127.0.0.1:8765/viewer.html#ceiling-details`
+- First-person walk preview: `http://127.0.0.1:8765/viewer.html#walk`
 - Texture preview: `http://127.0.0.1:8765/texture_preview.html`
 
 It contains:
@@ -250,6 +251,14 @@ Ceiling/crown detail quick link:
 http://127.0.0.1:8765/viewer.html#ceiling-details
 ```
 
+First-person walk quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#walk
+```
+
+This route hides the exterior, roof/landmark, roads, and gameplay meshes, starts a human-scale interior camera near the Rotunda, and keeps the public interior schematic visible for walk-through inspection in the browser.
+
 Surface aging detail quick link:
 
 ```text
@@ -307,9 +316,9 @@ The viewer can toggle:
 - basecolor texture preview
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, public art details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, public art labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, first-person public-interior walk inspection, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, public art details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, public art labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
-Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
+Controls: orbit mode uses drag, mouse wheel, and shift-drag. Walk Interior mode uses click-to-lock mouse look, WASD or arrow-key movement, Shift for faster movement, Q/E for height adjustment, and Esc to release the mouse.
 
 ## Unreal Import
 

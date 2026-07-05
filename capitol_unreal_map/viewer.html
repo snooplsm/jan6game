@@ -81,6 +81,12 @@
 
     button:hover { border-color: rgba(119, 183, 255, 0.55); }
 
+    button.active {
+      border-color: rgba(126, 224, 136, 0.72);
+      color: #d9ffe0;
+      background: rgba(126, 224, 136, 0.14);
+    }
+
     .quick-links {
       display: flex;
       gap: 8px;
@@ -219,6 +225,7 @@
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickSurfaceAgingDetails" href="#surface-aging-details">Surface Aging</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
+      <a class="quick-link" id="quickWalkInterior" href="#walk">Walk Interior</a>
       <a class="quick-link" id="quickInteriorOnly" href="#interior-only">Interior Only</a>
       <a class="quick-link" id="quickInteriorPlan" href="#interior-plan">Interior Plan</a>
       <a class="quick-link" id="quickChambersTop" href="#chambers-top">Chambers Top</a>
@@ -259,6 +266,7 @@
       <button id="presetFloorDetails">Floor Details</button>
       <button id="presetSurfaceAgingDetails">Surface Aging</button>
       <button id="presetCeilingDetails">Ceiling Details</button>
+      <button id="presetWalkInterior">Walk Interior</button>
       <button id="presetGameplay">Gameplay Items</button>
     </div>
 
@@ -311,7 +319,7 @@
       <span>Labels</span><strong>0</strong>
     </div>
 
-    <p class="hint">Mouse: drag to orbit, wheel to zoom, shift-drag to pan. This viewer reads the same OBJ/MTL assets intended for Unreal.</p>
+    <p class="hint">Orbit: drag, wheel, shift-drag. Walk Interior: click the viewport for mouse look; WASD or arrow keys move; shift moves faster; Q/E adjusts height; Esc releases mouse.</p>
   </aside>
 
   <script>
@@ -373,6 +381,12 @@
       pitch: 0.72,
       distance: 180000,
       target: [0, 0, 2200],
+      cameraMode: "orbit",
+      walkPosition: [0, -1400, 570],
+      walkYaw: 0,
+      walkPitch: 0,
+      walkKeys: new Set(),
+      lastFrameTime: 0,
       viewProj: mat4Identity(),
       dragging: false,
       panning: false,
@@ -433,6 +447,12 @@
     canvas.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", () => { state.dragging = false; });
     canvas.addEventListener("wheel", onWheel, { passive: false });
+    canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+    document.addEventListener("mousemove", onDocumentMouseMove);
+    document.addEventListener("pointerlockchange", onPointerLockChange);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", () => state.walkKeys.clear());
 
     document.querySelectorAll("[data-mesh]").forEach((input) => {
       input.addEventListener("change", () => {
@@ -483,6 +503,7 @@
     document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
     document.getElementById("presetSurfaceAgingDetails").onclick = () => focusSurfaceAgingDetailsRoute();
     document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
+    document.getElementById("presetWalkInterior").onclick = () => focusWalkInteriorRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
 
     document.getElementById("quickGroundsDetails").addEventListener("click", (event) => {
@@ -543,6 +564,11 @@
     document.getElementById("quickCeilingDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusCeilingDetailsRoute();
+    });
+
+    document.getElementById("quickWalkInterior").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusWalkInteriorRoute();
     });
 
     document.getElementById("quickInteriorOnly").addEventListener("click", (event) => {
@@ -628,7 +654,7 @@
         state.labels = buildLabels(metadata);
         renderLabelElements();
         updateStats();
-        statusEl.textContent = "Loaded. Use the presets or orbit the scene.";
+        statusEl.textContent = "Loaded. Use the presets, orbit the scene, or open Walk Interior.";
         applyHashRoute();
         loadViewerTextures(state.materialTextureManifest, state.materials).catch((error) => {
           console.warn(error);
@@ -1090,15 +1116,19 @@
       gl.viewport(0, 0, canvas.width, canvas.height);
     }
 
-    function draw() {
+    function draw(now = 0) {
+      const dt = state.lastFrameTime ? Math.min((now - state.lastFrameTime) / 1000, 0.05) : 0;
+      state.lastFrameTime = now;
+      updateWalkCamera(dt);
+
       resize();
       gl.clearColor(0.05, 0.06, 0.07, 1);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       const aspect = canvas.width / Math.max(canvas.height, 1);
-      const proj = mat4Perspective(Math.PI / 4, aspect, 10, 5000000);
+      const proj = mat4Perspective(Math.PI / 4, aspect, state.cameraMode === "walk" ? 5 : 10, 5000000);
       const eye = cameraEye();
-      const view = mat4LookAt(eye, state.target, [0, 0, 1]);
+      const view = mat4LookAt(eye, cameraLookTarget(eye), [0, 0, 1]);
       state.viewProj = mat4Multiply(proj, view);
 
       gl.useProgram(program);
@@ -1469,6 +1499,32 @@
       focusCeilingDetails();
     }
 
+    function focusWalkInterior() {
+      setMeshVisible("capitol_exterior_buildings", false);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "";
+      document.getElementById("labelSearch").value = "";
+
+      setWalkCamera([0, -1400, 570], 0, -0.03);
+      statusEl.textContent = "Walk Interior mode active. Click the viewport to lock mouse look; Esc releases it.";
+    }
+
+    function focusWalkInteriorRoute() {
+      if (window.location.hash !== "#walk") {
+        history.pushState(null, "", "#walk");
+      }
+      focusWalkInterior();
+    }
+
     function focusGameplayItems() {
       setMeshVisible("capitol_gameplay_items", true);
       state.labelsVisible = true;
@@ -1749,6 +1805,10 @@
         focusCeilingDetails();
         return;
       }
+      if (route === "walk" || route === "walk-interior" || route === "first-person" || route === "walkthrough") {
+        focusWalkInterior();
+        return;
+      }
       if (route === "interior-only" || route === "interior-cutaway" || route === "cutaway") {
         focusInteriorOnly();
         return;
@@ -1794,6 +1854,10 @@
     }
 
     function onPointerDown(event) {
+      if (state.cameraMode === "walk") {
+        canvas.requestPointerLock?.();
+        return;
+      }
       state.dragging = true;
       state.panning = event.shiftKey || event.button === 1 || event.button === 2;
       state.lastX = event.clientX;
@@ -1802,6 +1866,7 @@
     }
 
     function onPointerMove(event) {
+      if (state.cameraMode === "walk") return;
       if (!state.dragging) return;
       const dx = event.clientX - state.lastX;
       const dy = event.clientY - state.lastY;
@@ -1823,24 +1888,147 @@
 
     function onWheel(event) {
       event.preventDefault();
+      if (state.cameraMode === "walk") return;
       const factor = Math.exp(event.deltaY * 0.001);
       state.distance = clamp(state.distance * factor, 1200, 900000);
     }
 
     function setCamera(yaw, pitch, distance, target) {
+      if (document.pointerLockElement === canvas) {
+        document.exitPointerLock();
+      }
+      state.cameraMode = "orbit";
+      state.walkKeys.clear();
       state.yaw = yaw;
       state.pitch = pitch;
       state.distance = distance;
       state.target = target.slice();
+      updateCameraModeUi();
+    }
+
+    function setWalkCamera(position, yaw, pitch) {
+      state.cameraMode = "walk";
+      state.walkPosition = position.slice();
+      state.walkYaw = yaw;
+      state.walkPitch = pitch;
+      state.walkKeys.clear();
+      state.dragging = false;
+      updateCameraModeUi();
     }
 
     function cameraEye() {
+      if (state.cameraMode === "walk") {
+        return state.walkPosition.slice();
+      }
       const cp = Math.cos(state.pitch);
       return [
         state.target[0] + state.distance * cp * Math.sin(state.yaw),
         state.target[1] - state.distance * cp * Math.cos(state.yaw),
         state.target[2] + state.distance * Math.sin(state.pitch)
       ];
+    }
+
+    function cameraLookTarget(eye) {
+      if (state.cameraMode !== "walk") return state.target;
+      const cp = Math.cos(state.walkPitch);
+      return [
+        eye[0] + Math.sin(state.walkYaw) * cp * 1000,
+        eye[1] + Math.cos(state.walkYaw) * cp * 1000,
+        eye[2] + Math.sin(state.walkPitch) * 1000
+      ];
+    }
+
+    function updateWalkCamera(dt) {
+      if (state.cameraMode !== "walk" || dt <= 0) return;
+      const forward = [Math.sin(state.walkYaw), Math.cos(state.walkYaw), 0];
+      const right = [Math.cos(state.walkYaw), -Math.sin(state.walkYaw), 0];
+      let forwardAmount = 0;
+      let rightAmount = 0;
+      let upAmount = 0;
+
+      if (walkKeyDown("w") || walkKeyDown("arrowup")) forwardAmount += 1;
+      if (walkKeyDown("s") || walkKeyDown("arrowdown")) forwardAmount -= 1;
+      if (walkKeyDown("d") || walkKeyDown("arrowright")) rightAmount += 1;
+      if (walkKeyDown("a") || walkKeyDown("arrowleft")) rightAmount -= 1;
+      if (walkKeyDown("e") || walkKeyDown("pageup")) upAmount += 1;
+      if (walkKeyDown("q") || walkKeyDown("pagedown")) upAmount -= 1;
+
+      const horizontalLength = Math.hypot(forwardAmount, rightAmount) || 1;
+      const horizontalSpeed = walkKeyDown("shift") ? 2100 : 650;
+      const verticalSpeed = walkKeyDown("shift") ? 1200 : 420;
+      state.walkPosition[0] += (
+        forward[0] * forwardAmount / horizontalLength
+        + right[0] * rightAmount / horizontalLength
+      ) * horizontalSpeed * dt;
+      state.walkPosition[1] += (
+        forward[1] * forwardAmount / horizontalLength
+        + right[1] * rightAmount / horizontalLength
+      ) * horizontalSpeed * dt;
+      state.walkPosition[2] = clamp(
+        state.walkPosition[2] + upAmount * verticalSpeed * dt,
+        150,
+        24000
+      );
+    }
+
+    function onDocumentMouseMove(event) {
+      if (state.cameraMode !== "walk" || document.pointerLockElement !== canvas) return;
+      state.walkYaw += event.movementX * 0.0025;
+      state.walkPitch = clamp(state.walkPitch - event.movementY * 0.0025, -1.25, 1.25);
+    }
+
+    function onPointerLockChange() {
+      if (state.cameraMode !== "walk") return;
+      statusEl.textContent = document.pointerLockElement === canvas
+        ? "Walk Interior mouse look active. Esc releases mouse."
+        : "Walk Interior mode active. Click the viewport to lock mouse look; Esc releases it.";
+    }
+
+    function onKeyDown(event) {
+      if (state.cameraMode !== "walk" || isTypingTarget(event.target)) return;
+      const key = normalizedWalkKey(event);
+      if (!key) return;
+      state.walkKeys.add(key);
+      event.preventDefault();
+    }
+
+    function onKeyUp(event) {
+      const key = normalizedWalkKey(event);
+      if (key) state.walkKeys.delete(key);
+    }
+
+    function normalizedWalkKey(event) {
+      if (event.key === "Shift") return "shift";
+      const key = event.key.toLowerCase();
+      const allowed = new Set([
+        "w",
+        "a",
+        "s",
+        "d",
+        "q",
+        "e",
+        "arrowup",
+        "arrowdown",
+        "arrowleft",
+        "arrowright",
+        "pageup",
+        "pagedown"
+      ]);
+      return allowed.has(key) ? key : "";
+    }
+
+    function walkKeyDown(key) {
+      return state.walkKeys.has(key);
+    }
+
+    function isTypingTarget(target) {
+      return target && ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName);
+    }
+
+    function updateCameraModeUi() {
+      const walkButton = document.getElementById("presetWalkInterior");
+      if (!walkButton) return;
+      walkButton.classList.toggle("active", state.cameraMode === "walk");
     }
 
     function clamp(value, min, max) {

@@ -111,7 +111,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 182,
+    "required_markers": 194,
     "missing": []
   },
   "meshes": [
