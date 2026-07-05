@@ -1041,6 +1041,8 @@ REQUIRED_BUILDING_DETAIL_KINDS = {
     "surrounding_building_cornice_band",
     "surrounding_building_parapet_coping",
     "surrounding_building_corner_pier",
+    "surrounding_building_floor_band",
+    "surrounding_building_facade_pilaster",
     "surrounding_building_facade_window",
     "surrounding_building_window_sill",
     "surrounding_building_window_lintel",
@@ -1472,8 +1474,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
-    if len(building_details) < 6900:
-        error(errors, f"expected at least 6900 surrounding building visual detail records, got {len(building_details)}")
+    if len(building_details) < 7300:
+        error(errors, f"expected at least 7300 surrounding building visual detail records, got {len(building_details)}")
     missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
     if missing_building_detail_kinds:
         error(errors, f"missing surrounding building detail kinds: {', '.join(missing_building_detail_kinds)}")
@@ -1485,6 +1487,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 35 surrounding building parapet-coping records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_corner_pier"]) < 150:
         error(errors, "expected at least 150 surrounding building corner-pier records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_floor_band"]) < 180:
+        error(errors, "expected at least 180 surrounding building floor-band records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_facade_pilaster"]) < 500:
+        error(errors, "expected at least 500 surrounding building facade-pilaster records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_facade_window"]) < 360:
         error(errors, "expected at least 360 surrounding building facade-window records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_sill"]) < 800:

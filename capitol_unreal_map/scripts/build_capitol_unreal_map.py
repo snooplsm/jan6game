@@ -998,6 +998,58 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 {"face": face_name, "count": len(highlight_specs)},
             )
 
+        def add_surrounding_facade_rhythm() -> None:
+            floor_band_zs = [1.58 + level_index * 3.1 for level_index in range(rows + 1) if 1.58 + level_index * 3.1 < height - 0.55]
+            for band_index, band_z in enumerate(floor_band_zs, start=1):
+                band_specs = [
+                    ("north", ((min_x + max_x) / 2.0, max_y + 0.078), (width, 0.070)),
+                    ("south", ((min_x + max_x) / 2.0, min_y - 0.078), (width, 0.070)),
+                    ("east", (max_x + 0.078, (min_y + max_y) / 2.0), (0.070, depth)),
+                    ("west", (min_x - 0.078, (min_y + max_y) / 2.0), (0.070, depth)),
+                ]
+                for face_name, band_center, band_size in band_specs:
+                    band_name = f"{safe_prefix}_{face_name}_floor_band_{band_index:02d}"
+                    buildings.add_box(band_center, band_size, 0.055, band_z, band_name, "StepStone")
+                    add_building_detail_record(
+                        band_name,
+                        "surrounding_building_floor_band",
+                        way_id,
+                        name,
+                        (band_center[0], band_center[1], band_z + 0.028),
+                        {"face": face_name, "level": band_index},
+                    )
+
+            pilaster_z = 0.28
+            pilaster_height = max(1.8, height - 0.90)
+            for col in range(cols_x + 1):
+                x = min_x + width * col / cols_x
+                for face_name, y_face in (("north", max_y + 0.092), ("south", min_y - 0.092)):
+                    pilaster_name = f"{safe_prefix}_{face_name}_facade_pilaster_{col:02d}"
+                    buildings.add_box((x, y_face), (0.095, 0.105), pilaster_height, pilaster_z, pilaster_name, "StepStone")
+                    add_building_detail_record(
+                        pilaster_name,
+                        "surrounding_building_facade_pilaster",
+                        way_id,
+                        name,
+                        (x, y_face, pilaster_z + pilaster_height / 2.0),
+                        {"face": face_name, "sequence": col},
+                    )
+            for col in range(cols_y + 1):
+                y = min_y + depth * col / cols_y
+                for face_name, x_face in (("east", max_x + 0.092), ("west", min_x - 0.092)):
+                    pilaster_name = f"{safe_prefix}_{face_name}_facade_pilaster_{col:02d}"
+                    buildings.add_box((x_face, y), (0.105, 0.095), pilaster_height, pilaster_z, pilaster_name, "StepStone")
+                    add_building_detail_record(
+                        pilaster_name,
+                        "surrounding_building_facade_pilaster",
+                        way_id,
+                        name,
+                        (x_face, y, pilaster_z + pilaster_height / 2.0),
+                        {"face": face_name, "sequence": col},
+                    )
+
+        add_surrounding_facade_rhythm()
+
         for row in range(rows):
             z = min(height - 1.45, 2.1 + row * 3.1)
             if z <= 1.2:
