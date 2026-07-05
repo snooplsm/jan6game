@@ -29,6 +29,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Surface aging detail preview: `http://127.0.0.1:8765/viewer.html#surface-aging-details`
 - Ceiling/crown detail preview: `http://127.0.0.1:8765/viewer.html#ceiling-details`
 - First-person whole-map walk preview: `http://127.0.0.1:8765/viewer.html#walk-map`
+- First-person street-level walk preview: `http://127.0.0.1:8765/viewer.html#walk-street-level`
 - First-person walk preview: `http://127.0.0.1:8765/viewer.html#walk`
 - Texture preview: `http://127.0.0.1:8765/texture_preview.html`
 
@@ -286,6 +287,14 @@ http://127.0.0.1:8765/viewer.html#walk-map
 
 This route keeps the public exterior buildings, roads, bike lanes, street markers, grounds, Capitol landmark mesh, and public interior schematic visible, starts at human eye height near the west front, and hides only the gameplay preview mesh.
 
+Street-level first-person walk quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#walk-street-level
+```
+
+This route starts at human eye height near the surrounding-building street-level detail cluster so facade windows, stoops, utility plates, service panels, roads, and sidewalks can be inspected while walking.
+
 Surface aging detail quick link:
 
 ```text
@@ -359,7 +368,7 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 5. The script imports meshes into `/Game/CapitolMap/Generated`.
 6. The script imports generated texture PNGs into `/Game/CapitolMap/Textures`.
 7. The script creates or updates realism materials in `/Game/CapitolMap/Materials` from `unreal/material_realism_manifest.json`, configures imported basecolor/normal/roughness/ambient-occlusion texture assets with kind-specific sRGB, compression, texture-group, mip, filter, and sampler settings, wires generated texture samples from `generated/data/material_texture_manifest.json`, sets two-sided/tangent-space material flags for generated inspection meshes, applies high-precision static-mesh build settings for normals/tangents/lightmap UVs where Unreal exposes them, adds editor comments to generated material graphs, applies the `CapitolMap_PhotoRealPreview` lighting/post-process profile, and applies those materials to matching imported material slots.
-8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors with collision/navigation settings, guarded Unreal environment helpers, interior lights, capped public accent lights, a capped set of exterior streetlight actors, labels, nine named public PlayerStart actors, a guarded DefaultPawn playtest helper at the public-interior walk start, camera viewpoints, 54 first-person `BlockingVolume` collision proxies under `CapitolMap/Collision`, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
+8. The script clears previously generated `CapitolMap` actors in that level, then respawns mesh actors with collision/navigation settings, guarded Unreal environment helpers, interior lights, capped public accent lights, a capped set of exterior streetlight actors, labels, ten named public PlayerStart actors, a guarded DefaultPawn playtest helper at the public-interior walk start, camera viewpoints, 54 first-person `BlockingVolume` collision proxies under `CapitolMap/Collision`, and a broad `NavMeshBoundsVolume` for first-person/pawn testing.
 9. The script saves the current level when the Unreal editor API allows it.
 10. The script writes `generated/data/unreal_import_report.json` with the generated map path, imported asset paths, material asset paths, texture asset paths, material texture bindings/features, material graph features, environment setup, photoreal preview profile, first-person collision/navigation/playtest setup, collision proxy setup/coverage groups, interior-inspection visibility tags, public schematic inspection workflows, and metadata counts.
 
@@ -373,7 +382,7 @@ For Unreal full-interior inspection, use `CapitolMap_Camera_Interior_Cutaway` an
 
 For Unreal full-interior top-down inspection, use `CapitolMap_Camera_PublicInterior_TopDown` with the same `CapitolMap_HideForInteriorCutaway` hidden actors.
 
-For Unreal first-person whole-map inspection, use `CapitolMap_PlayerStart_WestFront` or `CapitolMap_Camera_WestFront_FirstPerson`. The importer adds public west/east plaza proxies, west/east axial grounds-walk and north/south connector walkable proxies, plus public approach road, sidewalk, and bike-lane inspection surfaces so public exterior routes can be checked at human scale.
+For Unreal first-person whole-map inspection, use `CapitolMap_PlayerStart_WestFront`, `CapitolMap_PlayerStart_SurroundingStreetLevel`, or `CapitolMap_Camera_WestFront_FirstPerson`. The importer adds public west/east plaza proxies, west/east axial grounds-walk and north/south connector walkable proxies, plus public approach road, sidewalk, and bike-lane inspection surfaces so public exterior routes can be checked at human scale.
 
 For Unreal first-person public-interior inspection, use `CapitolMap_PlayerStart_PublicInteriorWalk`, `CapitolMap_PlayerStart_Rotunda`, `CapitolMap_PlayerStart_HouseChamber`, `CapitolMap_PlayerStart_SenateChamber`, `CapitolMap_PlayerStart_HouseGallery`, `CapitolMap_PlayerStart_SenateGallery`, `CapitolMap_PlayerStart_HouseOfficeWest`, `CapitolMap_PlayerStart_SenateOfficeEast`, the auto-possessed `CapitolMap_Playtest_DefaultPawn`, or the `CapitolMap_Camera_PublicInteriorWalk` camera marker. `Config/DefaultInput.ini` pins DefaultPawn controls for immediate Play-in-Editor inspection: WASD/arrow movement, mouse look, Q/E or LeftControl/SpaceBar vertical movement, and left/right-stick gamepad movement/look. The importer adds public schematic floor proxies for the Rotunda, chambers, galleries, Statuary Hall, Old Senate Chamber, public approach/orientation zones, and generic office/support zones, plus generic public chamber seating, rostrum/dais, gallery bench, pedestal/display, and support-furniture blocker proxies so immediate playtesting has broad walkable coverage without walking through the densest schematic furniture.
 

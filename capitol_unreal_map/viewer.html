@@ -273,6 +273,7 @@
       <a class="quick-link" id="quickSurfaceAgingDetails" href="#surface-aging-details">Surface Aging</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
       <a class="quick-link" id="quickWalkMap" href="#walk-map">Walk Map</a>
+      <a class="quick-link" id="quickWalkStreetLevel" href="#walk-street-level">Walk Street</a>
       <a class="quick-link" id="quickWalkInterior" href="#walk">Walk Interior</a>
       <a class="quick-link" id="quickInteriorOnly" href="#interior-only">Interior Only</a>
       <a class="quick-link" id="quickInteriorPlan" href="#interior-plan">Interior Plan</a>
@@ -318,6 +319,7 @@
       <button id="presetSurfaceAgingDetails">Surface Aging</button>
       <button id="presetCeilingDetails">Ceiling Details</button>
       <button id="presetWalkMap">Walk Map</button>
+      <button id="presetWalkStreetLevel">Walk Street</button>
       <button id="presetWalkInterior">Walk Interior</button>
       <button id="presetGameplay">Gameplay Items</button>
     </div>
@@ -441,6 +443,19 @@
         fastHorizontalSpeed: 2100,
         verticalSpeed: 420,
         fastVerticalSpeed: 1200
+      },
+      streetLevel: {
+        label: "Street Level",
+        resetPosition: [-49200, -52800, 180],
+        resetYaw: 0.68,
+        resetPitch: 0.02,
+        floorZ: 0,
+        minEyeZ: 165,
+        maxEyeZ: 2600,
+        horizontalSpeed: 540,
+        fastHorizontalSpeed: 1750,
+        verticalSpeed: 360,
+        fastVerticalSpeed: 1000
       },
       interior: {
         label: "Public Interior",
@@ -691,6 +706,7 @@
     document.getElementById("presetSurfaceAgingDetails").onclick = () => focusSurfaceAgingDetailsRoute();
     document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
     document.getElementById("presetWalkMap").onclick = () => focusWalkMapRoute();
+    document.getElementById("presetWalkStreetLevel").onclick = () => focusWalkStreetLevelRoute();
     document.getElementById("presetWalkInterior").onclick = () => focusWalkInteriorRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
     document.getElementById("resetWalk").onclick = () => resetWalkCamera();
@@ -768,6 +784,11 @@
     document.getElementById("quickWalkMap").addEventListener("click", (event) => {
       event.preventDefault();
       focusWalkMapRoute();
+    });
+
+    document.getElementById("quickWalkStreetLevel").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusWalkStreetLevelRoute();
     });
 
     document.getElementById("quickWalkInterior").addEventListener("click", (event) => {
@@ -1931,6 +1952,33 @@
       focusWalkMap();
     }
 
+    function focusWalkStreetLevel() {
+      setMeshVisible("capitol_exterior_buildings", true);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", true);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", false);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "building_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "building_detail";
+      document.getElementById("labelSearch").value = "";
+
+      const preset = walkPresetConfigs.streetLevel;
+      setWalkCamera(preset.resetPosition, preset.resetYaw, preset.resetPitch, "streetLevel");
+      statusEl.textContent = "Walk Street mode active near surrounding-building facade details. Click the viewport to lock mouse look; Esc releases it.";
+    }
+
+    function focusWalkStreetLevelRoute() {
+      if (window.location.hash !== "#walk-street-level") {
+        history.pushState(null, "", "#walk-street-level");
+      }
+      focusWalkStreetLevel();
+    }
+
     function focusWalkInteriorRoute() {
       if (window.location.hash !== "#walk") {
         history.pushState(null, "", "#walk");
@@ -2234,6 +2282,10 @@
         focusWalkMap();
         return;
       }
+      if (route === "walk-street-level" || route === "street-walk" || route === "first-person-street") {
+        focusWalkStreetLevel();
+        return;
+      }
       if (route === "walk" || route === "walk-interior" || route === "first-person" || route === "walkthrough") {
         focusWalkInterior();
         return;
@@ -2476,9 +2528,13 @@
 
     function updateCameraModeUi() {
       const walkMapButton = document.getElementById("presetWalkMap");
+      const walkStreetButton = document.getElementById("presetWalkStreetLevel");
       const walkButton = document.getElementById("presetWalkInterior");
       if (walkMapButton) {
         walkMapButton.classList.toggle("active", state.cameraMode === "walk" && state.walkPreset === "map");
+      }
+      if (walkStreetButton) {
+        walkStreetButton.classList.toggle("active", state.cameraMode === "walk" && state.walkPreset === "streetLevel");
       }
       if (walkButton) {
         walkButton.classList.toggle("active", state.cameraMode === "walk" && state.walkPreset === "interior");

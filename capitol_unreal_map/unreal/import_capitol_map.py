@@ -139,6 +139,9 @@ PLAYER_START_ROTATION_DEG = [0.0, 4.0, 0.0]
 PUBLIC_INTERIOR_WALK_START_LABEL = "CapitolMap_PlayerStart_PublicInteriorWalk"
 PUBLIC_INTERIOR_WALK_START_LOCATION_CM = [0.0, -1400.0, 570.0]
 PUBLIC_INTERIOR_WALK_START_ROTATION_DEG = [0.0, 90.0, 0.0]
+SURROUNDING_STREET_LEVEL_START_LABEL = "CapitolMap_PlayerStart_SurroundingStreetLevel"
+SURROUNDING_STREET_LEVEL_START_LOCATION_CM = [-49200.0, -52800.0, 180.0]
+SURROUNDING_STREET_LEVEL_START_ROTATION_DEG = [0.0, 39.0, 0.0]
 PLAYTEST_PAWN_LABEL = "CapitolMap_Playtest_DefaultPawn"
 PLAYTEST_PAWN_LOCATION_CM = PUBLIC_INTERIOR_WALK_START_LOCATION_CM
 PLAYTEST_PAWN_ROTATION_DEG = PUBLIC_INTERIOR_WALK_START_ROTATION_DEG
@@ -177,6 +180,13 @@ FIRST_PERSON_PLAYER_STARTS = [
         "rotation_deg": PLAYER_START_ROTATION_DEG,
         "category": "public_exterior",
         "purpose": "public west-front exterior inspection start",
+    },
+    {
+        "label": SURROUNDING_STREET_LEVEL_START_LABEL,
+        "location_cm": SURROUNDING_STREET_LEVEL_START_LOCATION_CM,
+        "rotation_deg": SURROUNDING_STREET_LEVEL_START_ROTATION_DEG,
+        "category": "public_exterior_street_level",
+        "purpose": "public surrounding-building street-level walk inspection start",
     },
     {
         "label": PUBLIC_INTERIOR_WALK_START_LABEL,

@@ -134,7 +134,7 @@
     "report_keys": 232,
     "label_categories": 23,
     "outliner_folders": 14,
-    "first_person_markers": 57,
+    "first_person_markers": 59,
     "material_markers": 27,
     "environment_markers": 58,
     "inspection_markers": 35,
@@ -162,7 +162,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 255,
+    "required_markers": 264,
     "missing": []
   },
   "landmark_height": {
