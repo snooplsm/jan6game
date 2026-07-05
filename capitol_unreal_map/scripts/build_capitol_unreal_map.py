@@ -7347,7 +7347,13 @@ def add_public_office_grid(
         table_center = (cx, cy + y_offset)
         obj.add_box(table_center, (cell_w * 0.62, 0.92), 0.32, z + 0.20, f"{table_name}_top", "DeskWood")
         obj.add_box((table_center[0], table_center[1] - 0.50), (cell_w * 0.50, 0.08), 0.38, z + 0.46, f"{table_name}_rear_lip", "InteriorTrim")
+        obj.add_box((table_center[0] - cell_w * 0.16, table_center[1] + 0.16), (0.42, 0.30), 0.045, z + 0.535, f"{table_name}_document_tray_lower", "DoorMetal")
+        obj.add_box((table_center[0] - cell_w * 0.16, table_center[1] + 0.16), (0.38, 0.26), 0.026, z + 0.592, f"{table_name}_document_tray_papers", "LaneMarkingWhite")
+        obj.add_box((table_center[0] + cell_w * 0.16, table_center[1] - 0.08), (0.36, 0.26), 0.18, z + 0.535, f"{table_name}_supply_bin", "InteriorTrim")
+        obj.add_box((table_center[0] + cell_w * 0.16, table_center[1] - 0.08), (0.28, 0.18), 0.035, z + 0.735, f"{table_name}_supply_bin_contents", "DoorMetal")
         add_office_detail(table_name, "shared_support_table", (table_center[0], table_center[1], z + 0.36), (cell_w * 0.62, 0.92))
+        add_office_detail(f"{table_name}_document_tray", "shared_support_document_tray", (table_center[0] - cell_w * 0.16, table_center[1] + 0.16, z + 0.59), (0.42, 0.30))
+        add_office_detail(f"{table_name}_supply_bin", "shared_support_supply_bin", (table_center[0] + cell_w * 0.16, table_center[1] - 0.08, z + 0.64), (0.36, 0.26))
 
     for row in range(rows):
         for col in range(columns):
@@ -7369,6 +7375,13 @@ def add_public_office_grid(
             obj.add_box((ox, keyboard_y), (0.54, 0.16), 0.026, z + 1.008, room_id + "_keyboard", "DoorMetal")
             grommet_center = (ox + cell_w * 0.10, oy - cell_h * 0.05)
             obj.add_box(grommet_center, (0.16, 0.060), 0.018, z + 1.022, room_id + "_desk_cable_grommet", "DoorMetal")
+            obj.add_polyline_strip(
+                [(ox + 0.07, monitor_y - 0.02), (ox + cell_w * 0.08, oy - cell_h * 0.02), grommet_center],
+                0.026,
+                z + 1.041,
+                room_id + "_loose_monitor_cable_loop",
+                "RoadCrackSealant",
+            )
             cable_tray_center = (ox, oy + cell_h * 0.34)
             obj.add_box(cable_tray_center, (cell_w * 0.58, 0.045), 0.075, z + 0.62, room_id + "_back_partition_cable_tray", "DoorMetal")
             outlet_center = (ox + cell_w * 0.24, oy + cell_h * 0.345)
@@ -7377,6 +7390,10 @@ def add_public_office_grid(
             obj.add_box(data_plate_center, (0.14, 0.026), 0.10, z + 0.83, room_id + "_data_plate", "MarkerBlue")
             obj.add_box((ox - cell_w * 0.12, oy - cell_h * 0.02), (0.42, 0.28), 0.014, z + 1.012, room_id + "_paper_stack_1", "LaneMarkingWhite")
             obj.add_box((ox - cell_w * 0.12 + 0.025, oy - cell_h * 0.02 - 0.018), (0.39, 0.26), 0.014, z + 1.030, room_id + "_paper_stack_2", "LaneMarkingWhite")
+            inbox_center = (ox + cell_w * 0.14, oy - cell_h * 0.19)
+            obj.add_box(inbox_center, (0.38, 0.26), 0.020, z + 1.040, room_id + "_inbox_tray_bottom", "DoorMetal")
+            obj.add_box(inbox_center, (0.34, 0.22), 0.014, z + 1.068, room_id + "_inbox_tray_papers", "LaneMarkingWhite")
+            obj.add_box((inbox_center[0], inbox_center[1] + 0.015), (0.38, 0.26), 0.018, z + 1.090, room_id + "_inbox_tray_top", "DoorMetal")
             lamp_x = ox + cell_w * 0.15
             lamp_y = oy + cell_h * 0.04
             obj.add_cylinder((lamp_x, lamp_y), 0.07, z + 1.000, 0.05, room_id + "_desk_lamp_base", "LightFixtureMetal", segments=10)
@@ -7405,9 +7422,35 @@ def add_public_office_grid(
             obj.add_box((bookcase_x, oy + cell_h * 0.22), (0.58, 1.55), 1.35, z + 0.20, room_id + "_bookcase_body", "DeskWood")
             for shelf_index, shelf_y in enumerate([-0.46, 0.0, 0.46], start=1):
                 obj.add_box((bookcase_x, oy + cell_h * 0.22 + shelf_y), (0.62, 0.045), 0.055, z + 0.76 + shelf_index * 0.25, f"{room_id}_bookcase_shelf_{shelf_index}", "InteriorTrim")
+            binder_materials = ["MarkerBlue", "StreetSignGreen", "DiplomaticZone", "InteriorTrim"]
+            binder_y = oy + cell_h * 0.22 - 0.46
+            for binder_index in range(4):
+                binder_x = bookcase_x - 0.19 + binder_index * 0.12
+                binder_height = 0.30 + 0.035 * (binder_index % 2)
+                obj.add_box(
+                    (binder_x, binder_y),
+                    (0.085, 0.16),
+                    binder_height,
+                    z + 0.84,
+                    f"{room_id}_bookcase_binder_spine_{binder_index+1}",
+                    binder_materials[binder_index % len(binder_materials)],
+                )
             cabinet_x = ox + cell_w * 0.27
             obj.add_box((cabinet_x, oy + cell_h * 0.18), (0.72, 1.10), 0.78, z + 0.18, room_id + "_storage_cabinet", "InteriorTrim")
             obj.add_box((cabinet_x, oy + cell_h * 0.18), (0.78, 0.055), 0.08, z + 0.98, room_id + "_storage_cabinet_top", "DeskWood")
+            obj.add_box((cabinet_x, oy + cell_h * 0.18 - 0.47), (0.46, 0.035), 0.034, z + 0.64, room_id + "_storage_cabinet_label_low", "DoorMetal")
+            obj.add_box((cabinet_x, oy + cell_h * 0.18 - 0.47), (0.36, 0.026), 0.018, z + 0.68, room_id + "_storage_cabinet_label_insert", "LaneMarkingWhite")
+            pinboard_center = (ox + cell_w * 0.16, oy + cell_h * 0.345)
+            obj.add_box(pinboard_center, (0.58, 0.035), 0.40, z + 1.44, room_id + "_pinboard_panel", "PaintingCanvas")
+            for note_index, note_x in enumerate([-0.16, 0.0, 0.15], start=1):
+                obj.add_box(
+                    (pinboard_center[0] + note_x, pinboard_center[1] - 0.002),
+                    (0.13, 0.020),
+                    0.10,
+                    z + 1.54 + 0.06 * (note_index % 2),
+                    f"{room_id}_pinboard_note_{note_index}",
+                    "LaneMarkingWhite" if note_index != 2 else "MarkerBlue",
+                )
             door_y = oy - cell_h * 0.36
             obj.add_box((ox, door_y), (cell_w * 0.36, 0.08), 0.06, z + 0.03, room_id + "_public_door_threshold", "StepStone")
             obj.add_box((ox, door_y + 0.05), (cell_w * 0.26, 0.10), 1.62, z + 0.22, room_id + "_generic_door_panel", "DoorGlass")
@@ -7426,12 +7469,17 @@ def add_public_office_grid(
             add_office_detail(room_id + "_wall_outlet_plate", "generic_office_wall_outlet_plate", (outlet_center[0], outlet_center[1], z + 0.72), (0.16, 0.026))
             add_office_detail(room_id + "_data_plate", "generic_office_data_plate", (data_plate_center[0], data_plate_center[1], z + 0.88), (0.14, 0.026))
             add_office_detail(room_id + "_paper_stack", "generic_office_paper_stack", (ox - cell_w * 0.12 + 0.012, oy - cell_h * 0.02 - 0.009, z + 1.033), (0.42, 0.28))
+            add_office_detail(room_id + "_inbox_tray", "generic_office_inbox_tray", (inbox_center[0], inbox_center[1], z + 1.072), (0.38, 0.26))
+            add_office_detail(room_id + "_loose_monitor_cable_loop", "generic_office_loose_cable_loop", (ox + cell_w * 0.06, oy - cell_h * 0.035, z + 1.042), (0.42, 0.16))
             add_office_detail(room_id + "_desk_lamp", "generic_office_task_lamp", (lamp_x, lamp_y, z + 1.25), (0.24, 0.24))
             add_office_detail(room_id + "_chair_back", "generic_office_chair_back", (ox, oy - cell_h * 0.36, z + 0.88), (0.74, 0.10))
             add_office_detail(room_id + "_chair_arm_pair", "generic_office_chair_arm_pair", (ox, oy - cell_h * 0.28, z + 0.63), (0.94, 0.42))
             add_office_detail(room_id + "_chair_swivel_base", "generic_office_chair_swivel_base", (ox, oy - cell_h * 0.28, z + 0.19), (0.64, 0.64))
             add_office_detail(room_id + "_bookcase", "generic_office_bookcase", (bookcase_x, oy + cell_h * 0.22, z + 0.875), (0.62, 1.55))
+            add_office_detail(room_id + "_book_spine_row", "generic_office_book_spine_row", (bookcase_x, binder_y, z + 1.01), (0.52, 0.16))
             add_office_detail(room_id + "_storage_cabinet", "generic_office_storage_cabinet", (cabinet_x, oy + cell_h * 0.18, z + 0.57), (0.78, 1.10))
+            add_office_detail(room_id + "_storage_cabinet_label_plate", "generic_office_cabinet_label_plate", (cabinet_x, oy + cell_h * 0.18 - 0.47, z + 0.67), (0.46, 0.035))
+            add_office_detail(room_id + "_pinboard_panel", "generic_office_pinboard_panel", (pinboard_center[0], pinboard_center[1], z + 1.66), (0.58, 0.035))
             add_office_detail(room_id + "_public_door_threshold", "office_door_threshold", (ox, door_y, z + 0.06), (cell_w * 0.36, 0.08))
             add_office_detail(room_id + "_generic_door_panel", "generic_office_door_panel", (ox, door_y + 0.05, z + 1.03), (cell_w * 0.26, 0.10))
             add_office_detail(room_id + "_generic_public_plaque", "generic_office_plaque", (plaque_x, door_y + 0.10, z + 1.49), (0.34, 0.055))
