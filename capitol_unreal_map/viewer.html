@@ -261,6 +261,7 @@
       <a class="quick-link" id="quickFacadeDetails" href="#facade-details">Facade Details</a>
       <a class="quick-link" id="quickStreetLevel" href="#street-level">Street Level</a>
       <a class="quick-link" id="quickHeightAudit" href="#height-audit">Height Audit</a>
+      <a class="quick-link" id="quickSurroundingRooftops" href="#surrounding-rooftops">Rooftops</a>
       <a class="quick-link" id="quickRoofDetails" href="#roof-details">Roof Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
       <a class="quick-link" id="quickSignageDetails" href="#signage-details">Signage</a>
@@ -295,6 +296,7 @@
       <button id="presetFacadeDetails">Facade Details</button>
       <button id="presetStreetLevel">Street Level</button>
       <button id="presetHeightAudit">Height Audit</button>
+      <button id="presetSurroundingRooftops">Rooftops</button>
       <button id="presetRoofDetails">Roof Details</button>
       <button id="presetRotunda">Rotunda</button>
       <button id="presetHouse">House</button>
@@ -335,6 +337,7 @@
         <option value="grounds_detail">Grounds details</option>
         <option value="facade_detail">Facade details</option>
         <option value="building_detail">Building details</option>
+        <option value="building_roof_detail">Building roof details</option>
         <option value="height_audit">Height audit</option>
         <option value="height_review_target">Height review targets</option>
         <option value="visitor_gallery">Galleries</option>
@@ -423,7 +426,7 @@
 
     const VIEWER_TEXTURE_MAX_SIZE = 1024;
     const VIEWER_SECONDARY_TEXTURE_MAX_SIZE = 512;
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "building_detail", "height_audit", "height_review_target", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "public_art", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "building_detail", "building_roof_detail", "height_audit", "height_review_target", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "public_art", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
     const walkPresetConfigs = {
       map: {
@@ -666,6 +669,7 @@
     document.getElementById("presetFacadeDetails").onclick = () => focusFacadeDetailsRoute();
     document.getElementById("presetStreetLevel").onclick = () => focusStreetLevelRoute();
     document.getElementById("presetHeightAudit").onclick = () => focusHeightAuditRoute();
+    document.getElementById("presetSurroundingRooftops").onclick = () => focusSurroundingRooftopsRoute();
     document.getElementById("presetRoofDetails").onclick = () => focusRoofDetailsRoute();
     document.getElementById("presetRotunda").onclick = () => setCamera(0.62, 0.64, 26000, [0, 0, 5600]);
     document.getElementById("presetHouse").onclick = () => setCamera(0.08, 0.76, 26000, [0, -7200, 5600]);
@@ -704,6 +708,11 @@
     document.getElementById("quickHeightAudit").addEventListener("click", (event) => {
       event.preventDefault();
       focusHeightAuditRoute();
+    });
+
+    document.getElementById("quickSurroundingRooftops").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusSurroundingRooftopsRoute();
     });
 
     document.getElementById("quickRoofDetails").addEventListener("click", (event) => {
@@ -1273,15 +1282,39 @@
         "surrounding_building_address_plaque",
         "surrounding_building_downspout_pipe"
       ]);
+      const surroundingRooftopBuildingDetailKinds = new Set([
+        "surrounding_building_roof_setback_surface",
+        "surrounding_building_parapet_inner_shadow",
+        "surrounding_building_roof_gravel_patch",
+        "surrounding_building_skylight_strip",
+        "surrounding_building_roof_penthouse",
+        "surrounding_building_roof_penthouse_louver",
+        "surrounding_building_rooftop_detail",
+        "surrounding_building_roof_access_hatch",
+        "surrounding_building_rooftop_mechanical",
+        "surrounding_building_rooftop_louver",
+        "surrounding_building_roof_pipe_stack",
+        "surrounding_building_roof_vent_cap",
+        "surrounding_building_roof_conduit",
+        "surrounding_building_roof_equipment_pad",
+        "surrounding_building_rooftop_hvac_fan",
+        "surrounding_building_roof_vent_cluster",
+        "surrounding_building_roof_skylight_dome",
+        "surrounding_building_roof_drain_box",
+        "surrounding_building_roof_stain_patch"
+      ]);
       for (const detail of metadata.exterior?.building_details || []) {
-        if (!streetLevelBuildingDetailKinds.has(detail.kind) || !detail.center_m) continue;
+        if (!detail.center_m) continue;
+        const isStreetLevelDetail = streetLevelBuildingDetailKinds.has(detail.kind);
+        const isRooftopDetail = surroundingRooftopBuildingDetailKinds.has(detail.kind);
+        if (!isStreetLevelDetail && !isRooftopDetail) continue;
         const buildingName = detail.building_name && !String(detail.building_name).startsWith("osm_way_")
           ? ` - ${detail.building_name}`
           : "";
         labels.push({
           text: `${humanizeId(detail.kind || "building_detail")}${buildingName}`,
           location: detail.center_m,
-          category: "building_detail"
+          category: isRooftopDetail ? "building_roof_detail" : "building_detail"
         });
       }
       for (const label of metadata.exterior?.street_labels || []) {
@@ -1599,6 +1632,32 @@
         history.pushState(null, "", "#height-audit");
       }
       focusHeightAudit();
+    }
+
+    function focusSurroundingRooftops() {
+      setMeshVisible("capitol_exterior_buildings", true);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", false);
+      setMeshVisible("capitol_landmark_visual_details", false);
+      setMeshVisible("capitol_public_interior_schematic", false);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "building_roof_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "building_roof_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.30, 0.72, 52000, [39500, -61400, 1200]);
+      statusEl.textContent = "Focused surrounding-building rooftop details: generic equipment pads, HVAC fans, vent clusters, skylight domes, drains, and stain patches.";
+    }
+
+    function focusSurroundingRooftopsRoute() {
+      if (window.location.hash !== "#surrounding-rooftops") {
+        history.pushState(null, "", "#surrounding-rooftops");
+      }
+      focusSurroundingRooftops();
     }
 
     function focusRoofDetails() {
@@ -2125,6 +2184,10 @@
       }
       if (route === "height-audit" || route === "heights" || route === "building-heights") {
         focusHeightAudit();
+        return;
+      }
+      if (route === "surrounding-rooftops" || route === "building-rooftops" || route === "rooftop-equipment") {
+        focusSurroundingRooftops();
         return;
       }
       if (route === "roof-details" || route === "roof" || route === "roof-inspection") {

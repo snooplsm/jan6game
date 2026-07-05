@@ -233,6 +233,14 @@ VIEWPOINTS = [
         "viewer_note": "Inspect public/schematic surrounding-building street-level facade, entry, utility, and weathering detail records.",
     },
     {
+        "label": "CapitolMap_Camera_SurroundingRooftops",
+        "location_m": [430.0, -735.0, 64.0],
+        "target_m": [395.0, -614.0, 12.0],
+        "fov": 54.0,
+        "category": "public_exterior_rooftop",
+        "viewer_note": "Inspect generic non-operational surrounding-building rooftop equipment, skylight, drain, and weathering detail records.",
+    },
+    {
         "label": "CapitolMap_Camera_Rotunda",
         "location_m": [-23.0, -24.0, 7.5],
         "target_m": [0.0, 0.0, 5.0],

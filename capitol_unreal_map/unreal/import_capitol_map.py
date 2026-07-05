@@ -924,6 +924,15 @@ UNREAL_INSPECTION_WORKFLOWS = {
         "public_accuracy": "approximate_public_surrounding_building_visual",
         "person_specific": False,
     },
+    "surrounding_building_rooftops": {
+        "browser_route": "#surrounding-rooftops",
+        "camera_label": "CapitolMap_Camera_SurroundingRooftops",
+        "visible_mesh": "capitol_exterior_buildings.obj",
+        "label_filter": "building_roof_detail",
+        "purpose": "Public surrounding-building rooftop equipment, skylight, drain, and weathering detail inspection.",
+        "public_accuracy": "generic_non_operational_rooftop_visual",
+        "person_specific": False,
+    },
 }
 
 MESH_INSPECTION_VISIBILITY = {
@@ -1100,9 +1109,19 @@ LABEL_COLORS = {
     "landmark": (235, 235, 220, 255),
     "street_name": (210, 230, 210, 255),
     "building": (226, 226, 214, 255),
+    "building_roof_detail": (192, 218, 235, 255),
     "height_audit": (255, 205, 92, 255),
     "height_review_target": (255, 116, 92, 255),
     "gameplay_item": (255, 155, 105, 255),
+}
+
+SURROUNDING_ROOFTOP_LABEL_KINDS = {
+    "surrounding_building_roof_equipment_pad",
+    "surrounding_building_rooftop_hvac_fan",
+    "surrounding_building_roof_vent_cluster",
+    "surrounding_building_roof_skylight_dome",
+    "surrounding_building_roof_drain_box",
+    "surrounding_building_roof_stain_patch",
 }
 
 
@@ -2223,6 +2242,8 @@ def label_color(category: str) -> unreal.Color:
 def label_folder(category: str) -> str:
     if category in {"street_name", "building"}:
         return "CapitolMap/Labels/Exterior"
+    if category in {"building_roof_detail"}:
+        return "CapitolMap/Labels/Rooftops"
     if category in {"height_audit", "height_review_target"}:
         return "CapitolMap/Labels/HeightAudit"
     if category in {"landmark"}:
@@ -2307,6 +2328,19 @@ def spawn_metadata_labels() -> None:
             location,
             "height_review_target",
         )
+
+    rooftop_label_count = 0
+    for detail in data.get("exterior", {}).get("building_details", []):
+        if detail.get("kind") not in SURROUNDING_ROOFTOP_LABEL_KINDS:
+            continue
+        if rooftop_label_count >= 180:
+            break
+        center = detail.get("center_m", [0.0, 0.0, 0.0])
+        kind_label = str(detail.get("kind", "building_roof_detail")).replace("_", " ").title()
+        building_name = detail.get("building_name")
+        suffix = "" if not building_name or str(building_name).startswith("osm_way_") else f" - {building_name}"
+        spawn_text_label(f"{kind_label}{suffix}", center, "building_roof_detail")
+        rooftop_label_count += 1
 
 
 def save_generated_level() -> None:

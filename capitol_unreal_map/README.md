@@ -17,6 +17,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Grounds detail preview: `http://127.0.0.1:8765/viewer.html#grounds-details`
 - Capitol facade/roof detail preview: `http://127.0.0.1:8765/viewer.html#facade-details`
 - Surrounding-building street-level detail preview: `http://127.0.0.1:8765/viewer.html#street-level`
+- Surrounding-building rooftop detail preview: `http://127.0.0.1:8765/viewer.html#surrounding-rooftops`
 - Roof detail preview: `http://127.0.0.1:8765/viewer.html#roof-details`
 - Office/support detail preview: `http://127.0.0.1:8765/viewer.html#offices`
 - Public signage detail preview: `http://127.0.0.1:8765/viewer.html#signage-details`
@@ -111,7 +112,7 @@ The current validation report counts 1,557,376 vertices, 3,484,152 generated tex
 
 The current texture validation report counts 43 generated texture sets, 19 procedural texture styles, 10 photoreal-readiness feature markers, 172 PNG texture files, 75 material bindings, and a minimum generated texture dimension of 4096px.
 
-The current Unreal importer validation report counts 232 report-key markers, 27 material-setup markers, 58 environment/lighting markers, 29 inspection-workflow markers, 58 Unreal project config markers, and 244 viewer markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, ambient-occlusion map support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, photoreal preview profile reporting, expanded public PlayerStart coverage, explicit Unreal DefaultPawn input mappings, browser photoreal shader/first-person walk HUD/reset/floor-bound markers, public exterior collision proxy coverage, street-level surrounding-building inspection labels, building-height audit labels, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
+The current Unreal importer validation report counts 232 report-key markers, 27 material-setup markers, 58 environment/lighting markers, 35 inspection-workflow markers, 58 Unreal project config markers, and 255 viewer markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, ambient-occlusion map support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, photoreal preview profile reporting, expanded public PlayerStart coverage, explicit Unreal DefaultPawn input mappings, browser photoreal shader/first-person walk HUD/reset/floor-bound markers, public exterior collision proxy coverage, street-level surrounding-building inspection labels, surrounding-building rooftop inspection labels, building-height audit labels, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
 
 The current generated build contains:
 
@@ -207,6 +208,12 @@ Surrounding-building street-level detail quick link:
 
 ```text
 http://127.0.0.1:8765/viewer.html#street-level
+```
+
+Surrounding-building rooftop detail quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#surrounding-rooftops
 ```
 
 Roof detail quick link:
@@ -337,7 +344,7 @@ The viewer can toggle:
 - photoreal shader preview
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, surrounding-building street-level details, building-height audit, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, first-person whole-map walk inspection, first-person public-interior walk inspection, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, public art details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, surrounding-building street-level detail labels, height-audit labels, height-review targets, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, public art labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, surrounding-building street-level details, surrounding-building rooftop details, building-height audit, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, first-person whole-map walk inspection, first-person public-interior walk inspection, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, public art details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, surrounding-building street-level detail labels, surrounding-building rooftop detail labels, height-audit labels, height-review targets, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, public art labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: orbit mode uses drag, mouse wheel, and shift-drag. Walk modes use click-to-lock mouse look, WASD or arrow-key movement, Shift for faster movement, Q/E for bounded height adjustment, Esc to release the mouse, and a walk HUD with current mode, eye height, speed, position, and reset-to-start control.
 
@@ -410,6 +417,8 @@ Generated camera viewpoints:
 - `CapitolMap_Camera_WestFront_FirstPerson`
 - `CapitolMap_Camera_PublicInteriorWalk`
 - `CapitolMap_Camera_WestGrounds`
+- `CapitolMap_Camera_SurroundingStreetLevel`
+- `CapitolMap_Camera_SurroundingRooftops`
 - `CapitolMap_Camera_Rotunda`
 - `CapitolMap_Camera_HouseChamber_JointSession`
 - `CapitolMap_Camera_SenateChamber`

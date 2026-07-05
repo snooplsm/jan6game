@@ -108,7 +108,7 @@
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 17
+    "viewpoints": 18
   },
   "materials": {
     "manifest_materials": 75,
@@ -137,7 +137,7 @@
     "first_person_markers": 57,
     "material_markers": 27,
     "environment_markers": 58,
-    "inspection_markers": 29,
+    "inspection_markers": 35,
     "collision_proxy_specs": 54,
     "collision_proxy_groups": 7,
     "missing": {
@@ -162,7 +162,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 244,
+    "required_markers": 255,
     "missing": []
   },
   "landmark_height": {
