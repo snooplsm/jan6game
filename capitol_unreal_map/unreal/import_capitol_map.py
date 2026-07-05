@@ -124,6 +124,30 @@ FIRST_PERSON_COLLISION_PROXIES = [
         "purpose": "public south wing approach walkable proxy",
     },
     {
+        "label": "CapitolMap_Collision_WestAxialPublicWalk",
+        "location_cm": [-22500.0, 0.0, 34.0],
+        "scale": [132.0, 8.5, 0.18],
+        "purpose": "public west axial grounds walkable proxy for whole-map first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_EastAxialPublicWalk",
+        "location_cm": [14900.0, 0.0, 34.0],
+        "scale": [58.0, 7.0, 0.18],
+        "purpose": "public east axial grounds walkable proxy for whole-map first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_NorthPublicGroundsWalk",
+        "location_cm": [0.0, 12100.0, 40.0],
+        "scale": [72.0, 4.4, 0.18],
+        "purpose": "public north grounds connector walkable proxy for whole-map first-person inspection",
+    },
+    {
+        "label": "CapitolMap_Collision_SouthPublicGroundsWalk",
+        "location_cm": [0.0, -12100.0, 40.0],
+        "scale": [72.0, 4.4, 0.18],
+        "purpose": "public south grounds connector walkable proxy for whole-map first-person inspection",
+    },
+    {
         "label": "CapitolMap_Collision_RotundaPublicFloor",
         "location_cm": [0.0, 0.0, 448.0],
         "scale": [15.5, 15.5, 0.16],
