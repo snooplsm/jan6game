@@ -1384,6 +1384,7 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "public_utility_box",
     "public_utility_box_detail",
     "public_news_box",
+    "public_news_box_detail",
     "bus_stop_shelter_bench",
     "bus_stop_route_panel",
 }
@@ -2289,6 +2290,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 12 public utility-box detail props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_news_box"]) < 12:
         error(errors, "expected at least 12 public news-box props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "public_news_box_detail"]) < 12:
+        error(errors, "expected at least 12 public news-box detail props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "bus_stop_shelter_bench"]) < 8:
         error(errors, "expected at least 8 public bus-stop shelter bench-detail props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "bus_stop_route_panel"]) < 8:

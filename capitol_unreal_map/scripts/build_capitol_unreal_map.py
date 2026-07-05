@@ -3467,10 +3467,26 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     def add_public_news_box(name: str, center: tuple[float, float], material: str) -> None:
         x, y = center
+        roads.add_box((x, y), (0.62, 0.48), 0.08, 0.08, f"{name}_base_foot", "DoorMetal")
         roads.add_box(center, (0.54, 0.42), 0.92, 0.12, f"{name}_box_body", material)
+        roads.add_box((x, y), (0.58, 0.46), 0.06, 1.04, f"{name}_top_lip", "DoorMetal")
         roads.add_box((x, y - 0.045), (0.40, 0.050), 0.36, 0.48, f"{name}_front_window", "DoorGlass")
+        roads.add_box((x, y - 0.077), (0.46, 0.026), 0.035, 0.45, f"{name}_window_lower_frame", "DoorMetal")
+        roads.add_box((x, y - 0.077), (0.46, 0.026), 0.035, 0.83, f"{name}_window_upper_frame", "DoorMetal")
+        roads.add_box((x - 0.23, y - 0.077), (0.026, 0.026), 0.38, 0.46, f"{name}_window_left_frame", "DoorMetal")
+        roads.add_box((x + 0.23, y - 0.077), (0.026, 0.026), 0.38, 0.46, f"{name}_window_right_frame", "DoorMetal")
+        for slat_index, z in enumerate([0.36, 0.42, 0.48, 0.54], start=1):
+            roads.add_box((x, y - 0.105), (0.34, 0.018), 0.018, z, f"{name}_paper_stack_slat_{slat_index:02d}", "LaneMarkingWhite")
+        roads.add_box((x - 0.16, y - 0.102), (0.10, 0.020), 0.030, 0.95, f"{name}_coin_slot_plate", "DoorMetal")
+        roads.add_box((x + 0.17, y - 0.102), (0.12, 0.020), 0.045, 0.76, f"{name}_pull_handle", "BollardMetal")
         roads.add_box((x, y), (0.38, 0.042), 0.050, 0.92, f"{name}_headline_bar", "LaneMarkingWhite")
         add_streetscape_record(name, "public_news_box", (x, y, 0.58), extra={"material": material})
+        add_streetscape_record(
+            f"{name}_fixture_detail",
+            "public_news_box_detail",
+            (x, y, 0.62),
+            extra={"material": material, "parts": ["base_foot", "top_lip", "window_frame", "paper_stack_slats", "coin_slot_plate", "pull_handle"]},
+        )
 
     def add_public_roadway_visual_details() -> None:
         # Authored public-facing road markings for visual realism. These are
