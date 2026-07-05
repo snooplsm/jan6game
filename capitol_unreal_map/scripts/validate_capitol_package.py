@@ -31,6 +31,7 @@ UNREAL_IMPORTER_PATH = ROOT / "unreal" / "import_capitol_map.py"
 UPROJECT_PATH = ROOT / "CapitolMap.uproject"
 DEFAULT_ENGINE_PATH = ROOT / "Config" / "DefaultEngine.ini"
 DEFAULT_GAME_PATH = ROOT / "Config" / "DefaultGame.ini"
+DEFAULT_INPUT_PATH = ROOT / "Config" / "DefaultInput.ini"
 VIEWER_PATH = ROOT / "viewer.html"
 MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 CAPITOL_PUBLIC_HEIGHT_TARGET_M = 87.48
@@ -264,6 +265,18 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "playtest_pawn_location_cm",
     "playtest_pawn_rotation_deg",
     "playtest_pawn_auto_possess",
+    "playtest_input_profile",
+    "playtest_input_config_file",
+    "keyboard_mouse",
+    "gamepad",
+    "axis_names",
+    "DefaultPawn_MoveForward",
+    "DefaultPawn_MoveRight",
+    "DefaultPawn_MoveUp",
+    "DefaultPawn_Turn",
+    "DefaultPawn_LookUp",
+    "DefaultPawn_TurnRate",
+    "DefaultPawn_LookUpRate",
     "nav_mesh_bounds_actor_class",
     "nav_mesh_bounds_label",
     "nav_mesh_bounds_location_cm",
@@ -568,6 +581,29 @@ REQUIRED_UNREAL_PROJECT_CONFIG_MARKERS = {
     "Config/DefaultGame.ini": {
         "ProjectName=Capitol Unreal Map",
         "Public-data U.S. Capitol exterior and public-interior schematic map package.",
+    },
+    "Config/DefaultInput.ini": {
+        "[/Script/Engine.InputSettings]",
+        "bEnableMouseSmoothing=False",
+        "bViewAccelerationEnabled=False",
+        'AxisName="DefaultPawn_MoveForward"',
+        'AxisName="DefaultPawn_MoveRight"',
+        'AxisName="DefaultPawn_MoveUp"',
+        'AxisName="DefaultPawn_Turn"',
+        'AxisName="DefaultPawn_LookUp"',
+        'AxisName="DefaultPawn_TurnRate"',
+        'AxisName="DefaultPawn_LookUpRate"',
+        "Key=W",
+        "Key=S",
+        "Key=A",
+        "Key=D",
+        "Key=Q",
+        "Key=E",
+        "Key=SpaceBar",
+        "Key=MouseX",
+        "Key=MouseY",
+        "Key=Gamepad_LeftY",
+        "Key=Gamepad_RightX",
     },
 }
 
@@ -3178,6 +3214,7 @@ def validate_unreal_project_config(errors: list[str]) -> dict[str, Any]:
         "CapitolMap.uproject": UPROJECT_PATH,
         "Config/DefaultEngine.ini": DEFAULT_ENGINE_PATH,
         "Config/DefaultGame.ini": DEFAULT_GAME_PATH,
+        "Config/DefaultInput.ini": DEFAULT_INPUT_PATH,
     }
     summary: dict[str, Any] = {
         "files": 0,

@@ -142,6 +142,34 @@ PUBLIC_INTERIOR_WALK_START_ROTATION_DEG = [0.0, 90.0, 0.0]
 PLAYTEST_PAWN_LABEL = "CapitolMap_Playtest_DefaultPawn"
 PLAYTEST_PAWN_LOCATION_CM = PUBLIC_INTERIOR_WALK_START_LOCATION_CM
 PLAYTEST_PAWN_ROTATION_DEG = PUBLIC_INTERIOR_WALK_START_ROTATION_DEG
+PLAYTEST_INPUT_PROFILE = {
+    "config_file": "Config/DefaultInput.ini",
+    "pawn_class": "DefaultPawn",
+    "keyboard_mouse": {
+        "move_forward": ["W", "Up"],
+        "move_backward": ["S", "Down"],
+        "strafe_left": ["A", "Left"],
+        "strafe_right": ["D", "Right"],
+        "move_up": ["E", "SpaceBar"],
+        "move_down": ["Q", "LeftControl"],
+        "look": ["MouseX", "MouseY"],
+    },
+    "gamepad": {
+        "move": ["Gamepad_LeftX", "Gamepad_LeftY"],
+        "look": ["Gamepad_RightX", "Gamepad_RightY"],
+        "move_up": ["Gamepad_RightShoulder"],
+        "move_down": ["Gamepad_LeftShoulder"],
+    },
+    "axis_names": [
+        "DefaultPawn_MoveForward",
+        "DefaultPawn_MoveRight",
+        "DefaultPawn_MoveUp",
+        "DefaultPawn_Turn",
+        "DefaultPawn_LookUp",
+        "DefaultPawn_TurnRate",
+        "DefaultPawn_LookUpRate",
+    ],
+}
 FIRST_PERSON_PLAYER_STARTS = [
     {
         "label": PLAYER_START_LABEL,
@@ -701,6 +729,8 @@ FIRST_PERSON_IMPORT_SETUP = {
     "playtest_pawn_location_cm": PLAYTEST_PAWN_LOCATION_CM,
     "playtest_pawn_rotation_deg": PLAYTEST_PAWN_ROTATION_DEG,
     "playtest_pawn_auto_possess": "PLAYER0",
+    "playtest_input_profile": PLAYTEST_INPUT_PROFILE,
+    "playtest_input_config_file": PLAYTEST_INPUT_PROFILE["config_file"],
     "nav_mesh_bounds_actor_class": "NavMeshBoundsVolume",
     "nav_mesh_bounds_label": NAV_MESH_BOUNDS_LABEL,
     "nav_mesh_bounds_location_cm": NAV_MESH_BOUNDS_LOCATION_CM,
