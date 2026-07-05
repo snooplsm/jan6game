@@ -1975,6 +1975,74 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box(center, (size[0] * 0.92, size[1] * 0.88), 0.16, z + height, f"{name}_cap", "ColumnStone")
         add_facade_detail(name, kind, (center[0], center[1], z + height / 2.0), {"size_m": [round(size[0], 3), round(size[1], 3)]})
 
+    def add_stepped_pavilion_massing(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+    ) -> None:
+        x, y = center
+        sx, sy = size
+        obj.add_box(center, size, height, z, f"{name}_primary_step", "CapitolStone")
+        obj.add_box(center, (sx * 0.86, sy * 0.86), height * 0.32, z + height, f"{name}_upper_setback", "CapitolStone")
+        obj.add_box(center, (sx + 0.62, sy + 0.62), 0.18, z + height + height * 0.32, f"{name}_cap_course", "ColumnStone")
+        add_facade_detail(name, "stepped_pavilion_massing", (x, y, z + height * 0.66), {"size_m": [round(sx, 3), round(sy, 3)]})
+
+    def add_facade_shadow_return(
+        name: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z: float,
+        height: float,
+    ) -> None:
+        if orientation == "east_west":
+            center = (fixed, span_center)
+            size = (0.16, span_length)
+        else:
+            center = (span_center, fixed)
+            size = (span_length, 0.16)
+        obj.add_box(center, size, height, z, name, "DoorMetal")
+        add_facade_detail(name, "facade_shadow_return", (center[0], center[1], z + height / 2.0), {"orientation": orientation})
+
+    def add_facade_water_table(
+        name: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z: float = 1.36,
+    ) -> None:
+        if orientation == "east_west":
+            center = (fixed, span_center)
+            size = (0.34, span_length)
+        else:
+            center = (span_center, fixed)
+            size = (span_length, 0.34)
+        obj.add_box(center, size, 0.26, z, name, "ColumnStone")
+        add_facade_detail(name, "facade_water_table", (center[0], center[1], z + 0.13), {"orientation": orientation})
+
+    def add_roof_monitor_ridge(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        orientation: str,
+    ) -> None:
+        x, y = center
+        sx, sy = size
+        obj.add_box(center, size, 0.32, z, f"{name}_stone_base", "ColumnStone")
+        obj.add_box(center, (sx * 0.78, sy * 0.78), 0.28, z + 0.32, f"{name}_raised_roof", "CapitolDome")
+        if orientation == "east_west":
+            obj.add_box((x, y - sy * 0.39), (sx * 0.66, 0.10), 0.18, z + 0.44, f"{name}_south_dark_louver", "FacadeWindow")
+            obj.add_box((x, y + sy * 0.39), (sx * 0.66, 0.10), 0.18, z + 0.44, f"{name}_north_dark_louver", "FacadeWindow")
+        else:
+            obj.add_box((x - sx * 0.39, y), (0.10, sy * 0.66), 0.18, z + 0.44, f"{name}_west_dark_louver", "FacadeWindow")
+            obj.add_box((x + sx * 0.39, y), (0.10, sy * 0.66), 0.18, z + 0.44, f"{name}_east_dark_louver", "FacadeWindow")
+        add_facade_detail(name, "roof_monitor_ridge", (x, y, z + 0.32), {"orientation": orientation, "size_m": [round(sx, 3), round(sy, 3)]})
+
     def add_courtyard_notch_shadow(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         x, y = center
         sx, sy = size
@@ -2733,6 +2801,55 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_roof_cap(f"{wing_name}_center_pavilion_roof", (0.0, y), (28.0, depth + 10.0), 13.55)
         add_facade_detail(f"{wing_name}_articulated_pavilions", "wing_pavilion_massing", (0.0, y, 7.2))
 
+    stepped_pavilion_specs = [
+        ("central_northeast_hyphen_stepped_pavilion", (34.5, 36.5), (14.5, 12.0), 1.13, 11.4),
+        ("central_northwest_hyphen_stepped_pavilion", (-34.5, 36.5), (14.5, 12.0), 1.13, 11.4),
+        ("central_southeast_hyphen_stepped_pavilion", (34.5, -36.5), (14.5, 12.0), 1.13, 11.4),
+        ("central_southwest_hyphen_stepped_pavilion", (-34.5, -36.5), (14.5, 12.0), 1.13, 11.4),
+        ("senate_northeast_corner_stepped_pavilion", (41.8, 92.5), (11.5, 12.0), 1.13, 10.6),
+        ("senate_northwest_corner_stepped_pavilion", (-41.8, 92.5), (11.5, 12.0), 1.13, 10.6),
+        ("senate_southeast_inner_stepped_pavilion", (41.8, 43.5), (11.5, 10.0), 1.13, 10.2),
+        ("senate_southwest_inner_stepped_pavilion", (-41.8, 43.5), (11.5, 10.0), 1.13, 10.2),
+        ("house_southeast_corner_stepped_pavilion", (44.8, -93.5), (12.0, 12.0), 1.13, 10.6),
+        ("house_southwest_corner_stepped_pavilion", (-44.8, -93.5), (12.0, 12.0), 1.13, 10.6),
+        ("house_northeast_inner_stepped_pavilion", (44.8, -42.5), (12.0, 10.0), 1.13, 10.2),
+        ("house_northwest_inner_stepped_pavilion", (-44.8, -42.5), (12.0, 10.0), 1.13, 10.2),
+    ]
+    for name, center, size, z, height in stepped_pavilion_specs:
+        add_stepped_pavilion_massing(name, center, size, z, height)
+
+    shadow_return_specs = [
+        ("central_east_north_recess_shadow_return", "east_west", 42.4, 35.5, 13.5, 1.55, 10.0),
+        ("central_west_north_recess_shadow_return", "east_west", -42.4, 35.5, 13.5, 1.55, 10.0),
+        ("central_east_south_recess_shadow_return", "east_west", 42.4, -35.5, 13.5, 1.55, 10.0),
+        ("central_west_south_recess_shadow_return", "east_west", -42.4, -35.5, 13.5, 1.55, 10.0),
+        ("senate_northwest_court_shadow_return", "north_south", 98.7, -31.0, 14.5, 1.42, 8.6),
+        ("senate_northeast_court_shadow_return", "north_south", 98.7, 31.0, 14.5, 1.42, 8.6),
+        ("senate_southwest_court_shadow_return", "north_south", 39.2, -31.0, 14.5, 1.42, 8.6),
+        ("senate_southeast_court_shadow_return", "north_south", 39.2, 31.0, 14.5, 1.42, 8.6),
+        ("house_southwest_court_shadow_return", "north_south", -99.7, -33.5, 15.5, 1.42, 8.6),
+        ("house_southeast_court_shadow_return", "north_south", -99.7, 33.5, 15.5, 1.42, 8.6),
+        ("house_northwest_court_shadow_return", "north_south", -38.2, -33.5, 15.5, 1.42, 8.6),
+        ("house_northeast_court_shadow_return", "north_south", -38.2, 33.5, 15.5, 1.42, 8.6),
+    ]
+    for args in shadow_return_specs:
+        add_facade_shadow_return(*args)
+
+    water_table_specs = [
+        ("central_east_water_table", "east_west", 39.4, 0.0, 58.0),
+        ("central_west_water_table", "east_west", -39.4, 0.0, 58.0),
+        ("central_north_water_table", "north_south", 29.8, 0.0, 78.0),
+        ("central_south_water_table", "north_south", -29.8, 0.0, 78.0),
+        ("east_front_portico_water_table", "east_west", 67.5, 0.0, 68.0),
+        ("west_front_portico_water_table", "east_west", -67.5, 0.0, 68.0),
+        ("senate_north_front_water_table", "north_south", 102.2, 0.0, 84.0),
+        ("house_south_front_water_table", "north_south", -102.2, 0.0, 88.0),
+        ("senate_inner_south_water_table", "north_south", 38.6, 0.0, 70.0),
+        ("house_inner_north_water_table", "north_south", -37.6, 0.0, 74.0),
+    ]
+    for args in water_table_specs:
+        add_facade_water_table(*args)
+
     roof_articulation_specs = [
         ("central_roof_north_pavilion_riser", (0.0, 24.0), (48.0, 8.5), 18.06, 0.72),
         ("central_roof_south_pavilion_riser", (0.0, -24.0), (48.0, 8.5), 18.06, 0.72),
@@ -2793,6 +2910,19 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ]
     for name, center, size, z in skylight_specs:
         add_roof_skylight_strip(name, center, size, z)
+
+    roof_monitor_specs = [
+        ("central_north_roof_monitor_ridge", (0.0, 24.4), (32.0, 2.1), 18.98, "east_west"),
+        ("central_south_roof_monitor_ridge", (0.0, -24.4), (32.0, 2.1), 18.98, "east_west"),
+        ("central_east_roof_monitor_ridge", (31.5, 0.0), (2.1, 32.0), 18.95, "north_south"),
+        ("central_west_roof_monitor_ridge", (-31.5, 0.0), (2.1, 32.0), 18.95, "north_south"),
+        ("senate_center_pavilion_roof_monitor_ridge", (0.0, 68.0), (18.5, 2.0), 14.58, "east_west"),
+        ("house_center_pavilion_roof_monitor_ridge", (0.0, -68.0), (19.5, 2.0), 14.58, "east_west"),
+        ("east_front_portico_roof_monitor_ridge", (58.5, 0.0), (2.0, 42.0), 15.30, "north_south"),
+        ("west_front_portico_roof_monitor_ridge", (-58.5, 0.0), (2.0, 42.0), 15.30, "north_south"),
+    ]
+    for name, center, size, z, orientation in roof_monitor_specs:
+        add_roof_monitor_ridge(name, center, size, z, orientation)
 
     add_element("Articulated public roof silhouette and courtyard recesses", "landmark", (0.0, 0.0, 18.5))
 
