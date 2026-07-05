@@ -919,6 +919,85 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         rows = max(1, min(3, int(height // 4.0)))
         cols_x = max(2, min(5, int(width // 7.0)))
         cols_y = max(2, min(5, int(depth // 7.0)))
+
+        def add_surrounding_window_depth_details(
+            window_name: str,
+            center_xy: tuple[float, float],
+            window_z: float,
+            face_name: str,
+        ) -> None:
+            wx, wy = center_xy
+            if face_name in {"north", "south"}:
+                face_sign = 1.0 if face_name == "north" else -1.0
+                face_y = wy + face_sign * 0.035
+                shadow_specs = [
+                    ((wx - 0.60, face_y), (0.055, 0.060), 0.98, window_z - 0.045),
+                    ((wx + 0.60, face_y), (0.055, 0.060), 0.98, window_z - 0.045),
+                    ((wx, face_y), (1.20, 0.060), 0.035, window_z - 0.050),
+                    ((wx, face_y), (1.20, 0.060), 0.040, window_z + 0.91),
+                ]
+                sash_specs = [
+                    ((wx - 0.30, face_y + face_sign * 0.012), (0.050, 0.052), 0.72, window_z + 0.08),
+                    ((wx + 0.30, face_y + face_sign * 0.012), (0.050, 0.052), 0.72, window_z + 0.08),
+                    ((wx, face_y + face_sign * 0.012), (0.88, 0.052), 0.034, window_z + 0.32),
+                    ((wx, face_y + face_sign * 0.012), (0.88, 0.052), 0.034, window_z + 0.64),
+                ]
+                highlight_specs = [
+                    ((wx - 0.22, face_y + face_sign * 0.020), (0.22, 0.038), 0.18, window_z + 0.58),
+                    ((wx + 0.18, face_y + face_sign * 0.020), (0.18, 0.038), 0.14, window_z + 0.70),
+                ]
+            else:
+                face_sign = 1.0 if face_name == "east" else -1.0
+                face_x = wx + face_sign * 0.035
+                shadow_specs = [
+                    ((face_x, wy - 0.60), (0.060, 0.055), 0.98, window_z - 0.045),
+                    ((face_x, wy + 0.60), (0.060, 0.055), 0.98, window_z - 0.045),
+                    ((face_x, wy), (0.060, 1.20), 0.035, window_z - 0.050),
+                    ((face_x, wy), (0.060, 1.20), 0.040, window_z + 0.91),
+                ]
+                sash_specs = [
+                    ((face_x + face_sign * 0.012, wy - 0.30), (0.052, 0.050), 0.72, window_z + 0.08),
+                    ((face_x + face_sign * 0.012, wy + 0.30), (0.052, 0.050), 0.72, window_z + 0.08),
+                    ((face_x + face_sign * 0.012, wy), (0.052, 0.88), 0.034, window_z + 0.32),
+                    ((face_x + face_sign * 0.012, wy), (0.052, 0.88), 0.034, window_z + 0.64),
+                ]
+                highlight_specs = [
+                    ((face_x + face_sign * 0.020, wy - 0.22), (0.038, 0.22), 0.18, window_z + 0.58),
+                    ((face_x + face_sign * 0.020, wy + 0.18), (0.038, 0.18), 0.14, window_z + 0.70),
+                ]
+
+            for detail_index, (detail_center, detail_size, detail_height, detail_z) in enumerate(shadow_specs, start=1):
+                buildings.add_box(detail_center, detail_size, detail_height, detail_z, f"{window_name}_recess_shadow_{detail_index}", "RoadCrackSealant")
+            for detail_index, (detail_center, detail_size, detail_height, detail_z) in enumerate(sash_specs, start=1):
+                buildings.add_box(detail_center, detail_size, detail_height, detail_z, f"{window_name}_inner_sash_{detail_index}", "DoorMetal")
+            for detail_index, (detail_center, detail_size, detail_height, detail_z) in enumerate(highlight_specs, start=1):
+                buildings.add_box(detail_center, detail_size, detail_height, detail_z, f"{window_name}_pane_highlight_{detail_index}", "DoorGlass")
+
+            add_building_detail_record(
+                f"{window_name}_recess_shadow",
+                "surrounding_building_window_recess_shadow",
+                way_id,
+                name,
+                (wx, wy, window_z + 0.46),
+                {"face": face_name, "count": len(shadow_specs)},
+            )
+            add_building_detail_record(
+                f"{window_name}_inner_sash",
+                "surrounding_building_window_inner_sash",
+                way_id,
+                name,
+                (wx, wy, window_z + 0.46),
+                {"face": face_name, "count": len(sash_specs)},
+            )
+            add_building_detail_record(
+                f"{window_name}_pane_highlight",
+                "surrounding_building_window_pane_highlight",
+                way_id,
+                name,
+                (wx, wy, window_z + 0.70),
+                {"face": face_name, "count": len(highlight_specs)},
+            )
+
         for row in range(rows):
             z = min(height - 1.45, 2.1 + row * 3.1)
             if z <= 1.2:
@@ -938,6 +1017,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     add_building_detail_record(sill_name, "surrounding_building_window_sill", way_id, name, (x, y_face, z - 0.095), {"face": face_name})
                     add_building_detail_record(lintel_name, "surrounding_building_window_lintel", way_id, name, (x, y_face, z + 0.98), {"face": face_name})
                     add_building_detail_record(mullion_name, "surrounding_building_window_mullion", way_id, name, (x, y_face, z + 0.46), {"face": face_name})
+                    add_surrounding_window_depth_details(window_name, (x, y_face), z, face_name)
             for col in range(cols_y):
                 y = min_y + depth * (col + 0.5) / cols_y
                 for face_name, x_face in (("east", max_x + 0.05), ("west", min_x - 0.05)):
@@ -953,6 +1033,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     add_building_detail_record(sill_name, "surrounding_building_window_sill", way_id, name, (x_face, y, z - 0.095), {"face": face_name})
                     add_building_detail_record(lintel_name, "surrounding_building_window_lintel", way_id, name, (x_face, y, z + 0.98), {"face": face_name})
                     add_building_detail_record(mullion_name, "surrounding_building_window_mullion", way_id, name, (x_face, y, z + 0.46), {"face": face_name})
+                    add_surrounding_window_depth_details(window_name, (x_face, y), z, face_name)
 
         if abs(cx) >= abs(cy):
             x_face = min_x - 0.06 if cx > 0 else max_x + 0.06

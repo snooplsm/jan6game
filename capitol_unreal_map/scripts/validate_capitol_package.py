@@ -1045,6 +1045,9 @@ REQUIRED_BUILDING_DETAIL_KINDS = {
     "surrounding_building_window_sill",
     "surrounding_building_window_lintel",
     "surrounding_building_window_mullion",
+    "surrounding_building_window_recess_shadow",
+    "surrounding_building_window_inner_sash",
+    "surrounding_building_window_pane_highlight",
     "surrounding_building_public_entry_marker",
     "surrounding_building_entry_frame",
     "surrounding_building_entry_transom",
@@ -1469,8 +1472,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
-    if len(building_details) < 4400:
-        error(errors, f"expected at least 4400 surrounding building visual detail records, got {len(building_details)}")
+    if len(building_details) < 6900:
+        error(errors, f"expected at least 6900 surrounding building visual detail records, got {len(building_details)}")
     missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
     if missing_building_detail_kinds:
         error(errors, f"missing surrounding building detail kinds: {', '.join(missing_building_detail_kinds)}")
@@ -1490,6 +1493,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 800 surrounding building window-lintel records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_mullion"]) < 800:
         error(errors, "expected at least 800 surrounding building window-mullion records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_recess_shadow"]) < 800:
+        error(errors, "expected at least 800 surrounding building window recess-shadow records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_inner_sash"]) < 800:
+        error(errors, "expected at least 800 surrounding building window inner-sash records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_window_pane_highlight"]) < 800:
+        error(errors, "expected at least 800 surrounding building window pane-highlight records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_public_entry_marker"]) < 35:
         error(errors, "expected at least 35 surrounding building public-entry marker records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_entry_frame"]) < 35:
