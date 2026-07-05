@@ -19,8 +19,8 @@
     "grounds_detail_kinds": 12,
     "grounds_walk_lamps": 18,
     "landmark_elements": 19,
-    "facade_details": 1710,
-    "facade_detail_kinds": 40,
+    "facade_details": 1775,
+    "facade_detail_kinds": 44,
     "revolving_door_visuals": 12,
     "rooms": 15,
     "house_seats": 448,
@@ -196,12 +196,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 42634,
-      "uvs": 131232,
-      "faces": 31120,
-      "faces_with_uvs": 31120,
-      "triangles": 68992,
-      "groups": 4051,
+      "vertices": 46214,
+      "uvs": 141972,
+      "faces": 33788,
+      "faces_with_uvs": 33788,
+      "triangles": 74396,
+      "groups": 4490,
       "materials": [
         "BenchWood",
         "BollardMetal",
@@ -216,6 +216,7 @@
         "GroundGrass",
         "LightFixtureMetal",
         "PlazaStone",
+        "StatueBronze",
         "StepStone",
         "StreetLightGlass",
         "StreetLightPole",
@@ -233,7 +234,7 @@
         "max": [
           21500.0,
           18000.0,
-          6610.0
+          6825.0
         ]
       }
     },
