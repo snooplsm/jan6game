@@ -2819,10 +2819,30 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     def add_public_trash_receptacle(name: str, center: tuple[float, float]) -> None:
         x, y = center
+        roads.add_cylinder((x, y), 0.33, 0.075, 0.055, f"{name}_base_foot_ring", "DoorMetal", segments=14)
         roads.add_cylinder((x, y), 0.30, 0.10, 0.78, f"{name}_dark_body", "TrafficSignalHousing", segments=14)
+        roads.add_cylinder((x, y), 0.31, 0.80, 0.055, f"{name}_upper_body_rim", "DoorMetal", segments=14)
         roads.add_cylinder((x, y), 0.32, 0.88, 0.08, f"{name}_metal_lid", "DoorMetal", segments=14)
+        roads.add_box((x, y + 0.325), (0.28, 0.030), 0.055, 0.88, f"{name}_rear_lid_hinge", "BollardMetal")
+        for rib_index, (rib_center, rib_size) in enumerate(
+            [
+                ((x, y - 0.305), (0.16, 0.026)),
+                ((x, y + 0.305), (0.16, 0.026)),
+                ((x - 0.305, y), (0.026, 0.16)),
+                ((x + 0.305, y), (0.026, 0.16)),
+            ],
+            start=1,
+        ):
+            roads.add_box(rib_center, rib_size, 0.50, 0.25, f"{name}_vertical_body_rib_{rib_index:02d}", "BollardMetal")
         roads.add_box((x, y), (0.30, 0.055), 0.04, 0.95, f"{name}_slot_marker", "LaneMarkingWhite")
+        roads.add_box((x, y - 0.325), (0.24, 0.026), 0.14, 0.50, f"{name}_sorting_label_plate", "LaneMarkingWhite")
         add_streetscape_record(name, "public_trash_receptacle", (x, y, 0.52))
+        add_streetscape_record(
+            f"{name}_fixture_detail",
+            "public_trash_receptacle_detail",
+            (x, y, 0.62),
+            extra={"parts": ["base_foot_ring", "upper_body_rim", "rear_lid_hinge", "vertical_body_ribs", "sorting_label_plate"]},
+        )
 
     def add_bus_stop_shelter(name: str, center: tuple[float, float], orientation: str) -> None:
         x, y = center

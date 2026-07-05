@@ -1341,6 +1341,7 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "public_wayfinding_sign",
     "public_bike_rack",
     "public_trash_receptacle",
+    "public_trash_receptacle_detail",
     "public_bus_stop_shelter",
     "public_hydrant_marker",
     "crosswalk_ladder_marking",
@@ -2161,6 +2162,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 12 public bike-rack props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_trash_receptacle"]) < 16:
         error(errors, "expected at least 16 public trash/recycling receptacle props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "public_trash_receptacle_detail"]) < 16:
+        error(errors, "expected at least 16 public trash/recycling receptacle detail props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_bus_stop_shelter"]) < 8:
         error(errors, "expected at least 8 public bus-stop shelter props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_hydrant_marker"]) < 16:
