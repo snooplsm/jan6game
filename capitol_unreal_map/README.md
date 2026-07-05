@@ -150,6 +150,8 @@ Gameplay item quick link:
 http://127.0.0.1:8765/viewer.html#gameplay-items
 ```
 
+The viewer also accepts `#game-play-items` as an alias for the same preview lane.
+
 Grounds detail quick link:
 
 ```text

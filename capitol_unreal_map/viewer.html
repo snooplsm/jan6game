@@ -102,6 +102,12 @@
 
     .quick-link:hover { border-color: rgba(119, 183, 255, 0.65); }
 
+    .quick-link.primary {
+      border-color: rgba(126, 224, 136, 0.52);
+      color: #d9ffe0;
+      background: rgba(126, 224, 136, 0.12);
+    }
+
     input,
     select {
       min-width: 0;
@@ -200,7 +206,7 @@
     <p class="status" id="status">Loading generated assets...</p>
 
     <div class="quick-links">
-      <a class="quick-link" id="quickGameplayItems" href="#gameplay-items">Gameplay Items</a>
+      <a class="quick-link primary" id="quickGameplayItems" href="#gameplay-items" title="Jump to the fictional gameplay item preview lane">Gameplay Items</a>
       <a class="quick-link" id="quickGroundsDetails" href="#grounds-details">Grounds Details</a>
       <a class="quick-link" id="quickFacadeDetails" href="#facade-details">Facade Details</a>
       <a class="quick-link" id="quickOffices" href="#offices">Offices</a>
@@ -1119,7 +1125,7 @@
         focusCeilingDetails();
         return;
       }
-      if (route === "gameplay-items" || route === "gameplay") {
+      if (route === "gameplay-items" || route === "game-play-items" || route === "gameplay") {
         focusGameplayItems();
       }
     }

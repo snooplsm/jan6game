@@ -356,6 +356,7 @@ REQUIRED_VIEWER_MARKERS = {
     "floor-details",
     "ceiling-details",
     "gameplay-items",
+    "game-play-items",
 }
 
 REQUIRED_ROOMS = {
