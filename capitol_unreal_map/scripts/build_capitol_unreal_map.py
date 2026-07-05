@@ -2669,9 +2669,26 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box((x + arm_sign * 1.36, y), (0.16, 0.44), 0.10, 3.86, f"{name}_hanging_bracket", "StreetLightPole")
         roads.add_box((x, y + 0.075), (0.55, 0.08), 1.42, 2.98, f"{name}_signal_backplate", "TrafficSignalHousing")
         roads.add_box((x, y), (0.44, 0.28), 1.24, 3.05, f"{name}_signal_head", "TrafficSignalHousing")
-        roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.95, f"{name}_red_lens", "TrafficSignalRed")
-        roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.58, f"{name}_yellow_lens", "TrafficSignalYellow")
-        roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, 3.21, f"{name}_green_lens", "TrafficSignalGreen")
+        for lens_index, (lens_color, lens_z, lens_material) in enumerate(
+            [
+                ("red", 3.95, "TrafficSignalRed"),
+                ("yellow", 3.58, "TrafficSignalYellow"),
+                ("green", 3.21, "TrafficSignalGreen"),
+            ],
+            start=1,
+        ):
+            lens_name = f"{name}_{lens_color}_lens"
+            roads.add_box((x, y - 0.15), (0.20, 0.055), 0.18, lens_z, lens_name, lens_material)
+            roads.add_box((x, y - 0.188), (0.26, 0.036), 0.030, lens_z + 0.185, f"{lens_name}_top_trim", "TrafficSignalHousing")
+            roads.add_box((x, y - 0.188), (0.26, 0.036), 0.030, lens_z - 0.035, f"{lens_name}_bottom_trim", "TrafficSignalHousing")
+            roads.add_box((x - 0.125, y - 0.188), (0.030, 0.036), 0.235, lens_z - 0.025, f"{lens_name}_left_trim", "TrafficSignalHousing")
+            roads.add_box((x + 0.125, y - 0.188), (0.030, 0.036), 0.235, lens_z - 0.025, f"{lens_name}_right_trim", "TrafficSignalHousing")
+            add_streetscape_record(
+                f"{lens_name}_detail",
+                "traffic_signal_lens_detail",
+                (x, y - 0.18, lens_z + 0.09),
+                extra={"lens_color": lens_color, "lens_index": lens_index, "trim_parts": 4, "arm_sign": arm_sign},
+            )
         for hood_index, z in enumerate([3.95, 3.58, 3.21], start=1):
             roads.add_box((x, y - 0.205), (0.26, 0.08), 0.055, z + 0.10, f"{name}_signal_louver_hood_{hood_index}", "TrafficSignalHousing")
         roads.add_box((x - arm_sign * 0.18, y - 0.13), (0.34, 0.075), 0.48, 2.28, f"{name}_ped_countdown_housing", "TrafficSignalHousing")
