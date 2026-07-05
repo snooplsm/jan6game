@@ -2612,12 +2612,28 @@ def add_public_office_grid(
             obj.add_box((ox - cell_w * 0.40, oy), (0.18, cell_h * 0.68), 2.2, z + 0.16, room_id + "_left_partition", "InteriorTrim")
             obj.add_box((ox + cell_w * 0.40, oy), (0.18, cell_h * 0.68), 2.2, z + 0.16, room_id + "_right_partition", "InteriorTrim")
             obj.add_box((ox, oy - cell_h * 0.10), (cell_w * 0.40, 0.70), 0.78, z + 0.18, room_id + "_desk", "DeskWood")
+            obj.add_box((ox, oy - cell_h * 0.10), (cell_w * 0.28, 0.46), 0.030, z + 0.97, room_id + "_desk_surface_inset", "InteriorTrim")
             obj.add_box((ox, oy - cell_h * 0.28), (0.70, 0.55), 0.55, z + 0.18, room_id + "_chair", "ChairLeather")
+            obj.add_box((ox, oy - cell_h * 0.36), (0.74, 0.10), 0.72, z + 0.52, room_id + "_chair_back", "ChairLeather")
+            obj.add_box((ox - 0.44, oy - cell_h * 0.28), (0.055, 0.42), 0.18, z + 0.54, room_id + "_chair_left_arm", "ChairLeather")
+            obj.add_box((ox + 0.44, oy - cell_h * 0.28), (0.055, 0.42), 0.18, z + 0.54, room_id + "_chair_right_arm", "ChairLeather")
+            bookcase_x = ox - cell_w * 0.27
+            obj.add_box((bookcase_x, oy + cell_h * 0.22), (0.58, 1.55), 1.35, z + 0.20, room_id + "_bookcase_body", "DeskWood")
+            for shelf_index, shelf_y in enumerate([-0.46, 0.0, 0.46], start=1):
+                obj.add_box((bookcase_x, oy + cell_h * 0.22 + shelf_y), (0.62, 0.045), 0.055, z + 0.76 + shelf_index * 0.25, f"{room_id}_bookcase_shelf_{shelf_index}", "InteriorTrim")
+            cabinet_x = ox + cell_w * 0.27
+            obj.add_box((cabinet_x, oy + cell_h * 0.18), (0.72, 1.10), 0.78, z + 0.18, room_id + "_storage_cabinet", "InteriorTrim")
+            obj.add_box((cabinet_x, oy + cell_h * 0.18), (0.78, 0.055), 0.08, z + 0.98, room_id + "_storage_cabinet_top", "DeskWood")
             door_y = oy - cell_h * 0.36
             obj.add_box((ox, door_y), (cell_w * 0.36, 0.08), 0.06, z + 0.03, room_id + "_public_door_threshold", "StepStone")
             obj.add_box((ox, door_y + 0.05), (cell_w * 0.26, 0.10), 1.62, z + 0.22, room_id + "_generic_door_panel", "DoorGlass")
             plaque_x = ox - cell_w * 0.24
             obj.add_box((plaque_x, door_y + 0.10), (0.34, 0.055), 0.22, z + 1.38, room_id + "_generic_public_plaque", "MarkerBlue")
+            add_office_detail(room_id + "_desk_surface_inset", "generic_office_desk_surface_inset", (ox, oy - cell_h * 0.10, z + 0.985), (cell_w * 0.28, 0.46))
+            add_office_detail(room_id + "_chair_back", "generic_office_chair_back", (ox, oy - cell_h * 0.36, z + 0.88), (0.74, 0.10))
+            add_office_detail(room_id + "_chair_arm_pair", "generic_office_chair_arm_pair", (ox, oy - cell_h * 0.28, z + 0.63), (0.94, 0.42))
+            add_office_detail(room_id + "_bookcase", "generic_office_bookcase", (bookcase_x, oy + cell_h * 0.22, z + 0.875), (0.62, 1.55))
+            add_office_detail(room_id + "_storage_cabinet", "generic_office_storage_cabinet", (cabinet_x, oy + cell_h * 0.18, z + 0.57), (0.78, 1.10))
             add_office_detail(room_id + "_public_door_threshold", "office_door_threshold", (ox, door_y, z + 0.06), (cell_w * 0.36, 0.08))
             add_office_detail(room_id + "_generic_door_panel", "generic_office_door_panel", (ox, door_y + 0.05, z + 1.03), (cell_w * 0.26, 0.10))
             add_office_detail(room_id + "_generic_public_plaque", "generic_office_plaque", (plaque_x, door_y + 0.10, z + 1.49), (0.34, 0.055))
