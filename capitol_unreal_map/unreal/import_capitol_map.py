@@ -70,6 +70,22 @@ MATERIAL_GRAPH_FEATURES = {
     "two_sided_by_default": True,
     "adds_editor_comment": True,
 }
+STATIC_MESH_REALISM_BUILD_SETTINGS = {
+    "use_full_precision_uvs": True,
+    "use_high_precision_tangent_basis": True,
+    "recompute_normals": True,
+    "recompute_tangents": True,
+    "compute_weighted_normals": True,
+    "remove_degenerates": True,
+    "generate_lightmap_u_vs": True,
+    "generate_lightmap_uvs": True,
+    "min_lightmap_resolution": 128,
+    "lightmap_resolution": 192,
+    "normal_import_method": "FBXNIM_COMPUTE_NORMALS",
+    "normal_generation_method": "MikkTSpace",
+    "nanite_enabled": True,
+    "realism_note": "Best-effort Unreal static-mesh build settings for sharper PBR response; true photorealism still requires bevelled/sculpted modular assets and licensed/scanned PBR sources.",
+}
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
 PLAYER_START_ROTATION_DEG = [0.0, 4.0, 0.0]
@@ -802,6 +818,19 @@ def make_import_options() -> Any | None:
         set_property(static_mesh_data, "import_translation", unreal.Vector(0.0, 0.0, 0.0))
         set_property(static_mesh_data, "import_rotation", unreal.Rotator(0.0, 0.0, 0.0))
         set_property(static_mesh_data, "import_uniform_scale", 1.0)
+        set_property(static_mesh_data, "compute_weighted_normals", True)
+        set_enum_property(
+            static_mesh_data,
+            "normal_import_method",
+            "FBXNormalImportMethod",
+            ["FBXNIM_COMPUTE_NORMALS", "FBXNIM_IMPORT_NORMALS_AND_TANGENTS", "FBXNIM_IMPORT_NORMALS"],
+        )
+        set_enum_property(
+            static_mesh_data,
+            "normal_generation_method",
+            "FBXNormalGenerationMethod",
+            ["MikkTSpace", "MIKK_T_SPACE", "BuiltIn"],
+        )
 
     return options
 
@@ -919,6 +948,35 @@ def configure_static_mesh(asset_path: str) -> None:
         return
 
     set_property(asset, "lod_group", "LargeProp")
+    set_property(asset, "light_map_resolution", STATIC_MESH_REALISM_BUILD_SETTINGS["lightmap_resolution"])
+    set_property(asset, "lightmap_resolution", STATIC_MESH_REALISM_BUILD_SETTINGS["lightmap_resolution"])
+
+    source_models = get_property(asset, "source_models") or []
+    for source_model in source_models:
+        build_settings = get_property(source_model, "build_settings")
+        if not build_settings:
+            continue
+        for property_name in [
+            "use_full_precision_u_vs",
+            "use_full_precision_uvs",
+            "use_high_precision_tangent_basis",
+            "recompute_normals",
+            "recompute_tangents",
+            "compute_weighted_normals",
+            "remove_degenerates",
+            "generate_lightmap_u_vs",
+            "generate_lightmap_uvs",
+        ]:
+            setting_name = property_name.replace("_u_vs", "_uvs")
+            value = STATIC_MESH_REALISM_BUILD_SETTINGS.get(setting_name)
+            if value is not None:
+                set_property(build_settings, property_name, value)
+        set_property(
+            build_settings,
+            "min_lightmap_resolution",
+            STATIC_MESH_REALISM_BUILD_SETTINGS["min_lightmap_resolution"],
+        )
+        set_property(source_model, "build_settings", build_settings)
 
     body_setup = get_property(asset, "body_setup")
     if body_setup and hasattr(unreal, "CollisionTraceFlag"):
@@ -1840,6 +1898,7 @@ def write_unreal_import_report(
             "material_texture_features": build_material_texture_features(material_texture_bindings, texture_assets),
             "material_graph_features": MATERIAL_GRAPH_FEATURES,
             "texture_kind_settings": TEXTURE_KIND_SETTINGS,
+            "static_mesh_realism_build_settings": STATIC_MESH_REALISM_BUILD_SETTINGS,
             "mesh_count": len(imported),
             "material_count": len(material_assets),
             "texture_set_count": len(texture_assets),
