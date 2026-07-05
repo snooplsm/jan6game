@@ -101,6 +101,9 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "imported_assets",
     "material_assets",
     "texture_assets",
+    "material_texture_bindings",
+    "material_texture_features",
+    "material_graph_features",
     "texture_kind_settings",
     "srgb",
     "compression_settings",
@@ -112,6 +115,16 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "material_count",
     "texture_set_count",
     "texture_asset_count",
+    "basecolor_property",
+    "normal_property",
+    "roughness_property",
+    "metallic_property",
+    "specular_property",
+    "opacity_property",
+    "uses_texture_samples",
+    "uses_tangent_space_normals",
+    "two_sided_by_default",
+    "adds_editor_comment",
     "environment_setup",
     "directional_light_actor_class",
     "directional_light_label",
@@ -253,6 +266,26 @@ REQUIRED_UNREAL_FIRST_PERSON_MARKERS = {
     "CapitolMap_Collision_HouseChamberPublicFloor",
     "CapitolMap_Collision_SenateChamberPublicFloor",
     "nanite_settings",
+}
+
+REQUIRED_UNREAL_MATERIAL_MARKERS = {
+    "MATERIAL_GRAPH_FEATURES",
+    "MaterialExpressionTextureSample",
+    "MaterialExpressionComment",
+    "MP_BASE_COLOR",
+    "MP_NORMAL",
+    "MP_ROUGHNESS",
+    "MP_METALLIC",
+    "MP_SPECULAR",
+    "MP_OPACITY",
+    "two_sided",
+    "tangent_space_normal",
+    "use_material_attributes",
+    "material_texture_bindings",
+    "material_texture_features",
+    "material_graph_features",
+    "build_material_texture_features",
+    "CapitolMap generated PBR setup: basecolor, normal, and roughness maps are imported from generated/textures; scalar parameters remain editable.",
 }
 
 REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
@@ -2007,6 +2040,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "label_categories": 0,
         "outliner_folders": 0,
         "first_person_markers": 0,
+        "material_markers": 0,
         "environment_markers": 0,
         "inspection_markers": 0,
     }
@@ -2048,6 +2082,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     missing_label_categories = sorted(REQUIRED_UNREAL_LABEL_CATEGORIES - string_literals)
     missing_outliner_folders = sorted(REQUIRED_UNREAL_OUTLINER_FOLDERS - string_literals)
     missing_first_person_markers = sorted(REQUIRED_UNREAL_FIRST_PERSON_MARKERS - string_literals)
+    missing_material_markers = sorted(REQUIRED_UNREAL_MATERIAL_MARKERS - inspection_tokens)
     missing_environment_markers = sorted(REQUIRED_UNREAL_ENVIRONMENT_MARKERS - marker_tokens)
     missing_inspection_markers = sorted(REQUIRED_UNREAL_INSPECTION_MARKERS - inspection_tokens)
 
@@ -2059,6 +2094,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
     summary["label_categories"] = len(REQUIRED_UNREAL_LABEL_CATEGORIES) - len(missing_label_categories)
     summary["outliner_folders"] = len(REQUIRED_UNREAL_OUTLINER_FOLDERS) - len(missing_outliner_folders)
     summary["first_person_markers"] = len(REQUIRED_UNREAL_FIRST_PERSON_MARKERS) - len(missing_first_person_markers)
+    summary["material_markers"] = len(REQUIRED_UNREAL_MATERIAL_MARKERS) - len(missing_material_markers)
     summary["environment_markers"] = len(REQUIRED_UNREAL_ENVIRONMENT_MARKERS) - len(missing_environment_markers)
     summary["inspection_markers"] = len(REQUIRED_UNREAL_INSPECTION_MARKERS) - len(missing_inspection_markers)
     summary["missing"] = {
@@ -2070,6 +2106,7 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         "label_categories": missing_label_categories,
         "outliner_folders": missing_outliner_folders,
         "first_person_markers": missing_first_person_markers,
+        "material_markers": missing_material_markers,
         "environment_markers": missing_environment_markers,
         "inspection_markers": missing_inspection_markers,
     }
@@ -2090,6 +2127,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         error(errors, f"Unreal importer missing outliner folders: {', '.join(missing_outliner_folders)}")
     if missing_first_person_markers:
         error(errors, f"Unreal importer missing first-person setup markers: {', '.join(missing_first_person_markers)}")
+    if missing_material_markers:
+        error(errors, f"Unreal importer missing material setup markers: {', '.join(missing_material_markers)}")
     if missing_environment_markers:
         error(errors, f"Unreal importer missing environment setup markers: {', '.join(missing_environment_markers)}")
     if missing_inspection_markers:
@@ -2229,6 +2268,7 @@ def main() -> int:
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
     print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")
+    print(f"Unreal importer material markers: {unreal_importer_summary.get('material_markers', 0):,}")
     print(f"Unreal importer environment markers: {unreal_importer_summary.get('environment_markers', 0):,}")
     print(f"Unreal importer inspection markers: {unreal_importer_summary.get('inspection_markers', 0):,}")
     print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")

@@ -78,10 +78,11 @@
     "destination_paths": 4,
     "required_functions": 18,
     "required_calls": 17,
-    "report_keys": 97,
+    "report_keys": 110,
     "label_categories": 20,
     "outliner_folders": 12,
     "first_person_markers": 23,
+    "material_markers": 17,
     "environment_markers": 24,
     "inspection_markers": 12,
     "missing": {
@@ -93,6 +94,7 @@
       "label_categories": [],
       "outliner_folders": [],
       "first_person_markers": [],
+      "material_markers": [],
       "environment_markers": [],
       "inspection_markers": []
     }

@@ -55,6 +55,18 @@ TEXTURE_KIND_SETTINGS = {
         "sampler_type": ["SAMPLERTYPE_LINEAR_GRAYSCALE", "SAMPLERTYPE_MASKS"],
     },
 }
+MATERIAL_GRAPH_FEATURES = {
+    "basecolor_property": "MP_BASE_COLOR",
+    "normal_property": "MP_NORMAL",
+    "roughness_property": "MP_ROUGHNESS",
+    "metallic_property": "MP_METALLIC",
+    "specular_property": "MP_SPECULAR",
+    "opacity_property": "MP_OPACITY",
+    "uses_texture_samples": True,
+    "uses_tangent_space_normals": True,
+    "two_sided_by_default": True,
+    "adds_editor_comment": True,
+}
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
 PLAYTEST_PAWN_LABEL = "CapitolMap_Playtest_DefaultPawn"
@@ -614,7 +626,23 @@ def create_texture_sample(material: Any, texture_asset_path: str, x: int, y: int
         set_property(expression, "texture", texture)
         if sampler_type_names:
             set_enum_property(expression, "sampler_type", "MaterialSamplerType", sampler_type_names)
+        set_property(expression, "desc", Path(texture_asset_path).name)
         return expression
+    except Exception:
+        return None
+
+
+def create_material_comment(material: Any, text: str, x: int, y: int, width: int, height: int) -> Any | None:
+    if not hasattr(unreal, "MaterialEditingLibrary") or not hasattr(unreal, "MaterialExpressionComment"):
+        return None
+    try:
+        comment = unreal.MaterialEditingLibrary.create_material_expression(material, unreal.MaterialExpressionComment, x, y)
+        if comment is None:
+            return None
+        set_property(comment, "text", text)
+        set_property(comment, "size_x", width)
+        set_property(comment, "size_y", height)
+        return comment
     except Exception:
         return None
 
@@ -637,12 +665,23 @@ def configure_unreal_material(material: Any, spec: dict[str, Any], texture_set: 
     metallic = float(spec.get("metallic", 0.0))
     specular = float(spec.get("specular", 0.3))
     texture_set = texture_set or {}
+    set_property(material, "two_sided", True)
+    set_property(material, "use_material_attributes", False)
+    set_property(material, "tangent_space_normal", True)
 
     if hasattr(unreal, "MaterialEditingLibrary"):
         try:
             unreal.MaterialEditingLibrary.delete_all_material_expressions(material)
         except Exception:
             pass
+        create_material_comment(
+            material,
+            "CapitolMap generated PBR setup: basecolor, normal, and roughness maps are imported from generated/textures; scalar parameters remain editable.",
+            -900,
+            -390,
+            760,
+            120,
+        )
 
     basecolor_sample = (
         create_texture_sample(
@@ -767,6 +806,27 @@ def create_or_update_materials(texture_assets: dict[str, dict[str, str]], materi
             created[material_name] = asset_path
     log(f"Prepared {len(created)} realism material assets")
     return created
+
+
+def build_material_texture_features(
+    material_texture_bindings: dict[str, str],
+    texture_assets: dict[str, dict[str, str]],
+) -> dict[str, Any]:
+    manifest = load_material_manifest()
+    features: dict[str, Any] = {}
+    for material_name, spec in manifest.items():
+        texture_set_name = material_texture_bindings.get(material_name, "")
+        texture_set = texture_assets.get(texture_set_name, {})
+        features[material_name] = {
+            "texture_set": texture_set_name,
+            "basecolor": bool(texture_set.get("basecolor")),
+            "normal": bool(texture_set.get("normal")),
+            "roughness": bool(texture_set.get("roughness")),
+            "opacity": spec.get("opacity"),
+            "two_sided": True,
+            "tangent_space_normal": True,
+        }
+    return features
 
 
 def slot_name(slot: Any) -> str:
@@ -1273,6 +1333,7 @@ def write_unreal_import_report(
     imported: list[str],
     material_assets: dict[str, str],
     texture_assets: dict[str, dict[str, str]],
+    material_texture_bindings: dict[str, str],
 ) -> None:
     try:
         data = load_metadata()
@@ -1286,6 +1347,9 @@ def write_unreal_import_report(
             "imported_assets": imported,
             "material_assets": material_assets,
             "texture_assets": texture_assets,
+            "material_texture_bindings": material_texture_bindings,
+            "material_texture_features": build_material_texture_features(material_texture_bindings, texture_assets),
+            "material_graph_features": MATERIAL_GRAPH_FEATURES,
             "texture_kind_settings": TEXTURE_KIND_SETTINGS,
             "mesh_count": len(imported),
             "material_count": len(material_assets),
@@ -1354,7 +1418,7 @@ def main() -> None:
     spawn_scene_setup()
     spawn_metadata_labels()
     save_generated_level()
-    write_unreal_import_report(imported, material_assets, texture_assets)
+    write_unreal_import_report(imported, material_assets, texture_assets, material_texture_bindings)
     log(f"Done. Check {MAP_ASSET_PATH} and the CapitolMap folders in the World Outliner.")
 
 
