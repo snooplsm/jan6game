@@ -308,6 +308,34 @@ class ObjWriter:
         ]
         self.add_extruded_polygon(corners, z, height, name, material)
 
+    def add_beveled_box(
+        self,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        height: float,
+        z: float,
+        name: str,
+        material: str,
+        bevel: float,
+    ) -> None:
+        cx, cy = center
+        sx, sy = size[0] / 2.0, size[1] / 2.0
+        inset = min(abs(bevel), sx * 0.42, sy * 0.42)
+        if inset <= 0.01:
+            self.add_box(center, size, height, z, name, material)
+            return
+        corners = [
+            (cx - sx + inset, cy - sy),
+            (cx + sx - inset, cy - sy),
+            (cx + sx, cy - sy + inset),
+            (cx + sx, cy + sy - inset),
+            (cx + sx - inset, cy + sy),
+            (cx - sx + inset, cy + sy),
+            (cx - sx, cy + sy - inset),
+            (cx - sx, cy - sy + inset),
+        ]
+        self.add_extruded_polygon(corners, z, height, name, material)
+
     def add_oriented_box(
         self,
         center: tuple[float, float],
@@ -2559,6 +2587,28 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_roof_slope_skirt_panels(name, center, size, z)
         add_parapet_corner_piers(name, center, size, z)
 
+    def add_beveled_massing(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        height: float,
+        z: float,
+        material: str,
+        bevel: float = 0.46,
+    ) -> None:
+        obj.add_beveled_box(center, size, height, z, name, material, bevel)
+        add_facade_detail(
+            f"{name}_beveled_public_massing",
+            "facade_beveled_massing",
+            (center[0], center[1], z + height / 2.0),
+            {
+                "size_m": [round(size[0], 3), round(size[1], 3)],
+                "height_m": round(height, 3),
+                "bevel_m": round(bevel, 3),
+                "public_accuracy": "schematic_beveled_public_massing",
+            },
+        )
+
     def add_roof_articulation_volume(
         name: str,
         center: tuple[float, float],
@@ -2580,8 +2630,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ) -> None:
         x, y = center
         sx, sy = size
-        obj.add_box(center, size, height, z, f"{name}_primary_step", "CapitolStone")
-        obj.add_box(center, (sx * 0.86, sy * 0.86), height * 0.32, z + height, f"{name}_upper_setback", "CapitolStone")
+        add_beveled_massing(f"{name}_primary_step", center, size, height, z, "CapitolStone", bevel=0.28)
+        add_beveled_massing(f"{name}_upper_setback", center, (sx * 0.86, sy * 0.86), height * 0.32, z + height, "CapitolStone", bevel=0.22)
         obj.add_box(center, (sx + 0.62, sy + 0.62), 0.18, z + height + height * 0.32, f"{name}_cap_course", "ColumnStone")
         reveal_z = z + height + 0.03
         reveal_specs = [
@@ -3801,9 +3851,9 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     # Public visual massing: layered wings, pavilions, porticos, roof caps,
     # columns, dome, and lantern. Dimensions are approximate for visual
     # orientation rather than survey-grade modeling.
-    obj.add_box((0.0, 0.0), (154.0, 188.0), 1.05, 0.08, "capitol_continuous_raised_plinth", "StepStone")
-    obj.add_box((0.0, 0.0), (78.0, 58.0), 12.4, 1.13, "capitol_central_body_lower", "CapitolStone")
-    obj.add_box((0.0, 0.0), (62.0, 44.0), 4.2, 13.53, "capitol_central_body_upper_setback", "CapitolStone")
+    add_beveled_massing("capitol_continuous_raised_plinth", (0.0, 0.0), (154.0, 188.0), 1.05, 0.08, "StepStone", bevel=1.10)
+    add_beveled_massing("capitol_central_body_lower", (0.0, 0.0), (78.0, 58.0), 12.4, 1.13, "CapitolStone", bevel=0.82)
+    add_beveled_massing("capitol_central_body_upper_setback", (0.0, 0.0), (62.0, 44.0), 4.2, 13.53, "CapitolStone", bevel=0.64)
     add_roof_cap("central_body_roof", (0.0, 0.0), (82.0, 62.0), 17.73)
 
     for args in [
@@ -3819,10 +3869,10 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_terrace_retaining_wall(*args)
 
     for wing_name, y, width, depth in (("senate_north_wing", 68.0, 82.0, 58.0), ("house_south_wing", -68.0, 90.0, 62.0)):
-        obj.add_box((0.0, y), (width, depth), 10.9, 1.13, f"{wing_name}_main_block", "CapitolStone")
-        obj.add_box((-34.0, y), (16.0, depth + 4.0), 13.2, 1.13, f"{wing_name}_west_end_pavilion", "CapitolStone")
-        obj.add_box((34.0, y), (16.0, depth + 4.0), 13.2, 1.13, f"{wing_name}_east_end_pavilion", "CapitolStone")
-        obj.add_box((0.0, y), (26.0, depth + 8.0), 12.4, 1.13, f"{wing_name}_center_pavilion", "CapitolStone")
+        add_beveled_massing(f"{wing_name}_main_block", (0.0, y), (width, depth), 10.9, 1.13, "CapitolStone", bevel=0.72)
+        add_beveled_massing(f"{wing_name}_west_end_pavilion", (-34.0, y), (16.0, depth + 4.0), 13.2, 1.13, "CapitolStone", bevel=0.46)
+        add_beveled_massing(f"{wing_name}_east_end_pavilion", (34.0, y), (16.0, depth + 4.0), 13.2, 1.13, "CapitolStone", bevel=0.46)
+        add_beveled_massing(f"{wing_name}_center_pavilion", (0.0, y), (26.0, depth + 8.0), 12.4, 1.13, "CapitolStone", bevel=0.54)
         add_roof_cap(f"{wing_name}_main_roof", (0.0, y), (width + 2.0, depth + 2.0), 12.05)
         add_roof_cap(f"{wing_name}_center_pavilion_roof", (0.0, y), (28.0, depth + 10.0), 13.55)
         add_facade_detail(f"{wing_name}_articulated_pavilions", "wing_pavilion_massing", (0.0, y, 7.2))
@@ -4012,8 +4062,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     for side, x in (("east", 58.5), ("west", -58.5)):
         face_sign = 1.0 if x > 0.0 else -1.0
-        obj.add_box((x, 0.0), (17.0, 68.0), 13.7, 1.13, f"{side}_front_projecting_portico_block", "CapitolStone")
-        obj.add_box((x, 0.0), (20.0, 72.0), 0.55, 14.83, f"{side}_front_entablature", "ColumnStone")
+        add_beveled_massing(f"{side}_front_projecting_portico_block", (x, 0.0), (17.0, 68.0), 13.7, 1.13, "CapitolStone", bevel=0.42)
+        add_beveled_massing(f"{side}_front_entablature", (x, 0.0), (20.0, 72.0), 0.55, 14.83, "ColumnStone", bevel=0.36)
         add_facade_corner_quoin_stack(
             f"{side}_front_portico",
             [(x - 8.5, -34.0), (x - 8.5, 34.0), (x + 8.5, -34.0), (x + 8.5, 34.0)],
@@ -4042,8 +4092,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     for side, y in (("north", 99.0), ("south", -99.0)):
         face_sign = 1.0 if y > 0.0 else -1.0
-        obj.add_box((0.0, y), (50.0, 13.0), 11.8, 1.13, f"{side}_wing_public_portico_block", "CapitolStone")
-        obj.add_box((0.0, y), (54.0, 15.5), 0.48, 13.15, f"{side}_wing_entablature", "ColumnStone")
+        add_beveled_massing(f"{side}_wing_public_portico_block", (0.0, y), (50.0, 13.0), 11.8, 1.13, "CapitolStone", bevel=0.38)
+        add_beveled_massing(f"{side}_wing_entablature", (0.0, y), (54.0, 15.5), 0.48, 13.15, "ColumnStone", bevel=0.32)
         add_facade_corner_quoin_stack(
             f"{side}_wing_portico",
             [(-25.0, y - 6.5), (-25.0, y + 6.5), (25.0, y - 6.5), (25.0, y + 6.5)],

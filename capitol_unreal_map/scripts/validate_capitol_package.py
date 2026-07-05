@@ -1109,6 +1109,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_limestone_discoloration_patch",
     "facade_sill_runoff_stain",
     "facade_base_grime_band",
+    "facade_beveled_massing",
     "facade_recess_shadow_panel",
     "facade_arcade_shadow_bay",
     "facade_corner_quoin_block",
@@ -1637,6 +1638,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 112 public facade sill runoff stain records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_base_grime_band"]) < 10:
         error(errors, "expected at least 10 public facade base grime band records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_beveled_massing"]) < 32:
+        error(errors, "expected at least 32 beveled public facade massing records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_recess_shadow_panel"]) < 130:
         error(errors, "expected at least 130 public facade recess shadow panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_arcade_shadow_bay"]) < 24:
