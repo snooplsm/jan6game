@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "source_data" / "capitol_osm_overpass_2026-07-04.json"
 DCGIS_ELEVATION_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
 DCGIS_TRAFFIC_SIGN_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
+DCGIS_FIXTURE_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_public_fixtures.json"
 GENERATED = ROOT / "generated"
 MESH_DIR = GENERATED / "meshes"
 DATA_DIR = GENERATED / "data"
@@ -61,6 +62,20 @@ class DcgisOverheadTrafficSign:
     sign_id: int
     description: str
     dxf_layer: str
+
+
+@dataclass(frozen=True)
+class DcgisFixturePoint:
+    x: float
+    y: float
+    object_id: int
+    feature_id: int
+    feature_code: int
+    angle_degrees: float
+    description: str
+    dxf_layer: str
+    source_layer: str
+    source_label: str
 
 
 MATERIALS = {
@@ -818,6 +833,120 @@ def load_dcgis_traffic_signs() -> dict[str, Any]:
     }
 
 
+def parse_dcgis_fixture_points(
+    features: list[dict[str, Any]],
+    source_layer: str,
+    source_label: str,
+    id_field: str,
+    code_field: str,
+    angle_field: str | None = None,
+) -> list[DcgisFixturePoint]:
+    fixtures: list[DcgisFixturePoint] = []
+    for feature in features:
+        geometry = feature.get("geometry") or {}
+        attributes = feature.get("attributes") or {}
+        if not all(key in geometry for key in ("x", "y")):
+            continue
+        x, y = local_xy(float(geometry["y"]), float(geometry["x"]))
+        fixtures.append(
+            DcgisFixturePoint(
+                x=x,
+                y=y,
+                object_id=dcgis_int(attributes.get("OBJECTID")),
+                feature_id=dcgis_int(attributes.get(id_field)),
+                feature_code=dcgis_int(attributes.get(code_field)),
+                angle_degrees=float(attributes.get(angle_field) or 0.0) if angle_field else 0.0,
+                description=str(attributes.get("DESC_") or source_label),
+                dxf_layer=str(attributes.get("DXF_LAYER") or ""),
+                source_layer=source_layer,
+                source_label=source_label,
+            )
+        )
+    return fixtures
+
+
+def load_dcgis_public_fixtures() -> dict[str, Any]:
+    if not DCGIS_FIXTURE_SOURCE.exists():
+        return {
+            "available": False,
+            "source_file": str(DCGIS_FIXTURE_SOURCE.relative_to(ROOT)),
+            "fire_hydrants": [],
+            "miscellaneous_points": [],
+            "street_trees": [],
+            "utility_poles": [],
+        }
+    data = json.loads(DCGIS_FIXTURE_SOURCE.read_text(encoding="utf-8"))
+    layers = data.get("layers", {})
+    fire_hydrants = parse_dcgis_fixture_points(
+        layers.get("fire_hydrants_1999", {}).get("features", []),
+        "fire_hydrants_1999",
+        "Fire Hydrants - 1999",
+        "WTL_ID",
+        "WTL_CODE",
+    )
+    miscellaneous_points = parse_dcgis_fixture_points(
+        layers.get("miscellaneous_points_1999", {}).get("features", []),
+        "miscellaneous_points_1999",
+        "Miscellaneous Points - 1999",
+        "CTN_ID",
+        "CTN_CODE",
+        "CTN_ANGL",
+    )
+    street_trees = parse_dcgis_fixture_points(
+        layers.get("street_trees_1999", {}).get("features", []),
+        "street_trees_1999",
+        "Street Trees - 1999",
+        "TRE_ID",
+        "TRE_CODE",
+    )
+    utility_poles = parse_dcgis_fixture_points(
+        layers.get("utility_poles_1999", {}).get("features", []),
+        "utility_poles_1999",
+        "Utility Poles - 1999",
+        "ELT_ID",
+        "ELT_CODE",
+        "ELT_ANGL",
+    )
+    return {
+        "available": True,
+        "source_file": str(DCGIS_FIXTURE_SOURCE.relative_to(ROOT)),
+        "service_url": data.get("service_url"),
+        "bbox_lonlat": data.get("bbox_lonlat"),
+        "retrieved_utc": data.get("retrieved_utc"),
+        "fire_hydrants": fire_hydrants,
+        "miscellaneous_points": miscellaneous_points,
+        "street_trees": street_trees,
+        "utility_poles": utility_poles,
+        "fire_hydrant_count": len(fire_hydrants),
+        "miscellaneous_point_count": len(miscellaneous_points),
+        "street_tree_count": len(street_trees),
+        "utility_pole_count": len(utility_poles),
+    }
+
+
+def select_spaced_dcgis_points(
+    points: list[DcgisFixturePoint],
+    limit: int,
+    min_distance_m: float,
+) -> list[DcgisFixturePoint]:
+    selected: list[DcgisFixturePoint] = []
+    for point in sorted(points, key=lambda item: (round(item.y / 40.0), round(item.x / 40.0), item.object_id)):
+        if len(selected) >= limit:
+            break
+        if all(math.hypot(point.x - chosen.x, point.y - chosen.y) >= min_distance_m for chosen in selected):
+            selected.append(point)
+    if len(selected) >= limit:
+        return selected
+    selected_ids = {point.object_id for point in selected}
+    for point in sorted(points, key=lambda item: item.object_id):
+        if len(selected) >= limit:
+            break
+        if point.object_id not in selected_ids:
+            selected.append(point)
+            selected_ids.add(point.object_id)
+    return selected
+
+
 def dcgis_height_estimate(
     footprint: list[tuple[float, float]],
     current_height: float,
@@ -1126,6 +1255,11 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     dcgis_traffic_sign_model = load_dcgis_traffic_signs()
     dcgis_traffic_sign_points = dcgis_traffic_sign_model.get("traffic_sign_points", [])
     dcgis_overhead_signs = dcgis_traffic_sign_model.get("overhead_signs", [])
+    dcgis_fixture_model = load_dcgis_public_fixtures()
+    dcgis_fire_hydrants = dcgis_fixture_model.get("fire_hydrants", [])
+    dcgis_miscellaneous_points = dcgis_fixture_model.get("miscellaneous_points", [])
+    dcgis_street_trees = dcgis_fixture_model.get("street_trees", [])
+    dcgis_utility_poles = dcgis_fixture_model.get("utility_poles", [])
     dcgis_height_match_count = 0
     metadata: dict[str, Any] = {
         "buildings": [],
@@ -1173,6 +1307,25 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             "dcgis_note": (
                 "Public DCGIS 1999 planimetric sign points and overhead sign lines are rendered as generic "
                 "traffic-control sign props. They are public streetscape markers, not current operational guidance."
+            ),
+        },
+        "public_fixture_model": {
+            "source_file": dcgis_fixture_model.get("source_file"),
+            "service_url": dcgis_fixture_model.get("service_url"),
+            "retrieved_utc": dcgis_fixture_model.get("retrieved_utc"),
+            "bbox_lonlat": dcgis_fixture_model.get("bbox_lonlat"),
+            "dcgis_fire_hydrants": dcgis_fixture_model.get("fire_hydrant_count", 0),
+            "dcgis_miscellaneous_points": dcgis_fixture_model.get("miscellaneous_point_count", 0),
+            "dcgis_street_trees": dcgis_fixture_model.get("street_tree_count", 0),
+            "dcgis_utility_poles": dcgis_fixture_model.get("utility_pole_count", 0),
+            "generated_fire_hydrant_props": 0,
+            "generated_misc_fixture_props": 0,
+            "generated_street_tree_props": 0,
+            "generated_utility_pole_props": 0,
+            "dcgis_note": (
+                "Public DCGIS 1999 planimetric hydrant, miscellaneous point, tree, and utility-pole features "
+                "are rendered as generic public streetscape fixtures. Dense layers are spatially sampled for "
+                "performance while retaining source counts and feature IDs in metadata."
             ),
         },
     }
@@ -2141,6 +2294,102 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "span_m": round(length, 3),
                 "angle_degrees": round(math.degrees(angle), 2),
             },
+        )
+
+    def dcgis_fixture_extra(point: DcgisFixturePoint) -> dict[str, Any]:
+        return {
+            "source": f"DCGIS Planimetrics 1999 {point.source_label}",
+            "dcgis_object_id": point.object_id,
+            "dcgis_feature_id": point.feature_id,
+            "dcgis_feature_code": point.feature_code,
+            "description": point.description,
+            "dxf_layer": point.dxf_layer,
+        }
+
+    def add_dcgis_fire_hydrant(name: str, point: DcgisFixturePoint) -> None:
+        x, y = point.x, point.y
+        roads.add_cylinder((x, y), 0.18, 0.08, 0.66, f"{name}_barrel", "TrafficSignalRed", segments=12)
+        roads.add_cylinder((x, y), 0.20, 0.74, 0.11, f"{name}_bonnet", "TrafficSignalYellow", segments=12)
+        roads.add_box((x, y), (0.62, 0.12), 0.12, 0.44, f"{name}_side_nozzles", "TrafficSignalYellow")
+        roads.add_box((x, y), (0.14, 0.46), 0.08, 0.58, f"{name}_front_nozzle", "TrafficSignalYellow")
+        extra = dcgis_fixture_extra(point)
+        add_streetscape_record(
+            name,
+            "dcgis_fire_hydrant",
+            (x, y, 0.48),
+            public_accuracy="public_1999_planimetric_hydrant_generic_visual",
+            extra=extra,
+        )
+
+    def add_dcgis_street_tree(name: str, point: DcgisFixturePoint) -> None:
+        x, y = point.x, point.y
+        scale = 0.86 + stable_unit_interval(point.object_id, point.feature_id) * 0.34
+        roads.add_cylinder((x, y), 0.12 * scale, 0.08, 1.58 * scale, f"{name}_trunk", "TreeTrunk", segments=8)
+        roads.add_cylinder((x, y), 0.72 * scale, 1.18 * scale, 0.74 * scale, f"{name}_lower_canopy", "TreeCanopy", segments=14)
+        roads.add_cylinder((x, y), 0.56 * scale, 1.66 * scale, 0.62 * scale, f"{name}_upper_canopy", "TreeCanopy", segments=14)
+        roads.add_cylinder((x, y), 0.58 * scale, 0.055, 0.10, f"{name}_tree_pit_ring", "PlanterStone", segments=12)
+        extra = dcgis_fixture_extra(point)
+        extra["scale"] = round(scale, 3)
+        add_streetscape_record(
+            name,
+            "dcgis_street_tree",
+            (x, y, 1.45 * scale),
+            public_accuracy="public_1999_planimetric_tree_generic_visual",
+            extra=extra,
+        )
+
+    def add_dcgis_utility_pole(name: str, point: DcgisFixturePoint) -> None:
+        x, y = point.x, point.y
+        angle = math.radians(point.angle_degrees)
+        if point.angle_degrees == 0.0:
+            angle = stable_unit_interval(point.object_id, "utility_pole_angle") * math.pi
+        roads.add_cylinder((x, y), 0.060, 0.08, 4.18, f"{name}_pole", "StreetLightPole", segments=8)
+        roads.add_oriented_box((x, y), (1.22, 0.08), 0.08, 3.72, angle, f"{name}_crossarm", "BollardMetal")
+        roads.add_cylinder((x, y), 0.12, 0.06, 0.055, f"{name}_base_plate", "BollardMetal", segments=10)
+        roads.add_box((x, y), (0.24, 0.14), 0.22, 2.10, f"{name}_utility_box_marker", "DoorMetal")
+        extra = dcgis_fixture_extra(point)
+        extra["angle_degrees"] = round(math.degrees(angle), 2)
+        add_streetscape_record(
+            name,
+            "dcgis_utility_pole",
+            (x, y, 2.18),
+            public_accuracy="public_1999_planimetric_utility_pole_generic_visual",
+            extra=extra,
+        )
+
+    def add_dcgis_misc_public_fixture(name: str, point: DcgisFixturePoint) -> None:
+        x, y = point.x, point.y
+        variant = point.object_id % 4
+        if variant == 0:
+            roads.add_cylinder((x, y), 0.16, 0.08, 0.72, f"{name}_bollard_body", "BollardMetal", segments=10)
+            roads.add_cylinder((x, y), 0.18, 0.80, 0.06, f"{name}_bollard_cap", "BrassRail", segments=10)
+            visual = "bollard"
+            center_z = 0.48
+        elif variant == 1:
+            angle = math.radians(point.angle_degrees or stable_unit_interval(point.object_id, "bench") * 180.0)
+            roads.add_oriented_box((x, y), (1.62, 0.34), 0.12, 0.42, angle, f"{name}_bench_seat", "BenchWood")
+            roads.add_oriented_box((x, y), (1.70, 0.12), 0.42, 0.52, angle, f"{name}_bench_back", "BenchWood")
+            visual = "bench"
+            center_z = 0.62
+        elif variant == 2:
+            roads.add_cylinder((x, y), 0.38, 0.06, 0.34, f"{name}_planter_bowl", "PlanterStone", segments=14)
+            roads.add_cylinder((x, y), 0.44, 0.38, 0.08, f"{name}_planter_rim", "PlanterStone", segments=14)
+            roads.add_cylinder((x, y), 0.34, 0.42, 0.42, f"{name}_planting_mass", "TreeCanopy", segments=12)
+            visual = "planter"
+            center_z = 0.50
+        else:
+            roads.add_cylinder((x, y), 0.24, 0.08, 0.54, f"{name}_marker_post", "StreetLightPole", segments=8)
+            roads.add_box((x, y), (0.58, 0.10), 0.20, 0.62, f"{name}_small_public_marker", "MarkerBlue")
+            visual = "small_marker"
+            center_z = 0.56
+        extra = dcgis_fixture_extra(point)
+        extra["visual_variant"] = visual
+        add_streetscape_record(
+            name,
+            "dcgis_misc_public_fixture",
+            (x, y, center_z),
+            public_accuracy="public_1999_planimetric_misc_point_generic_visual",
+            extra=extra,
         )
 
     def add_curb_paint_segment(name: str, center: tuple[float, float], length: float, orientation: str, material: str) -> None:
@@ -3247,6 +3496,46 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     metadata["traffic_sign_model"]["generated_public_traffic_sign_props"] = generated_dcgis_signs
     metadata["traffic_sign_model"]["generated_public_overhead_sign_props"] = generated_dcgis_overhead_signs
+
+    hydrant_stack_counts: dict[tuple[int, int], int] = {}
+    generated_dcgis_hydrants = 0
+    for fixture in sorted(dcgis_fire_hydrants, key=lambda item: item.object_id):
+        key = (round(fixture.x * 4.0), round(fixture.y * 4.0))
+        hydrant_stack_counts[key] = hydrant_stack_counts.get(key, 0) + 1
+        stack_index = hydrant_stack_counts[key]
+        if stack_index > 1:
+            angle = stack_index * math.tau / 5.0
+            fixture = DcgisFixturePoint(
+                x=fixture.x + math.cos(angle) * 0.22,
+                y=fixture.y + math.sin(angle) * 0.22,
+                object_id=fixture.object_id,
+                feature_id=fixture.feature_id,
+                feature_code=fixture.feature_code,
+                angle_degrees=fixture.angle_degrees,
+                description=fixture.description,
+                dxf_layer=fixture.dxf_layer,
+                source_layer=fixture.source_layer,
+                source_label=fixture.source_label,
+            )
+        generated_dcgis_hydrants += 1
+        add_dcgis_fire_hydrant(f"dcgis_fire_hydrant_{fixture.object_id}", fixture)
+
+    selected_trees = select_spaced_dcgis_points(dcgis_street_trees, 480, 11.5)
+    for fixture in selected_trees:
+        add_dcgis_street_tree(f"dcgis_street_tree_{fixture.object_id}", fixture)
+
+    selected_misc = select_spaced_dcgis_points(dcgis_miscellaneous_points, 240, 8.5)
+    for fixture in selected_misc:
+        add_dcgis_misc_public_fixture(f"dcgis_misc_public_fixture_{fixture.object_id}", fixture)
+
+    selected_utility_poles = select_spaced_dcgis_points(dcgis_utility_poles, 220, 10.0)
+    for fixture in selected_utility_poles:
+        add_dcgis_utility_pole(f"dcgis_utility_pole_{fixture.object_id}", fixture)
+
+    metadata["public_fixture_model"]["generated_fire_hydrant_props"] = generated_dcgis_hydrants
+    metadata["public_fixture_model"]["generated_misc_fixture_props"] = len(selected_misc)
+    metadata["public_fixture_model"]["generated_street_tree_props"] = len(selected_trees)
+    metadata["public_fixture_model"]["generated_utility_pole_props"] = len(selected_utility_poles)
 
     add_public_roadway_visual_details()
     add_capitol_grounds_details()
@@ -10830,6 +11119,18 @@ def write_scene_metadata(
                     "Overhead Traffic Signs - 1999",
                 ],
                 "usage": "Generic public traffic-control sign and overhead-sign streetscape props.",
+            },
+            "exterior_dcgis_planimetrics_1999_public_fixtures": {
+                "file": exterior.get("public_fixture_model", {}).get("source_file"),
+                "service_url": exterior.get("public_fixture_model", {}).get("service_url"),
+                "retrieved_utc": exterior.get("public_fixture_model", {}).get("retrieved_utc"),
+                "layers": [
+                    "Fire Hydrants - 1999",
+                    "Miscellaneous Points (statues, planters, benches, bollard) - 1999",
+                    "Street Trees - 1999",
+                    "Utilities Poles - 1999",
+                ],
+                "usage": "Generic public hydrant, tree, utility-pole, and miscellaneous streetscape fixture props.",
             },
         },
         "meshes": [

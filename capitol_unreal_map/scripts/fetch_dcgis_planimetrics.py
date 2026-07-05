@@ -14,6 +14,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 ELEVATION_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_elevation_points.json"
 TRAFFIC_SIGN_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
+FIXTURE_OUTPUT = ROOT / "source_data" / "dc_planimetrics_1999_capitol_public_fixtures.json"
 SERVICE_URL = "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planimetrics_1999/MapServer"
 BBOX_LONLAT = [-77.01770688017783, 38.882303355012574, -76.99693276775105, 38.89802380057492]
 ELEVATION_LAYERS = {
@@ -28,6 +29,24 @@ TRAFFIC_SIGN_LAYERS = {
     "overhead_traffic_signs_1999": {
         "id": 12,
         "out_fields": "OBJECTID,OTS,OTS_ID,OTS_CODE,DXF_LAYER,DESC_",
+    },
+}
+FIXTURE_LAYERS = {
+    "fire_hydrants_1999": {
+        "id": 0,
+        "out_fields": "OBJECTID,WTL_ID,WTL_CODE,WTL_TYPE,SIZE_,DESC_,DXF_LAYER",
+    },
+    "miscellaneous_points_1999": {
+        "id": 2,
+        "out_fields": "OBJECTID,CTN_ID,CTN_CODE,CTN_ANGL,CTN_NAME,DESC_,DXF_LAYER",
+    },
+    "street_trees_1999": {
+        "id": 7,
+        "out_fields": "OBJECTID,TRE_ID,TRE_CODE,DESC_,DXF_LAYER",
+    },
+    "utility_poles_1999": {
+        "id": 8,
+        "out_fields": "OBJECTID,ELT_ID,ELT_CODE,ELT_ANGL,DESC_,DXF_LAYER",
     },
 }
 
@@ -89,15 +108,26 @@ def main() -> None:
             for name, spec in TRAFFIC_SIGN_LAYERS.items()
         },
     }
+    fixture_payload = {
+        **base_payload(),
+        "layers": {
+            name: fetch_layer(int(spec["id"]), str(spec["out_fields"]))
+            for name, spec in FIXTURE_LAYERS.items()
+        },
+    }
 
     ELEVATION_OUTPUT.write_text(json.dumps(elevation_payload, indent=2, sort_keys=True), encoding="utf-8")
     TRAFFIC_SIGN_OUTPUT.write_text(json.dumps(traffic_sign_payload, indent=2, sort_keys=True), encoding="utf-8")
+    FIXTURE_OUTPUT.write_text(json.dumps(fixture_payload, indent=2, sort_keys=True), encoding="utf-8")
 
     print(f"Wrote {ELEVATION_OUTPUT}")
     for name, layer in elevation_payload["layers"].items():
         print(f"{name}: {layer['feature_count']} features")
     print(f"Wrote {TRAFFIC_SIGN_OUTPUT}")
     for name, layer in traffic_sign_payload["layers"].items():
+        print(f"{name}: {layer['feature_count']} features")
+    print(f"Wrote {FIXTURE_OUTPUT}")
+    for name, layer in fixture_payload["layers"].items():
         print(f"{name}: {layer['feature_count']} features")
 
 

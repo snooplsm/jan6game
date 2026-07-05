@@ -1197,6 +1197,10 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "crosswalk_ahead_sign",
     "dcgis_traffic_control_sign",
     "dcgis_overhead_traffic_sign",
+    "dcgis_fire_hydrant",
+    "dcgis_street_tree",
+    "dcgis_utility_pole",
+    "dcgis_misc_public_fixture",
     "curb_paint_segment",
     "road_asphalt_patch",
     "road_crack_line",
@@ -1659,6 +1663,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         "generated_public_traffic_sign_props": traffic_sign_model.get("generated_public_traffic_sign_props"),
         "generated_public_overhead_sign_props": traffic_sign_model.get("generated_public_overhead_sign_props"),
     }
+    public_fixture_model = exterior.get("public_fixture_model", {})
+    summary["public_fixture_model"] = {
+        "dcgis_fire_hydrants": public_fixture_model.get("dcgis_fire_hydrants"),
+        "dcgis_miscellaneous_points": public_fixture_model.get("dcgis_miscellaneous_points"),
+        "dcgis_street_trees": public_fixture_model.get("dcgis_street_trees"),
+        "dcgis_utility_poles": public_fixture_model.get("dcgis_utility_poles"),
+        "generated_fire_hydrant_props": public_fixture_model.get("generated_fire_hydrant_props"),
+        "generated_misc_fixture_props": public_fixture_model.get("generated_misc_fixture_props"),
+        "generated_street_tree_props": public_fixture_model.get("generated_street_tree_props"),
+        "generated_utility_pole_props": public_fixture_model.get("generated_utility_pole_props"),
+    }
     grounds_details = exterior.get("grounds_details", [])
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
     grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
@@ -1851,6 +1866,30 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "traffic_sign_model generated traffic sign count must match streetscape props")
     if (traffic_sign_model.get("generated_public_overhead_sign_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_overhead_traffic_sign"]):
         error(errors, "traffic_sign_model generated overhead sign count must match streetscape props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_fire_hydrant"]) < 18:
+        error(errors, "expected at least 18 DCGIS public fire-hydrant props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_street_tree"]) < 450:
+        error(errors, "expected at least 450 DCGIS public street-tree props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_utility_pole"]) < 200:
+        error(errors, "expected at least 200 DCGIS public utility-pole props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_misc_public_fixture"]) < 220:
+        error(errors, "expected at least 220 DCGIS miscellaneous public fixture props")
+    if (public_fixture_model.get("dcgis_fire_hydrants") or 0) < 18:
+        error(errors, "expected at least 18 DCGIS fire-hydrant source points")
+    if (public_fixture_model.get("dcgis_miscellaneous_points") or 0) < 2500:
+        error(errors, "expected at least 2500 DCGIS miscellaneous source points")
+    if (public_fixture_model.get("dcgis_street_trees") or 0) < 9000:
+        error(errors, "expected at least 9000 DCGIS street-tree source points")
+    if (public_fixture_model.get("dcgis_utility_poles") or 0) < 2500:
+        error(errors, "expected at least 2500 DCGIS utility-pole source points")
+    if (public_fixture_model.get("generated_fire_hydrant_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_fire_hydrant"]):
+        error(errors, "public_fixture_model generated hydrant count must match streetscape props")
+    if (public_fixture_model.get("generated_misc_fixture_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_misc_public_fixture"]):
+        error(errors, "public_fixture_model generated miscellaneous fixture count must match streetscape props")
+    if (public_fixture_model.get("generated_street_tree_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_street_tree"]):
+        error(errors, "public_fixture_model generated street-tree count must match streetscape props")
+    if (public_fixture_model.get("generated_utility_pole_props") or 0) != len([prop for prop in streetscape_props if prop.get("kind") == "dcgis_utility_pole"]):
+        error(errors, "public_fixture_model generated utility-pole count must match streetscape props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "curb_paint_segment"]) < 16:
         error(errors, "expected at least 16 public curb-paint segment props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "road_asphalt_patch"]) < 24:
