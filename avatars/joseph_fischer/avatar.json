@@ -10,7 +10,8 @@
   "source_policy": {
     "external_images_are_not_vendored": true,
     "license_note": "External news images are referenced by URL only. Do not commit or redistribute source images without a separate license review.",
-    "neutrality_note": "This record is source-attributed avatar reference metadata and should not imply guilt, conviction, or factual claims beyond cited public sources."
+    "neutrality_note": "This record is source-attributed avatar reference metadata and should not imply guilt, conviction, or factual claims beyond cited public sources.",
+    "yt_dlp_scope": "yt-dlp is used only against the NBC article page to capture embedded media metadata. Direct image URLs are kept as external visual references only."
   },
   "source_page": {
     "id": "nbcnews_rcna147421",
@@ -33,7 +34,7 @@
       "id": "nbcnews_joseph_fischer_image",
       "publisher": "NBC News",
       "url": "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-560w,f_avif,q_auto:eco,dpr_2/rockcms/2024-04/240412-joseph-fischer-se-531p-c1cd23.jpg",
-      "retrieval_tool": "yt-dlp direct asset probe",
+      "retrieval_tool": "external URL reference only",
       "observed_file_type": "AVIF image served from .jpg URL",
       "local_cache_committed": false
     },
@@ -41,7 +42,7 @@
       "id": "abc27_joseph_fischer_image",
       "publisher": "ABC27",
       "url": "https://www.abc27.com/wp-content/uploads/sites/55/2021/02/Joseph-Fischer.png",
-      "retrieval_tool": "yt-dlp direct asset probe",
+      "retrieval_tool": "external URL reference only",
       "observed_file_type": "PNG image, 922x719, RGBA",
       "local_cache_committed": false
     }
