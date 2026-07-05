@@ -2473,6 +2473,127 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 {"orientation": orientation, "size_m": [round(conduit_size[0], 3), round(conduit_size[1], 3)]},
             )
 
+    def add_surrounding_building_rooftop_equipment_layer(
+        way_id: int,
+        name: str,
+        points: list[tuple[float, float]],
+        height: float,
+        center: tuple[float, float],
+    ) -> None:
+        # This lighter pass extends rooftop visual detail beyond the closest
+        # fully detailed facade set without adding sensitive or operational data.
+        if building_detail_building_count("surrounding_building_roofline") < 40:
+            return
+        if building_detail_building_count("surrounding_building_roof_equipment_pad") >= 70:
+            return
+        cx, cy = center
+        if math.hypot(cx, cy) > 980.0:
+            return
+        min_x = min(point[0] for point in points)
+        max_x = max(point[0] for point in points)
+        min_y = min(point[1] for point in points)
+        max_y = max(point[1] for point in points)
+        width = max_x - min_x
+        depth = max_y - min_y
+        if height < 7.0 or width < 5.2 or depth < 5.2:
+            return
+
+        safe_prefix = f"surrounding_building_{way_id}_supplemental_roof"
+        roof_z = height + 0.18
+        pad_center = (
+            cx + width * (0.10 + stable_unit_interval(safe_prefix, 1, "pad_x") * 0.12),
+            cy - depth * (0.10 + stable_unit_interval(safe_prefix, 1, "pad_y") * 0.12),
+        )
+        pad_size = (max(1.15, min(width * 0.22, 4.8)), max(0.95, min(depth * 0.18, 3.6)))
+        pad_name = f"{safe_prefix}_equipment_pad"
+        buildings.add_box(pad_center, pad_size, 0.050, roof_z, pad_name, "RoadPatchAsphalt")
+        add_building_detail_record(
+            pad_name,
+            "surrounding_building_roof_equipment_pad",
+            way_id,
+            name,
+            (pad_center[0], pad_center[1], roof_z + 0.025),
+            {"size_m": [round(pad_size[0], 3), round(pad_size[1], 3)], "public_accuracy": "generic_non_operational_rooftop_visual"},
+        )
+
+        hvac_offsets = [(-0.24, 0.0), (0.24, 0.0)]
+        for unit_index, (ox, oy) in enumerate(hvac_offsets, start=1):
+            unit_center = (pad_center[0] + pad_size[0] * ox, pad_center[1] + pad_size[1] * oy)
+            unit_size = (pad_size[0] * 0.34, pad_size[1] * 0.64)
+            unit_name = f"{safe_prefix}_hvac_fan_{unit_index:02d}"
+            buildings.add_box(unit_center, unit_size, 0.42, roof_z + 0.06, f"{unit_name}_housing", "DoorMetal")
+            buildings.add_cylinder(unit_center, max(0.16, min(unit_size) * 0.26), roof_z + 0.50, 0.055, f"{unit_name}_round_fan_cap", "FacadeWindow", segments=12)
+            buildings.add_box((unit_center[0], unit_center[1] - unit_size[1] * 0.53), (unit_size[0] * 0.72, 0.052), 0.030, roof_z + 0.26, f"{unit_name}_front_louver", "RoadCrackSealant")
+            add_building_detail_record(
+                unit_name,
+                "surrounding_building_rooftop_hvac_fan",
+                way_id,
+                name,
+                (unit_center[0], unit_center[1], roof_z + 0.36),
+                {"unit_index": unit_index, "public_accuracy": "generic_non_operational_rooftop_visual"},
+            )
+
+        vent_base = (cx - width * 0.24, cy + depth * 0.18)
+        for vent_index, (dx, dy) in enumerate([(0.0, 0.0), (0.48, -0.20), (-0.42, -0.26)], start=1):
+            vent_center = (vent_base[0] + dx, vent_base[1] + dy)
+            buildings.add_cylinder(vent_center, 0.095, roof_z + 0.04, 0.46, f"{safe_prefix}_vent_stack_{vent_index:02d}", "DoorMetal", segments=10)
+            buildings.add_box((vent_center[0], vent_center[1] + 0.10), (0.30, 0.12), 0.080, roof_z + 0.50, f"{safe_prefix}_vent_cap_{vent_index:02d}", "DoorMetal")
+        add_building_detail_record(
+            f"{safe_prefix}_vent_cluster",
+            "surrounding_building_roof_vent_cluster",
+            way_id,
+            name,
+            (vent_base[0], vent_base[1], roof_z + 0.33),
+            {"stack_count": 3, "public_accuracy": "generic_non_operational_rooftop_visual"},
+        )
+
+        skylight_center = (cx - width * 0.12, cy - depth * 0.24)
+        skylight_size = (max(0.72, min(width * 0.12, 2.2)), max(0.56, min(depth * 0.10, 1.7)))
+        skylight_name = f"{safe_prefix}_low_skylight_dome"
+        buildings.add_box(skylight_center, (skylight_size[0] + 0.12, skylight_size[1] + 0.12), 0.045, roof_z + 0.05, f"{skylight_name}_curb", "DoorMetal")
+        buildings.add_box(skylight_center, skylight_size, 0.16, roof_z + 0.085, skylight_name, "DoorGlass")
+        add_building_detail_record(
+            skylight_name,
+            "surrounding_building_roof_skylight_dome",
+            way_id,
+            name,
+            (skylight_center[0], skylight_center[1], roof_z + 0.17),
+            {"size_m": [round(skylight_size[0], 3), round(skylight_size[1], 3)], "public_accuracy": "generic_non_operational_rooftop_visual"},
+        )
+
+        drain_specs = [
+            ("north", (cx, max_y - 0.34), (max(0.9, min(width * 0.16, 2.2)), 0.10)),
+            ("south", (cx, min_y + 0.34), (max(0.9, min(width * 0.16, 2.2)), 0.10)),
+            ("east", (max_x - 0.34, cy), (0.10, max(0.9, min(depth * 0.16, 2.2)))),
+            ("west", (min_x + 0.34, cy), (0.10, max(0.9, min(depth * 0.16, 2.2)))),
+        ]
+        for edge, drain_center, drain_size in drain_specs:
+            buildings.add_box(drain_center, drain_size, 0.035, roof_z + 0.035, f"{safe_prefix}_{edge}_roof_drain_box", "RoadCrackSealant")
+        add_building_detail_record(
+            f"{safe_prefix}_roof_drain_boxes",
+            "surrounding_building_roof_drain_box",
+            way_id,
+            name,
+            (cx, cy, roof_z + 0.052),
+            {"count": len(drain_specs), "public_accuracy": "generic_non_operational_rooftop_visual"},
+        )
+
+        stain_specs = [
+            ((cx + width * 0.23, cy + depth * 0.12), (max(0.8, min(width * 0.18, 3.5)), max(0.35, min(depth * 0.07, 1.1))), 8.0),
+            ((cx - width * 0.18, cy - depth * 0.07), (max(0.7, min(width * 0.14, 2.8)), max(0.32, min(depth * 0.06, 0.95))), -6.0),
+        ]
+        for stain_index, (stain_center, stain_size, angle_degrees) in enumerate(stain_specs, start=1):
+            stain_name = f"{safe_prefix}_roof_stain_patch_{stain_index:02d}"
+            buildings.add_oriented_box(stain_center, stain_size, 0.012, roof_z + 0.072, math.radians(angle_degrees), stain_name, "StoneGrimeOverlay")
+            add_building_detail_record(
+                stain_name,
+                "surrounding_building_roof_stain_patch",
+                way_id,
+                name,
+                (stain_center[0], stain_center[1], roof_z + 0.078),
+                {"size_m": [round(stain_size[0], 3), round(stain_size[1], 3)], "angle_degrees": angle_degrees},
+            )
+
     def add_streetlight(name: str, point: tuple[float, float], side_sign: float) -> None:
         x, y = point
         lamp_x = x + side_sign * 0.62
@@ -4247,6 +4368,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 material = "BuildingCapitol" if is_capitol else "BuildingGeneric"
                 buildings.add_extruded_polygon(points, 0.0, height, f"building_{name}_{way['id']}", material)
                 add_surrounding_building_visuals(way["id"], name, points, height, (cx, cy))
+                add_surrounding_building_rooftop_equipment_layer(way["id"], name, points, height, (cx, cy))
                 height_accuracy = building_height_accuracy_record(
                     height_source,
                     height,

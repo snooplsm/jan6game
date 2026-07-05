@@ -1399,6 +1399,12 @@ REQUIRED_BUILDING_DETAIL_KINDS = {
     "surrounding_building_roof_pipe_stack",
     "surrounding_building_roof_vent_cap",
     "surrounding_building_roof_conduit",
+    "surrounding_building_roof_equipment_pad",
+    "surrounding_building_rooftop_hvac_fan",
+    "surrounding_building_roof_vent_cluster",
+    "surrounding_building_roof_skylight_dome",
+    "surrounding_building_roof_drain_box",
+    "surrounding_building_roof_stain_patch",
 }
 
 REQUIRED_VIEWPOINTS = {
@@ -1948,8 +1954,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
-    if len(building_details) < 7300:
-        error(errors, f"expected at least 7300 surrounding building visual detail records, got {len(building_details)}")
+    if len(building_details) < 7800:
+        error(errors, f"expected at least 7800 surrounding building visual detail records, got {len(building_details)}")
     missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
     if missing_building_detail_kinds:
         error(errors, f"missing surrounding building detail kinds: {', '.join(missing_building_detail_kinds)}")
@@ -2041,6 +2047,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 70 surrounding building roof vent-cap records")
     if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_conduit"]) < 70:
         error(errors, "expected at least 70 surrounding building roof-conduit records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_equipment_pad"]) < 60:
+        error(errors, "expected at least 60 supplemental surrounding building roof equipment-pad records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_rooftop_hvac_fan"]) < 120:
+        error(errors, "expected at least 120 supplemental surrounding building rooftop HVAC-fan records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_vent_cluster"]) < 60:
+        error(errors, "expected at least 60 supplemental surrounding building roof vent-cluster records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_skylight_dome"]) < 60:
+        error(errors, "expected at least 60 supplemental surrounding building roof skylight-dome records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_drain_box"]) < 60:
+        error(errors, "expected at least 60 supplemental surrounding building roof drain-box records")
+    if len([detail for detail in building_details if detail.get("kind") == "surrounding_building_roof_stain_patch"]) < 120:
+        error(errors, "expected at least 120 supplemental surrounding building roof stain-patch records")
     for detail in building_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"building detail {detail.get('name', '<unknown>')} has invalid center_m")

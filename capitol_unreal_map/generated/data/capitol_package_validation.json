@@ -32,8 +32,8 @@
       },
       "height_review_targets": 40
     },
-    "building_details": 9188,
-    "building_detail_kinds": 44,
+    "building_details": 9748,
+    "building_detail_kinds": 50,
     "streetscape_props": 6337,
     "streetscape_prop_kinds": 59,
     "traffic_sign_model": {
@@ -174,12 +174,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 209704,
-      "uvs": 629112,
-      "faces": 146638,
-      "faces_with_uvs": 146638,
-      "triangles": 335836,
-      "groups": 20893,
+      "vertices": 226224,
+      "uvs": 678672,
+      "faces": 157838,
+      "faces_with_uvs": 157838,
+      "triangles": 362996,
+      "groups": 22363,
       "materials": [
         "BrassRail",
         "BuildingCapitol",
