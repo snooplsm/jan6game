@@ -1040,6 +1040,12 @@ REQUIRED_STREETSCAPE_PROP_KINDS = {
     "curb_paint_segment",
     "road_asphalt_patch",
     "road_crack_line",
+    "sidewalk_grime_strip",
+    "sidewalk_stain_patch",
+    "curb_gutter_grime_strip",
+    "bike_lane_surface_scuff",
+    "crosswalk_paint_wear_patch",
+    "road_tire_wear_band",
     "public_manhole_cover",
     "storm_drain_grate",
     "storm_drain_curb_inlet",
@@ -1555,8 +1561,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         if "public" not in detail.get("public_accuracy", ""):
             error(errors, f"building detail {detail.get('name', '<unknown>')} lacks public accuracy boundary")
             break
-    if len(streetscape_props) < 2090:
-        error(errors, f"expected at least 2090 public streetscape props, got {len(streetscape_props)}")
+    if len(streetscape_props) < 2250:
+        error(errors, f"expected at least 2250 public streetscape props, got {len(streetscape_props)}")
     missing_streetscape_kinds = sorted(REQUIRED_STREETSCAPE_PROP_KINDS - streetscape_prop_kinds)
     if missing_streetscape_kinds:
         error(errors, f"missing public streetscape prop kinds: {', '.join(missing_streetscape_kinds)}")
@@ -1610,6 +1616,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 public road asphalt patch props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "road_crack_line"]) < 32:
         error(errors, "expected at least 32 public road crack-line props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "sidewalk_grime_strip"]) < 36:
+        error(errors, "expected at least 36 public sidewalk grime-strip props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "sidewalk_stain_patch"]) < 32:
+        error(errors, "expected at least 32 public sidewalk stain-patch props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "curb_gutter_grime_strip"]) < 32:
+        error(errors, "expected at least 32 public curb gutter-grime strip props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "bike_lane_surface_scuff"]) < 20:
+        error(errors, "expected at least 20 public bike-lane surface-scuff props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "crosswalk_paint_wear_patch"]) < 24:
+        error(errors, "expected at least 24 public crosswalk paint-wear patch props")
+    if len([prop for prop in streetscape_props if prop.get("kind") == "road_tire_wear_band"]) < 16:
+        error(errors, "expected at least 16 public road tire-wear band props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "public_manhole_cover"]) < 12:
         error(errors, "expected at least 12 public manhole-cover props")
     if len([prop for prop in streetscape_props if prop.get("kind") == "storm_drain_grate"]) < 16:

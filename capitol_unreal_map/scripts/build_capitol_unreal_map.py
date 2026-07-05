@@ -1467,6 +1467,74 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_box(center, size, 0.018, 0.185, name, "StepStone")
         add_streetscape_record(name, "sidewalk_expansion_joint", (x, y, 0.195), extra={"orientation": orientation, "length_m": round(length, 3)})
 
+    def add_sidewalk_grime_strip(name: str, center: tuple[float, float], length: float, orientation: str) -> None:
+        x, y = center
+        size = (length, 0.18) if orientation == "east_west" else (0.18, length)
+        roads.add_box(center, size, 0.012, 0.206, name, "RoadCrackSealant")
+        add_streetscape_record(name, "sidewalk_grime_strip", (x, y, 0.218), extra={"orientation": orientation, "length_m": round(length, 3)})
+
+    def add_sidewalk_stain_patch(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        roads.add_oriented_box(center, size, 0.010, 0.209, math.radians(angle_degrees), name, "FloorWear")
+        add_streetscape_record(
+            name,
+            "sidewalk_stain_patch",
+            (center[0], center[1], 0.220),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
+    def add_curb_gutter_grime_strip(name: str, center: tuple[float, float], length: float, orientation: str) -> None:
+        x, y = center
+        size = (length, 0.22) if orientation == "east_west" else (0.22, length)
+        roads.add_box(center, size, 0.014, 0.225, name, "RoadCrackSealant")
+        add_streetscape_record(name, "curb_gutter_grime_strip", (x, y, 0.239), extra={"orientation": orientation, "length_m": round(length, 3)})
+
+    def add_bike_lane_surface_scuff(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        roads.add_oriented_box(center, size, 0.012, 0.236, math.radians(angle_degrees), name, "RoadPatchAsphalt")
+        add_streetscape_record(
+            name,
+            "bike_lane_surface_scuff",
+            (center[0], center[1], 0.249),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
+    def add_crosswalk_paint_wear_patch(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        roads.add_oriented_box(center, size, 0.012, 0.240, math.radians(angle_degrees), name, "RoadPatchAsphalt")
+        add_streetscape_record(
+            name,
+            "crosswalk_paint_wear_patch",
+            (center[0], center[1], 0.253),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
+    def add_road_tire_wear_band(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        angle_degrees: float,
+    ) -> None:
+        roads.add_oriented_box(center, size, 0.010, 0.239, math.radians(angle_degrees), name, "RoadPatchAsphalt")
+        add_streetscape_record(
+            name,
+            "road_tire_wear_band",
+            (center[0], center[1], 0.250),
+            extra={"size_m": [round(size[0], 3), round(size[1], 3)], "angle_degrees": round(angle_degrees, 2)},
+        )
+
     def add_bike_lane_delineator_post(name: str, center: tuple[float, float]) -> None:
         x, y = center
         roads.add_cylinder((x, y), 0.18, 0.10, 0.05, f"{name}_rubber_base", "TrafficSignalHousing", segments=12)
@@ -1854,6 +1922,196 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             start=1,
         ):
             add_storm_drain_grate(f"public_storm_drain_grate_{idx:02d}", center, orientation)
+
+        sidewalk_grime_specs = [
+            ("west_north_edge_01", (-318.0, 32.85), 24.0, "east_west"),
+            ("west_north_edge_02", (-286.0, 32.85), 24.0, "east_west"),
+            ("west_north_edge_03", (-254.0, 32.85), 24.0, "east_west"),
+            ("west_north_edge_04", (-222.0, 32.85), 24.0, "east_west"),
+            ("west_north_edge_05", (-190.0, 32.85), 24.0, "east_west"),
+            ("west_south_edge_01", (-318.0, -32.85), 24.0, "east_west"),
+            ("west_south_edge_02", (-286.0, -32.85), 24.0, "east_west"),
+            ("west_south_edge_03", (-254.0, -32.85), 24.0, "east_west"),
+            ("west_south_edge_04", (-222.0, -32.85), 24.0, "east_west"),
+            ("west_south_edge_05", (-190.0, -32.85), 24.0, "east_west"),
+            ("east_north_edge_01", (124.0, 32.85), 20.0, "east_west"),
+            ("east_north_edge_02", (156.0, 32.85), 20.0, "east_west"),
+            ("east_north_edge_03", (188.0, 32.85), 20.0, "east_west"),
+            ("east_south_edge_01", (124.0, -32.85), 20.0, "east_west"),
+            ("east_south_edge_02", (156.0, -32.85), 20.0, "east_west"),
+            ("east_south_edge_03", (188.0, -32.85), 20.0, "east_west"),
+            ("north_west_edge_01", (-63.2, 128.0), 24.0, "north_south"),
+            ("north_west_edge_02", (-63.2, 160.0), 24.0, "north_south"),
+            ("north_west_edge_03", (-63.2, 192.0), 24.0, "north_south"),
+            ("north_east_edge_01", (63.2, 128.0), 24.0, "north_south"),
+            ("north_east_edge_02", (63.2, 160.0), 24.0, "north_south"),
+            ("north_east_edge_03", (63.2, 192.0), 24.0, "north_south"),
+            ("south_west_edge_01", (-63.2, -128.0), 24.0, "north_south"),
+            ("south_west_edge_02", (-63.2, -160.0), 24.0, "north_south"),
+            ("south_west_edge_03", (-63.2, -192.0), 24.0, "north_south"),
+            ("south_east_edge_01", (63.2, -128.0), 24.0, "north_south"),
+            ("south_east_edge_02", (63.2, -160.0), 24.0, "north_south"),
+            ("south_east_edge_03", (63.2, -192.0), 24.0, "north_south"),
+            ("northwest_walk_edge_01", (-178.0, 118.9), 28.0, "east_west"),
+            ("northwest_walk_edge_02", (-146.0, 118.9), 28.0, "east_west"),
+            ("southwest_walk_edge_01", (-178.0, -118.9), 28.0, "east_west"),
+            ("southwest_walk_edge_02", (-146.0, -118.9), 28.0, "east_west"),
+            ("east_plaza_edge_01", (204.0, 68.0), 28.0, "north_south"),
+            ("east_plaza_edge_02", (204.0, -68.0), 28.0, "north_south"),
+            ("west_pool_edge_01", (-340.0, 68.0), 28.0, "north_south"),
+            ("west_pool_edge_02", (-340.0, -68.0), 28.0, "north_south"),
+        ]
+        for name, center, length, orientation in sidewalk_grime_specs:
+            add_sidewalk_grime_strip(f"public_sidewalk_grime_strip_{name}", center, length, orientation)
+
+        sidewalk_stain_specs = [
+            ("west_north_stain_01", (-330.0, 31.8), (2.8, 0.62), 4.0),
+            ("west_north_stain_02", (-300.0, 31.7), (2.0, 0.54), -6.0),
+            ("west_north_stain_03", (-264.0, 31.9), (2.6, 0.58), 8.0),
+            ("west_north_stain_04", (-228.0, 31.6), (2.1, 0.50), -5.0),
+            ("west_south_stain_01", (-330.0, -31.8), (2.8, 0.62), -4.0),
+            ("west_south_stain_02", (-300.0, -31.7), (2.0, 0.54), 6.0),
+            ("west_south_stain_03", (-264.0, -31.9), (2.6, 0.58), -8.0),
+            ("west_south_stain_04", (-228.0, -31.6), (2.1, 0.50), 5.0),
+            ("east_north_stain_01", (122.0, 31.9), (2.2, 0.54), 5.0),
+            ("east_north_stain_02", (154.0, 31.7), (2.5, 0.58), -7.0),
+            ("east_north_stain_03", (186.0, 31.8), (1.8, 0.46), 3.0),
+            ("east_south_stain_01", (122.0, -31.9), (2.2, 0.54), -5.0),
+            ("east_south_stain_02", (154.0, -31.7), (2.5, 0.58), 7.0),
+            ("east_south_stain_03", (186.0, -31.8), (1.8, 0.46), -3.0),
+            ("north_west_stain_01", (-62.2, 126.0), (0.56, 2.4), 3.0),
+            ("north_west_stain_02", (-62.0, 158.0), (0.48, 2.0), -4.0),
+            ("north_west_stain_03", (-62.3, 190.0), (0.52, 2.2), 6.0),
+            ("north_east_stain_01", (62.2, 126.0), (0.56, 2.4), -3.0),
+            ("north_east_stain_02", (62.0, 158.0), (0.48, 2.0), 4.0),
+            ("north_east_stain_03", (62.3, 190.0), (0.52, 2.2), -6.0),
+            ("south_west_stain_01", (-62.2, -126.0), (0.56, 2.4), -3.0),
+            ("south_west_stain_02", (-62.0, -158.0), (0.48, 2.0), 4.0),
+            ("south_west_stain_03", (-62.3, -190.0), (0.52, 2.2), -6.0),
+            ("south_east_stain_01", (62.2, -126.0), (0.56, 2.4), 3.0),
+            ("south_east_stain_02", (62.0, -158.0), (0.48, 2.0), -4.0),
+            ("south_east_stain_03", (62.3, -190.0), (0.52, 2.2), 6.0),
+            ("northwest_walk_stain_01", (-176.0, 118.0), (2.1, 0.50), 6.0),
+            ("northwest_walk_stain_02", (-140.0, 118.0), (2.4, 0.54), -5.0),
+            ("southwest_walk_stain_01", (-176.0, -118.0), (2.1, 0.50), -6.0),
+            ("southwest_walk_stain_02", (-140.0, -118.0), (2.4, 0.54), 5.0),
+            ("east_plaza_walk_stain", (204.0, 74.0), (0.54, 2.6), -4.0),
+            ("west_pool_walk_stain", (-340.0, -74.0), (0.54, 2.6), 4.0),
+        ]
+        for name, center, size, angle_degrees in sidewalk_stain_specs:
+            add_sidewalk_stain_patch(f"public_sidewalk_stain_patch_{name}", center, size, angle_degrees)
+
+        curb_gutter_specs = [
+            ("west_north_gutter_01", (-318.0, 29.65), 28.0, "east_west"),
+            ("west_north_gutter_02", (-282.0, 29.65), 28.0, "east_west"),
+            ("west_north_gutter_03", (-246.0, 29.65), 28.0, "east_west"),
+            ("west_north_gutter_04", (-210.0, 29.65), 28.0, "east_west"),
+            ("west_south_gutter_01", (-318.0, -29.65), 28.0, "east_west"),
+            ("west_south_gutter_02", (-282.0, -29.65), 28.0, "east_west"),
+            ("west_south_gutter_03", (-246.0, -29.65), 28.0, "east_west"),
+            ("west_south_gutter_04", (-210.0, -29.65), 28.0, "east_west"),
+            ("east_north_gutter_01", (124.0, 29.65), 24.0, "east_west"),
+            ("east_north_gutter_02", (158.0, 29.65), 24.0, "east_west"),
+            ("east_north_gutter_03", (192.0, 29.65), 24.0, "east_west"),
+            ("east_south_gutter_01", (124.0, -29.65), 24.0, "east_west"),
+            ("east_south_gutter_02", (158.0, -29.65), 24.0, "east_west"),
+            ("east_south_gutter_03", (192.0, -29.65), 24.0, "east_west"),
+            ("north_west_gutter_01", (-70.2, 128.0), 28.0, "north_south"),
+            ("north_west_gutter_02", (-70.2, 164.0), 28.0, "north_south"),
+            ("north_west_gutter_03", (-70.2, 196.0), 24.0, "north_south"),
+            ("north_east_gutter_01", (70.2, 128.0), 28.0, "north_south"),
+            ("north_east_gutter_02", (70.2, 164.0), 28.0, "north_south"),
+            ("north_east_gutter_03", (70.2, 196.0), 24.0, "north_south"),
+            ("south_west_gutter_01", (-70.2, -128.0), 28.0, "north_south"),
+            ("south_west_gutter_02", (-70.2, -164.0), 28.0, "north_south"),
+            ("south_west_gutter_03", (-70.2, -196.0), 24.0, "north_south"),
+            ("south_east_gutter_01", (70.2, -128.0), 28.0, "north_south"),
+            ("south_east_gutter_02", (70.2, -164.0), 28.0, "north_south"),
+            ("south_east_gutter_03", (70.2, -196.0), 24.0, "north_south"),
+            ("northwest_gutter_01", (-178.0, 110.7), 32.0, "east_west"),
+            ("northwest_gutter_02", (-142.0, 110.7), 28.0, "east_west"),
+            ("southwest_gutter_01", (-178.0, -110.7), 32.0, "east_west"),
+            ("southwest_gutter_02", (-142.0, -110.7), 28.0, "east_west"),
+            ("east_plaza_gutter", (206.4, 74.0), 32.0, "north_south"),
+            ("west_pool_gutter", (-337.6, -74.0), 32.0, "north_south"),
+        ]
+        for name, center, length, orientation in curb_gutter_specs:
+            add_curb_gutter_grime_strip(f"public_curb_gutter_grime_strip_{name}", center, length, orientation)
+
+        bike_scuff_specs = [
+            ("west_bike_scuff_01", (-326.0, 18.0), (5.2, 0.36), 1.5),
+            ("west_bike_scuff_02", (-302.0, 18.0), (4.6, 0.30), -2.5),
+            ("west_bike_scuff_03", (-278.0, 18.0), (5.0, 0.34), 2.0),
+            ("west_bike_scuff_04", (-254.0, 18.0), (4.2, 0.28), -1.0),
+            ("west_bike_scuff_05", (-230.0, 18.0), (5.4, 0.32), 1.0),
+            ("west_bike_scuff_06", (-206.0, 18.0), (4.8, 0.30), -2.0),
+            ("west_bike_scuff_07", (-326.0, -18.0), (5.0, 0.34), -1.5),
+            ("west_bike_scuff_08", (-278.0, -18.0), (4.4, 0.28), 2.5),
+            ("west_bike_scuff_09", (-230.0, -18.0), (5.2, 0.32), -2.0),
+            ("east_bike_scuff_01", (124.0, -18.0), (4.2, 0.30), 2.0),
+            ("east_bike_scuff_02", (148.0, -18.0), (4.8, 0.34), -2.0),
+            ("east_bike_scuff_03", (172.0, -18.0), (4.0, 0.28), 1.5),
+            ("east_bike_scuff_04", (196.0, -18.0), (4.6, 0.32), -1.5),
+            ("north_bike_scuff_01", (-68.0, 132.0), (0.32, 4.8), -1.0),
+            ("north_bike_scuff_02", (-68.0, 168.0), (0.30, 4.2), 1.5),
+            ("north_bike_scuff_03", (-68.0, 198.0), (0.34, 4.6), -2.0),
+            ("south_bike_scuff_01", (68.0, -132.0), (0.32, 4.8), 1.0),
+            ("south_bike_scuff_02", (68.0, -168.0), (0.30, 4.2), -1.5),
+            ("south_bike_scuff_03", (68.0, -198.0), (0.34, 4.6), 2.0),
+            ("east_plaza_bike_scuff", (206.0, -42.0), (0.30, 4.0), 1.0),
+        ]
+        for name, center, size, angle_degrees in bike_scuff_specs:
+            add_bike_lane_surface_scuff(f"public_bike_lane_surface_scuff_{name}", center, size, angle_degrees)
+
+        crosswalk_wear_specs = [
+            ("west_north_crosswalk_wear_01", (-225.4, 41.0), (1.45, 0.28), 0.0),
+            ("west_north_crosswalk_wear_02", (-218.6, 41.0), (1.20, 0.24), 0.0),
+            ("west_south_crosswalk_wear_01", (-225.4, -41.0), (1.45, 0.28), 0.0),
+            ("west_south_crosswalk_wear_02", (-218.6, -41.0), (1.20, 0.24), 0.0),
+            ("east_north_crosswalk_wear_01", (138.6, 41.0), (1.25, 0.24), 0.0),
+            ("east_north_crosswalk_wear_02", (145.4, 41.0), (1.45, 0.28), 0.0),
+            ("east_south_crosswalk_wear_01", (138.6, -41.0), (1.25, 0.24), 0.0),
+            ("east_south_crosswalk_wear_02", (145.4, -41.0), (1.45, 0.28), 0.0),
+            ("north_west_crosswalk_wear_01", (-54.0, 141.6), (0.28, 1.45), 0.0),
+            ("north_west_crosswalk_wear_02", (-54.0, 148.4), (0.24, 1.20), 0.0),
+            ("north_east_crosswalk_wear_01", (54.0, 141.6), (0.28, 1.45), 0.0),
+            ("north_east_crosswalk_wear_02", (54.0, 148.4), (0.24, 1.20), 0.0),
+            ("south_west_crosswalk_wear_01", (-54.0, -141.6), (0.28, 1.45), 0.0),
+            ("south_west_crosswalk_wear_02", (-54.0, -148.4), (0.24, 1.20), 0.0),
+            ("south_east_crosswalk_wear_01", (54.0, -141.6), (0.28, 1.45), 0.0),
+            ("south_east_crosswalk_wear_02", (54.0, -148.4), (0.24, 1.20), 0.0),
+            ("northwest_crosswalk_wear_01", (-151.5, 119.0), (1.35, 0.26), 0.0),
+            ("northwest_crosswalk_wear_02", (-144.5, 119.0), (1.10, 0.22), 0.0),
+            ("southwest_crosswalk_wear_01", (-151.5, -119.0), (1.35, 0.26), 0.0),
+            ("southwest_crosswalk_wear_02", (-144.5, -119.0), (1.10, 0.22), 0.0),
+            ("west_pool_crosswalk_wear_01", (-336.0, 3.6), (0.26, 1.35), 0.0),
+            ("west_pool_crosswalk_wear_02", (-336.0, 10.4), (0.22, 1.10), 0.0),
+            ("east_plaza_crosswalk_wear_01", (210.0, 3.6), (0.26, 1.35), 0.0),
+            ("east_plaza_crosswalk_wear_02", (210.0, 10.4), (0.22, 1.10), 0.0),
+        ]
+        for name, center, size, angle_degrees in crosswalk_wear_specs:
+            add_crosswalk_paint_wear_patch(f"public_crosswalk_paint_wear_patch_{name}", center, size, angle_degrees)
+
+        tire_wear_specs = [
+            ("west_lane_wear_01", (-318.0, -8.4), (28.0, 0.30), 0.0),
+            ("west_lane_wear_02", (-318.0, 8.4), (28.0, 0.28), 0.0),
+            ("west_lane_wear_03", (-266.0, -8.4), (28.0, 0.30), 0.0),
+            ("west_lane_wear_04", (-266.0, 8.4), (28.0, 0.28), 0.0),
+            ("west_lane_wear_05", (-214.0, -8.4), (28.0, 0.30), 0.0),
+            ("west_lane_wear_06", (-214.0, 8.4), (28.0, 0.28), 0.0),
+            ("east_lane_wear_01", (134.0, -8.4), (24.0, 0.28), 0.0),
+            ("east_lane_wear_02", (134.0, 8.4), (24.0, 0.26), 0.0),
+            ("east_lane_wear_03", (184.0, -8.4), (24.0, 0.28), 0.0),
+            ("east_lane_wear_04", (184.0, 8.4), (24.0, 0.26), 0.0),
+            ("north_lane_wear_01", (-42.0, 136.0), (0.28, 26.0), 0.0),
+            ("north_lane_wear_02", (42.0, 164.0), (0.28, 26.0), 0.0),
+            ("north_lane_wear_03", (-42.0, 192.0), (0.26, 24.0), 0.0),
+            ("south_lane_wear_01", (42.0, -136.0), (0.28, 26.0), 0.0),
+            ("south_lane_wear_02", (-42.0, -164.0), (0.28, 26.0), 0.0),
+            ("south_lane_wear_03", (42.0, -192.0), (0.26, 24.0), 0.0),
+        ]
+        for name, center, size, angle_degrees in tire_wear_specs:
+            add_road_tire_wear_band(f"public_road_tire_wear_band_{name}", center, size, angle_degrees)
 
         for idx, (center, orientation) in enumerate(
             [
