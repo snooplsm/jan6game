@@ -8602,6 +8602,66 @@ def add_public_circulation_details(
         obj.add_cylinder((x, y), radius * 0.58, z + 0.052, 0.026, f"{name}_stone_center", "RotundaFloor", segments=32)
         add_public_circulation_record(records, name, "public_floor_medallion", area, (x, y, z + 0.045), (radius * 2.0, radius * 2.0))
 
+    def direction_vector(direction: str) -> tuple[float, float]:
+        vectors = {
+            "east": (1.0, 0.0),
+            "west": (-1.0, 0.0),
+            "north": (0.0, 1.0),
+            "south": (0.0, -1.0),
+            "northeast": (1.0, 1.0),
+            "northwest": (-1.0, 1.0),
+            "southeast": (1.0, -1.0),
+            "southwest": (-1.0, -1.0),
+        }[direction]
+        length = math.hypot(vectors[0], vectors[1])
+        return (vectors[0] / length, vectors[1] / length)
+
+    def route_arrow(name: str, area: str, center: tuple[float, float], direction: str) -> None:
+        x, y = center
+        vx, vy = direction_vector(direction)
+        nx, ny = -vy, vx
+        angle = math.atan2(vy, vx)
+        stem_center = (x - vx * 0.28, y - vy * 0.28)
+        tip = (x + vx * 0.58, y + vy * 0.58)
+        base = (x + vx * 0.12, y + vy * 0.12)
+        left = (base[0] + nx * 0.34, base[1] + ny * 0.34)
+        right = (base[0] - nx * 0.34, base[1] - ny * 0.34)
+        obj.add_oriented_box(stem_center, (0.74, 0.14), 0.026, z + 0.180, angle, f"{name}_stem", "MarkerBlue")
+        obj.add_flat_polygon([tip, left, right], z + 0.218, f"{name}_head", "MarkerBlue")
+        add_public_circulation_record(
+            records,
+            name,
+            "public_route_floor_arrow",
+            area,
+            (x, y, z + 0.218),
+            (1.28, 0.82),
+        )
+
+    def route_chevron(name: str, area: str, center: tuple[float, float], direction: str) -> None:
+        x, y = center
+        vx, vy = direction_vector(direction)
+        angle = math.atan2(vy, vx)
+        for side, offset in [("left", 0.30), ("right", -0.30)]:
+            obj.add_oriented_box(
+                (x - vx * 0.10, y - vy * 0.10),
+                (0.62, 0.10),
+                0.024,
+                z + 0.225,
+                angle + offset,
+                f"{name}_{side}",
+                "ArtFrameGold",
+            )
+        add_public_circulation_record(records, name, "public_route_chevron", area, (x, y, z + 0.237), (0.82, 0.58))
+
+    def low_guide_rail(name: str, area: str, center: tuple[float, float], length: float, angle: float) -> None:
+        x, y = center
+        dx = math.cos(angle) * length / 2.0
+        dy = math.sin(angle) * length / 2.0
+        obj.add_oriented_box(center, (length, 0.10), 0.080, 5.18, angle, f"{name}_top_rail", "BrassRail")
+        for post_index, (px, py) in enumerate([(x - dx, y - dy), (x + dx, y + dy)], start=1):
+            obj.add_cylinder((px, py), 0.055, 4.58, 0.72, f"{name}_post_{post_index}", "BrassRail", segments=10)
+        add_public_circulation_record(records, name, "public_low_guide_rail", area, (x, y, 5.22), (length, 0.72))
+
     def transition_size(width: float, depth: float, orientation: str) -> tuple[float, float]:
         if orientation == "east_west":
             return (depth, width)
@@ -8764,8 +8824,70 @@ def add_public_circulation_details(
     ]:
         floor_medallion(name, area, center, radius)
 
+    for name, area, center, direction in [
+        ("west_axis_route_arrow_01", "Rotunda / east-west public approach", (-58.0, 0.0), "east"),
+        ("west_axis_route_arrow_02", "Rotunda / east-west public approach", (-42.0, 0.0), "east"),
+        ("west_axis_route_arrow_03", "Rotunda / east-west public approach", (-26.0, 0.0), "east"),
+        ("east_axis_route_arrow_01", "Rotunda / east-west public approach", (58.0, 0.0), "west"),
+        ("east_axis_route_arrow_02", "Rotunda / east-west public approach", (42.0, 0.0), "west"),
+        ("east_axis_route_arrow_03", "Rotunda / east-west public approach", (26.0, 0.0), "west"),
+        ("house_axis_route_arrow_01", "Rotunda to House Chamber public orientation", (0.0, -18.0), "south"),
+        ("house_axis_route_arrow_02", "Rotunda to House Chamber public orientation", (0.0, -31.0), "south"),
+        ("house_axis_route_arrow_03", "Rotunda to House Chamber public orientation", (0.0, -44.0), "south"),
+        ("senate_axis_route_arrow_01", "Rotunda to Senate Chamber public orientation", (0.0, 18.0), "north"),
+        ("senate_axis_route_arrow_02", "Rotunda to Senate Chamber public orientation", (0.0, 31.0), "north"),
+        ("senate_axis_route_arrow_03", "Rotunda to Senate Chamber public orientation", (0.0, 44.0), "north"),
+        ("statuary_route_arrow_01", "Rotunda to National Statuary Hall", (12.5, -10.5), "southeast"),
+        ("statuary_route_arrow_02", "Rotunda to National Statuary Hall", (20.5, -18.0), "southeast"),
+        ("old_senate_route_arrow_01", "Rotunda to Old Senate Chamber", (12.5, 10.5), "northeast"),
+        ("old_senate_route_arrow_02", "Rotunda to Old Senate Chamber", (20.5, 18.0), "northeast"),
+        ("house_gallery_route_arrow_01", "House gallery public orientation", (0.0, -90.0), "south"),
+        ("house_gallery_route_arrow_02", "House gallery public orientation", (0.0, -96.0), "south"),
+        ("senate_gallery_route_arrow_01", "Senate gallery public orientation", (0.0, 88.0), "north"),
+        ("senate_gallery_route_arrow_02", "Senate gallery public orientation", (0.0, 95.0), "north"),
+    ]:
+        route_arrow(name, area, center, direction)
+
+    for name, area, center, direction in [
+        ("west_axis_route_chevron_01", "Rotunda / east-west public approach", (-50.0, 0.0), "east"),
+        ("west_axis_route_chevron_02", "Rotunda / east-west public approach", (-34.0, 0.0), "east"),
+        ("east_axis_route_chevron_01", "Rotunda / east-west public approach", (50.0, 0.0), "west"),
+        ("east_axis_route_chevron_02", "Rotunda / east-west public approach", (34.0, 0.0), "west"),
+        ("house_axis_route_chevron_01", "Rotunda to House Chamber public orientation", (0.0, -24.0), "south"),
+        ("house_axis_route_chevron_02", "Rotunda to House Chamber public orientation", (0.0, -38.0), "south"),
+        ("senate_axis_route_chevron_01", "Rotunda to Senate Chamber public orientation", (0.0, 24.0), "north"),
+        ("senate_axis_route_chevron_02", "Rotunda to Senate Chamber public orientation", (0.0, 38.0), "north"),
+        ("statuary_route_chevron_01", "Rotunda to National Statuary Hall", (16.2, -14.0), "southeast"),
+        ("statuary_route_chevron_02", "Rotunda to National Statuary Hall", (23.5, -21.5), "southeast"),
+        ("old_senate_route_chevron_01", "Rotunda to Old Senate Chamber", (16.2, 14.0), "northeast"),
+        ("old_senate_route_chevron_02", "Rotunda to Old Senate Chamber", (23.5, 21.5), "northeast"),
+        ("house_gallery_route_chevron_01", "House gallery public orientation", (0.0, -91.8), "south"),
+        ("house_gallery_route_chevron_02", "House gallery public orientation", (0.0, -97.0), "south"),
+        ("senate_gallery_route_chevron_01", "Senate gallery public orientation", (0.0, 89.8), "north"),
+        ("senate_gallery_route_chevron_02", "Senate gallery public orientation", (0.0, 96.0), "north"),
+    ]:
+        route_chevron(name, area, center, direction)
+
+    for name, area, center, length, angle in [
+        ("west_axis_south_low_guide_rail", "Rotunda / east-west public approach", (-42.0, -2.55), 22.0, 0.0),
+        ("west_axis_north_low_guide_rail", "Rotunda / east-west public approach", (-42.0, 2.55), 22.0, 0.0),
+        ("east_axis_south_low_guide_rail", "Rotunda / east-west public approach", (42.0, -2.55), 22.0, 0.0),
+        ("east_axis_north_low_guide_rail", "Rotunda / east-west public approach", (42.0, 2.55), 22.0, 0.0),
+        ("house_axis_west_low_guide_rail", "Rotunda to House Chamber public orientation", (-2.25, -34.0), 24.0, math.pi / 2.0),
+        ("house_axis_east_low_guide_rail", "Rotunda to House Chamber public orientation", (2.25, -34.0), 24.0, math.pi / 2.0),
+        ("senate_axis_west_low_guide_rail", "Rotunda to Senate Chamber public orientation", (-2.25, 34.0), 24.0, math.pi / 2.0),
+        ("senate_axis_east_low_guide_rail", "Rotunda to Senate Chamber public orientation", (2.25, 34.0), 24.0, math.pi / 2.0),
+        ("statuary_outer_low_guide_rail", "Rotunda to National Statuary Hall", (18.0, -16.2), 15.0, -0.70),
+        ("statuary_inner_low_guide_rail", "Rotunda to National Statuary Hall", (20.2, -18.8), 11.5, -0.70),
+        ("old_senate_outer_low_guide_rail", "Rotunda to Old Senate Chamber", (18.0, 16.2), 15.0, 0.70),
+        ("old_senate_inner_low_guide_rail", "Rotunda to Old Senate Chamber", (20.2, 18.8), 11.5, 0.70),
+        ("house_gallery_low_guide_rail", "House gallery public orientation", (0.0, -93.6), 20.0, 0.0),
+        ("senate_gallery_low_guide_rail", "Senate gallery public orientation", (0.0, 92.6), 18.0, 0.0),
+    ]:
+        low_guide_rail(name, area, center, length, angle)
+
     add_label(labels, "Public circulation thresholds, portals, and orientation signs - schematic", -17.0, 0.0, 7.3, "public_circulation_detail")
-    add_label(labels, "Public corridor pilasters, sconces, and floor medallions - schematic", 17.0, 0.0, 7.3, "public_circulation_detail")
+    add_label(labels, "Public corridor pilasters, sconces, floor medallions, route arrows, and low guide rails - schematic", 17.0, 0.0, 7.3, "public_circulation_detail")
 
 
 def add_public_signage_detail_record(

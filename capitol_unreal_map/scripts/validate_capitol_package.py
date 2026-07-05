@@ -984,6 +984,9 @@ REQUIRED_CIRCULATION_DETAIL_KINDS = {
     "public_threshold_marble_insert",
     "public_threshold_brass_edge",
     "public_transition_light_pool",
+    "public_route_floor_arrow",
+    "public_route_chevron",
+    "public_low_guide_rail",
 }
 
 REQUIRED_SIGNAGE_DETAIL_KINDS = {
@@ -2332,8 +2335,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     circulation_detail_kinds = {detail.get("kind") for detail in circulation_details}
     summary["circulation_details"] = len(circulation_details)
     summary["circulation_detail_kinds"] = len(circulation_detail_kinds)
-    if len(circulation_details) < 209:
-        error(errors, f"expected at least 209 public circulation detail records, got {len(circulation_details)}")
+    if len(circulation_details) < 255:
+        error(errors, f"expected at least 255 public circulation detail records, got {len(circulation_details)}")
     missing_circulation_kinds = sorted(REQUIRED_CIRCULATION_DETAIL_KINDS - circulation_detail_kinds)
     if missing_circulation_kinds:
         error(errors, f"missing public circulation detail kinds: {', '.join(missing_circulation_kinds)}")
@@ -2365,6 +2368,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public threshold brass-edge records")
     if len([detail for detail in circulation_details if detail.get("kind") == "public_transition_light_pool"]) < 8:
         error(errors, "expected at least 8 public transition light-pool records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_route_floor_arrow"]) < 18:
+        error(errors, "expected at least 18 public route floor-arrow records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_route_chevron"]) < 14:
+        error(errors, "expected at least 14 public route chevron records")
+    if len([detail for detail in circulation_details if detail.get("kind") == "public_low_guide_rail"]) < 12:
+        error(errors, "expected at least 12 public low guide-rail records")
     for detail in circulation_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"circulation detail {detail.get('name', '<unknown>')} has invalid center_m")
