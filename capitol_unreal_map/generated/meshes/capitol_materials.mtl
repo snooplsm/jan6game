@@ -40,6 +40,13 @@ Ks 0.050 0.050 0.050
 d 1.000
 illum 2
 
+newmtl StoneGrimeOverlay
+Kd 0.240 0.230 0.200
+Ka 0.000 0.000 0.000
+Ks 0.050 0.050 0.050
+d 0.460
+illum 2
+
 newmtl GroundGrass
 Kd 0.160 0.320 0.120
 Ka 0.000 0.000 0.000

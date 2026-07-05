@@ -65,6 +65,18 @@
     "specular": 0.2,
     "note": "Worn exterior steps"
   },
+  "StoneGrimeOverlay": {
+    "base_color": [
+      0.24,
+      0.23,
+      0.2
+    ],
+    "roughness": 0.94,
+    "metallic": 0.0,
+    "specular": 0.12,
+    "opacity": 0.46,
+    "note": "Transparent exterior stone grime, runoff, discoloration, and chipped-edge overlay"
+  },
   "GroundGrass": {
     "base_color": [
       0.13,

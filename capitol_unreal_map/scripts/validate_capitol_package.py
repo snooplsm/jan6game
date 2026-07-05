@@ -827,6 +827,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_ashlar_course",
     "facade_vertical_stone_joint",
     "facade_weathering_stain",
+    "facade_limestone_discoloration_patch",
+    "facade_sill_runoff_stain",
+    "facade_base_grime_band",
     "facade_recess_shadow_panel",
     "facade_arcade_shadow_bay",
     "stepped_pavilion_massing",
@@ -838,6 +841,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "portico_soffit_coffer",
     "terrace_retaining_wall",
     "public_stair_tread",
+    "public_step_edge_chip_shadow",
     "terrace_stair_riser_band",
     "public_terrace_landing_slab",
     "public_approach_handrail",
@@ -1261,8 +1265,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 Capitol landmark detail elements")
     if len(revolving) < 12:
         error(errors, "expected at least 12 public-facing revolving-door visual elements")
-    if len(facade_details) < 2785:
-        error(errors, f"expected at least 2785 public facade/furniture visual details, got {len(facade_details)}")
+    if len(facade_details) < 3035:
+        error(errors, f"expected at least 3035 public facade/furniture visual details, got {len(facade_details)}")
     missing_facade_kinds = sorted(REQUIRED_FACADE_DETAIL_KINDS - facade_detail_kinds)
     if missing_facade_kinds:
         error(errors, f"missing public facade detail kinds: {', '.join(missing_facade_kinds)}")
@@ -1282,6 +1286,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 68 public facade vertical stone joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_weathering_stain"]) < 90:
         error(errors, "expected at least 90 public facade weathering stain records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_limestone_discoloration_patch"]) < 96:
+        error(errors, "expected at least 96 public facade limestone discoloration patch records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_sill_runoff_stain"]) < 112:
+        error(errors, "expected at least 112 public facade sill runoff stain records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_base_grime_band"]) < 10:
+        error(errors, "expected at least 10 public facade base grime band records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_recess_shadow_panel"]) < 130:
         error(errors, "expected at least 130 public facade recess shadow panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_arcade_shadow_bay"]) < 24:
@@ -1304,6 +1314,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public terrace retaining wall records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_stair_tread"]) < 18:
         error(errors, "expected at least 18 public stair tread records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_step_edge_chip_shadow"]) < 36:
+        error(errors, "expected at least 36 public step-edge chip shadow records")
     if len([detail for detail in facade_details if detail.get("kind") == "terrace_stair_riser_band"]) < 22:
         error(errors, "expected at least 22 public lower terrace stair/riser band records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_terrace_landing_slab"]) < 4:

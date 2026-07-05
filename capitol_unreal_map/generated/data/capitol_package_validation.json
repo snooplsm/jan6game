@@ -19,8 +19,8 @@
     "grounds_detail_kinds": 12,
     "grounds_walk_lamps": 18,
     "landmark_elements": 20,
-    "facade_details": 2789,
-    "facade_detail_kinds": 65,
+    "facade_details": 3045,
+    "facade_detail_kinds": 69,
     "revolving_door_visuals": 12,
     "rooms": 15,
     "house_seats": 448,
@@ -60,13 +60,13 @@
     "viewpoints": 12
   },
   "materials": {
-    "manifest_materials": 74,
+    "manifest_materials": 75,
     "missing_manifest_materials": 0,
     "extra_manifest_materials": 0
   },
   "textures": {
     "texture_sets": 43,
-    "texture_material_bindings": 74,
+    "texture_material_bindings": 75,
     "texture_files": 129,
     "texture_styles": 19,
     "min_texture_size_px": 4096,
@@ -201,12 +201,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 75710,
-      "uvs": 235836,
-      "faces": 56856,
-      "faces_with_uvs": 56856,
-      "triangles": 122124,
-      "groups": 7362,
+      "vertices": 77758,
+      "uvs": 241980,
+      "faces": 58392,
+      "faces_with_uvs": 58392,
+      "triangles": 125196,
+      "groups": 7618,
       "materials": [
         "BenchWood",
         "BollardMetal",
@@ -224,6 +224,7 @@
         "RotundaWall",
         "StatueBronze",
         "StepStone",
+        "StoneGrimeOverlay",
         "StreetLightGlass",
         "StreetLightPole",
         "WarmLightGlass"

@@ -38,6 +38,7 @@ MATERIALS = {
     "CapitolDome": (0.82, 0.82, 0.78, 1.0),
     "ColumnStone": (0.90, 0.88, 0.82, 1.0),
     "StepStone": (0.62, 0.60, 0.56, 1.0),
+    "StoneGrimeOverlay": (0.24, 0.23, 0.20, 0.46),
     "GroundGrass": (0.16, 0.32, 0.12, 1.0),
     "PlazaStone": (0.58, 0.56, 0.50, 1.0),
     "RoadAsphalt": (0.045, 0.048, 0.052, 1.0),
@@ -2524,6 +2525,86 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     {"orientation": orientation, "height_m": round(height, 3), "width_m": round(width, 3)},
                 )
 
+    def add_facade_discoloration_patches(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        positions: list[float],
+        z_levels: list[float],
+        base_height: float,
+        base_width: float,
+    ) -> None:
+        face_offset = 0.46 if fixed >= 0.0 else -0.46
+        for level_index, z_level in enumerate(z_levels, start=1):
+            for idx, value in enumerate(positions, start=1):
+                width = base_width * (0.82 + ((idx + level_index) % 4) * 0.10)
+                height = base_height * (0.72 + ((idx * 2 + level_index) % 5) * 0.09)
+                if orientation == "east_west":
+                    center = (fixed + face_offset, value)
+                    size = (0.035, width)
+                else:
+                    center = (value, fixed + face_offset)
+                    size = (width, 0.035)
+                name = f"{prefix}_limestone_discoloration_patch_l{level_index:02d}_{idx:02d}"
+                obj.add_box(center, size, height, z_level, name, "StoneGrimeOverlay")
+                add_facade_detail(
+                    name,
+                    "facade_limestone_discoloration_patch",
+                    (center[0], center[1], z_level + height / 2.0),
+                    {"orientation": orientation, "height_m": round(height, 3), "width_m": round(width, 3)},
+                )
+
+    def add_facade_sill_runoff_stains(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        positions: list[float],
+        z_levels: list[float],
+    ) -> None:
+        face_offset = 0.52 if fixed >= 0.0 else -0.52
+        for level_index, z_level in enumerate(z_levels, start=1):
+            for idx, value in enumerate(positions, start=1):
+                height = 0.92 + ((idx + level_index) % 4) * 0.17
+                width = 0.18 + (idx % 3) * 0.045
+                if orientation == "east_west":
+                    center = (fixed + face_offset, value - 0.26 + (idx % 2) * 0.52)
+                    size = (0.030, width)
+                else:
+                    center = (value - 0.26 + (idx % 2) * 0.52, fixed + face_offset)
+                    size = (width, 0.030)
+                stain_z = z_level - height * 0.72
+                name = f"{prefix}_sill_runoff_stain_l{level_index:02d}_{idx:02d}"
+                obj.add_box(center, size, height, stain_z, name, "StoneGrimeOverlay")
+                add_facade_detail(
+                    name,
+                    "facade_sill_runoff_stain",
+                    (center[0], center[1], stain_z + height / 2.0),
+                    {"orientation": orientation, "height_m": round(height, 3), "width_m": round(width, 3)},
+                )
+
+    def add_facade_base_grime_band(
+        name: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z: float = 1.34,
+    ) -> None:
+        face_offset = 0.54 if fixed >= 0.0 else -0.54
+        if orientation == "east_west":
+            center = (fixed + face_offset, span_center)
+            size = (0.040, span_length)
+        else:
+            center = (span_center, fixed + face_offset)
+            size = (span_length, 0.040)
+        obj.add_box(center, size, 0.42, z, name, "StoneGrimeOverlay")
+        add_facade_detail(
+            name,
+            "facade_base_grime_band",
+            (center[0], center[1], z + 0.21),
+            {"orientation": orientation, "length_m": round(span_length, 3)},
+        )
+
     def add_plaza_wear_patch(name: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         obj.add_box(center, size, 0.026, z, name, "StepStone")
         add_facade_detail(
@@ -2531,6 +2612,21 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "plaza_wear_patch",
             (center[0], center[1], z + 0.013),
             {"size_m": [round(size[0], 3), round(size[1], 3)]},
+        )
+
+    def add_step_edge_chip_shadow(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        orientation: str,
+    ) -> None:
+        obj.add_box(center, size, 0.018, z, name, "StoneGrimeOverlay")
+        add_facade_detail(
+            name,
+            "public_step_edge_chip_shadow",
+            (center[0], center[1], z + 0.009),
+            {"orientation": orientation, "size_m": [round(size[0], 3), round(size[1], 3)]},
         )
 
     def add_exterior_column_ornament(
@@ -3386,6 +3482,29 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_facade_weathering_stains("west_front", "east_west", -67.35, [-27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0], [5.0, 8.4, 11.8], 0.92, 0.86)
     add_facade_weathering_stains("senate_north", "north_south", 101.95, [-33.0, -24.0, -15.0, -6.0, 6.0, 15.0, 24.0, 33.0], [4.8, 8.15, 10.95], 0.84, 0.78)
     add_facade_weathering_stains("house_south", "north_south", -101.95, [-33.0, -24.0, -15.0, -6.0, 6.0, 15.0, 24.0, 33.0], [4.8, 8.15, 10.95], 0.84, 0.78)
+    add_facade_discoloration_patches("east_front", "east_west", 67.55, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], [2.70, 5.90, 9.10, 12.30], 1.05, 1.32)
+    add_facade_discoloration_patches("west_front", "east_west", -67.55, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], [2.70, 5.90, 9.10, 12.30], 1.05, 1.32)
+    add_facade_discoloration_patches("senate_north", "north_south", 102.05, [-36.0, -24.0, -12.0, 0.0, 12.0, 24.0, 36.0], [2.60, 5.80, 9.00], 0.94, 1.20)
+    add_facade_discoloration_patches("house_south", "north_south", -102.05, [-36.0, -24.0, -12.0, 0.0, 12.0, 24.0, 36.0], [2.60, 5.80, 9.00], 0.94, 1.20)
+    add_facade_sill_runoff_stains("east_front", "east_west", 63.45, y_window_positions, [3.8, 7.2])
+    add_facade_sill_runoff_stains("west_front", "east_west", -63.45, y_window_positions, [3.8, 7.2])
+    add_facade_sill_runoff_stains("senate_north_wing", "north_south", 97.45, wing_x_window_positions, [3.7, 7.1])
+    add_facade_sill_runoff_stains("house_south_wing", "north_south", -97.45, wing_x_window_positions, [3.7, 7.1])
+
+    base_grime_specs = [
+        ("central_east_base_grime", "east_west", 39.72, 0.0, 58.0),
+        ("central_west_base_grime", "east_west", -39.72, 0.0, 58.0),
+        ("central_north_base_grime", "north_south", 30.12, 0.0, 78.0),
+        ("central_south_base_grime", "north_south", -30.12, 0.0, 78.0),
+        ("east_front_portico_base_grime", "east_west", 67.82, 0.0, 68.0),
+        ("west_front_portico_base_grime", "east_west", -67.82, 0.0, 68.0),
+        ("senate_north_front_base_grime", "north_south", 102.55, 0.0, 84.0),
+        ("house_south_front_base_grime", "north_south", -102.55, 0.0, 88.0),
+        ("senate_inner_south_base_grime", "north_south", 38.92, 0.0, 70.0),
+        ("house_inner_north_base_grime", "north_south", -37.92, 0.0, 74.0),
+    ]
+    for args in base_grime_specs:
+        add_facade_base_grime_band(*args)
 
     front_pilaster_values = [value * 5.0 for value in range(-7, 8)]
     wing_pilaster_values = [value * 5.6 for value in range(-8, 9)]
@@ -3471,6 +3590,14 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             0.06,
             "east_west",
         )
+        for chip_index, y in enumerate([-36.0, -28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0, 36.0], start=1):
+            add_step_edge_chip_shadow(
+                f"{side}_front_step_edge_chip_shadow_{chip_index:02d}",
+                (x + front_sign * 7.4, y),
+                (0.56, 0.95),
+                0.72,
+                "east_west",
+            )
         for idx, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
             column_center = (x * 0.92, y)
             column_name = f"{side}_portico_column_{idx}"
@@ -3536,6 +3663,14 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             0.06,
             "north_south",
         )
+        for chip_index, x in enumerate([-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], start=1):
+            add_step_edge_chip_shadow(
+                f"{side}_wing_step_edge_chip_shadow_{chip_index:02d}",
+                (x, y + wing_sign * 6.9),
+                (0.92, 0.52),
+                0.60,
+                "north_south",
+            )
         for door_index, x in enumerate([-8.0, 0.0, 8.0], start=1):
             add_revolving_door(f"{side}_wing_{door_index}", (x, y), side)
         for lamp_index, x in enumerate([-18.0, -6.0, 6.0, 18.0], start=1):

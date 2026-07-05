@@ -81,6 +81,7 @@ MATERIAL_TEXTURE_BINDINGS = {
     "CapitolDome": "dome_painted",
     "ColumnStone": "limestone_light",
     "StepStone": "step_stone",
+    "StoneGrimeOverlay": "limestone_weathered",
     "GroundGrass": "grass",
     "PlazaStone": "plaza_stone",
     "RoadAsphalt": "asphalt",
