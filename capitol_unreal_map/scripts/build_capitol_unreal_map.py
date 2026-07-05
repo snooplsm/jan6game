@@ -4090,6 +4090,30 @@ def add_public_interior_wall_finish_details(
             size,
         )
 
+    def add_material_variation_panel(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        width: float,
+        orientation: str,
+        material: str,
+    ) -> None:
+        x, y = center
+        if orientation == "east_west":
+            size = (width, 0.050)
+        else:
+            size = (0.050, width)
+        obj.add_box((x, y), size, 0.34, 5.72, name, material)
+        obj.add_box((x, y), (size[0] * 1.06, size[1] * 1.06), 0.035, 5.69, f"{name}_lower_reveal", "DoorMetal")
+        add_wall_finish_detail_record(
+            records,
+            name,
+            "wall_material_variation_panel",
+            room,
+            (x, y, 5.89),
+            size,
+        )
+
     def add_architrave(
         name: str,
         room: str,
@@ -4192,6 +4216,30 @@ def add_public_interior_wall_finish_details(
         ("senate_east_office_wall_finish_detail", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 5, 8),
     ]:
         add_room_finish(*args)
+
+    for name, room, center, size, material in [
+        ("rotunda_wall_material_variation", "Rotunda", (0.0, 0.0), (29.5, 29.5), "RotundaWall"),
+        ("house_chamber_wall_material_variation", "House Chamber", (0.0, -72.0), (62.0, 42.0), "InteriorWall"),
+        ("senate_chamber_wall_material_variation", "Senate Chamber", (0.0, 68.0), (48.0, 38.0), "InteriorWall"),
+        ("national_statuary_hall_wall_material_variation", "National Statuary Hall", (28.0, -30.0), (30.0, 20.0), "ColumnStone"),
+        ("old_senate_chamber_wall_material_variation", "Old Senate Chamber", (28.0, 30.0), (26.0, 18.0), "RotundaWall"),
+        ("house_gallery_wall_material_variation", "House galleries", (0.0, -96.0), (68.0, 10.0), "PublicGallery"),
+        ("senate_gallery_wall_material_variation", "Senate galleries", (0.0, 94.0), (54.0, 10.0), "PublicGallery"),
+        ("house_west_office_wall_material_variation", "House leadership/support offices - schematic zone", (-53.0, -55.0), (22.0, 46.0), "InteriorWall"),
+        ("house_east_office_wall_material_variation", "House committee/support rooms - schematic zone", (53.0, -55.0), (22.0, 46.0), "InteriorWall"),
+        ("senate_west_office_wall_material_variation", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), "InteriorWall"),
+        ("senate_east_office_wall_material_variation", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), "InteriorWall"),
+    ]:
+        cx, cy = center
+        sx, sy = size
+        north_y = cy + sy / 2.0 - 0.24
+        south_y = cy - sy / 2.0 + 0.24
+        east_x = cx + sx / 2.0 - 0.24
+        west_x = cx - sx / 2.0 + 0.24
+        add_material_variation_panel(f"{name}_north_panel", room, (cx - sx * 0.18, north_y), sx * 0.18, "east_west", material)
+        add_material_variation_panel(f"{name}_south_panel", room, (cx + sx * 0.18, south_y), sx * 0.18, "east_west", material)
+        add_material_variation_panel(f"{name}_east_panel", room, (east_x, cy + sy * 0.18), sy * 0.18, "north_south", material)
+        add_material_variation_panel(f"{name}_west_panel", room, (west_x, cy - sy * 0.18), sy * 0.18, "north_south", material)
 
     for args in [
         ("rotunda_north_public_architrave", "Rotunda", (0.0, 14.53), 4.8, "east_west"),
@@ -4299,6 +4347,16 @@ def add_coffered_ceiling(
             panel_size = (cell_w * 0.70, cell_h * 0.66)
             obj.add_box((px, py), panel_size, 0.035, z + 0.10, detail_name, "RotundaWall")
             add_interior_ceiling_detail_record(records, detail_name, "coffer_panel", room, (px, py, z + 0.118), panel_size)
+
+    variation_material = "PublicGallery" if "galler" in room.lower() else ("RotundaWall" if "Statuary" in room or "Old Senate" in room else "InteriorWall")
+    for index, (ox, oy) in enumerate([(-0.28, -0.24), (0.28, -0.24), (-0.28, 0.24), (0.28, 0.24)], start=1):
+        x = cx + sx * ox
+        y = cy + sy * oy
+        detail_name = f"{name}_ceiling_material_variation_panel_{index:02d}"
+        panel_size = (cell_w * 0.52, cell_h * 0.42)
+        obj.add_box((x, y), panel_size, 0.026, z + 0.145, detail_name, variation_material)
+        obj.add_box((x, y), (panel_size[0] * 1.06, panel_size[1] * 1.06), 0.020, z + 0.132, f"{detail_name}_shadow_reveal", "DoorMetal")
+        add_interior_ceiling_detail_record(records, detail_name, "ceiling_material_variation_panel", room, (x, y, z + 0.158), panel_size)
 
     for index, (ox, oy) in enumerate(medallion_offsets, start=1):
         x = cx + sx * ox
@@ -5081,6 +5139,27 @@ def add_chamber_realism_details(
         obj.add_cylinder((x, y), 0.18, z + 0.40, 0.05, f"{name}_ceiling_canopy", "BrassRail", segments=14)
         add_chamber_detail_record(records, name, "chamber_public_light_globe", chamber, (x, y, z + 0.10), (0.36, 0.36))
 
+    def gallery_rail_ornament(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        rosette_count: int,
+    ) -> None:
+        x, y = center
+        horizontal = size[0] >= size[1]
+        cap_size = (size[0] * 1.02, max(size[1] * 1.55, 0.20)) if horizontal else (max(size[0] * 1.55, 0.20), size[1] * 1.02)
+        obj.add_box(center, cap_size, 0.08, z + 0.72, f"{name}_top_cap", "BrassRail")
+        add_chamber_detail_record(records, f"{name}_top_cap", "gallery_rail_top_cap", chamber, (x, y, z + 0.76), cap_size)
+
+        span = size[0] if horizontal else size[1]
+        for idx in range(rosette_count):
+            offset = -span * 0.42 + (span * 0.84) * idx / max(1, rosette_count - 1)
+            rosette_center = (x + offset, y) if horizontal else (x, y + offset)
+            obj.add_cylinder(rosette_center, 0.085, z + 0.795, 0.035, f"{name}_rosette_{idx+1:02d}", "ArtFrameGold", segments=12)
+            add_chamber_detail_record(records, f"{name}_rosette_{idx+1:02d}", "gallery_rail_rosette", chamber, (rosette_center[0], rosette_center[1], z + 0.812), (0.17, 0.17))
+
     # House chamber public visual details.
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
@@ -5091,6 +5170,8 @@ def add_chamber_realism_details(
         backdrop_panel(f"house_rostrum_backdrop_panel_{idx}", "House Chamber", (x, -46.45), (1.35, 0.12), 5.05)
     gallery_rail("house_gallery_front_brass_rail", "House Chamber", (0.0, -95.15), (66.0, 0.16), 5.24)
     gallery_rail("house_gallery_rear_brass_rail", "House Chamber", (0.0, -103.7), (66.0, 0.16), 5.54)
+    gallery_rail_ornament("house_gallery_front_ornament", "House Chamber", (0.0, -95.15), (66.0, 0.16), 5.24, 9)
+    gallery_rail_ornament("house_gallery_rear_ornament", "House Chamber", (0.0, -103.7), (66.0, 0.16), 5.54, 9)
     for idx, x in enumerate([value * 4.0 for value in range(-8, 9)], start=1):
         gallery_rail_baluster(f"house_gallery_front_baluster_{idx:02d}", "House Chamber", (x, -95.15), 5.27)
         gallery_rail_baluster(f"house_gallery_rear_baluster_{idx:02d}", "House Chamber", (x, -103.7), 5.57)
@@ -5187,6 +5268,8 @@ def add_chamber_realism_details(
         backdrop_panel(f"senate_presiding_backdrop_panel_{idx}", "Senate Chamber", (x, 85.15), (1.35, 0.12), 5.02)
     gallery_rail("senate_gallery_front_brass_rail", "Senate Chamber", (0.0, 94.05), (52.0, 0.16), 5.22)
     gallery_rail("senate_gallery_rear_brass_rail", "Senate Chamber", (0.0, 101.2), (52.0, 0.16), 5.52)
+    gallery_rail_ornament("senate_gallery_front_ornament", "Senate Chamber", (0.0, 94.05), (52.0, 0.16), 5.22, 7)
+    gallery_rail_ornament("senate_gallery_rear_ornament", "Senate Chamber", (0.0, 101.2), (52.0, 0.16), 5.52, 7)
     for idx, x in enumerate([value * 3.6 for value in range(-7, 8)], start=1):
         gallery_rail_baluster(f"senate_gallery_front_baluster_{idx:02d}", "Senate Chamber", (x, 94.05), 5.25)
         gallery_rail_baluster(f"senate_gallery_rear_baluster_{idx:02d}", "Senate Chamber", (x, 101.2), 5.55)
@@ -5890,6 +5973,30 @@ def add_public_interior_furnishing_details(
         obj.add_box((x, y), base_size, 0.42, floor_z, f"{name}_stone_base", "InteriorTrim")
         obj.add_box((x, y), glass_size, 0.74, floor_z + 0.42, f"{name}_glass_case", "DoorGlass")
         obj.add_box((x, y), oriented_size(1.10, 0.34, orientation), 0.12, floor_z + 0.54, f"{name}_object_plinth", "StatueMarble")
+        light_strip_size = oriented_size(1.22, 0.045, orientation)
+        light_offsets = [-0.24, 0.24]
+        for edge_index, edge_offset in enumerate(light_offsets, start=1):
+            light_center = (x + edge_offset, y) if orientation == "north_south" else (x, y + edge_offset)
+            obj.add_box(light_center, light_strip_size, 0.034, floor_z + 1.13, f"{name}_warm_light_strip_{edge_index}", "WarmLightGlass")
+            add_public_furnishing_detail_record(
+                records,
+                f"{name}_warm_light_strip_{edge_index}",
+                "display_case_light_strip",
+                area,
+                (light_center[0], light_center[1], floor_z + 1.147),
+                light_strip_size,
+            )
+        plaque_size = oriented_size(0.62, 0.055, orientation)
+        plaque_center = (x + 0.42, y) if orientation == "north_south" else (x, y - 0.42)
+        obj.add_box(plaque_center, plaque_size, 0.070, floor_z + 0.48, f"{name}_small_label_plaque", "BrassRail")
+        add_public_furnishing_detail_record(
+            records,
+            f"{name}_small_label_plaque",
+            "display_case_label_plaque",
+            area,
+            (plaque_center[0], plaque_center[1], floor_z + 0.515),
+            plaque_size,
+        )
         add_public_furnishing_detail_record(records, name, "display_case", area, (x, y, floor_z + 0.78), base_size)
 
     def add_info_lectern(name: str, area: str, center: tuple[float, float], orientation: str) -> None:

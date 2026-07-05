@@ -563,6 +563,8 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "chamber_wall_sconce_fixture",
     "chamber_wall_pilaster_strip",
     "gallery_edge_trim",
+    "gallery_rail_top_cap",
+    "gallery_rail_rosette",
     "public_display_board_frame_detail",
     "chamber_upper_wall_frieze_panel",
     "chamber_ceiling_cove_molding",
@@ -625,6 +627,8 @@ REQUIRED_DOOR_DETAIL_KINDS = {
 REQUIRED_FURNISHING_DETAIL_KINDS = {
     "public_bench",
     "display_case",
+    "display_case_light_strip",
+    "display_case_label_plaque",
     "information_lectern",
     "waste_receptacle",
     "plant_urn",
@@ -640,6 +644,7 @@ REQUIRED_WALL_FINISH_DETAIL_KINDS = {
     "upper_wall_panel_frame",
     "wall_pilaster",
     "public_architrave_trim",
+    "wall_material_variation_panel",
 }
 
 REQUIRED_ROTUNDA_DETAIL_KINDS = {
@@ -675,6 +680,7 @@ REQUIRED_CEILING_DETAIL_KINDS = {
     "ceiling_medallion",
     "light_canopy",
     "ceiling_vent_grille",
+    "ceiling_material_variation_panel",
 }
 
 REQUIRED_FLOOR_DETAIL_KINDS = {
@@ -1424,8 +1430,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 6750:
-        error(errors, f"expected at least 6750 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 6800:
+        error(errors, f"expected at least 6800 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1498,6 +1504,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 44 public chamber wall pilaster-strip records")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_edge_trim"]) < 8:
         error(errors, "expected at least 8 public chamber gallery edge-trim records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_rail_top_cap"]) < 4:
+        error(errors, "expected at least 4 public chamber gallery rail top-cap records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_rail_rosette"]) < 32:
+        error(errors, "expected at least 32 public chamber gallery rail rosette records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_display_board_frame_detail"]) < 4:
         error(errors, "expected at least 4 public chamber display-board frame detail records")
     if len([detail for detail in chamber_details if detail.get("kind") == "chamber_upper_wall_frieze_panel"]) < 40:
@@ -1645,8 +1655,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     furnishing_detail_kinds = {detail.get("kind") for detail in furnishing_details}
     summary["furnishing_details"] = len(furnishing_details)
     summary["furnishing_detail_kinds"] = len(furnishing_detail_kinds)
-    if len(furnishing_details) < 138:
-        error(errors, f"expected at least 138 public furnishing detail records, got {len(furnishing_details)}")
+    if len(furnishing_details) < 210:
+        error(errors, f"expected at least 210 public furnishing detail records, got {len(furnishing_details)}")
     missing_furnishing_kinds = sorted(REQUIRED_FURNISHING_DETAIL_KINDS - furnishing_detail_kinds)
     if missing_furnishing_kinds:
         error(errors, f"missing public furnishing detail kinds: {', '.join(missing_furnishing_kinds)}")
@@ -1654,6 +1664,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 public interior bench records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "display_case"]) < 24:
         error(errors, "expected at least 24 public display case records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "display_case_light_strip"]) < 48:
+        error(errors, "expected at least 48 public display case light-strip records")
+    if len([detail for detail in furnishing_details if detail.get("kind") == "display_case_label_plaque"]) < 24:
+        error(errors, "expected at least 24 public display case label-plaque records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "information_lectern"]) < 10:
         error(errors, "expected at least 10 public information lectern records")
     if len([detail for detail in furnishing_details if detail.get("kind") == "waste_receptacle"]) < 16:
@@ -1688,8 +1702,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
     summary["wall_finish_details"] = len(wall_finish_details)
     summary["wall_finish_detail_kinds"] = len(wall_finish_detail_kinds)
-    if len(wall_finish_details) < 1000:
-        error(errors, f"expected at least 1000 public wall-finish detail records, got {len(wall_finish_details)}")
+    if len(wall_finish_details) < 1058:
+        error(errors, f"expected at least 1058 public wall-finish detail records, got {len(wall_finish_details)}")
     missing_wall_finish_kinds = sorted(REQUIRED_WALL_FINISH_DETAIL_KINDS - wall_finish_detail_kinds)
     if missing_wall_finish_kinds:
         error(errors, f"missing public wall-finish detail kinds: {', '.join(missing_wall_finish_kinds)}")
@@ -1718,6 +1732,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 230 public wall pilaster records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "public_architrave_trim"]) < 18:
         error(errors, "expected at least 18 public architrave trim records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_material_variation_panel"]) < 44:
+        error(errors, "expected at least 44 public wall material-variation panel records")
     for detail in wall_finish_details:
         if not detail.get("room"):
             error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} is missing room")
@@ -1783,8 +1799,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ceiling_detail_kinds = {detail.get("kind") for detail in ceiling_details}
     summary["ceiling_details"] = len(ceiling_details)
     summary["ceiling_detail_kinds"] = len(ceiling_detail_kinds)
-    if len(ceiling_details) < 320:
-        error(errors, f"expected at least 320 public ceiling detail records, got {len(ceiling_details)}")
+    if len(ceiling_details) < 363:
+        error(errors, f"expected at least 363 public ceiling detail records, got {len(ceiling_details)}")
     missing_ceiling_kinds = sorted(REQUIRED_CEILING_DETAIL_KINDS - ceiling_detail_kinds)
     if missing_ceiling_kinds:
         error(errors, f"missing public ceiling detail kinds: {', '.join(missing_ceiling_kinds)}")
@@ -1800,6 +1816,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 30 public light canopy records")
     if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_vent_grille"]) < 40:
         error(errors, "expected at least 40 public ceiling vent grille records")
+    if len([detail for detail in ceiling_details if detail.get("kind") == "ceiling_material_variation_panel"]) < 40:
+        error(errors, "expected at least 40 public ceiling material-variation panel records")
     for detail in ceiling_details:
         if not detail.get("room"):
             error(errors, f"ceiling detail {detail.get('name', '<unknown>')} is missing room")
