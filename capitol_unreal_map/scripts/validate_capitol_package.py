@@ -1287,6 +1287,9 @@ REQUIRED_GROUNDS_DETAIL_KINDS = {
     "path_edge_stone",
     "grounds_bench",
     "ornamental_planting_cluster",
+    "public_lawn_slope_panel",
+    "public_lawn_contour_band",
+    "public_grade_break_strip",
 }
 
 REQUIRED_STREETSCAPE_PROP_KINDS = {
@@ -2204,8 +2207,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         if not is_vec3(prop.get("center_m")):
             error(errors, f"streetscape prop {prop.get('name', '<unknown>')} has invalid center_m")
             break
-    if len(grounds_details) < 165:
-        error(errors, f"expected at least 165 public grounds detail records, got {len(grounds_details)}")
+    if len(grounds_details) < 210:
+        error(errors, f"expected at least 210 public grounds detail records, got {len(grounds_details)}")
     missing_grounds_kinds = sorted(REQUIRED_GROUNDS_DETAIL_KINDS - grounds_detail_kinds)
     if missing_grounds_kinds:
         error(errors, f"missing public grounds detail kinds: {', '.join(missing_grounds_kinds)}")
@@ -2219,6 +2222,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public grounds bench records")
     if len([detail for detail in grounds_details if detail.get("kind") == "ornamental_planting_cluster"]) < 24:
         error(errors, "expected at least 24 ornamental planting cluster records")
+    if len([detail for detail in grounds_details if detail.get("kind") == "public_lawn_slope_panel"]) < 10:
+        error(errors, "expected at least 10 public lawn slope-panel records")
+    if len([detail for detail in grounds_details if detail.get("kind") == "public_lawn_contour_band"]) < 28:
+        error(errors, "expected at least 28 public lawn contour-band records")
+    if len([detail for detail in grounds_details if detail.get("kind") == "public_grade_break_strip"]) < 8:
+        error(errors, "expected at least 8 public grade-break strip records")
     for detail in grounds_details:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"grounds detail {detail.get('name', '<unknown>')} has invalid center_m")

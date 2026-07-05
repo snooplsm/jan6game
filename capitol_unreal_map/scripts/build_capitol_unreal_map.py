@@ -488,6 +488,18 @@ class ObjWriter:
         verts = [self.add_vertex(x, y, z) for x, y in points]
         self.add_face(verts)
 
+    def add_sloped_quad(
+        self,
+        points: list[tuple[float, float, float]],
+        name: str,
+        material: str,
+    ) -> None:
+        if len(points) != 4:
+            return
+        self.add_group(name, material)
+        verts = [self.add_vertex(x, y, z) for x, y, z in points]
+        self.add_face(verts)
+
     def add_polyline_strip(
         self,
         points: list[tuple[float, float]],
@@ -3953,6 +3965,51 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             roads.add_cylinder((x + dx, y + dy), radius, 0.15, 0.34, f"{name}_shrub_{index}", "TreeCanopy", segments=10)
         add_grounds_record(name, "ornamental_planting_cluster", (x, y, 0.32), (1.35, 1.35))
 
+    def add_lawn_slope_panel(name: str, corners: list[tuple[float, float, float]]) -> None:
+        roads.add_sloped_quad(corners, name, "GroundGrass")
+        xs = [point[0] for point in corners]
+        ys = [point[1] for point in corners]
+        zs = [point[2] for point in corners]
+        add_grounds_record(
+            name,
+            "public_lawn_slope_panel",
+            (sum(xs) / 4.0, sum(ys) / 4.0, sum(zs) / 4.0),
+            (max(xs) - min(xs), max(ys) - min(ys)),
+            public_accuracy="schematic_public_grounds_grading",
+            extra={"min_z_m": round(min(zs), 3), "max_z_m": round(max(zs), 3)},
+        )
+
+    def add_lawn_contour_band(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        material: str = "StoneGrimeOverlay",
+    ) -> None:
+        roads.add_box(center, size, 0.026, z, name, material)
+        add_grounds_record(
+            name,
+            "public_lawn_contour_band",
+            (center[0], center[1], z + 0.013),
+            size,
+            public_accuracy="schematic_public_grounds_grading",
+        )
+
+    def add_grade_break_strip(
+        name: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+    ) -> None:
+        roads.add_box(center, size, 0.052, z, name, "StepStone")
+        add_grounds_record(
+            name,
+            "public_grade_break_strip",
+            (center[0], center[1], z + 0.026),
+            size,
+            public_accuracy="schematic_public_grounds_grading",
+        )
+
     def add_capitol_grounds_details() -> None:
         # Broad public landscape shapes around the Capitol, authored as
         # approximate visual context rather than survey-grade grounds design.
@@ -3965,6 +4022,49 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             ("south_public_lawn_panel", (0.0, -148.0), (156.0, 62.0)),
         ]:
             add_grounds_box(name, "lawn_panel", center, size, 0.022, 0.026, "GroundGrass")
+
+        slope_specs = [
+            ("west_north_lawn_grade_inner", [(-250.0, 24.0, 0.045), (-94.0, 24.0, 0.175), (-94.0, 98.0, 0.155), (-250.0, 98.0, 0.035)]),
+            ("west_south_lawn_grade_inner", [(-250.0, -98.0, 0.035), (-94.0, -98.0, 0.155), (-94.0, -24.0, 0.175), (-250.0, -24.0, 0.045)]),
+            ("west_north_lawn_grade_outer", [(-352.0, 24.0, 0.020), (-250.0, 24.0, 0.045), (-250.0, 98.0, 0.035), (-352.0, 98.0, 0.018)]),
+            ("west_south_lawn_grade_outer", [(-352.0, -98.0, 0.018), (-250.0, -98.0, 0.035), (-250.0, -24.0, 0.045), (-352.0, -24.0, 0.020)]),
+            ("east_north_lawn_grade_inner", [(92.0, 24.0, 0.165), (205.0, 24.0, 0.060), (205.0, 96.0, 0.050), (92.0, 96.0, 0.150)]),
+            ("east_south_lawn_grade_inner", [(92.0, -96.0, 0.150), (205.0, -96.0, 0.050), (205.0, -24.0, 0.060), (92.0, -24.0, 0.165)]),
+            ("north_lawn_grade_west", [(-78.0, 118.0, 0.150), (0.0, 124.0, 0.172), (0.0, 182.0, 0.046), (-78.0, 178.0, 0.038)]),
+            ("north_lawn_grade_east", [(0.0, 124.0, 0.172), (78.0, 118.0, 0.150), (78.0, 178.0, 0.038), (0.0, 182.0, 0.046)]),
+            ("south_lawn_grade_west", [(-78.0, -178.0, 0.038), (0.0, -182.0, 0.046), (0.0, -124.0, 0.172), (-78.0, -118.0, 0.150)]),
+            ("south_lawn_grade_east", [(0.0, -182.0, 0.046), (78.0, -178.0, 0.038), (78.0, -118.0, 0.150), (0.0, -124.0, 0.172)]),
+        ]
+        for name, corners in slope_specs:
+            add_lawn_slope_panel(name, corners)
+
+        contour_specs = []
+        for index, x in enumerate([-326.0, -292.0, -258.0, -224.0, -190.0, -156.0], start=1):
+            z = 0.034 + index * 0.014
+            contour_specs.append((f"west_north_lawn_contour_{index:02d}", (x, 60.0), (0.18, 68.0), z))
+            contour_specs.append((f"west_south_lawn_contour_{index:02d}", (x, -60.0), (0.18, 68.0), z))
+        for index, x in enumerate([112.0, 136.0, 160.0, 184.0], start=1):
+            z = 0.140 - index * 0.018
+            contour_specs.append((f"east_north_lawn_contour_{index:02d}", (x, 60.0), (0.16, 62.0), z))
+            contour_specs.append((f"east_south_lawn_contour_{index:02d}", (x, -60.0), (0.16, 62.0), z))
+        for index, y in enumerate([132.0, 146.0, 160.0, 174.0], start=1):
+            z = 0.140 - index * 0.018
+            contour_specs.append((f"north_lawn_contour_{index:02d}", (0.0, y), (126.0, 0.16), z))
+            contour_specs.append((f"south_lawn_contour_{index:02d}", (0.0, -y), (126.0, 0.16), z))
+        for name, center, size, z in contour_specs:
+            add_lawn_contour_band(name, center, size, z)
+
+        for name, center, size, z in [
+            ("west_plaza_grade_break_north", (-94.0, 53.0), (0.32, 62.0), 0.172),
+            ("west_plaza_grade_break_south", (-94.0, -53.0), (0.32, 62.0), 0.172),
+            ("east_plaza_grade_break_north", (92.0, 52.0), (0.32, 60.0), 0.152),
+            ("east_plaza_grade_break_south", (92.0, -52.0), (0.32, 60.0), 0.152),
+            ("north_plaza_grade_break_west", (-38.0, 118.0), (66.0, 0.32), 0.146),
+            ("north_plaza_grade_break_east", (38.0, 118.0), (66.0, 0.32), 0.146),
+            ("south_plaza_grade_break_west", (-38.0, -118.0), (66.0, 0.32), 0.146),
+            ("south_plaza_grade_break_east", (38.0, -118.0), (66.0, 0.32), 0.146),
+        ]:
+            add_grade_break_strip(name, center, size, z)
 
         for name, points, width in [
             ("west_axial_public_walk", [(-93.0, 0.0), (-174.0, 0.0), (-260.0, 0.0), (-352.0, 0.0)], 8.5),
