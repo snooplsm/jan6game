@@ -466,6 +466,42 @@
     const VIEWER_SECONDARY_TEXTURE_MAX_SIZE = 512;
     const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "building_detail", "building_roof_detail", "height_audit", "height_review_target", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "public_art", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
+    const labelCategoryMeshIds = new Map([
+      ["building", "capitol_exterior_buildings"],
+      ["building_detail", "capitol_exterior_buildings"],
+      ["building_roof_detail", "capitol_exterior_buildings"],
+      ["height_audit", "capitol_exterior_buildings"],
+      ["height_review_target", "capitol_exterior_buildings"],
+      ["grounds_detail", "capitol_exterior_roads_bike_lanes_markers"],
+      ["street_name", "capitol_exterior_roads_bike_lanes_markers"],
+      ["facade_detail", "capitol_landmark_visual_details"],
+      ["landmark", "capitol_landmark_visual_details"],
+      ["public_entrance_visual", "capitol_landmark_visual_details"],
+      ["floorplate", "capitol_public_interior_schematic"],
+      ["major_public_space", "capitol_public_interior_schematic"],
+      ["legislative_chamber", "capitol_public_interior_schematic"],
+      ["visitor_gallery", "capitol_public_interior_schematic"],
+      ["generic_office_zone", "capitol_public_interior_schematic"],
+      ["public_circulation", "capitol_public_interior_schematic"],
+      ["public_circulation_detail", "capitol_public_interior_schematic"],
+      ["joint_session", "capitol_public_interior_schematic"],
+      ["seating", "capitol_public_interior_schematic"],
+      ["seating_section", "capitol_public_interior_schematic"],
+      ["chamber_detail", "capitol_public_interior_schematic"],
+      ["chamber_role_overlay", "capitol_public_interior_schematic"],
+      ["office_detail", "capitol_public_interior_schematic"],
+      ["signage_detail", "capitol_public_interior_schematic"],
+      ["door_detail", "capitol_public_interior_schematic"],
+      ["furnishing_detail", "capitol_public_interior_schematic"],
+      ["public_art", "capitol_public_interior_schematic"],
+      ["wall_treatment", "capitol_public_interior_schematic"],
+      ["wall_finish_detail", "capitol_public_interior_schematic"],
+      ["floor_detail", "capitol_public_interior_schematic"],
+      ["surface_aging_detail", "capitol_public_interior_schematic"],
+      ["ceiling_detail", "capitol_public_interior_schematic"],
+      ["lighting", "capitol_public_interior_schematic"],
+      ["gameplay_item", "capitol_gameplay_items"]
+    ]);
     const walkPresetConfigs = {
       map: {
         label: "Whole Map",
@@ -1562,11 +1598,19 @@
     }
 
     function labelPassesFilter(label) {
+      if (!labelSourceMeshVisible(label)) return false;
       if (!state.labelCategory && !state.labelQuery && hiddenByDefaultLabelCategories.has(label.category)) return false;
       if (state.labelCategory === "interior_plan" && !publicInteriorPlanLabelCategories.has(label.category)) return false;
       if (state.labelCategory && state.labelCategory !== "interior_plan" && label.category !== state.labelCategory) return false;
       if (!state.labelQuery) return true;
       return label.text.toLowerCase().includes(state.labelQuery);
+    }
+
+    function labelSourceMeshVisible(label) {
+      const meshId = labelCategoryMeshIds.get(label.category);
+      if (!meshId) return true;
+      const mesh = state.meshes.find((item) => item.id === meshId);
+      return !mesh || mesh.visible;
     }
 
     function preserveSelectedLabelVisibility() {
