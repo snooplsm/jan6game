@@ -177,6 +177,41 @@
       overflow: hidden;
     }
 
+    .walk-hud {
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      display: none;
+      width: min(310px, calc(100vw - 28px));
+      padding: 12px;
+      background: rgba(18, 20, 23, 0.86);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.38);
+    }
+
+    .walk-hud.visible { display: block; }
+
+    .walk-hud-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 12px;
+      align-items: center;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .walk-hud-row strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .walk-hud button {
+      width: 100%;
+      margin-top: 10px;
+    }
+
     .map-label {
       position: absolute;
       transform: translate(-50%, -100%);
@@ -206,6 +241,15 @@
 <body>
   <canvas id="viewport"></canvas>
   <div class="label-layer" id="labelLayer"></div>
+  <div class="walk-hud" id="walkHud" aria-live="polite">
+    <div class="walk-hud-row">
+      <span>Walk Mode</span><strong id="walkHudMode">Off</strong>
+      <span>Eye Height</span><strong id="walkHudHeight">0.0 m</strong>
+      <span>Speed</span><strong id="walkHudSpeed">Normal</strong>
+      <span>Position</span><strong id="walkHudPosition">0, 0</strong>
+    </div>
+    <button id="resetWalk">Reset Walk Start</button>
+  </div>
 
   <aside class="panel">
     <h1>U.S. Capitol OBJ Viewer <span class="badge">local</span></h1>
@@ -327,6 +371,11 @@
   <script>
     const canvas = document.getElementById("viewport");
     const labelLayer = document.getElementById("labelLayer");
+    const walkHud = document.getElementById("walkHud");
+    const walkHudMode = document.getElementById("walkHudMode");
+    const walkHudHeight = document.getElementById("walkHudHeight");
+    const walkHudSpeed = document.getElementById("walkHudSpeed");
+    const walkHudPosition = document.getElementById("walkHudPosition");
     const statusEl = document.getElementById("status");
     const statsEl = document.getElementById("stats");
     const gl = canvas.getContext("webgl", { antialias: true });
@@ -368,6 +417,34 @@
     const VIEWER_SECONDARY_TEXTURE_MAX_SIZE = 512;
     const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "public_art", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
+    const walkPresetConfigs = {
+      map: {
+        label: "Whole Map",
+        resetPosition: [-10500, 0, 180],
+        resetYaw: Math.PI / 2,
+        resetPitch: 0.02,
+        floorZ: 0,
+        minEyeZ: 165,
+        maxEyeZ: 2600,
+        horizontalSpeed: 650,
+        fastHorizontalSpeed: 2100,
+        verticalSpeed: 420,
+        fastVerticalSpeed: 1200
+      },
+      interior: {
+        label: "Public Interior",
+        resetPosition: [0, -1400, 570],
+        resetYaw: 0,
+        resetPitch: -0.03,
+        floorZ: 400,
+        minEyeZ: 560,
+        maxEyeZ: 1800,
+        horizontalSpeed: 420,
+        fastHorizontalSpeed: 1250,
+        verticalSpeed: 240,
+        fastVerticalSpeed: 620
+      }
+    };
 
     const state = {
       meshes: [],
@@ -560,6 +637,7 @@
     document.getElementById("presetWalkMap").onclick = () => focusWalkMapRoute();
     document.getElementById("presetWalkInterior").onclick = () => focusWalkInteriorRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
+    document.getElementById("resetWalk").onclick = () => resetWalkCamera();
 
     document.getElementById("quickGroundsDetails").addEventListener("click", (event) => {
       event.preventDefault();
@@ -1603,7 +1681,8 @@
       document.getElementById("categoryFilter").value = "";
       document.getElementById("labelSearch").value = "";
 
-      setWalkCamera([0, -1400, 570], 0, -0.03, "interior");
+      const preset = walkPresetConfigs.interior;
+      setWalkCamera(preset.resetPosition, preset.resetYaw, preset.resetPitch, "interior");
       statusEl.textContent = "Walk Interior mode active. Click the viewport to lock mouse look; Esc releases it.";
     }
 
@@ -1622,7 +1701,8 @@
       document.getElementById("categoryFilter").value = "";
       document.getElementById("labelSearch").value = "";
 
-      setWalkCamera([-10500, 0, 180], Math.PI / 2, 0.02, "map");
+      const preset = walkPresetConfigs.map;
+      setWalkCamera(preset.resetPosition, preset.resetYaw, preset.resetPitch, "map");
       statusEl.textContent = "Walk Map mode active at west front. Click the viewport to lock mouse look; Esc releases it.";
     }
 
@@ -2027,14 +2107,24 @@
     }
 
     function setWalkCamera(position, yaw, pitch, preset = "") {
+      const config = walkPresetConfigs[preset] || walkPresetConfigs.map;
       state.cameraMode = "walk";
       state.walkPreset = preset;
       state.walkPosition = position.slice();
+      state.walkPosition[2] = clamp(state.walkPosition[2], config.minEyeZ, config.maxEyeZ);
       state.walkYaw = yaw;
       state.walkPitch = pitch;
       state.walkKeys.clear();
       state.dragging = false;
       updateCameraModeUi();
+      updateWalkHud();
+    }
+
+    function resetWalkCamera() {
+      if (state.cameraMode !== "walk") return;
+      const config = activeWalkConfig();
+      setWalkCamera(config.resetPosition, config.resetYaw, config.resetPitch, state.walkPreset || "map");
+      statusEl.textContent = `${config.label} walk start restored. Click the viewport to lock mouse look.`;
     }
 
     function cameraEye() {
@@ -2061,6 +2151,7 @@
 
     function updateWalkCamera(dt) {
       if (state.cameraMode !== "walk" || dt <= 0) return;
+      const config = activeWalkConfig();
       const forward = [Math.sin(state.walkYaw), Math.cos(state.walkYaw), 0];
       const right = [Math.cos(state.walkYaw), -Math.sin(state.walkYaw), 0];
       let forwardAmount = 0;
@@ -2075,8 +2166,8 @@
       if (walkKeyDown("q") || walkKeyDown("pagedown")) upAmount -= 1;
 
       const horizontalLength = Math.hypot(forwardAmount, rightAmount) || 1;
-      const horizontalSpeed = walkKeyDown("shift") ? 2100 : 650;
-      const verticalSpeed = walkKeyDown("shift") ? 1200 : 420;
+      const horizontalSpeed = walkKeyDown("shift") ? config.fastHorizontalSpeed : config.horizontalSpeed;
+      const verticalSpeed = walkKeyDown("shift") ? config.fastVerticalSpeed : config.verticalSpeed;
       state.walkPosition[0] += (
         forward[0] * forwardAmount / horizontalLength
         + right[0] * rightAmount / horizontalLength
@@ -2087,9 +2178,10 @@
       ) * horizontalSpeed * dt;
       state.walkPosition[2] = clamp(
         state.walkPosition[2] + upAmount * verticalSpeed * dt,
-        150,
-        24000
+        config.minEyeZ,
+        config.maxEyeZ
       );
+      updateWalkHud();
     }
 
     function onDocumentMouseMove(event) {
@@ -2109,6 +2201,11 @@
       if (state.cameraMode !== "walk" || isTypingTarget(event.target)) return;
       const key = normalizedWalkKey(event);
       if (!key) return;
+      if (key === "r") {
+        resetWalkCamera();
+        event.preventDefault();
+        return;
+      }
       state.walkKeys.add(key);
       event.preventDefault();
     }
@@ -2128,6 +2225,7 @@
         "d",
         "q",
         "e",
+        "r",
         "arrowup",
         "arrowdown",
         "arrowleft",
@@ -2155,6 +2253,25 @@
       if (walkButton) {
         walkButton.classList.toggle("active", state.cameraMode === "walk" && state.walkPreset === "interior");
       }
+      updateWalkHud();
+    }
+
+    function activeWalkConfig() {
+      return walkPresetConfigs[state.walkPreset] || walkPresetConfigs.map;
+    }
+
+    function updateWalkHud() {
+      if (state.cameraMode !== "walk") {
+        walkHud.classList.remove("visible");
+        return;
+      }
+      const config = activeWalkConfig();
+      const eyeHeightMeters = Math.max(0, (state.walkPosition[2] - config.floorZ) / 100);
+      walkHudMode.textContent = config.label;
+      walkHudHeight.textContent = `${eyeHeightMeters.toFixed(1)} m`;
+      walkHudSpeed.textContent = walkKeyDown("shift") ? "Fast" : "Normal";
+      walkHudPosition.textContent = `${(state.walkPosition[0] / 100).toFixed(1)}, ${(state.walkPosition[1] / 100).toFixed(1)} m`;
+      walkHud.classList.add("visible");
     }
 
     function clamp(value, min, max) {

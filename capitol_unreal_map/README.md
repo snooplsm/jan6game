@@ -108,7 +108,7 @@ The current validation report counts 2,412,398 generated texture coordinates acr
 
 The current texture validation report counts 43 generated texture sets, 19 procedural texture styles, 10 photoreal-readiness feature markers, 172 PNG texture files, 75 material bindings, and a minimum generated texture dimension of 4096px.
 
-The current Unreal importer validation report counts 168 report-key markers, 27 material-setup markers, 38 environment/lighting markers, and 24 inspection-workflow markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, ambient-occlusion map support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, public interior walk-start coverage, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
+The current Unreal importer validation report counts 168 report-key markers, 27 material-setup markers, 38 environment/lighting markers, 24 inspection-workflow markers, and 218 viewer markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, ambient-occlusion map support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, public interior walk-start coverage, browser first-person walk HUD/reset/floor-bound markers, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
 
 The current generated build contains:
 
@@ -327,7 +327,7 @@ The viewer can toggle:
 
 Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, first-person whole-map walk inspection, first-person public-interior walk inspection, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, public art details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, public art labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
-Controls: orbit mode uses drag, mouse wheel, and shift-drag. Walk modes use click-to-lock mouse look, WASD or arrow-key movement, Shift for faster movement, Q/E for height adjustment, and Esc to release the mouse.
+Controls: orbit mode uses drag, mouse wheel, and shift-drag. Walk modes use click-to-lock mouse look, WASD or arrow-key movement, Shift for faster movement, Q/E for bounded height adjustment, Esc to release the mouse, and a walk HUD with current mode, eye height, speed, position, and reset-to-start control.
 
 ## Unreal Import
 
