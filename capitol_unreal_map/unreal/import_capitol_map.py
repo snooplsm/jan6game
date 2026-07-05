@@ -313,6 +313,90 @@ FIRST_PERSON_COLLISION_PROXIES = [
         "purpose": "public east-west interior connector schematic walkable proxy",
     },
     {
+        "label": "CapitolMap_Collision_HouseWestSeatBlocker",
+        "location_cm": [-1800.0, -7700.0, 540.0],
+        "scale": [16.0, 38.0, 1.10],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic House Chamber west seating blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseEastSeatBlocker",
+        "location_cm": [1800.0, -7700.0, 540.0],
+        "scale": [16.0, 38.0, 1.10],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic House Chamber east seating blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseRostrumBlocker",
+        "location_cm": [0.0, -5650.0, 590.0],
+        "scale": [12.0, 6.0, 1.55],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public House rostrum blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_HouseGalleryBenchBlocker",
+        "location_cm": [0.0, -9600.0, 540.0],
+        "scale": [34.0, 4.0, 1.00],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public House gallery bench blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateWestDeskBlocker",
+        "location_cm": [-1500.0, 7000.0, 540.0],
+        "scale": [15.0, 25.0, 1.10],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic Senate west desk blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateEastDeskBlocker",
+        "location_cm": [1500.0, 7000.0, 540.0],
+        "scale": [15.0, 25.0, 1.10],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic Senate east desk blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateDaisBlocker",
+        "location_cm": [0.0, 5600.0, 590.0],
+        "scale": [10.0, 5.0, 1.45],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public Senate presiding-dais blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_SenateGalleryBenchBlocker",
+        "location_cm": [0.0, 9400.0, 540.0],
+        "scale": [28.0, 4.0, 1.00],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public Senate gallery bench blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_RotundaCentralPedestalBlocker",
+        "location_cm": [0.0, 0.0, 565.0],
+        "scale": [7.0, 7.0, 1.15],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public Rotunda central exhibit/pedestal blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_StatuaryHallPedestalBlocker",
+        "location_cm": [2800.0, -3000.0, 560.0],
+        "scale": [10.0, 6.0, 1.10],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public Statuary Hall pedestal/display blocker for first-person furniture collision",
+    },
+    {
+        "label": "CapitolMap_Collision_OldSenateFurnitureBlocker",
+        "location_cm": [2800.0, 3000.0, 560.0],
+        "scale": [9.0, 6.0, 1.10],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public Old Senate Chamber furnishing blocker for first-person collision",
+    },
+    {
+        "label": "CapitolMap_Collision_PublicOfficeFurnitureBlocker",
+        "location_cm": [-5200.0, 0.0, 540.0],
+        "scale": [10.0, 28.0, 1.05],
+        "group": "public_interior_furniture_blocker",
+        "purpose": "generic public office/support furnishing blocker for first-person collision",
+    },
+    {
         "label": "CapitolMap_Collision_WestApproachRoadSurface",
         "location_cm": [-26000.0, 0.0, 35.0],
         "scale": [98.0, 24.0, 0.14],
@@ -465,6 +549,7 @@ def build_collision_proxy_coverage(proxies: list[dict[str, Any]]) -> dict[str, A
             count for group, count in groups.items() if group.startswith("public_exterior") or group == "public_bike_lane_surface"
         ),
         "public_interior_surface_total": groups.get("public_interior_surface", 0),
+        "public_interior_furniture_blocker_total": groups.get("public_interior_furniture_blocker", 0),
     }
 
 

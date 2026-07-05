@@ -96,8 +96,8 @@
     "material_markers": 27,
     "environment_markers": 58,
     "inspection_markers": 24,
-    "collision_proxy_specs": 42,
-    "collision_proxy_groups": 6,
+    "collision_proxy_specs": 54,
+    "collision_proxy_groups": 7,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],

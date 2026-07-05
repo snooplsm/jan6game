@@ -424,13 +424,14 @@ REQUIRED_UNREAL_FIRST_PERSON_MARKERS = {
     "nanite_settings",
 }
 
-MIN_UNREAL_COLLISION_PROXY_SPECS = 40
+MIN_UNREAL_COLLISION_PROXY_SPECS = 52
 REQUIRED_UNREAL_COLLISION_PROXY_GROUPS = {
     "public_exterior_road_surface",
     "public_exterior_sidewalk_surface",
     "public_bike_lane_surface",
     "public_exterior_walk_surface",
     "public_interior_surface",
+    "public_interior_furniture_blocker",
 }
 
 REQUIRED_UNREAL_MATERIAL_MARKERS = {
