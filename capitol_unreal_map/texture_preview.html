@@ -246,7 +246,7 @@
 
     function summarize(manifest) {
       const sets = Object.values(manifest.sets || {});
-      const textureCount = sets.length * 3;
+      const textureCount = sets.length * 4;
       const size = manifest.target_size_px || ["?", "?"];
       const items = [
         ["Texture Sets", sets.length],
@@ -305,6 +305,7 @@
             ${mapFigure("basecolor", record.basecolor)}
             ${mapFigure("normal", record.normal)}
             ${mapFigure("roughness", record.roughness)}
+            ${mapFigure("ambient occlusion", record.ambientOcclusion)}
           </div>
           <div class="material-list"><strong>Materials:</strong> ${escapeHtml(record.materials.join(", ") || "none")}</div>
         </article>
@@ -328,6 +329,7 @@
           basecolor: spec.basecolor,
           normal: spec.normal,
           roughness: spec.roughness,
+          ambientOcclusion: spec.ambient_occlusion,
           materials: bindings[name] || []
         })).sort((a, b) => a.name.localeCompare(b.name));
 

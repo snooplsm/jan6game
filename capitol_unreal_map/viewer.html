@@ -311,7 +311,7 @@
       <label><input type="checkbox" data-mesh="capitol_landmark_visual_details" checked /> Capitol visual details</label>
       <label><input type="checkbox" data-mesh="capitol_public_interior_schematic" checked /> Public interior schematic</label>
       <label><input type="checkbox" data-mesh="capitol_gameplay_items" checked /> Gameplay item props</label>
-      <label><input type="checkbox" id="texturesToggle" checked /> Basecolor texture preview</label>
+      <label><input type="checkbox" id="texturesToggle" checked /> PBR texture preview</label>
       <label><input type="checkbox" id="labelsToggle" checked /> Labels</label>
     </div>
 
@@ -365,6 +365,7 @@
     ];
 
     const VIEWER_TEXTURE_MAX_SIZE = 1024;
+    const VIEWER_SECONDARY_TEXTURE_MAX_SIZE = 512;
     const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "public_art", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
 
@@ -404,28 +405,71 @@
       attribute vec2 aTexCoord;
       uniform mat4 uViewProj;
       varying vec3 vColor;
+      varying vec3 vNormal;
+      varying vec3 vWorldPosition;
       varying vec2 vTexCoord;
-      varying float vLit;
       void main() {
-        vec3 lightDir = normalize(vec3(0.35, 0.28, 0.89));
-        float lit = max(dot(normalize(aNormal), lightDir), 0.0);
-        vLit = 0.42 + 0.58 * lit;
         vColor = aColor;
+        vNormal = normalize(aNormal);
+        vWorldPosition = aPosition;
         vTexCoord = aTexCoord;
         gl_Position = uViewProj * vec4(aPosition, 1.0);
       }
     `;
 
     const fragmentShaderSource = `
-      precision mediump float;
+      precision highp float;
       varying vec3 vColor;
+      varying vec3 vNormal;
+      varying vec3 vWorldPosition;
       varying vec2 vTexCoord;
-      varying float vLit;
-      uniform sampler2D uTexture;
-      uniform bool uUseTexture;
+      uniform sampler2D uBaseColorTexture;
+      uniform sampler2D uNormalTexture;
+      uniform sampler2D uRoughnessTexture;
+      uniform sampler2D uAoTexture;
+      uniform bool uUseBaseColorTexture;
+      uniform bool uUseNormalTexture;
+      uniform bool uUseRoughnessTexture;
+      uniform bool uUseAoTexture;
+      uniform vec3 uCameraPosition;
+
+      vec3 srgbToLinear(vec3 color) {
+        return pow(max(color, vec3(0.0)), vec3(2.2));
+      }
+
+      vec3 linearToSrgb(vec3 color) {
+        return pow(max(color, vec3(0.0)), vec3(1.0 / 2.2));
+      }
+
+      vec3 acesApprox(vec3 color) {
+        return clamp((color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14), 0.0, 1.0);
+      }
+
       void main() {
-        vec3 base = uUseTexture ? texture2D(uTexture, fract(vTexCoord)).rgb : vColor;
-        gl_FragColor = vec4(base * vLit, 1.0);
+        vec2 uv = fract(vTexCoord);
+        vec3 baseSrgb = uUseBaseColorTexture ? texture2D(uBaseColorTexture, uv).rgb : vColor;
+        vec3 base = srgbToLinear(baseSrgb);
+        vec3 n = normalize(vNormal);
+        vec3 sunDir = normalize(vec3(0.38, 0.25, 0.89));
+        vec3 normalSample = uUseNormalTexture ? texture2D(uNormalTexture, uv).xyz * 2.0 - 1.0 : vec3(0.0, 0.0, 1.0);
+        float normalDetail = uUseNormalTexture
+          ? clamp(dot(normalSample, normalize(vec3(0.45, -0.26, 0.86))) * 0.5 + 0.5, 0.0, 1.0)
+          : 0.5;
+        float roughness = uUseRoughnessTexture ? texture2D(uRoughnessTexture, uv).r : 0.78;
+        float ao = uUseAoTexture ? texture2D(uAoTexture, uv).r : 1.0;
+        float sun = max(dot(n, sunDir), 0.0);
+        float sky = 0.48 + 0.22 * max(n.z, 0.0);
+        float microShadow = mix(0.86, 1.16, normalDetail);
+        vec3 ambient = sky * vec3(0.52, 0.58, 0.66) + vec3(0.035);
+        vec3 direct = sun * vec3(1.16, 1.04, 0.88) * microShadow;
+        vec3 viewDir = normalize(uCameraPosition - vWorldPosition);
+        vec3 halfDir = normalize(sunDir + viewDir);
+        float specPower = mix(72.0, 12.0, clamp(roughness, 0.0, 1.0));
+        float specular = pow(max(dot(n, halfDir), 0.0), specPower)
+          * mix(0.32, 0.035, clamp(roughness, 0.0, 1.0))
+          * (0.55 + 0.45 * normalDetail);
+        vec3 color = base * (ambient + direct) * ao + specular * vec3(1.0, 0.92, 0.78) * (0.65 + sun * 0.35);
+        gl_FragColor = vec4(linearToSrgb(acesApprox(color)), 1.0);
       }
     `;
 
@@ -438,8 +482,15 @@
     };
     const uniforms = {
       viewProj: gl.getUniformLocation(program, "uViewProj"),
-      texture: gl.getUniformLocation(program, "uTexture"),
-      useTexture: gl.getUniformLocation(program, "uUseTexture")
+      baseColorTexture: gl.getUniformLocation(program, "uBaseColorTexture"),
+      normalTexture: gl.getUniformLocation(program, "uNormalTexture"),
+      roughnessTexture: gl.getUniformLocation(program, "uRoughnessTexture"),
+      aoTexture: gl.getUniformLocation(program, "uAoTexture"),
+      useBaseColorTexture: gl.getUniformLocation(program, "uUseBaseColorTexture"),
+      useNormalTexture: gl.getUniformLocation(program, "uUseNormalTexture"),
+      useRoughnessTexture: gl.getUniformLocation(program, "uUseRoughnessTexture"),
+      useAoTexture: gl.getUniformLocation(program, "uUseAoTexture"),
+      cameraPosition: gl.getUniformLocation(program, "uCameraPosition")
     };
 
     gl.enable(gl.DEPTH_TEST);
@@ -472,8 +523,8 @@
     document.getElementById("texturesToggle").addEventListener("change", (event) => {
       state.texturesEnabled = event.target.checked;
       statusEl.textContent = state.texturesEnabled
-        ? "Basecolor texture preview enabled."
-        : "Basecolor texture preview disabled; showing MTL fallback colors.";
+        ? "PBR texture preview enabled."
+        : "PBR texture preview disabled; showing MTL fallback colors.";
       updateStats();
     });
 
@@ -691,24 +742,40 @@
         if (material.textureSet) textureSets.add(material.textureSet);
       }
       const setNames = Array.from(textureSets).filter((setName) => textureManifest?.sets?.[setName]?.basecolor);
-      state.textureStats = { loaded: 0, total: setNames.length };
+      const textureKinds = [
+        { key: "basecolor", maxSize: VIEWER_TEXTURE_MAX_SIZE },
+        { key: "normal", maxSize: VIEWER_SECONDARY_TEXTURE_MAX_SIZE },
+        { key: "roughness", maxSize: VIEWER_SECONDARY_TEXTURE_MAX_SIZE },
+        { key: "ambient_occlusion", maxSize: VIEWER_SECONDARY_TEXTURE_MAX_SIZE }
+      ];
+      const totalMaps = setNames.reduce((count, setName) => {
+        const textureSet = textureManifest.sets[setName] || {};
+        return count + textureKinds.filter((kind) => textureSet[kind.key]).length;
+      }, 0);
+      state.textureStats = { loaded: 0, total: totalMaps };
       updateStats();
 
       for (const setName of setNames) {
         if (state.textureCache.has(setName)) continue;
         const textureSet = textureManifest.sets[setName];
-        statusEl.textContent = `Loading texture preview ${state.textureStats.loaded + 1}/${state.textureStats.total}: ${setName}`;
-        try {
-          const image = await loadImage(textureSet.basecolor);
-          state.textureCache.set(setName, createViewerTexture(image));
-          state.textureStats.loaded += 1;
-          updateStats();
-        } catch (error) {
-          console.warn(`Failed to load texture preview ${setName}`, error);
+        const textureRecord = {};
+        for (const kind of textureKinds) {
+          const path = textureSet[kind.key];
+          if (!path) continue;
+          statusEl.textContent = `Loading texture map ${state.textureStats.loaded + 1}/${state.textureStats.total}: ${setName} ${kind.key}`;
+          try {
+            const image = await loadImage(path);
+            textureRecord[kind.key] = createViewerTexture(image, kind.maxSize);
+            state.textureStats.loaded += 1;
+            updateStats();
+          } catch (error) {
+            console.warn(`Failed to load texture map ${setName} ${kind.key}`, error);
+          }
         }
+        state.textureCache.set(setName, textureRecord);
       }
 
-      statusEl.textContent = `Loaded. Texture previews ready: ${state.textureStats.loaded}/${state.textureStats.total}.`;
+      statusEl.textContent = `Loaded. PBR texture maps ready: ${state.textureStats.loaded}/${state.textureStats.total}.`;
     }
 
     function loadImage(url) {
@@ -721,12 +788,12 @@
       });
     }
 
-    function createViewerTexture(image) {
+    function createViewerTexture(image, maxSize = VIEWER_TEXTURE_MAX_SIZE) {
       const texture = gl.createTexture();
       const inputWidth = image.naturalWidth || image.width;
       const inputHeight = image.naturalHeight || image.height;
-      const width = viewerTextureDimension(inputWidth);
-      const height = viewerTextureDimension(inputHeight);
+      const width = viewerTextureDimension(inputWidth, maxSize);
+      const height = viewerTextureDimension(inputHeight, maxSize);
       const source = document.createElement("canvas");
       source.width = width;
       source.height = height;
@@ -755,8 +822,8 @@
       return texture;
     }
 
-    function viewerTextureDimension(value) {
-      const capped = Math.min(Math.max(1, value), VIEWER_TEXTURE_MAX_SIZE);
+    function viewerTextureDimension(value, maxSize = VIEWER_TEXTURE_MAX_SIZE) {
+      const capped = Math.min(Math.max(1, value), maxSize);
       return 2 ** Math.floor(Math.log2(capped));
     }
 
@@ -1142,19 +1209,26 @@
 
       gl.useProgram(program);
       gl.uniformMatrix4fv(uniforms.viewProj, false, state.viewProj);
-      gl.uniform1i(uniforms.texture, 0);
+      gl.uniform3f(uniforms.cameraPosition, eye[0], eye[1], eye[2]);
 
       for (const mesh of state.meshes) {
         if (!mesh.visible) continue;
         for (const batch of mesh.batches) {
-          const texture = state.texturesEnabled && batch.textureSet
+          const textures = state.texturesEnabled && batch.textureSet
             ? state.textureCache.get(batch.textureSet)
             : null;
-          gl.uniform1i(uniforms.useTexture, texture ? 1 : 0);
-          if (texture) {
-            gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-          }
+          const baseColorTexture = textures?.basecolor || null;
+          const normalTexture = textures?.normal || null;
+          const roughnessTexture = textures?.roughness || null;
+          const aoTexture = textures?.ambient_occlusion || null;
+          gl.uniform1i(uniforms.useBaseColorTexture, baseColorTexture ? 1 : 0);
+          gl.uniform1i(uniforms.useNormalTexture, normalTexture ? 1 : 0);
+          gl.uniform1i(uniforms.useRoughnessTexture, roughnessTexture ? 1 : 0);
+          gl.uniform1i(uniforms.useAoTexture, aoTexture ? 1 : 0);
+          bindTextureUnit(0, uniforms.baseColorTexture, baseColorTexture);
+          bindTextureUnit(1, uniforms.normalTexture, normalTexture);
+          bindTextureUnit(2, uniforms.roughnessTexture, roughnessTexture);
+          bindTextureUnit(3, uniforms.aoTexture, aoTexture);
           bindAttribute(attribs.position, batch.positionBuffer, 3);
           bindAttribute(attribs.normal, batch.normalBuffer, 3);
           bindAttribute(attribs.color, batch.colorBuffer, 3);
@@ -1165,6 +1239,12 @@
 
       updateLabels();
       requestAnimationFrame(draw);
+    }
+
+    function bindTextureUnit(unit, uniform, texture) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.uniform1i(uniform, unit);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 
     function bindAttribute(location, buffer, size) {

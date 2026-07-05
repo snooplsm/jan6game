@@ -160,7 +160,7 @@ Then open:
 http://127.0.0.1:8765/viewer.html
 ```
 
-The viewer reads `generated/data/material_texture_manifest.json` and can preview the generated basecolor texture maps on the OBJ geometry. For browser performance, the full 4096px production maps are downsampled to 1024px WebGL preview textures at load time; Unreal still imports the original 4K basecolor, normal, roughness, and ambient-occlusion maps.
+The viewer reads `generated/data/material_texture_manifest.json` and can preview the generated texture sets with a lightweight PBR-style shader using basecolor, normal, roughness, and ambient-occlusion maps on the OBJ geometry. For browser performance, the full 4096px production maps are downsampled at load time to 1024px basecolor previews and 512px supporting-map previews; Unreal still imports the original 4K basecolor, normal, roughness, and ambient-occlusion maps.
 
 Interior-only quick link:
 
@@ -322,7 +322,7 @@ The viewer can toggle:
 - Capitol visual details, facade details, and public approach furniture
 - public interior schematic
 - gameplay item props
-- basecolor texture preview
+- PBR texture preview
 - labels
 
 Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, first-person whole-map walk inspection, first-person public-interior walk inspection, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, public art details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, public art labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
