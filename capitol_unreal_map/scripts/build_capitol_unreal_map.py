@@ -4835,6 +4835,46 @@ def add_chamber_realism_details(
             obj.add_box(indicator_center, indicator_size, 0.035, z + 0.52, f"{name}_indicator_strip_{idx+1}", "WarmLightGlass")
         add_chamber_detail_record(records, name, "public_display_board", chamber, (x, y, z + 0.52), size)
 
+    def chamber_wall_panel(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+    ) -> None:
+        x, y = center
+        obj.add_box(center, size, height, z, f"{name}_field", "PaintingCanvas")
+        obj.add_box(center, (size[0] * 1.28, size[1] * 1.16), 0.085, z - 0.05, f"{name}_lower_trim", "InteriorTrim")
+        obj.add_box(center, (size[0] * 1.28, size[1] * 1.16), 0.085, z + height - 0.03, f"{name}_upper_trim", "InteriorTrim")
+        add_chamber_detail_record(records, name, "chamber_wall_acoustic_panel", chamber, (x, y, z + height / 2.0), size)
+
+    def chamber_wall_sconce(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+    ) -> None:
+        x, y = center
+        obj.add_box(center, (size[0] * 1.35, size[1] * 1.35), 0.52, z, f"{name}_metal_backplate", "LightFixtureMetal")
+        obj.add_box(center, size, 0.34, z + 0.10, f"{name}_warm_glass", "WarmLightGlass")
+        add_chamber_detail_record(records, name, "chamber_wall_sconce_fixture", chamber, (x, y, z + 0.26), size)
+
+    def chamber_wall_pilaster(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+    ) -> None:
+        x, y = center
+        obj.add_box(center, size, height, z, f"{name}_shaft", "InteriorTrim")
+        obj.add_box(center, (size[0] * 1.45, size[1] * 1.45), 0.16, z - 0.06, f"{name}_base", "BrassRail")
+        obj.add_box(center, (size[0] * 1.45, size[1] * 1.45), 0.16, z + height - 0.02, f"{name}_capital", "BrassRail")
+        add_chamber_detail_record(records, name, "chamber_wall_pilaster_strip", chamber, (x, y, z + height / 2.0), size)
+
     # House chamber public visual details.
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
@@ -4898,6 +4938,19 @@ def add_chamber_realism_details(
         gallery_support_column(f"house_gallery_rear_support_column_{idx:02d}", "House Chamber", (x, -103.15), 4.88, 2.00)
     public_display_board("house_west_public_display_board", "House Chamber", (-30.8, -68.0), (0.10, 5.4), 6.25, "east_west")
     public_display_board("house_east_public_display_board", "House Chamber", (30.8, -68.0), (0.10, 5.4), 6.25, "east_west")
+    for side, x in [("west", -30.85), ("east", 30.85)]:
+        for panel_index, y in enumerate([-56.0, -61.0, -66.0, -71.0, -76.0, -81.0, -86.0, -91.0], start=1):
+            chamber_wall_panel(f"house_{side}_wall_acoustic_panel_{panel_index:02d}", "House Chamber", (x, y), (0.16, 2.15), 5.10, 1.38)
+        for sconce_index, y in enumerate([-58.5, -66.5, -74.5, -82.5, -90.5], start=1):
+            chamber_wall_sconce(f"house_{side}_wall_sconce_{sconce_index:02d}", "House Chamber", (x, y), (0.13, 0.52), 6.34)
+        for pilaster_index, y in enumerate([-53.0, -59.0, -65.0, -71.0, -77.0, -83.0, -89.0, -94.0], start=1):
+            chamber_wall_pilaster(f"house_{side}_wall_pilaster_{pilaster_index:02d}", "House Chamber", (x, y), (0.18, 0.28), 4.92, 2.28)
+    for panel_index, x in enumerate([-28.0, -20.0, -12.0, -4.0, 4.0, 12.0, 20.0, 28.0], start=1):
+        chamber_wall_panel(f"house_rear_gallery_wall_panel_{panel_index:02d}", "House Chamber", (x, -103.55), (3.05, 0.16), 5.28, 1.12)
+    for sconce_index, x in enumerate([-24.0, -12.0, 0.0, 12.0, 24.0], start=1):
+        chamber_wall_sconce(f"house_rear_gallery_wall_sconce_{sconce_index:02d}", "House Chamber", (x, -103.75), (0.44, 0.12), 6.48)
+    for pilaster_index, x in enumerate([-32.0, -24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0, 32.0], start=1):
+        chamber_wall_pilaster(f"house_rear_gallery_wall_pilaster_{pilaster_index:02d}", "House Chamber", (x, -103.9), (0.24, 0.18), 5.02, 2.05)
 
     # Senate chamber public visual details.
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
@@ -4962,8 +5015,21 @@ def add_chamber_realism_details(
         gallery_support_column(f"senate_gallery_rear_support_column_{idx:02d}", "Senate Chamber", (x, 100.85), 4.88, 1.92)
     public_display_board("senate_west_public_display_board", "Senate Chamber", (-23.8, 70.0), (0.10, 4.6), 6.15, "east_west")
     public_display_board("senate_east_public_display_board", "Senate Chamber", (23.8, 70.0), (0.10, 4.6), 6.15, "east_west")
+    for side, x in [("west", -23.85), ("east", 23.85)]:
+        for panel_index, y in enumerate([62.0, 66.5, 71.0, 75.5, 80.0, 84.5], start=1):
+            chamber_wall_panel(f"senate_{side}_wall_acoustic_panel_{panel_index:02d}", "Senate Chamber", (x, y), (0.16, 1.85), 5.06, 1.28)
+        for sconce_index, y in enumerate([64.0, 72.0, 80.0, 86.0], start=1):
+            chamber_wall_sconce(f"senate_{side}_wall_sconce_{sconce_index:02d}", "Senate Chamber", (x, y), (0.12, 0.48), 6.28)
+        for pilaster_index, y in enumerate([60.2, 65.0, 69.8, 74.6, 79.4, 84.2, 88.2], start=1):
+            chamber_wall_pilaster(f"senate_{side}_wall_pilaster_{pilaster_index:02d}", "Senate Chamber", (x, y), (0.17, 0.24), 4.90, 2.12)
+    for panel_index, x in enumerate([-21.0, -14.0, -7.0, 0.0, 7.0, 14.0, 21.0], start=1):
+        chamber_wall_panel(f"senate_rear_gallery_wall_panel_{panel_index:02d}", "Senate Chamber", (x, 101.35), (2.75, 0.15), 5.24, 1.05)
+    for sconce_index, x in enumerate([-18.0, -9.0, 0.0, 9.0, 18.0], start=1):
+        chamber_wall_sconce(f"senate_rear_gallery_wall_sconce_{sconce_index:02d}", "Senate Chamber", (x, 101.58), (0.40, 0.12), 6.42)
+    for pilaster_index, x in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
+        chamber_wall_pilaster(f"senate_rear_gallery_wall_pilaster_{pilaster_index:02d}", "Senate Chamber", (x, 101.72), (0.22, 0.16), 4.98, 1.96)
 
-    add_label(labels, "House and Senate chamber rails, dais steps, flags, and aisle trim - schematic", 0.0, -43.0, 7.7, "chamber_detail")
+    add_label(labels, "House and Senate chamber rails, dais steps, flags, aisle trim, wall panels, and sconces - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
 
 def add_public_circulation_record(

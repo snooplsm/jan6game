@@ -31,8 +31,8 @@
     "seating_sections": 16,
     "regular_session_seating_sections": 7,
     "joint_session_seating_sections": 9,
-    "chamber_details": 6486,
-    "chamber_detail_kinds": 36,
+    "chamber_details": 6603,
+    "chamber_detail_kinds": 39,
     "circulation_details": 105,
     "circulation_detail_kinds": 9,
     "signage_details": 53,
@@ -241,12 +241,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 173557,
-      "uvs": 520020,
-      "faces": 123403,
-      "faces_with_uvs": 123403,
-      "triangles": 273214,
-      "groups": 17558,
+      "vertices": 176141,
+      "uvs": 527772,
+      "faces": 125341,
+      "faces_with_uvs": 125341,
+      "triangles": 277090,
+      "groups": 17881,
       "materials": [
         "ArtFrameGold",
         "BrassRail",
@@ -299,7 +299,7 @@
         ],
         "max": [
           7521.0,
-          10173.0,
+          10183.6,
           938.0
         ]
       }
