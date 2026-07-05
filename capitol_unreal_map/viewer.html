@@ -225,6 +225,7 @@
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickSurfaceAgingDetails" href="#surface-aging-details">Surface Aging</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
+      <a class="quick-link" id="quickWalkMap" href="#walk-map">Walk Map</a>
       <a class="quick-link" id="quickWalkInterior" href="#walk">Walk Interior</a>
       <a class="quick-link" id="quickInteriorOnly" href="#interior-only">Interior Only</a>
       <a class="quick-link" id="quickInteriorPlan" href="#interior-plan">Interior Plan</a>
@@ -266,6 +267,7 @@
       <button id="presetFloorDetails">Floor Details</button>
       <button id="presetSurfaceAgingDetails">Surface Aging</button>
       <button id="presetCeilingDetails">Ceiling Details</button>
+      <button id="presetWalkMap">Walk Map</button>
       <button id="presetWalkInterior">Walk Interior</button>
       <button id="presetGameplay">Gameplay Items</button>
     </div>
@@ -319,7 +321,7 @@
       <span>Labels</span><strong>0</strong>
     </div>
 
-    <p class="hint">Orbit: drag, wheel, shift-drag. Walk Interior: click the viewport for mouse look; WASD or arrow keys move; shift moves faster; Q/E adjusts height; Esc releases mouse.</p>
+    <p class="hint">Orbit: drag, wheel, shift-drag. Walk modes: click the viewport for mouse look; WASD or arrow keys move; shift moves faster; Q/E adjusts height; Esc releases mouse.</p>
   </aside>
 
   <script>
@@ -382,6 +384,7 @@
       distance: 180000,
       target: [0, 0, 2200],
       cameraMode: "orbit",
+      walkPreset: "",
       walkPosition: [0, -1400, 570],
       walkYaw: 0,
       walkPitch: 0,
@@ -503,6 +506,7 @@
     document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
     document.getElementById("presetSurfaceAgingDetails").onclick = () => focusSurfaceAgingDetailsRoute();
     document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
+    document.getElementById("presetWalkMap").onclick = () => focusWalkMapRoute();
     document.getElementById("presetWalkInterior").onclick = () => focusWalkInteriorRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
 
@@ -564,6 +568,11 @@
     document.getElementById("quickCeilingDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusCeilingDetailsRoute();
+    });
+
+    document.getElementById("quickWalkMap").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusWalkMapRoute();
     });
 
     document.getElementById("quickWalkInterior").addEventListener("click", (event) => {
@@ -1514,8 +1523,34 @@
       document.getElementById("categoryFilter").value = "";
       document.getElementById("labelSearch").value = "";
 
-      setWalkCamera([0, -1400, 570], 0, -0.03);
+      setWalkCamera([0, -1400, 570], 0, -0.03, "interior");
       statusEl.textContent = "Walk Interior mode active. Click the viewport to lock mouse look; Esc releases it.";
+    }
+
+    function focusWalkMap() {
+      setMeshVisible("capitol_exterior_buildings", true);
+      setMeshVisible("capitol_exterior_roads_bike_lanes_markers", true);
+      setMeshVisible("capitol_landmark_visual_details", true);
+      setMeshVisible("capitol_public_interior_schematic", true);
+      setMeshVisible("capitol_gameplay_items", false);
+      state.labelsVisible = false;
+      document.getElementById("labelsToggle").checked = false;
+      labelLayer.style.display = "none";
+
+      state.labelCategory = "";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "";
+      document.getElementById("labelSearch").value = "";
+
+      setWalkCamera([-10500, 0, 180], Math.PI / 2, 0.02, "map");
+      statusEl.textContent = "Walk Map mode active at west front. Click the viewport to lock mouse look; Esc releases it.";
+    }
+
+    function focusWalkMapRoute() {
+      if (window.location.hash !== "#walk-map") {
+        history.pushState(null, "", "#walk-map");
+      }
+      focusWalkMap();
     }
 
     function focusWalkInteriorRoute() {
@@ -1805,6 +1840,10 @@
         focusCeilingDetails();
         return;
       }
+      if (route === "walk-map" || route === "map-walk" || route === "walk-exterior" || route === "first-person-map") {
+        focusWalkMap();
+        return;
+      }
       if (route === "walk" || route === "walk-interior" || route === "first-person" || route === "walkthrough") {
         focusWalkInterior();
         return;
@@ -1898,6 +1937,7 @@
         document.exitPointerLock();
       }
       state.cameraMode = "orbit";
+      state.walkPreset = "";
       state.walkKeys.clear();
       state.yaw = yaw;
       state.pitch = pitch;
@@ -1906,8 +1946,9 @@
       updateCameraModeUi();
     }
 
-    function setWalkCamera(position, yaw, pitch) {
+    function setWalkCamera(position, yaw, pitch, preset = "") {
       state.cameraMode = "walk";
+      state.walkPreset = preset;
       state.walkPosition = position.slice();
       state.walkYaw = yaw;
       state.walkPitch = pitch;
@@ -1980,8 +2021,8 @@
     function onPointerLockChange() {
       if (state.cameraMode !== "walk") return;
       statusEl.textContent = document.pointerLockElement === canvas
-        ? "Walk Interior mouse look active. Esc releases mouse."
-        : "Walk Interior mode active. Click the viewport to lock mouse look; Esc releases it.";
+        ? "Walk mouse look active. Esc releases mouse."
+        : "Walk mode active. Click the viewport to lock mouse look; Esc releases it.";
     }
 
     function onKeyDown(event) {
@@ -2026,9 +2067,14 @@
     }
 
     function updateCameraModeUi() {
+      const walkMapButton = document.getElementById("presetWalkMap");
       const walkButton = document.getElementById("presetWalkInterior");
-      if (!walkButton) return;
-      walkButton.classList.toggle("active", state.cameraMode === "walk");
+      if (walkMapButton) {
+        walkMapButton.classList.toggle("active", state.cameraMode === "walk" && state.walkPreset === "map");
+      }
+      if (walkButton) {
+        walkButton.classList.toggle("active", state.cameraMode === "walk" && state.walkPreset === "interior");
+      }
     }
 
     function clamp(value, min, max) {
