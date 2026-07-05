@@ -154,6 +154,111 @@ ENVIRONMENT_IMPORT_SETUP = {
     "post_process_exposure_min": 0.65,
     "post_process_exposure_max": 1.25,
 }
+PUBLIC_ACCENT_LIGHT_FOLDER = "CapitolMap/Lighting/PublicAccent"
+PUBLIC_ACCENT_LIGHT_TAG = "CapitolMap_PublicAccentLight"
+PUBLIC_ACCENT_LIGHT_LIMIT = 144
+PUBLIC_ACCENT_LIGHT_SETUP = {
+    "public_accent_light_actor_class": "PointLight",
+    "public_accent_light_folder": PUBLIC_ACCENT_LIGHT_FOLDER,
+    "public_accent_light_tag": PUBLIC_ACCENT_LIGHT_TAG,
+    "public_accent_light_limit": PUBLIC_ACCENT_LIGHT_LIMIT,
+    "public_accent_light_cast_shadows": False,
+    "public_accent_light_metadata_sources": [
+        "interior.chamber_details",
+        "interior.circulation_details",
+        "interior.furnishing_details",
+    ],
+}
+PUBLIC_ACCENT_LIGHT_KIND_SETTINGS = {
+    "public_lectern_reading_lamp": {
+        "priority": 10,
+        "max_count": 2,
+        "intensity": 170.0,
+        "attenuation_radius_m": 2.2,
+        "source_radius_cm": 18.0,
+        "soft_source_radius_cm": 36.0,
+        "source_length_cm": 18.0,
+        "z_offset_m": 0.06,
+        "color": [1.0, 0.82, 0.50],
+    },
+    "public_work_table_lamp": {
+        "priority": 12,
+        "max_count": 4,
+        "intensity": 150.0,
+        "attenuation_radius_m": 2.0,
+        "source_radius_cm": 16.0,
+        "soft_source_radius_cm": 32.0,
+        "source_length_cm": 16.0,
+        "z_offset_m": 0.06,
+        "color": [1.0, 0.82, 0.50],
+    },
+    "chamber_public_light_globe": {
+        "priority": 20,
+        "max_count": 28,
+        "intensity": 850.0,
+        "attenuation_radius_m": 6.0,
+        "source_radius_cm": 55.0,
+        "soft_source_radius_cm": 90.0,
+        "source_length_cm": 20.0,
+        "z_offset_m": 0.0,
+        "color": [1.0, 0.84, 0.58],
+    },
+    "chamber_wall_sconce_fixture": {
+        "priority": 30,
+        "max_count": 28,
+        "intensity": 420.0,
+        "attenuation_radius_m": 4.0,
+        "source_radius_cm": 28.0,
+        "soft_source_radius_cm": 55.0,
+        "source_length_cm": 30.0,
+        "z_offset_m": 0.0,
+        "color": [1.0, 0.80, 0.48],
+    },
+    "public_corridor_sconce": {
+        "priority": 40,
+        "max_count": 20,
+        "intensity": 360.0,
+        "attenuation_radius_m": 3.8,
+        "source_radius_cm": 24.0,
+        "soft_source_radius_cm": 48.0,
+        "source_length_cm": 28.0,
+        "z_offset_m": 0.0,
+        "color": [1.0, 0.80, 0.50],
+    },
+    "public_transition_light_pool": {
+        "priority": 50,
+        "max_count": 8,
+        "intensity": 300.0,
+        "attenuation_radius_m": 4.2,
+        "source_radius_cm": 45.0,
+        "soft_source_radius_cm": 90.0,
+        "source_length_cm": 10.0,
+        "z_offset_m": 0.25,
+        "color": [1.0, 0.78, 0.48],
+    },
+    "aisle_step_light": {
+        "priority": 60,
+        "max_count": 24,
+        "intensity": 110.0,
+        "attenuation_radius_m": 1.8,
+        "source_radius_cm": 12.0,
+        "soft_source_radius_cm": 24.0,
+        "source_length_cm": 30.0,
+        "z_offset_m": 0.05,
+        "color": [1.0, 0.74, 0.42],
+    },
+    "display_case_light_strip": {
+        "priority": 70,
+        "max_count": 30,
+        "intensity": 150.0,
+        "attenuation_radius_m": 1.6,
+        "source_radius_cm": 18.0,
+        "soft_source_radius_cm": 36.0,
+        "source_length_cm": 60.0,
+        "z_offset_m": 0.0,
+        "color": [1.0, 0.83, 0.58],
+    },
+}
 FIRST_PERSON_IMPORT_SETUP = {
     "static_mesh_lod_group": "LargeProp",
     "auto_generate_collision": True,
@@ -949,7 +1054,7 @@ def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -
             configure_static_mesh_component(actor.get_component_by_class(unreal.StaticMeshComponent))
 
 
-def spawn_scene_setup() -> None:
+def spawn_scene_setup() -> dict[str, Any]:
     """Add lighting, environment, and first-person spawn helpers."""
     spawn_environment_setup()
 
@@ -969,7 +1074,8 @@ def spawn_scene_setup() -> None:
     spawn_camera_viewpoints()
     spawn_first_person_collision_proxies()
     spawn_navigation_bounds()
-    spawn_metadata_lights()
+    light_stats = spawn_metadata_lights()
+    return {"lighting": light_stats}
 
 
 def spawn_environment_setup() -> None:
@@ -1097,9 +1203,20 @@ def spawn_playtest_pawn() -> None:
         log(f"Playtest pawn setup skipped: {exc}")
 
 
+def is_vector3(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 3 and all(isinstance(item, (int, float)) for item in value)
+
+
 def to_unreal_vector(location_m: list[float]) -> unreal.Vector:
     x, y, z = location_m
     return unreal.Vector(x * 100.0, y * 100.0, z * 100.0)
+
+
+def to_unreal_color(color: list[float]) -> unreal.Color:
+    channels = [max(0.0, min(1.0, float(channel))) for channel in color[:3]]
+    while len(channels) < 3:
+        channels.append(1.0)
+    return unreal.Color(int(channels[0] * 255), int(channels[1] * 255), int(channels[2] * 255), 255)
 
 
 def look_at_rotation(location_m: list[float], target_m: list[float]) -> unreal.Rotator:
@@ -1185,10 +1302,64 @@ def spawn_first_person_collision_proxies() -> None:
             log(f"First-person collision proxy skipped ({proxy.get('label', '<unknown>')}): {exc}")
 
 
-def spawn_metadata_lights() -> None:
+def build_public_accent_light_specs(data: dict[str, Any]) -> tuple[list[dict[str, Any]], int]:
+    """Convert visible public fixture-detail records into capped Unreal PointLight specs."""
+    interior = data.get("interior", {})
+    candidates: list[dict[str, Any]] = []
+    for collection_name in ["chamber_details", "circulation_details", "furnishing_details"]:
+        for detail in interior.get(collection_name, []):
+            kind = detail.get("kind")
+            if kind not in PUBLIC_ACCENT_LIGHT_KIND_SETTINGS:
+                continue
+            location_m = detail.get("light_m") or detail.get("center_m")
+            if not is_vector3(location_m):
+                continue
+            settings = PUBLIC_ACCENT_LIGHT_KIND_SETTINGS[kind]
+            location_with_offset = [
+                float(location_m[0]),
+                float(location_m[1]),
+                float(location_m[2]) + float(settings.get("z_offset_m", 0.0)),
+            ]
+            candidates.append(
+                {
+                    "name": detail.get("name", f"{kind}_{len(candidates) + 1:03d}"),
+                    "kind": kind,
+                    "metadata_source": f"interior.{collection_name}",
+                    "center_m": location_with_offset,
+                    "priority": int(settings.get("priority", 100)),
+                    "intensity": float(detail.get("intensity", settings["intensity"])),
+                    "attenuation_radius_m": float(detail.get("attenuation_radius_m", settings["attenuation_radius_m"])),
+                    "source_radius_cm": float(settings.get("source_radius_cm", 16.0)),
+                    "soft_source_radius_cm": float(settings.get("soft_source_radius_cm", 32.0)),
+                    "source_length_cm": float(settings.get("source_length_cm", 0.0)),
+                    "color": detail.get("color", settings["color"]),
+                }
+            )
+
+    selected: list[dict[str, Any]] = []
+    for kind, settings in sorted(PUBLIC_ACCENT_LIGHT_KIND_SETTINGS.items(), key=lambda item: item[1].get("priority", 100)):
+        kind_specs = sorted((spec for spec in candidates if spec["kind"] == kind), key=lambda spec: spec["name"])
+        selected.extend(kind_specs[: int(settings.get("max_count", PUBLIC_ACCENT_LIGHT_LIMIT))])
+    selected.sort(key=lambda spec: (spec["priority"], spec["kind"], spec["name"]))
+    return selected[:PUBLIC_ACCENT_LIGHT_LIMIT], len(candidates)
+
+
+def spawn_metadata_lights() -> dict[str, Any]:
+    stats: dict[str, Any] = {
+        "metadata_light_fixture_count": 0,
+        "exterior_streetlight_actor_count": 0,
+        "grounds_walk_lamp_actor_count": 0,
+        "landmark_facade_light_actor_count": 0,
+        "public_accent_light_candidate_count": 0,
+        "public_accent_light_actor_count": 0,
+        "public_accent_light_limit": PUBLIC_ACCENT_LIGHT_LIMIT,
+        "public_accent_light_kinds": [],
+        "spawned_light_type_counts": {},
+    }
     try:
         data = load_metadata()
         fixtures = list(data.get("interior", {}).get("light_fixtures", []))
+        stats["metadata_light_fixture_count"] = len(fixtures)
         exterior_streetlights = [
             prop
             for prop in data.get("exterior", {}).get("streetscape_props", [])
@@ -1204,9 +1375,12 @@ def spawn_metadata_lights() -> None:
             for detail in data.get("landmark", {}).get("facade_details", [])
             if detail.get("kind") in {"public_entry_lamp", "facade_uplight"} and detail.get("light_m")
         ]
+        public_accent_lights, public_accent_candidate_count = build_public_accent_light_specs(data)
+        stats["public_accent_light_candidate_count"] = public_accent_candidate_count
+        stats["public_accent_light_kinds"] = sorted({spec["kind"] for spec in public_accent_lights})
     except Exception as exc:
         log(f"Lighting metadata skipped: {exc}")
-        return
+        return stats
     for prop in exterior_streetlights:
         fixtures.append(
             {
@@ -1243,6 +1417,29 @@ def spawn_metadata_lights() -> None:
                 "color": detail.get("color", [1.0, 0.80, 0.55]),
             }
         )
+    for spec in public_accent_lights:
+        fixtures.append(
+            {
+                "name": spec["name"],
+                "type": "public_accent_light",
+                "kind": spec["kind"],
+                "location": spec["metadata_source"],
+                "center_m": spec["center_m"],
+                "intensity": spec["intensity"],
+                "attenuation_radius_m": spec["attenuation_radius_m"],
+                "color": spec["color"],
+                "source_radius_cm": spec["source_radius_cm"],
+                "soft_source_radius_cm": spec["soft_source_radius_cm"],
+                "source_length_cm": spec["source_length_cm"],
+                "cast_shadows": PUBLIC_ACCENT_LIGHT_SETUP["public_accent_light_cast_shadows"],
+                "folder": PUBLIC_ACCENT_LIGHT_FOLDER,
+                "tags": [
+                    "CapitolMap_Light",
+                    PUBLIC_ACCENT_LIGHT_TAG,
+                    f"CapitolMap_AccentKind_{spec['kind']}",
+                ],
+            }
+        )
     for fixture in fixtures:
         try:
             light = unreal.EditorLevelLibrary.spawn_actor_from_class(
@@ -1251,14 +1448,30 @@ def spawn_metadata_lights() -> None:
             )
             if not light:
                 continue
-            light.set_actor_label(f"CapitolMap_Light_{fixture['name']}")
-            light.set_folder_path("CapitolMap/Lighting")
+            fixture_type = fixture.get("type", "metadata_light")
+            label_prefix = "CapitolMap_AccentLight" if fixture_type == "public_accent_light" else "CapitolMap_Light"
+            light.set_actor_label(f"{label_prefix}_{fixture['name']}")
+            light.set_folder_path(fixture.get("folder", "CapitolMap/Lighting"))
+            set_actor_tags(light, fixture.get("tags", ["CapitolMap_Light"]))
             component = light.get_component_by_class(unreal.PointLightComponent)
             if component:
                 set_property(component, "intensity", float(fixture.get("intensity", 650.0)))
                 set_property(component, "attenuation_radius", float(fixture.get("attenuation_radius_m", 7.0)) * 100.0)
-                color = fixture.get("color", [1.0, 0.82, 0.52])
-                set_property(component, "light_color", unreal.Color(int(color[0] * 255), int(color[1] * 255), int(color[2] * 255), 255))
+                set_property(component, "light_color", to_unreal_color(fixture.get("color", [1.0, 0.82, 0.52])))
+                set_property(component, "source_radius", float(fixture.get("source_radius_cm", 20.0)))
+                set_property(component, "soft_source_radius", float(fixture.get("soft_source_radius_cm", 35.0)))
+                set_property(component, "source_length", float(fixture.get("source_length_cm", 0.0)))
+                set_property(component, "cast_shadows", bool(fixture.get("cast_shadows", True)))
+            spawned_counts = stats["spawned_light_type_counts"]
+            spawned_counts[fixture_type] = spawned_counts.get(fixture_type, 0) + 1
+            if fixture_type == "exterior_streetlight":
+                stats["exterior_streetlight_actor_count"] += 1
+            elif fixture_type == "public_grounds_walk_lamp":
+                stats["grounds_walk_lamp_actor_count"] += 1
+            elif fixture_type in {"public_entry_lamp", "facade_uplight"}:
+                stats["landmark_facade_light_actor_count"] += 1
+            elif fixture_type == "public_accent_light":
+                stats["public_accent_light_actor_count"] += 1
         except Exception as exc:
             log(f"Light fixture skipped ({fixture.get('name', '<unknown>')}): {exc}")
     if exterior_streetlights or grounds_walk_lamps or landmark_facade_lights:
@@ -1268,6 +1481,12 @@ def spawn_metadata_lights() -> None:
             f"{len(grounds_walk_lamps)} public grounds walk lamps and "
             f"{len(landmark_facade_lights)} Capitol facade lights"
         )
+    if public_accent_lights:
+        log(
+            "Spawned public accent lights from chamber/circulation/furnishing details: "
+            f"{stats['public_accent_light_actor_count']} actors from {stats['public_accent_light_candidate_count']} candidates"
+        )
+    return stats
 
 
 def label_color(category: str) -> unreal.Color:
@@ -1358,9 +1577,11 @@ def write_unreal_import_report(
     material_assets: dict[str, str],
     texture_assets: dict[str, dict[str, str]],
     material_texture_bindings: dict[str, str],
+    scene_setup_stats: dict[str, Any] | None = None,
 ) -> None:
     try:
         data = load_metadata()
+        public_accent_light_specs, public_accent_light_candidate_count = build_public_accent_light_specs(data)
         report = {
             "ok": True,
             "map_asset_path": MAP_ASSET_PATH,
@@ -1380,6 +1601,9 @@ def write_unreal_import_report(
             "texture_set_count": len(texture_assets),
             "texture_asset_count": sum(len(value) for value in texture_assets.values()),
             "environment_setup": ENVIRONMENT_IMPORT_SETUP,
+            "public_accent_light_setup": PUBLIC_ACCENT_LIGHT_SETUP,
+            "public_accent_light_kind_settings": PUBLIC_ACCENT_LIGHT_KIND_SETTINGS,
+            "scene_setup_stats": scene_setup_stats or {},
             "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
             "collision_proxy_setup": FIRST_PERSON_COLLISION_PROXIES,
             "metadata_counts": {
@@ -1410,6 +1634,8 @@ def write_unreal_import_report(
                 "signage_details": len(data.get("interior", {}).get("signage_details", [])),
                 "door_details": len(data.get("interior", {}).get("door_details", [])),
                 "furnishing_details": len(data.get("interior", {}).get("furnishing_details", [])),
+                "public_accent_light_candidates": public_accent_light_candidate_count,
+                "public_accent_lights": len(public_accent_light_specs),
                 "wall_finish_details": len(data.get("interior", {}).get("wall_finish_details", [])),
                 "rotunda_details": len(data.get("interior", {}).get("rotunda_details", [])),
                 "ceiling_details": len(data.get("interior", {}).get("ceiling_details", [])),
@@ -1439,10 +1665,10 @@ def main() -> None:
     texture_assets, material_texture_bindings = import_texture_assets()
     material_assets = create_or_update_materials(texture_assets, material_texture_bindings)
     spawn_mesh_actors(imported, material_assets)
-    spawn_scene_setup()
+    scene_setup_stats = spawn_scene_setup()
     spawn_metadata_labels()
     save_generated_level()
-    write_unreal_import_report(imported, material_assets, texture_assets, material_texture_bindings)
+    write_unreal_import_report(imported, material_assets, texture_assets, material_texture_bindings, scene_setup_stats)
     log(f"Done. Check {MAP_ASSET_PATH} and the CapitolMap folders in the World Outliner.")
 
 
