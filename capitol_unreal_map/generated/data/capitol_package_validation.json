@@ -106,7 +106,7 @@
   },
   "unreal_project_config": {
     "files": 3,
-    "required_markers": 15,
+    "required_markers": 26,
     "missing": {}
   },
   "viewer": {
