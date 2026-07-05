@@ -5226,6 +5226,19 @@ def add_public_interior_wall_finish_details(
             size,
         )
 
+    def add_wall_surface_decal(
+        name: str,
+        room: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+        kind: str,
+        material: str = "StoneGrimeOverlay",
+    ) -> None:
+        obj.add_box(center, size, height, z, name, material)
+        add_wall_finish_detail_record(records, name, kind, room, (center[0], center[1], z + height / 2.0), size)
+
     def add_architrave(
         name: str,
         room: str,
@@ -5279,12 +5292,24 @@ def add_public_interior_wall_finish_details(
         add_picture_rail(f"{name}_south_picture_rail", room, (cx, south_y), (sx * 0.94, 0.09))
         add_picture_rail(f"{name}_east_picture_rail", room, (east_x, cy), (0.09, sy * 0.94))
         add_picture_rail(f"{name}_west_picture_rail", room, (west_x, cy), (0.09, sy * 0.94))
+        add_wall_surface_decal(f"{name}_north_baseboard_grime_decal", room, (cx, north_y - 0.018), (sx * 0.86, 0.046), baseboard_z + 0.18, 0.072, "baseboard_grime_decal")
+        add_wall_surface_decal(f"{name}_south_baseboard_grime_decal", room, (cx, south_y + 0.018), (sx * 0.86, 0.046), baseboard_z + 0.18, 0.072, "baseboard_grime_decal")
+        add_wall_surface_decal(f"{name}_east_baseboard_grime_decal", room, (east_x - 0.018, cy), (0.046, sy * 0.86), baseboard_z + 0.18, 0.072, "baseboard_grime_decal")
+        add_wall_surface_decal(f"{name}_west_baseboard_grime_decal", room, (west_x + 0.018, cy), (0.046, sy * 0.86), baseboard_z + 0.18, 0.072, "baseboard_grime_decal")
+        add_wall_surface_decal(f"{name}_north_wall_patina_decal", room, (cx - sx * 0.20, north_y - 0.022), (sx * 0.22, 0.040), 5.34, 0.42, "wall_patina_decal")
+        add_wall_surface_decal(f"{name}_south_wall_patina_decal", room, (cx + sx * 0.20, south_y + 0.022), (sx * 0.22, 0.040), 5.28, 0.38, "wall_patina_decal")
+        add_wall_surface_decal(f"{name}_east_wall_patina_decal", room, (east_x - 0.022, cy + sy * 0.20), (0.040, sy * 0.22), 5.32, 0.40, "wall_patina_decal")
+        add_wall_surface_decal(f"{name}_west_wall_patina_decal", room, (west_x + 0.022, cy - sy * 0.20), (0.040, sy * 0.22), 5.30, 0.38, "wall_patina_decal")
 
         for index in range(panel_count_long):
             x = cx - sx / 2.0 + sx * (index + 0.5) / panel_count_long
             width = sx / panel_count_long * 0.64
             add_frame(f"{name}_north_wainscot_frame_{index+1:02d}", room, (x, north_y), width, "east_west", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
             add_frame(f"{name}_south_wainscot_frame_{index+1:02d}", room, (x, south_y), width, "east_west", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
+            if index % 3 == 1:
+                rub_size = (width * 0.36, 0.044)
+                add_wall_surface_decal(f"{name}_north_wainscot_rub_mark_{index+1:02d}", room, (x - width * 0.12, north_y - 0.030), rub_size, panel_bottom_z + 0.30, 0.055, "wainscot_rub_mark", "FloorWear")
+                add_wall_surface_decal(f"{name}_south_wainscot_rub_mark_{index+1:02d}", room, (x + width * 0.10, south_y + 0.030), rub_size, panel_bottom_z + 0.24, 0.055, "wainscot_rub_mark", "FloorWear")
             if index % 2 == 0:
                 upper_width = sx / panel_count_long * 0.72
                 add_frame(f"{name}_north_upper_wall_frame_{index+1:02d}", room, (x, north_y), upper_width, "east_west", "upper_wall_panel_frame", upper_z, 0.72, "ArtFrameGold")
@@ -5296,6 +5321,10 @@ def add_public_interior_wall_finish_details(
             width = sy / panel_count_short * 0.64
             add_frame(f"{name}_east_wainscot_frame_{index+1:02d}", room, (east_x, y), width, "north_south", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
             add_frame(f"{name}_west_wainscot_frame_{index+1:02d}", room, (west_x, y), width, "north_south", "raised_wainscot_frame", panel_bottom_z, panel_height, "InteriorTrim")
+            if index % 3 == 1:
+                rub_size = (0.044, width * 0.36)
+                add_wall_surface_decal(f"{name}_east_wainscot_rub_mark_{index+1:02d}", room, (east_x - 0.030, y + width * 0.10), rub_size, panel_bottom_z + 0.28, 0.055, "wainscot_rub_mark", "FloorWear")
+                add_wall_surface_decal(f"{name}_west_wainscot_rub_mark_{index+1:02d}", room, (west_x + 0.030, y - width * 0.12), rub_size, panel_bottom_z + 0.26, 0.055, "wainscot_rub_mark", "FloorWear")
             if index % 2 == 0:
                 upper_width = sy / panel_count_short * 0.70
                 add_frame(f"{name}_east_upper_wall_frame_{index+1:02d}", room, (east_x, y), upper_width, "north_south", "upper_wall_panel_frame", upper_z, 0.68, "ArtFrameGold")
@@ -5745,6 +5774,40 @@ def add_public_interior_floor_details(
     labels: list[dict[str, Any]],
     records: list[dict[str, Any]],
 ) -> None:
+    def add_marble_vein_decal(
+        name: str,
+        area: str,
+        start: tuple[float, float],
+        end: tuple[float, float],
+        z: float,
+        width: float = 0.038,
+    ) -> None:
+        obj.add_polyline_strip([start, end], width, z, name, "StepStone")
+        center = ((start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0)
+        length = math.hypot(end[0] - start[0], end[1] - start[1])
+        add_public_floor_detail_record(records, name, "marble_vein_decal", area, (center[0], center[1], z), (length, width))
+
+    def add_carpet_pile_variation_decal(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        angle_degrees: float,
+    ) -> None:
+        obj.add_oriented_box(center, size, 0.010, z, math.radians(angle_degrees), name, "FloorWear")
+        add_public_floor_detail_record(records, name, "carpet_pile_variation_decal", area, (center[0], center[1], z + 0.005), size)
+
+    def add_threshold_tarnish_decal(
+        name: str,
+        area: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+    ) -> None:
+        obj.add_box(center, size, 0.012, z, name, "FloorWear")
+        add_public_floor_detail_record(records, name, "threshold_tarnish_decal", area, (center[0], center[1], z + 0.006), size)
+
     public_floor_specs = [
         ("national_statuary_hall_floor", "National Statuary Hall", (28.0, -30.0), (28.0, 18.0), 4, 3, 4.47),
         ("old_senate_chamber_floor", "Old Senate Chamber", (28.0, 30.0), (24.0, 16.0), 4, 3, 4.47),
@@ -5763,6 +5826,15 @@ def add_public_interior_floor_details(
     for name, area, center, size, columns, rows, z in public_floor_specs:
         add_floor_border(obj, records, f"{name}_stone_border", area, center, size, z, "floor_border_strip", "BrassRail")
         add_floor_tile_grid(obj, records, f"{name}_tile_grid", area, center, size, columns, rows, z + 0.04)
+        cx, cy = center
+        sx, sy = size
+        vein_length = min(sx, sy) * 0.28
+        for vein_index in range(4):
+            x = cx - sx * 0.30 + sx * 0.20 * vein_index
+            y = cy - sy * 0.24 + sy * 0.13 * ((vein_index * 2) % 5)
+            start = (x - vein_length * 0.50, y - vein_length * 0.16)
+            end = (x + vein_length * 0.50, y + vein_length * 0.16)
+            add_marble_vein_decal(f"{name}_marble_vein_decal_{vein_index+1:02d}", area, start, end, z + 0.076, width=0.030 + 0.004 * (vein_index % 2))
 
     carpet_specs = [
         ("house_chamber_carpet_border", "House Chamber", (0.0, -80.0), (55.5, 30.5), 4.57, "HouseCarpet"),
@@ -5772,6 +5844,20 @@ def add_public_interior_floor_details(
     ]
     for name, area, center, size, z, material in carpet_specs:
         add_floor_border(obj, records, name, area, center, size, z, "carpet_border_strip", material, thickness=0.22)
+        cx, cy = center
+        sx, sy = size
+        for pile_index in range(6):
+            x = cx - sx * 0.32 + sx * 0.128 * pile_index
+            y = cy + sy * (0.16 if pile_index % 2 == 0 else -0.14)
+            pile_size = (sx * 0.12, 0.085 if sy > 10.0 else 0.060)
+            add_carpet_pile_variation_decal(
+                f"{name}_pile_variation_decal_{pile_index+1:02d}",
+                area,
+                (x, y),
+                pile_size,
+                z + 0.054,
+                -4.0 + pile_index * 1.7,
+            )
 
     threshold_specs = [
         ("west_public_approach_floor_slab", "West terrace public orientation marker", (-55.0, 0.0), (0.90, 8.2), 4.52),
@@ -5786,6 +5872,26 @@ def add_public_interior_floor_details(
     for name, area, center, size, z in threshold_specs:
         obj.add_box(center, size, 0.035, z, name, "StepStone")
         add_public_floor_detail_record(records, name, "public_threshold_slab", area, (center[0], center[1], z + 0.018), size)
+        cx, cy = center
+        sx, sy = size
+        if sx >= sy:
+            tarnish_specs = [
+                ((cx, cy - sy * 0.32), (sx * 0.72, 0.050)),
+                ((cx, cy + sy * 0.32), (sx * 0.64, 0.044)),
+            ]
+        else:
+            tarnish_specs = [
+                ((cx - sx * 0.32, cy), (0.050, sy * 0.72)),
+                ((cx + sx * 0.32, cy), (0.044, sy * 0.64)),
+            ]
+        for tarnish_index, (tarnish_center, tarnish_size) in enumerate(tarnish_specs, start=1):
+            add_threshold_tarnish_decal(
+                f"{name}_threshold_tarnish_decal_{tarnish_index:02d}",
+                area,
+                tarnish_center,
+                tarnish_size,
+                z + 0.043,
+            )
 
     medallion_specs = [
         ("statuary_hall_center_floor_medallion", "National Statuary Hall", (28.0, -30.0), 1.25, 4.53),

@@ -670,6 +670,9 @@ REQUIRED_WALL_FINISH_DETAIL_KINDS = {
     "wall_pilaster",
     "public_architrave_trim",
     "wall_material_variation_panel",
+    "baseboard_grime_decal",
+    "wall_patina_decal",
+    "wainscot_rub_mark",
 }
 
 REQUIRED_ROTUNDA_DETAIL_KINDS = {
@@ -733,8 +736,11 @@ REQUIRED_CEILING_DETAIL_KINDS = {
 REQUIRED_FLOOR_DETAIL_KINDS = {
     "floor_border_strip",
     "marble_tile_joint",
+    "marble_vein_decal",
     "carpet_border_strip",
+    "carpet_pile_variation_decal",
     "public_threshold_slab",
+    "threshold_tarnish_decal",
     "floor_medallion",
     "floor_wear_band",
     "floor_wear_scuff_patch",
@@ -1960,8 +1966,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     wall_finish_rooms = {detail.get("room") for detail in wall_finish_details}
     summary["wall_finish_details"] = len(wall_finish_details)
     summary["wall_finish_detail_kinds"] = len(wall_finish_detail_kinds)
-    if len(wall_finish_details) < 1058:
-        error(errors, f"expected at least 1058 public wall-finish detail records, got {len(wall_finish_details)}")
+    if len(wall_finish_details) < 1260:
+        error(errors, f"expected at least 1260 public wall-finish detail records, got {len(wall_finish_details)}")
     missing_wall_finish_kinds = sorted(REQUIRED_WALL_FINISH_DETAIL_KINDS - wall_finish_detail_kinds)
     if missing_wall_finish_kinds:
         error(errors, f"missing public wall-finish detail kinds: {', '.join(missing_wall_finish_kinds)}")
@@ -1992,6 +1998,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 18 public architrave trim records")
     if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_material_variation_panel"]) < 44:
         error(errors, "expected at least 44 public wall material-variation panel records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "baseboard_grime_decal"]) < 44:
+        error(errors, "expected at least 44 public baseboard grime decal records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "wall_patina_decal"]) < 44:
+        error(errors, "expected at least 44 public wall patina decal records")
+    if len([detail for detail in wall_finish_details if detail.get("kind") == "wainscot_rub_mark"]) < 114:
+        error(errors, "expected at least 114 public wainscot rub-mark records")
     for detail in wall_finish_details:
         if not detail.get("room"):
             error(errors, f"wall-finish detail {detail.get('name', '<unknown>')} is missing room")
@@ -2103,8 +2115,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     floor_detail_kinds = {detail.get("kind") for detail in floor_details}
     summary["floor_details"] = len(floor_details)
     summary["floor_detail_kinds"] = len(floor_detail_kinds)
-    if len(floor_details) < 250:
-        error(errors, f"expected at least 250 public floor detail records, got {len(floor_details)}")
+    if len(floor_details) < 347:
+        error(errors, f"expected at least 347 public floor detail records, got {len(floor_details)}")
     missing_floor_kinds = sorted(REQUIRED_FLOOR_DETAIL_KINDS - floor_detail_kinds)
     if missing_floor_kinds:
         error(errors, f"missing public floor detail kinds: {', '.join(missing_floor_kinds)}")
@@ -2112,10 +2124,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 28 public floor border records")
     if len([detail for detail in floor_details if detail.get("kind") == "marble_tile_joint"]) < 70:
         error(errors, "expected at least 70 public marble tile joint records")
+    if len([detail for detail in floor_details if detail.get("kind") == "marble_vein_decal"]) < 52:
+        error(errors, "expected at least 52 public marble vein decal records")
     if len([detail for detail in floor_details if detail.get("kind") == "carpet_border_strip"]) < 16:
         error(errors, "expected at least 16 public carpet border records")
+    if len([detail for detail in floor_details if detail.get("kind") == "carpet_pile_variation_decal"]) < 24:
+        error(errors, "expected at least 24 public carpet pile-variation decal records")
     if len([detail for detail in floor_details if detail.get("kind") == "public_threshold_slab"]) < 8:
         error(errors, "expected at least 8 public threshold slab records")
+    if len([detail for detail in floor_details if detail.get("kind") == "threshold_tarnish_decal"]) < 16:
+        error(errors, "expected at least 16 public threshold tarnish decal records")
     if len([detail for detail in floor_details if detail.get("kind") == "floor_medallion"]) < 10:
         error(errors, "expected at least 10 public floor medallion records")
     if len([detail for detail in floor_details if detail.get("kind") == "floor_wear_band"]) < 10:
