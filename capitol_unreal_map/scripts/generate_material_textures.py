@@ -29,10 +29,10 @@ PNG_COMPRESSION_LEVEL = int(os.environ.get("CAPITOL_TEXTURE_COMPRESSION", "6"))
 
 
 TEXTURE_SETS: dict[str, dict[str, Any]] = {
-    "limestone": {"base": [0.82, 0.80, 0.72], "roughness": 0.78, "style": "stone", "normal_strength": 3.2},
-    "limestone_light": {"base": [0.88, 0.86, 0.79], "roughness": 0.72, "style": "stone", "normal_strength": 2.8},
-    "limestone_weathered": {"base": [0.62, 0.61, 0.58], "roughness": 0.86, "style": "weathered_stone", "normal_strength": 2.7},
-    "dome_painted": {"base": [0.76, 0.76, 0.72], "roughness": 0.58, "style": "painted_metal", "normal_strength": 1.4},
+    "limestone": {"base": [0.82, 0.80, 0.72], "roughness": 0.78, "style": "ashlar_limestone", "normal_strength": 3.4},
+    "limestone_light": {"base": [0.88, 0.86, 0.79], "roughness": 0.72, "style": "ashlar_limestone", "normal_strength": 3.0},
+    "limestone_weathered": {"base": [0.62, 0.61, 0.58], "roughness": 0.86, "style": "weathered_ashlar_limestone", "normal_strength": 3.0},
+    "dome_painted": {"base": [0.76, 0.76, 0.72], "roughness": 0.58, "style": "painted_dome_panels", "normal_strength": 1.8},
     "step_stone": {"base": [0.50, 0.49, 0.46], "roughness": 0.90, "style": "worn_stone", "normal_strength": 4.0},
     "plaza_stone": {"base": [0.55, 0.53, 0.47], "roughness": 0.88, "style": "pavers", "normal_strength": 3.0},
     "asphalt": {"base": [0.035, 0.037, 0.040], "roughness": 0.94, "style": "asphalt", "normal_strength": 5.0},
@@ -42,12 +42,12 @@ TEXTURE_SETS: dict[str, dict[str, Any]] = {
     "curb_concrete": {"base": [0.68, 0.68, 0.64], "roughness": 0.88, "style": "concrete", "normal_strength": 2.4},
     "bike_lane_green": {"base": [0.035, 0.28, 0.13], "roughness": 0.78, "style": "worn_paint", "normal_strength": 1.8},
     "grass": {"base": [0.13, 0.26, 0.10], "roughness": 0.96, "style": "grass", "normal_strength": 4.0},
-    "polished_wood": {"base": [0.24, 0.12, 0.045], "roughness": 0.46, "style": "wood", "normal_strength": 2.2},
-    "dark_wood": {"base": [0.16, 0.075, 0.028], "roughness": 0.42, "style": "wood", "normal_strength": 2.0},
+    "polished_wood": {"base": [0.24, 0.12, 0.045], "roughness": 0.46, "style": "wood_planks", "normal_strength": 2.5},
+    "dark_wood": {"base": [0.16, 0.075, 0.028], "roughness": 0.42, "style": "wood_planks", "normal_strength": 2.4},
     "leather_dark": {"base": [0.045, 0.038, 0.030], "roughness": 0.44, "style": "leather", "normal_strength": 3.0},
     "brass": {"base": [0.76, 0.56, 0.18], "roughness": 0.34, "style": "brushed_metal", "normal_strength": 1.3},
-    "rotunda_floor": {"base": [0.72, 0.62, 0.45], "roughness": 0.62, "style": "marble", "normal_strength": 2.0},
-    "rotunda_wall": {"base": [0.84, 0.79, 0.69], "roughness": 0.70, "style": "marble", "normal_strength": 1.8},
+    "rotunda_floor": {"base": [0.72, 0.62, 0.45], "roughness": 0.58, "style": "marble_floor", "normal_strength": 2.4},
+    "rotunda_wall": {"base": [0.84, 0.79, 0.69], "roughness": 0.66, "style": "marble_wall", "normal_strength": 2.0},
     "house_carpet": {"base": [0.045, 0.075, 0.25], "roughness": 0.98, "style": "carpet", "normal_strength": 4.5},
     "senate_carpet": {"base": [0.30, 0.035, 0.035], "roughness": 0.98, "style": "carpet", "normal_strength": 4.5},
     "house_blue_fabric": {"base": [0.08, 0.16, 0.42], "roughness": 0.72, "style": "fabric", "normal_strength": 3.2},
@@ -63,7 +63,7 @@ TEXTURE_SETS: dict[str, dict[str, Any]] = {
     "cabinet_blue": {"base": [0.055, 0.12, 0.26], "roughness": 0.72, "style": "fabric", "normal_strength": 1.8},
     "diplomatic_purple": {"base": [0.20, 0.12, 0.26], "roughness": 0.72, "style": "fabric", "normal_strength": 1.8},
     "press_green": {"base": [0.12, 0.15, 0.15], "roughness": 0.78, "style": "fabric", "normal_strength": 1.8},
-    "statue_marble": {"base": [0.74, 0.70, 0.62], "roughness": 0.68, "style": "marble", "normal_strength": 1.9},
+    "statue_marble": {"base": [0.74, 0.70, 0.62], "roughness": 0.68, "style": "marble_wall", "normal_strength": 1.9},
     "statue_bronze": {"base": [0.30, 0.20, 0.10], "roughness": 0.46, "style": "brushed_metal", "normal_strength": 1.4},
     "gilded_frame": {"base": [0.76, 0.54, 0.14], "roughness": 0.32, "style": "brushed_metal", "normal_strength": 1.2},
     "painting_canvas": {"base": [0.38, 0.24, 0.15], "roughness": 0.82, "style": "canvas", "normal_strength": 2.8},
@@ -238,6 +238,15 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
         knots = periodic_knot_field(xx, yy, seed) * 0.36
         long_variation = tile_noise(size, seed + 5, 4) * 0.28
         return np.clip(grain + tight_grain + knots + long_variation + fine * 0.13, 0.0, 1.0)
+    if style == "wood_planks":
+        flow = tile_noise(size, seed + 4, 5) * 7.4
+        grain = (np.sin(xx * 24.0 + flow) + 1.0) * 0.27
+        tight_grain = (np.sin(xx * 86.0 + flow * 1.6) + 1.0) * 0.07
+        plank_seams = band_mask(yy * 6.0 + tile_noise(size, seed + 21, 3) * 0.28, 0.040)
+        end_checks = band_mask(xx * 3.0 + np.sin(yy * 3.0) * 0.65, 0.028) * threshold_soft(plank_seams, 0.25, 0.42)
+        knots = periodic_knot_field(xx, yy, seed) * 0.34
+        plank_tone = (np.sin(yy * 6.0 + seed * 0.001) + 1.0) * 0.08
+        return np.clip(0.18 + grain + tight_grain + knots + plank_tone + fine * 0.10 - plank_seams * 0.34 - end_checks * 0.18, 0.0, 1.0)
     if style == "carpet":
         warp = np.sin(xx * 112.0 + tile_noise(size, seed + 18, 3) * 0.8) * 0.055
         weft = np.sin(yy * 104.0 + tile_noise(size, seed + 19, 3) * 0.8) * 0.055
@@ -260,6 +269,13 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
         seam = band_mask(xx * 9.0 + tile_noise(size, seed + 45, 3) * 1.2, 0.035) * 0.10
         oxidized = threshold_soft(ridges, 0.72, 0.18) * 0.14
         return np.clip(base * 0.26 + fine * 0.17 + seam + oxidized, 0.0, 1.0)
+    if style == "painted_dome_panels":
+        vertical_seams = band_mask(xx * 10.0 + tile_noise(size, seed + 45, 3) * 0.80, 0.030)
+        lateral_bands = band_mask(yy * 4.0 + tile_noise(size, seed + 46, 3) * 0.42, 0.045)
+        oxidized = threshold_soft(ridges, 0.62, 0.26) * 0.16
+        runoff = band_mask(xx * 13.0 + tile_noise(size, seed + 47, 4) * 2.2, 0.036) * threshold_soft(yy, 2.0, 2.6) * 0.15
+        subtle_panels = (np.sin(xx * 10.0 + 0.5) + 1.0) * 0.035
+        return np.clip(base * 0.22 + fine * 0.12 + subtle_panels + oxidized + runoff - vertical_seams * 0.18 - lateral_bands * 0.10, 0.0, 1.0)
     if style == "worn_paint":
         wear = threshold_soft(ridges, 0.72, 0.18) * np.float32(0.42)
         chipped_edges = band_mask(xx * 12.0 + yy * 4.0 + tile_noise(size, seed + 48, 4) * 4.0, 0.032) * 0.18
@@ -271,6 +287,19 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
         veins = band_mask(vein_signal, 0.060)
         secondary = band_mask(xx * 7.0 - yy * 2.0 + tile_noise(size, seed + 10, 4) * 5.0, 0.035)
         return np.clip(base * 0.30 + veins * 0.42 + secondary * 0.20 + fine * 0.10, 0.0, 1.0)
+    if style == "marble_floor":
+        vein_signal = xx * 3.8 + yy * 2.7 + tile_noise(size, seed + 9, 5) * 8.5
+        veins = band_mask(vein_signal, 0.052)
+        secondary = band_mask(xx * 7.4 - yy * 1.8 + tile_noise(size, seed + 10, 4) * 4.8, 0.030)
+        tile_joints = band_mask(xx * 4.0, 0.038) + band_mask(yy * 4.0, 0.038)
+        polish_waves = (np.sin(xx * 2.0 + yy * 1.2 + tile_noise(size, seed + 11, 3) * 1.5) + 1.0) * 0.045
+        return np.clip(base * 0.24 + veins * 0.38 + secondary * 0.18 + polish_waves + fine * 0.08 - tile_joints * 0.28, 0.0, 1.0)
+    if style == "marble_wall":
+        vertical_veins = band_mask(xx * 3.2 + yy * 1.1 + tile_noise(size, seed + 9, 5) * 7.0, 0.050)
+        hairline_veins = band_mask(xx * 8.5 - yy * 1.4 + tile_noise(size, seed + 10, 4) * 4.0, 0.025)
+        slab_joints = band_mask(xx * 4.0, 0.030) * 0.70 + band_mask(yy * 2.0, 0.026) * 0.42
+        cloudy = tile_noise(size, seed + 11, 6) * 0.12
+        return np.clip(base * 0.26 + vertical_veins * 0.36 + hairline_veins * 0.16 + cloudy + fine * 0.07 - slab_joints * 0.22, 0.0, 1.0)
     if style == "pavers":
         grid_x = band_mask(xx * 8.0, 0.050)
         grid_y = band_mask(yy * 8.0 + np.sin(xx * 4.0) * 0.35, 0.050)
@@ -291,6 +320,23 @@ def style_height(style: str, size: int, seed: int) -> np.ndarray:
         rain_streaks = band_mask(xx * 11.0 + tile_noise(size, seed + 62, 4) * 2.0, 0.045) * threshold_soft(ridges, 0.48, 0.35) * 0.24
         mineral_veins = band_mask(xx * 4.0 + yy * 2.0 + tile_noise(size, seed + 63, 5) * 4.0, 0.034) * 0.14
         return np.clip(base * 0.32 + ridges * 0.14 + bedding + pits + rain_streaks + mineral_veins, 0.0, 1.0)
+    if style in {"ashlar_limestone", "weathered_ashlar_limestone"}:
+        course_shift = np.where(np.sin(yy * 4.0) > 0.0, math.pi * 0.46, 0.0)
+        horizontal_joints = band_mask(yy * 8.0 + tile_noise(size, seed + 61, 4) * 0.32, 0.050)
+        vertical_joints = band_mask(xx * 5.0 + course_shift + tile_noise(size, seed + 62, 3) * 0.24, 0.038)
+        block_joints = np.clip(horizontal_joints + vertical_joints, 0.0, 1.0)
+        bedding = band_mask(yy * 18.0 + tile_noise(size, seed + 63, 4) * 0.70, 0.055) * 0.09
+        pits = threshold_soft(fine, 0.76, 0.18) * 0.18
+        mineral_veins = band_mask(xx * 3.2 + yy * 5.1 + tile_noise(size, seed + 64, 5) * 4.0, 0.028) * 0.13
+        weathering = 0.0
+        if style == "weathered_ashlar_limestone":
+            weathering = (
+                band_mask(xx * 10.0 + tile_noise(size, seed + 65, 4) * 2.0, 0.043)
+                * threshold_soft(ridges, 0.42, 0.34)
+                * 0.24
+            )
+        block_variation = (np.sin(xx * 2.5 + seed * 0.001) + np.cos(yy * 3.0 - seed * 0.001)) * 0.035
+        return np.clip(0.42 + base * 0.16 + fine * 0.11 + bedding + pits + mineral_veins + weathering + block_variation - block_joints * 0.36, 0.0, 1.0)
     # stone
     bedding = band_mask(yy * 7.0 + tile_noise(size, seed + 61, 4) * 0.9, 0.065) * 0.10
     mineral_veins = band_mask(xx * 3.0 + yy * 5.0 + tile_noise(size, seed + 63, 5) * 4.0, 0.030) * 0.14
@@ -318,11 +364,28 @@ def color_map(base_color: list[float], height: np.ndarray, style: str, seed: int
 
     if style in {"asphalt", "leather", "brushed_metal"}:
         color *= 0.92 + variation * 0.18
+    elif style in {"painted_dome_panels"}:
+        seam_shadow = np.clip(0.44 - height[:, :, None], 0.0, 1.0)
+        oxidized = np.clip(height[:, :, None] - 0.56, 0.0, 1.0)
+        cool = np.array([-0.025, -0.018, 0.010], dtype=np.float32).reshape(1, 1, 3)
+        grime = np.array([-0.070, -0.065, -0.055], dtype=np.float32).reshape(1, 1, 3)
+        color += cool * oxidized
+        color += grime * seam_shadow
     elif style in {"stone"}:
         warm = np.array([0.035, 0.028, 0.006], dtype=np.float32).reshape(1, 1, 3)
         cool = np.array([-0.018, -0.014, 0.018], dtype=np.float32).reshape(1, 1, 3)
         color += warm * np.clip(height[:, :, None] - 0.56, 0.0, 1.0)
         color += cool * np.clip(0.44 - height[:, :, None], 0.0, 1.0)
+    elif style in {"ashlar_limestone", "weathered_ashlar_limestone"}:
+        warm = np.array([0.040, 0.033, 0.010], dtype=np.float32).reshape(1, 1, 3)
+        cool = np.array([-0.028, -0.025, -0.012], dtype=np.float32).reshape(1, 1, 3)
+        joint_grime = np.array([-0.095, -0.090, -0.078], dtype=np.float32).reshape(1, 1, 3)
+        color += warm * np.clip(height[:, :, None] - 0.58, 0.0, 1.0)
+        color += cool * np.clip(0.50 - height[:, :, None], 0.0, 1.0)
+        color += joint_grime * np.clip(0.34 - height[:, :, None], 0.0, 1.0)
+        if style == "weathered_ashlar_limestone":
+            stain = np.array([-0.080, -0.078, -0.070], dtype=np.float32).reshape(1, 1, 3)
+            color += stain * np.clip(height[:, :, None] - 0.55, 0.0, 1.0)
     elif style in {"weathered_stone"}:
         grime = np.array([-0.12, -0.11, -0.095], dtype=np.float32).reshape(1, 1, 3)
         mineral = np.array([0.055, 0.048, 0.020], dtype=np.float32).reshape(1, 1, 3)
@@ -344,11 +407,23 @@ def color_map(base_color: list[float], height: np.ndarray, style: str, seed: int
     elif style in {"wood"}:
         color += np.array([0.06, 0.024, -0.016], dtype=np.float32).reshape(1, 1, 3) * np.sin(height[:, :, None] * math.tau * 2.0)
         color *= 0.92 + np.clip(height[:, :, None], 0.0, 1.0) * 0.18
+    elif style in {"wood_planks"}:
+        color += np.array([0.060, 0.024, -0.016], dtype=np.float32).reshape(1, 1, 3) * np.sin(height[:, :, None] * math.tau * 2.0)
+        color *= 0.90 + np.clip(height[:, :, None], 0.0, 1.0) * 0.20
+        seam_shadow = np.array([-0.080, -0.045, -0.020], dtype=np.float32).reshape(1, 1, 3)
+        color += seam_shadow * np.clip(0.34 - height[:, :, None], 0.0, 1.0)
     elif style in {"carpet", "fabric", "canvas"}:
         fiber_highlight = np.array([0.035, 0.033, 0.030], dtype=np.float32).reshape(1, 1, 3)
         color += fiber_highlight * np.clip(height[:, :, None] - 0.54, 0.0, 1.0)
     elif style in {"marble"}:
         color += np.array([0.05, 0.045, 0.02], dtype=np.float32).reshape(1, 1, 3) * np.clip(height[:, :, None] - 0.62, 0.0, 1.0)
+    elif style in {"marble_floor", "marble_wall"}:
+        vein_tint = np.array([0.050, 0.045, 0.025], dtype=np.float32).reshape(1, 1, 3)
+        cool_shadow = np.array([-0.045, -0.040, -0.030], dtype=np.float32).reshape(1, 1, 3)
+        polish = np.array([0.025, 0.022, 0.014], dtype=np.float32).reshape(1, 1, 3)
+        color += vein_tint * np.clip(height[:, :, None] - 0.60, 0.0, 1.0)
+        color += cool_shadow * np.clip(0.36 - height[:, :, None], 0.0, 1.0)
+        color += polish * np.clip(height[:, :, None] - 0.48, 0.0, 1.0)
 
     return (np.clip(color, 0.0, 1.0) * 255.0).astype(np.uint8)
 
@@ -357,12 +432,22 @@ def roughness_map(base_roughness: float, height: np.ndarray, style: str) -> np.n
     roughness = base_roughness + (height - 0.5) * 0.16
     if style in {"glass", "brushed_metal"}:
         roughness = base_roughness + (height - 0.5) * 0.08
+    if style in {"painted_dome_panels"}:
+        roughness = base_roughness + height * 0.10 + np.clip(0.42 - height, 0.0, 1.0) * 0.08
     if style in {"weathered_stone", "worn_stone", "concrete", "pavers", "asphalt"}:
         roughness = base_roughness + height * 0.10 - 0.03
+    if style in {"ashlar_limestone", "weathered_ashlar_limestone"}:
+        roughness = base_roughness + height * 0.08 + np.clip(0.36 - height, 0.0, 1.0) * 0.12 - 0.02
+    if style in {"marble_floor"}:
+        roughness = base_roughness + np.clip(0.42 - height, 0.0, 1.0) * 0.16 - np.clip(height - 0.62, 0.0, 1.0) * 0.08
+    if style in {"marble_wall"}:
+        roughness = base_roughness + np.clip(0.42 - height, 0.0, 1.0) * 0.12
     if style in {"carpet", "grass"}:
         roughness = base_roughness + height * 0.04
     if style in {"wood", "leather"}:
         roughness = base_roughness + (height - 0.5) * 0.10
+    if style in {"wood_planks"}:
+        roughness = base_roughness + (height - 0.5) * 0.10 + np.clip(0.34 - height, 0.0, 1.0) * 0.10
     if style in {"worn_paint"}:
         roughness = base_roughness + np.clip(height - 0.45, 0.0, 1.0) * 0.18
     gray = np.clip(roughness, 0.0, 1.0) * 255.0
@@ -409,7 +494,7 @@ def main() -> None:
         "texture_root": "generated/textures",
         "source_type": "deterministic_procedural_local",
         "external_texture_sources": [],
-        "realism_note": "Generated locally from structured procedural material rules: stone bedding, weathering streaks, paver joints, asphalt aggregate/cracks, wood grain/knots, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
+        "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
         "target_size_px": [SIZE, SIZE],
         "png_compression_level": PNG_COMPRESSION_LEVEL,
         "sets": sets,

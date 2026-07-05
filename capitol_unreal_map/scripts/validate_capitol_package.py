@@ -795,6 +795,15 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "pediment_relief_panel",
 }
 
+REQUIRED_TEXTURE_STYLES = {
+    "ashlar_limestone",
+    "weathered_ashlar_limestone",
+    "painted_dome_panels",
+    "wood_planks",
+    "marble_floor",
+    "marble_wall",
+}
+
 
 def error(errors: list[str], message: str) -> None:
     errors.append(message)
@@ -1924,6 +1933,7 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
         "texture_sets": 0,
         "texture_material_bindings": 0,
         "texture_files": 0,
+        "texture_styles": 0,
         "min_texture_size_px": None,
         "expected_min_texture_size_px": MIN_TEXTURE_SIZE_PX,
     }
@@ -1933,8 +1943,10 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
     manifest = json.loads(TEXTURE_MANIFEST_PATH.read_text(encoding="utf-8"))
     sets = manifest.get("sets", {})
     bindings = manifest.get("materials", {})
+    styles = {spec.get("style") for spec in sets.values() if isinstance(spec, dict)}
     summary["texture_sets"] = len(sets)
     summary["texture_material_bindings"] = len(bindings)
+    summary["texture_styles"] = len(styles)
     missing_bindings = sorted(materials - set(bindings))
     if missing_bindings:
         error(errors, f"texture manifest missing material bindings: {', '.join(missing_bindings)}")
@@ -1978,6 +1990,9 @@ def validate_texture_manifest(materials: set[str], errors: list[str]) -> dict[st
             summary["texture_files"] += 1
     if summary["texture_sets"] < 35:
         error(errors, f"expected at least 35 generated texture sets, got {summary['texture_sets']}")
+    missing_styles = sorted(REQUIRED_TEXTURE_STYLES - styles)
+    if missing_styles:
+        error(errors, f"texture manifest missing required realism styles: {', '.join(missing_styles)}")
     return summary
 
 
@@ -2210,6 +2225,7 @@ def main() -> int:
     print(f"Flagpole banner visuals: {metadata_summary.get('flagpole_banners', 0):,}")
     print(f"Realism materials: {material_summary.get('manifest_materials', 0):,}")
     print(f"Texture sets: {texture_summary.get('texture_sets', 0):,}")
+    print(f"Texture styles: {texture_summary.get('texture_styles', 0):,}")
     print(f"Viewpoints: {metadata_summary.get('viewpoints', 0):,}")
     print(f"Unreal importer meshes: {unreal_importer_summary.get('mesh_files', 0):,}")
     print(f"Unreal importer report keys: {unreal_importer_summary.get('report_keys', 0):,}")

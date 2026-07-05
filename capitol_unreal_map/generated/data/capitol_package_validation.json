@@ -68,6 +68,7 @@
     "texture_sets": 43,
     "texture_material_bindings": 71,
     "texture_files": 129,
+    "texture_styles": 19,
     "min_texture_size_px": 4096,
     "expected_min_texture_size_px": 4096
   },

@@ -3,7 +3,7 @@
   "texture_root": "generated/textures",
   "source_type": "deterministic_procedural_local",
   "external_texture_sources": [],
-  "realism_note": "Generated locally from structured procedural material rules: stone bedding, weathering streaks, paver joints, asphalt aggregate/cracks, wood grain/knots, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
+  "realism_note": "Generated locally from structured procedural material rules: ashlar limestone block joints, weathering streaks, marble slab/floor veining, dome panel seams, wood plank seams/grain/knots, paver joints, asphalt aggregate/cracks, textile weave, canvas brush texture, metal brushing, and height-derived normal/roughness maps. These are 4K PBR-style placeholder maps, not scanned or photogrammetry material textures.",
   "target_size_px": [
     4096,
     4096
@@ -132,7 +132,7 @@
       "roughness": "generated/textures/curb_concrete_roughness.png"
     },
     "dark_wood": {
-      "style": "wood",
+      "style": "wood_planks",
       "size_px": [
         4096,
         4096
@@ -154,7 +154,7 @@
       "roughness": "generated/textures/diplomatic_purple_roughness.png"
     },
     "dome_painted": {
-      "style": "painted_metal",
+      "style": "painted_dome_panels",
       "size_px": [
         4096,
         4096
@@ -264,7 +264,7 @@
       "roughness": "generated/textures/leather_dark_roughness.png"
     },
     "limestone": {
-      "style": "stone",
+      "style": "ashlar_limestone",
       "size_px": [
         4096,
         4096
@@ -275,7 +275,7 @@
       "roughness": "generated/textures/limestone_roughness.png"
     },
     "limestone_light": {
-      "style": "stone",
+      "style": "ashlar_limestone",
       "size_px": [
         4096,
         4096
@@ -286,7 +286,7 @@
       "roughness": "generated/textures/limestone_light_roughness.png"
     },
     "limestone_weathered": {
-      "style": "weathered_stone",
+      "style": "weathered_ashlar_limestone",
       "size_px": [
         4096,
         4096
@@ -330,7 +330,7 @@
       "roughness": "generated/textures/plaza_stone_roughness.png"
     },
     "polished_wood": {
-      "style": "wood",
+      "style": "wood_planks",
       "size_px": [
         4096,
         4096
@@ -385,7 +385,7 @@
       "roughness": "generated/textures/road_paint_yellow_roughness.png"
     },
     "rotunda_floor": {
-      "style": "marble",
+      "style": "marble_floor",
       "size_px": [
         4096,
         4096
@@ -396,7 +396,7 @@
       "roughness": "generated/textures/rotunda_floor_roughness.png"
     },
     "rotunda_wall": {
-      "style": "marble",
+      "style": "marble_wall",
       "size_px": [
         4096,
         4096
@@ -440,7 +440,7 @@
       "roughness": "generated/textures/statue_bronze_roughness.png"
     },
     "statue_marble": {
-      "style": "marble",
+      "style": "marble_wall",
       "size_px": [
         4096,
         4096
