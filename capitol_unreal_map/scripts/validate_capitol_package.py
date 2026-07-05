@@ -1412,6 +1412,14 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "public_terrace_landing_slab",
     "public_approach_handrail",
     "public_door_surround",
+    "public_revolving_door_glass_drum",
+    "public_revolving_door_track_ring",
+    "public_revolving_door_center_post",
+    "public_revolving_door_wing_panel",
+    "public_revolving_door_perimeter_mullion",
+    "public_revolving_door_threshold_plate",
+    "public_revolving_door_dark_recess",
+    "public_revolving_door_side_lite",
     "public_entry_lamp",
     "public_facade_sconce",
     "facade_uplight",
@@ -2208,6 +2216,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public approach handrail records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_door_surround"]) < 12:
         error(errors, "expected at least 12 public door surround records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_glass_drum"]) < 12:
+        error(errors, "expected at least 12 public revolving-door glass drum records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_track_ring"]) < 24:
+        error(errors, "expected at least 24 public revolving-door track ring records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_center_post"]) < 12:
+        error(errors, "expected at least 12 public revolving-door center post records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_wing_panel"]) < 48:
+        error(errors, "expected at least 48 public revolving-door wing panel records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_perimeter_mullion"]) < 48:
+        error(errors, "expected at least 48 public revolving-door perimeter mullion records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_threshold_plate"]) < 12:
+        error(errors, "expected at least 12 public revolving-door threshold plate records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_dark_recess"]) < 12:
+        error(errors, "expected at least 12 public revolving-door dark recess records")
+    if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_side_lite"]) < 24:
+        error(errors, "expected at least 24 public revolving-door side-lite records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_entry_lamp"]) < 16:
         error(errors, "expected at least 16 public entry lamp records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_facade_sconce"]) < 16:

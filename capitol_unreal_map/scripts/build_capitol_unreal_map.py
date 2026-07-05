@@ -5683,14 +5683,106 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     def add_revolving_door(name: str, center: tuple[float, float], facade: str) -> None:
         x, y = center
         obj.add_cylinder((x, y), 1.18, 0.14, 2.65, f"{name}_glass_drum", "DoorGlass", segments=28)
+        add_facade_detail(
+            f"{name}_glass_drum",
+            "public_revolving_door_glass_drum",
+            (x, y, 1.465),
+            {"facade": facade, "public_accuracy": "approximate_public_entrance_visual"},
+        )
+        for track_name, track_z in [("floor_track_ring", 0.10), ("ceiling_track_ring", 2.82)]:
+            obj.add_ring((x, y), 1.25, 1.05, track_z, 0.075, f"{name}_{track_name}", "DoorMetal", segments=32)
+            add_facade_detail(
+                f"{name}_{track_name}",
+                "public_revolving_door_track_ring",
+                (x, y, track_z + 0.038),
+                {"facade": facade, "position": track_name, "public_accuracy": "approximate_public_entrance_visual"},
+            )
         obj.add_cylinder((x, y), 0.10, 0.12, 2.85, f"{name}_center_post", "DoorMetal", segments=12)
-        obj.add_box((x, y), (2.15, 0.08), 2.45, 0.22, f"{name}_revolving_panel_a", "DoorGlass")
-        obj.add_box((x, y), (0.08, 2.15), 2.45, 0.22, f"{name}_revolving_panel_b", "DoorGlass")
+        add_facade_detail(
+            f"{name}_center_post",
+            "public_revolving_door_center_post",
+            (x, y, 1.545),
+            {"facade": facade, "public_accuracy": "approximate_public_entrance_visual"},
+        )
+        for wing_index, angle in enumerate([math.radians(18.0), math.radians(108.0), math.radians(198.0), math.radians(288.0)], start=1):
+            wing_center = (x + math.cos(angle) * 0.56, y + math.sin(angle) * 0.56)
+            obj.add_oriented_box(
+                wing_center,
+                (1.12, 0.055),
+                2.38,
+                0.28,
+                angle,
+                f"{name}_radial_glass_wing_{wing_index:02d}",
+                "DoorGlass",
+            )
+            add_facade_detail(
+                f"{name}_radial_glass_wing_{wing_index:02d}",
+                "public_revolving_door_wing_panel",
+                (wing_center[0], wing_center[1], 1.47),
+                {
+                    "facade": facade,
+                    "radial_index": wing_index,
+                    "angle_degrees": round(math.degrees(angle), 1),
+                    "public_accuracy": "approximate_public_entrance_visual",
+                },
+            )
+        for mullion_index, angle in enumerate([math.radians(45.0), math.radians(135.0), math.radians(225.0), math.radians(315.0)], start=1):
+            mullion_center = (x + math.cos(angle) * 1.18, y + math.sin(angle) * 1.18)
+            obj.add_oriented_box(
+                mullion_center,
+                (0.055, 0.22),
+                2.52,
+                0.20,
+                angle + math.pi / 2.0,
+                f"{name}_curved_drum_mullion_{mullion_index:02d}",
+                "DoorMetal",
+            )
+            add_facade_detail(
+                f"{name}_curved_drum_mullion_{mullion_index:02d}",
+                "public_revolving_door_perimeter_mullion",
+                (mullion_center[0], mullion_center[1], 1.46),
+                {
+                    "facade": facade,
+                    "radial_index": mullion_index,
+                    "angle_degrees": round(math.degrees(angle), 1),
+                    "public_accuracy": "approximate_public_entrance_visual",
+                },
+            )
         obj.add_box((x, y), (2.8, 2.8), 0.10, 0.08, f"{name}_threshold_plate", "DoorMetal")
+        add_facade_detail(
+            f"{name}_threshold_plate",
+            "public_revolving_door_threshold_plate",
+            (x, y, 0.13),
+            {"facade": facade, "public_accuracy": "approximate_public_entrance_visual"},
+        )
         if facade in {"east", "west"}:
             obj.add_box((x, y), (0.42, 3.45), 3.05, 0.10, f"{name}_dark_recess", "DoorMetal")
+            for lite_index, y_offset in enumerate([-1.52, 1.52], start=1):
+                lite_center = (x, y + y_offset)
+                obj.add_box(lite_center, (0.14, 0.58), 2.36, 0.36, f"{name}_side_lite_{lite_index:02d}", "DoorGlass")
+                add_facade_detail(
+                    f"{name}_side_lite_{lite_index:02d}",
+                    "public_revolving_door_side_lite",
+                    (lite_center[0], lite_center[1], 1.54),
+                    {"facade": facade, "side_index": lite_index, "public_accuracy": "approximate_public_entrance_visual"},
+                )
         else:
             obj.add_box((x, y), (3.45, 0.42), 3.05, 0.10, f"{name}_dark_recess", "DoorMetal")
+            for lite_index, x_offset in enumerate([-1.52, 1.52], start=1):
+                lite_center = (x + x_offset, y)
+                obj.add_box(lite_center, (0.58, 0.14), 2.36, 0.36, f"{name}_side_lite_{lite_index:02d}", "DoorGlass")
+                add_facade_detail(
+                    f"{name}_side_lite_{lite_index:02d}",
+                    "public_revolving_door_side_lite",
+                    (lite_center[0], lite_center[1], 1.54),
+                    {"facade": facade, "side_index": lite_index, "public_accuracy": "approximate_public_entrance_visual"},
+                )
+        add_facade_detail(
+            f"{name}_dark_recess",
+            "public_revolving_door_dark_recess",
+            (x, y, 1.625),
+            {"facade": facade, "public_accuracy": "approximate_public_entrance_visual"},
+        )
         add_public_door_surround(f"{name}_stone_surround", center, facade)
         add_element(f"{name.replace('_', ' ').title()} revolving door visual", "public_entrance_visual", (x, y, 1.5))
 
