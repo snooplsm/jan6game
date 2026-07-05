@@ -412,6 +412,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickSignageDetails"',
     'id="quickDoorDetails"',
     'id="quickFurnishingDetails"',
+    'id="quickPublicArt"',
     'id="quickWallFinishDetails"',
     'id="quickFloorDetails"',
     'id="quickSurfaceAgingDetails"',
@@ -433,6 +434,7 @@ REQUIRED_VIEWER_MARKERS = {
     'href="#signage-details"',
     'href="#door-details"',
     'href="#furnishing-details"',
+    'href="#public-art"',
     'href="#wall-finish-details"',
     'href="#floor-details"',
     'href="#surface-aging-details"',
@@ -453,6 +455,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="presetSignageDetails"',
     'id="presetDoorDetails"',
     'id="presetFurnishingDetails"',
+    'id="presetPublicArt"',
     'id="presetWallFinishDetails"',
     'id="presetFloorDetails"',
     'id="presetSurfaceAgingDetails"',
@@ -472,6 +475,7 @@ REQUIRED_VIEWER_MARKERS = {
     'value="signage_detail"',
     'value="door_detail"',
     'value="furnishing_detail"',
+    'value="public_art"',
     'value="wall_finish_detail"',
     'value="floor_detail"',
     'value="surface_aging_detail"',
@@ -489,6 +493,7 @@ REQUIRED_VIEWER_MARKERS = {
     "metadata.interior?.signage_details",
     "metadata.interior?.door_details",
     "metadata.interior?.furnishing_details",
+    "metadata.interior?.public_art",
     "metadata.interior?.wall_finish_details",
     "metadata.interior?.floor_details",
     "metadata.interior?.surface_aging_details",
@@ -515,6 +520,8 @@ REQUIRED_VIEWER_MARKERS = {
     "focusDoorDetailsRoute",
     "focusFurnishingDetails",
     "focusFurnishingDetailsRoute",
+    "focusPublicArt",
+    "focusPublicArtRoute",
     "focusWallFinishDetails",
     "focusWallFinishDetailsRoute",
     "focusFloorDetails",
@@ -548,6 +555,8 @@ REQUIRED_VIEWER_MARKERS = {
     "signage-details",
     "door-details",
     "furnishing-details",
+    "public-art",
+    "statues-paintings",
     "wall-finish-details",
     "floor-details",
     "surface-aging-details",
@@ -816,6 +825,7 @@ REQUIRED_PUBLIC_ART_TYPES = {
     "statue_head_silhouette",
     "statue_public_plaque",
     "historical_painting_panel",
+    "historical_painting_title_plaque",
     "rotunda_frieze_relief_panel",
     "public_hall_art_panel",
     "historic_chamber_art_panel",
@@ -823,6 +833,17 @@ REQUIRED_PUBLIC_ART_TYPES = {
     "art_frame_inner_bevel",
     "art_canvas_tone_patch",
     "art_label_plaque",
+}
+
+EXPECTED_ROTUNDA_HISTORICAL_PAINTINGS = {
+    "Declaration of Independence",
+    "Surrender of General Burgoyne",
+    "Surrender of Lord Cornwallis",
+    "General George Washington Resigning His Commission",
+    "Landing of Columbus",
+    "Discovery of the Mississippi by De Soto",
+    "Baptism of Pocahontas",
+    "Embarkation of the Pilgrims",
 }
 
 REQUIRED_LIGHT_FIXTURE_DETAIL_KINDS = {
@@ -2402,8 +2423,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["light_fixture_details"] = len(light_fixture_details)
     summary["light_fixture_detail_kinds"] = len(light_fixture_detail_kinds)
     summary["wall_treatments"] = len(wall_treatments)
-    if len(public_art) < 395:
-        error(errors, f"expected at least 395 public-art visuals, got {len(public_art)}")
+    if len(public_art) < 403:
+        error(errors, f"expected at least 403 public-art visuals, got {len(public_art)}")
     missing_art_types = sorted(REQUIRED_PUBLIC_ART_TYPES - public_art_types)
     if missing_art_types:
         error(errors, f"missing public-art visual types: {', '.join(missing_art_types)}")
@@ -2419,6 +2440,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 35 public statue plaque records")
     if len([record for record in public_art if record.get("type") == "historical_painting_panel"]) < 8:
         error(errors, "expected at least 8 Rotunda historical painting panel records")
+    if len([record for record in public_art if record.get("type") == "historical_painting_title_plaque"]) < 8:
+        error(errors, "expected at least 8 Rotunda historical painting title-plaque records")
+    rotunda_painting_titles = {
+        record.get("title")
+        for record in public_art
+        if record.get("type") == "historical_painting_panel" and record.get("location") == "Rotunda"
+    }
+    missing_rotunda_paintings = sorted(EXPECTED_ROTUNDA_HISTORICAL_PAINTINGS - rotunda_painting_titles)
+    if missing_rotunda_paintings:
+        error(errors, f"missing named Rotunda historical paintings: {', '.join(missing_rotunda_paintings)}")
     if len([record for record in public_art if record.get("type") == "rotunda_frieze_relief_panel"]) < 16:
         error(errors, "expected at least 16 Rotunda frieze relief panel records")
     if len([record for record in public_art if record.get("type") == "portrait_panel"]) < 18:

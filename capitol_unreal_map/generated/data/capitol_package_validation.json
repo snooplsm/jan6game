@@ -52,8 +52,8 @@
     "surface_aging_details": 191,
     "surface_aging_detail_kinds": 7,
     "joint_session_records": 9,
-    "public_art": 399,
-    "public_art_types": 13,
+    "public_art": 407,
+    "public_art_types": 14,
     "light_fixtures": 63,
     "light_fixture_details": 127,
     "light_fixture_detail_kinds": 7,
@@ -111,7 +111,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 173,
+    "required_markers": 182,
     "missing": []
   },
   "meshes": [

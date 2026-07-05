@@ -214,6 +214,7 @@
       <a class="quick-link" id="quickSignageDetails" href="#signage-details">Signage</a>
       <a class="quick-link" id="quickDoorDetails" href="#door-details">Doors</a>
       <a class="quick-link" id="quickFurnishingDetails" href="#furnishing-details">Furnishings</a>
+      <a class="quick-link" id="quickPublicArt" href="#public-art">Public Art</a>
       <a class="quick-link" id="quickWallFinishDetails" href="#wall-finish-details">Wall Finish</a>
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
       <a class="quick-link" id="quickSurfaceAgingDetails" href="#surface-aging-details">Surface Aging</a>
@@ -253,6 +254,7 @@
       <button id="presetSignageDetails">Signage</button>
       <button id="presetDoorDetails">Doors</button>
       <button id="presetFurnishingDetails">Furnishings</button>
+      <button id="presetPublicArt">Public Art</button>
       <button id="presetWallFinishDetails">Wall Finish</button>
       <button id="presetFloorDetails">Floor Details</button>
       <button id="presetSurfaceAgingDetails">Surface Aging</button>
@@ -280,6 +282,7 @@
         <option value="signage_detail">Signage details</option>
         <option value="door_detail">Door details</option>
         <option value="furnishing_detail">Furnishing details</option>
+        <option value="public_art">Public art</option>
         <option value="wall_finish_detail">Wall finish details</option>
         <option value="floor_detail">Floor details</option>
         <option value="surface_aging_detail">Surface aging details</option>
@@ -352,7 +355,7 @@
     ];
 
     const VIEWER_TEXTURE_MAX_SIZE = 1024;
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "public_art", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
 
     const state = {
@@ -475,6 +478,7 @@
     document.getElementById("presetSignageDetails").onclick = () => focusSignageDetailsRoute();
     document.getElementById("presetDoorDetails").onclick = () => focusDoorDetailsRoute();
     document.getElementById("presetFurnishingDetails").onclick = () => focusFurnishingDetailsRoute();
+    document.getElementById("presetPublicArt").onclick = () => focusPublicArtRoute();
     document.getElementById("presetWallFinishDetails").onclick = () => focusWallFinishDetailsRoute();
     document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
     document.getElementById("presetSurfaceAgingDetails").onclick = () => focusSurfaceAgingDetailsRoute();
@@ -514,6 +518,11 @@
     document.getElementById("quickFurnishingDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusFurnishingDetailsRoute();
+    });
+
+    document.getElementById("quickPublicArt").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusPublicArtRoute();
     });
 
     document.getElementById("quickWallFinishDetails").addEventListener("click", (event) => {
@@ -914,6 +923,17 @@
           category: "furnishing_detail"
         });
       }
+      for (const art of metadata.interior?.public_art || []) {
+        if (!art.center_m) continue;
+        const labelText = art.title
+          ? `${art.title} - ${art.location || "public art"}`
+          : `${humanizeId(art.type || "public_art")} - ${humanizeId(art.name || "public_art")}`;
+        labels.push({
+          text: labelText,
+          location: art.center_m,
+          category: "public_art"
+        });
+      }
       for (const detail of metadata.interior?.wall_finish_details || []) {
         const labelText = detail.room
           ? `${humanizeId(detail.kind || "wall_finish_detail")} - ${detail.room}`
@@ -1171,6 +1191,7 @@
         "office_detail",
         "door_detail",
         "furnishing_detail",
+        "public_art",
         "wall_finish_detail",
         "floor_detail",
         "surface_aging_detail",
@@ -1380,6 +1401,28 @@
         history.pushState(null, "", "#floor-details");
       }
       focusFloorDetails();
+    }
+
+    function focusPublicArt() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "public_art";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "public_art";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.58, 0.66, 30000, [0, -650, 680]);
+      statusEl.textContent = "Focused public art markers: named Rotunda paintings, statues, portraits, and schematic artwork panels.";
+    }
+
+    function focusPublicArtRoute() {
+      if (window.location.hash !== "#public-art") {
+        history.pushState(null, "", "#public-art");
+      }
+      focusPublicArt();
     }
 
     function focusSurfaceAgingDetails() {
@@ -1684,6 +1727,10 @@
       }
       if (route === "furnishing-details" || route === "furnishings" || route === "fixtures") {
         focusFurnishingDetails();
+        return;
+      }
+      if (route === "public-art" || route === "art" || route === "statues-paintings") {
+        focusPublicArt();
         return;
       }
       if (route === "wall-finish-details" || route === "wall-finishes" || route === "wainscot") {

@@ -4937,6 +4937,7 @@ def add_wall_art_visual(
     material: str,
     z: float = 5.85,
     public_accuracy: str = "schematic_public_art_marker",
+    metadata: dict[str, Any] | None = None,
 ) -> None:
     x, y = center
     width, height = size
@@ -4956,17 +4957,18 @@ def add_wall_art_visual(
         obj.add_box((x - width * 0.22, y), (width * 0.34, 0.20), height * 0.16, z + height * 0.10, f"{name}_canvas_mid_tone_patch", "PaintingCanvas")
         obj.add_box((x + width * 0.26, y), (width * 0.22, 0.20), height * 0.10, z - height * 0.18, f"{name}_canvas_dark_tone_patch", "PortraitCanvas")
         obj.add_box((x, y), (min(width * 0.55, 1.1), 0.20), 0.08, z - height / 2.0 - 0.38, f"{name}_small_label_plaque", "BrassRail")
-    records.append(
-        {
-            "name": name,
-            "type": art_type,
-            "location": location,
-            "center_m": [round(x, 3), round(y, 3), round(z, 3)],
-            "size_m": [round(width, 3), round(height, 3)],
-            "public_accuracy": public_accuracy,
-            "assignment": "Schematic public-art panel, not an exact artwork inventory record.",
-        }
-    )
+    art_record: dict[str, Any] = {
+        "name": name,
+        "type": art_type,
+        "location": location,
+        "center_m": [round(x, 3), round(y, 3), round(z, 3)],
+        "size_m": [round(width, 3), round(height, 3)],
+        "public_accuracy": public_accuracy,
+        "assignment": "Schematic public-art panel, not an exact artwork inventory record.",
+    }
+    if metadata:
+        art_record.update(metadata)
+    records.append(art_record)
     detail_specs = [
         ("inner_bevel", "art_frame_inner_bevel", (x, y, z), {"facing_axis": facing_axis}),
         ("canvas_tone_patches", "art_canvas_tone_patch", (x, y, z), {"patch_count": 2, "facing_axis": facing_axis}),
@@ -4983,7 +4985,23 @@ def add_wall_art_visual(
             "assignment": "Generic frame/canvas detail for public visual realism; not an exact artwork reconstruction.",
         }
         record.update(extra)
+        if metadata and metadata.get("title"):
+            record["source_title"] = metadata["title"]
         records.append(record)
+    if metadata and metadata.get("title"):
+        records.append(
+            {
+                "name": f"{name}_named_title_plaque",
+                "type": "historical_painting_title_plaque",
+                "location": location,
+                "center_m": [round(x, 3), round(y, 3), round(z - height / 2.0 - 0.34, 3)],
+                "size_m": [round(min(width * 0.55, 1.1), 3), 0.2],
+                "title": metadata["title"],
+                "artist": metadata.get("artist", ""),
+                "public_accuracy": "named_public_rotunda_painting_schematic_marker",
+                "assignment": "Public title-plaque marker for an AOC-listed Rotunda painting; schematic placement only.",
+            }
+        )
 
 
 def add_light_fixture_detail_record(
@@ -5098,9 +5116,19 @@ def add_public_art_and_lighting(
         )
     add_label(labels, "Rotunda presidential statues - schematic public markers", 0.0, -11.2, 7.4, "public_art")
 
-    # Rotunda wall paintings are represented as public historical painting
-    # panels without exact painting-by-painting placement.
-    for idx in range(8):
+    # Rotunda historical paintings are public AOC-listed works. Positions are
+    # schematic public markers, not exact artwork conservation records.
+    rotunda_paintings = [
+        ("Declaration of Independence", "John Trumbull"),
+        ("Surrender of General Burgoyne", "John Trumbull"),
+        ("Surrender of Lord Cornwallis", "John Trumbull"),
+        ("General George Washington Resigning His Commission", "John Trumbull"),
+        ("Landing of Columbus", "John Vanderlyn"),
+        ("Discovery of the Mississippi by De Soto", "William Henry Powell"),
+        ("Baptism of Pocahontas", "John Gadsby Chapman"),
+        ("Embarkation of the Pilgrims", "Robert Walter Weir"),
+    ]
+    for idx, (title, artist) in enumerate(rotunda_paintings):
         angle = math.tau * idx / 8.0 + math.pi / 8.0
         x = 14.95 * math.cos(angle)
         y = 14.95 * math.sin(angle)
@@ -5116,6 +5144,13 @@ def add_public_art_and_lighting(
             facing_axis,
             "PaintingCanvas",
             z=6.75,
+            public_accuracy="named_public_rotunda_painting_schematic_marker",
+            metadata={
+                "title": title,
+                "artist": artist,
+                "collection": "U.S. Capitol Rotunda historical paintings",
+                "source": "Architect of the Capitol public Rotunda materials",
+            },
         )
     add_label(labels, "Rotunda historical painting panels - schematic", 0.0, 14.0, 7.7, "public_art")
 
