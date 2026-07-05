@@ -570,6 +570,13 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "chamber_ceiling_cove_molding",
     "balcony_underside_coffer",
     "chamber_public_light_globe",
+    "chamber_carpet_aisle_runner",
+    "chamber_carpet_binding_strip",
+    "chamber_carpet_wear_path",
+    "chamber_row_shadow_strip",
+    "gallery_tread_nosing",
+    "rostrum_backdrop_trim_inlay",
+    "chamber_carpet_medallion",
 }
 
 REQUIRED_OFFICE_DETAIL_KINDS = {
@@ -1495,8 +1502,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 6800:
-        error(errors, f"expected at least 6800 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 6918:
+        error(errors, f"expected at least 6918 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1583,6 +1590,20 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 public chamber balcony underside coffer records")
     if len([detail for detail in chamber_details if detail.get("kind") == "chamber_public_light_globe"]) < 28:
         error(errors, "expected at least 28 public chamber light-globe records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_carpet_aisle_runner"]) < 12:
+        error(errors, "expected at least 12 public chamber carpet aisle-runner records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_carpet_binding_strip"]) < 24:
+        error(errors, "expected at least 24 public chamber carpet binding-strip records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_carpet_wear_path"]) < 14:
+        error(errors, "expected at least 14 public chamber carpet wear-path records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_row_shadow_strip"]) < 26:
+        error(errors, "expected at least 26 public chamber row shadow-strip records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_tread_nosing"]) < 16:
+        error(errors, "expected at least 16 public chamber gallery tread-nosing records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_backdrop_trim_inlay"]) < 22:
+        error(errors, "expected at least 22 public chamber rostrum backdrop trim-inlay records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_carpet_medallion"]) < 4:
+        error(errors, "expected at least 4 public chamber carpet medallion records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")

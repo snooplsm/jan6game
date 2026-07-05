@@ -5747,7 +5747,115 @@ def add_chamber_realism_details(
             obj.add_cylinder(rosette_center, 0.085, z + 0.795, 0.035, f"{name}_rosette_{idx+1:02d}", "ArtFrameGold", segments=12)
             add_chamber_detail_record(records, f"{name}_rosette_{idx+1:02d}", "gallery_rail_rosette", chamber, (rosette_center[0], rosette_center[1], z + 0.812), (0.17, 0.17))
 
+    def chamber_carpet_runner(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        material: str,
+    ) -> None:
+        x, y = center
+        obj.add_box(center, size, 0.026, z, f"{name}_field", material)
+        add_chamber_detail_record(records, name, "chamber_carpet_aisle_runner", chamber, (x, y, z + 0.013), size)
+        horizontal = size[0] >= size[1]
+        if horizontal:
+            strip_size = (size[0], 0.045)
+            strip_offsets = [(0.0, -size[1] / 2.0 + 0.055), (0.0, size[1] / 2.0 - 0.055)]
+        else:
+            strip_size = (0.045, size[1])
+            strip_offsets = [(-size[0] / 2.0 + 0.055, 0.0), (size[0] / 2.0 - 0.055, 0.0)]
+        for strip_index, (dx, dy) in enumerate(strip_offsets, start=1):
+            strip_center = (x + dx, y + dy)
+            strip_name = f"{name}_binding_strip_{strip_index}"
+            obj.add_box(strip_center, strip_size, 0.018, z + 0.028, strip_name, "BrassRail")
+            add_chamber_detail_record(
+                records,
+                strip_name,
+                "chamber_carpet_binding_strip",
+                chamber,
+                (strip_center[0], strip_center[1], z + 0.037),
+                strip_size,
+            )
+
+    def chamber_carpet_wear_path(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+    ) -> None:
+        obj.add_box(center, size, 0.014, z, name, "FloorWear")
+        add_chamber_detail_record(records, name, "chamber_carpet_wear_path", chamber, (center[0], center[1], z + 0.007), size)
+
+    def chamber_row_shadow_strip(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.016, z, name, "FloorWear")
+        add_chamber_detail_record(records, name, "chamber_row_shadow_strip", chamber, (center[0], center[1], z + 0.008), size)
+
+    def gallery_tread_nosing(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.026, z, f"{name}_brass_nosing", "BrassRail")
+        shadow_size = (size[0] * 0.96, max(0.026, size[1] * 0.42)) if size[0] >= size[1] else (max(0.026, size[0] * 0.42), size[1] * 0.96)
+        obj.add_box(center, shadow_size, 0.010, z - 0.012, f"{name}_dark_reveal", "DoorMetal")
+        add_chamber_detail_record(records, name, "gallery_tread_nosing", chamber, (center[0], center[1], z + 0.013), size)
+
+    def rostrum_backdrop_trim_inlay(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
+        obj.add_box(center, size, 0.040, z, name, "ArtFrameGold")
+        add_chamber_detail_record(records, name, "rostrum_backdrop_trim_inlay", chamber, (center[0], center[1], z + 0.020), size)
+
+    def chamber_carpet_medallion(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        radius: float,
+        z: float,
+        material: str,
+    ) -> None:
+        x, y = center
+        obj.add_disk(center, radius, z, f"{name}_brass_outer_disk", "BrassRail", segments=36)
+        obj.add_disk(center, radius * 0.72, z + 0.006, f"{name}_fabric_center_disk", material, segments=36)
+        obj.add_box(center, (radius * 1.35, 0.035), 0.014, z + 0.010, f"{name}_horizontal_inlay", "ArtFrameGold")
+        obj.add_box(center, (0.035, radius * 1.35), 0.014, z + 0.012, f"{name}_vertical_inlay", "ArtFrameGold")
+        add_chamber_detail_record(records, name, "chamber_carpet_medallion", chamber, (x, y, z + 0.010), (radius * 2.0, radius * 2.0))
+
     # House chamber public visual details.
+    for runner_name, center, size in [
+        ("house_center_aisle_carpet_runner", (0.0, -74.5), (1.48, 39.0)),
+        ("house_well_cross_carpet_runner", (0.0, -55.8), (17.5, 0.72)),
+        ("house_left_public_aisle_carpet_runner", (-24.5, -77.0), (0.86, 34.0)),
+        ("house_right_public_aisle_carpet_runner", (24.5, -77.0), (0.86, 34.0)),
+        ("house_gallery_front_carpet_runner", (0.0, -96.2), (61.0, 0.74)),
+        ("house_gallery_rear_carpet_runner", (0.0, -101.4), (61.0, 0.72)),
+    ]:
+        chamber_carpet_runner(runner_name, "House Chamber", center, size, 4.635, "HouseCarpet")
+    for wear_name, center, size in [
+        ("house_center_aisle_carpet_wear_path", (0.0, -74.5), (0.72, 33.5)),
+        ("house_well_cross_carpet_wear_path", (0.0, -55.5), (10.5, 0.38)),
+        ("house_left_public_aisle_carpet_wear_path", (-24.5, -78.0), (0.42, 25.5)),
+        ("house_right_public_aisle_carpet_wear_path", (24.5, -78.0), (0.42, 25.5)),
+        ("house_front_rostrum_carpet_wear_path", (0.0, -59.0), (7.8, 0.36)),
+        ("house_rear_gallery_carpet_wear_path", (0.0, -101.4), (46.0, 0.36)),
+        ("house_front_gallery_carpet_wear_path", (0.0, -96.2), (46.0, 0.36)),
+        ("house_member_floor_center_wear_path", (0.0, -87.0), (8.5, 0.34)),
+    ]:
+        chamber_carpet_wear_path(wear_name, "House Chamber", center, size, 4.668)
+    for row in range(16):
+        width = 20.0 + row * 2.2
+        y = -70.0 - row * 1.42
+        chamber_row_shadow_strip(
+            f"house_member_row_shadow_strip_{row+1:02d}",
+            "House Chamber",
+            (0.0, y - 0.08),
+            (width * 0.96, 0.052),
+            4.665,
+        )
+    for row_index, y in enumerate([-96.0, -98.0, -100.0, -102.0], start=1):
+        gallery_tread_nosing(f"house_gallery_tread_{row_index:02d}_front_nosing", "House Chamber", (0.0, y - 0.32), (62.0, 0.060), 4.83 + row_index * 0.14)
+        gallery_tread_nosing(f"house_gallery_tread_{row_index:02d}_rear_nosing", "House Chamber", (0.0, y + 0.32), (62.0, 0.060), 4.83 + row_index * 0.14)
+    for medallion_name, center, radius in [
+        ("house_front_well_carpet_medallion", (0.0, -60.3), 0.54),
+        ("house_rear_member_floor_carpet_medallion", (0.0, -90.2), 0.64),
+    ]:
+        chamber_carpet_medallion(medallion_name, "House Chamber", center, radius, 4.688, "HouseCarpet")
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
     rail("house_rostrum_right_brass_rail", "House Chamber", (7.25, -48.7), (0.16, 4.1), 5.42)
@@ -5755,6 +5863,8 @@ def add_chamber_realism_details(
         step(f"house_rostrum_step_tread_{idx}", "House Chamber", (0.0, y), (15.6 - idx * 0.8, 0.32), 4.58 + idx * 0.08)
     for idx, x in enumerate([-5.0, -3.0, -1.0, 1.0, 3.0, 5.0], start=1):
         backdrop_panel(f"house_rostrum_backdrop_panel_{idx}", "House Chamber", (x, -46.45), (1.35, 0.12), 5.05)
+        rostrum_backdrop_trim_inlay(f"house_rostrum_backdrop_panel_{idx}_left_inlay", "House Chamber", (x - 0.58, -46.39), (0.045, 0.10), 6.68)
+        rostrum_backdrop_trim_inlay(f"house_rostrum_backdrop_panel_{idx}_right_inlay", "House Chamber", (x + 0.58, -46.39), (0.045, 0.10), 6.68)
     gallery_rail("house_gallery_front_brass_rail", "House Chamber", (0.0, -95.15), (66.0, 0.16), 5.24)
     gallery_rail("house_gallery_rear_brass_rail", "House Chamber", (0.0, -103.7), (66.0, 0.16), 5.54)
     gallery_rail_ornament("house_gallery_front_ornament", "House Chamber", (0.0, -95.15), (66.0, 0.16), 5.24, 9)
@@ -5846,6 +5956,42 @@ def add_chamber_realism_details(
         chamber_public_light_globe(f"house_rear_gallery_light_globe_{light_index:02d}", "House Chamber", (x, -101.8), 7.10)
 
     # Senate chamber public visual details.
+    for runner_name, center, size in [
+        ("senate_center_aisle_carpet_runner", (0.0, 73.0), (1.30, 22.0)),
+        ("senate_well_cross_carpet_runner", (0.0, 80.1), (14.0, 0.68)),
+        ("senate_left_public_aisle_carpet_runner", (-15.2, 73.5), (0.82, 18.0)),
+        ("senate_right_public_aisle_carpet_runner", (15.2, 73.5), (0.82, 18.0)),
+        ("senate_gallery_front_carpet_runner", (0.0, 94.85), (49.0, 0.70)),
+        ("senate_gallery_rear_carpet_runner", (0.0, 99.8), (49.0, 0.68)),
+    ]:
+        chamber_carpet_runner(runner_name, "Senate Chamber", center, size, 4.635, "SenateCarpet")
+    for wear_name, center, size in [
+        ("senate_center_aisle_carpet_wear_path", (0.0, 73.0), (0.66, 18.5)),
+        ("senate_well_cross_carpet_wear_path", (0.0, 80.1), (8.8, 0.34)),
+        ("senate_left_public_aisle_carpet_wear_path", (-15.2, 73.7), (0.38, 14.0)),
+        ("senate_right_public_aisle_carpet_wear_path", (15.2, 73.7), (0.38, 14.0)),
+        ("senate_front_gallery_carpet_wear_path", (0.0, 94.85), (37.0, 0.34)),
+        ("senate_rear_gallery_carpet_wear_path", (0.0, 99.8), (37.0, 0.34)),
+    ]:
+        chamber_carpet_wear_path(wear_name, "Senate Chamber", center, size, 4.668)
+    for row in range(10):
+        width = 13.0 + row * 2.2
+        y = 65.0 + row * 1.35
+        chamber_row_shadow_strip(
+            f"senate_desk_row_shadow_strip_{row+1:02d}",
+            "Senate Chamber",
+            (0.0, y - 0.08),
+            (width * 0.96, 0.052),
+            4.665,
+        )
+    for row_index, y in enumerate([94.8, 96.6, 98.4, 100.2], start=1):
+        gallery_tread_nosing(f"senate_gallery_tread_{row_index:02d}_front_nosing", "Senate Chamber", (0.0, y - 0.30), (49.0, 0.056), 4.81 + row_index * 0.14)
+        gallery_tread_nosing(f"senate_gallery_tread_{row_index:02d}_rear_nosing", "Senate Chamber", (0.0, y + 0.30), (49.0, 0.056), 4.81 + row_index * 0.14)
+    for medallion_name, center, radius in [
+        ("senate_front_well_carpet_medallion", (0.0, 62.8), 0.50),
+        ("senate_rear_floor_carpet_medallion", (0.0, 87.2), 0.56),
+    ]:
+        chamber_carpet_medallion(medallion_name, "Senate Chamber", center, radius, 4.688, "SenateCarpet")
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
     rail("senate_presiding_left_brass_rail", "Senate Chamber", (-6.0, 83.25), (0.16, 2.8), 5.36)
     rail("senate_presiding_right_brass_rail", "Senate Chamber", (6.0, 83.25), (0.16, 2.8), 5.36)
@@ -5853,6 +5999,8 @@ def add_chamber_realism_details(
         step(f"senate_presiding_step_tread_{idx}", "Senate Chamber", (0.0, y), (12.6 - idx * 0.6, 0.30), 4.58 + idx * 0.08)
     for idx, x in enumerate([-4.2, -2.1, 0.0, 2.1, 4.2], start=1):
         backdrop_panel(f"senate_presiding_backdrop_panel_{idx}", "Senate Chamber", (x, 85.15), (1.35, 0.12), 5.02)
+        rostrum_backdrop_trim_inlay(f"senate_presiding_backdrop_panel_{idx}_left_inlay", "Senate Chamber", (x - 0.58, 85.09), (0.045, 0.10), 6.64)
+        rostrum_backdrop_trim_inlay(f"senate_presiding_backdrop_panel_{idx}_right_inlay", "Senate Chamber", (x + 0.58, 85.09), (0.045, 0.10), 6.64)
     gallery_rail("senate_gallery_front_brass_rail", "Senate Chamber", (0.0, 94.05), (52.0, 0.16), 5.22)
     gallery_rail("senate_gallery_rear_brass_rail", "Senate Chamber", (0.0, 101.2), (52.0, 0.16), 5.52)
     gallery_rail_ornament("senate_gallery_front_ornament", "Senate Chamber", (0.0, 94.05), (52.0, 0.16), 5.22, 7)
@@ -5943,7 +6091,7 @@ def add_chamber_realism_details(
     for light_index, x in enumerate([-18.0, -9.0, 0.0, 9.0, 18.0], start=1):
         chamber_public_light_globe(f"senate_rear_gallery_light_globe_{light_index:02d}", "Senate Chamber", (x, 99.8), 7.02)
 
-    add_label(labels, "House and Senate chamber rails, dais steps, flags, aisle trim, wall panels, gallery trim, cove molding, and lights - schematic", 0.0, -43.0, 7.7, "chamber_detail")
+    add_label(labels, "House and Senate chamber rails, dais steps, carpets, worn paths, wall panels, gallery trim, cove molding, and lights - schematic", 0.0, -43.0, 7.7, "chamber_detail")
 
 
 def add_public_circulation_record(
