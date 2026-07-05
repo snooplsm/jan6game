@@ -216,6 +216,7 @@
       <a class="quick-link" id="quickFurnishingDetails" href="#furnishing-details">Furnishings</a>
       <a class="quick-link" id="quickWallFinishDetails" href="#wall-finish-details">Wall Finish</a>
       <a class="quick-link" id="quickFloorDetails" href="#floor-details">Floor Details</a>
+      <a class="quick-link" id="quickSurfaceAgingDetails" href="#surface-aging-details">Surface Aging</a>
       <a class="quick-link" id="quickCeilingDetails" href="#ceiling-details">Ceiling Details</a>
       <a class="quick-link" id="quickInteriorOnly" href="#interior-only">Interior Only</a>
       <a class="quick-link" id="quickInteriorPlan" href="#interior-plan">Interior Plan</a>
@@ -254,6 +255,7 @@
       <button id="presetFurnishingDetails">Furnishings</button>
       <button id="presetWallFinishDetails">Wall Finish</button>
       <button id="presetFloorDetails">Floor Details</button>
+      <button id="presetSurfaceAgingDetails">Surface Aging</button>
       <button id="presetCeilingDetails">Ceiling Details</button>
       <button id="presetGameplay">Gameplay Items</button>
     </div>
@@ -280,6 +282,7 @@
         <option value="furnishing_detail">Furnishing details</option>
         <option value="wall_finish_detail">Wall finish details</option>
         <option value="floor_detail">Floor details</option>
+        <option value="surface_aging_detail">Surface aging details</option>
         <option value="ceiling_detail">Ceiling details</option>
         <option value="interior_plan">Interior plan labels</option>
         <option value="gameplay_item">Gameplay items</option>
@@ -349,7 +352,7 @@
     ];
 
     const VIEWER_TEXTURE_MAX_SIZE = 1024;
-    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "wall_finish_detail", "floor_detail", "ceiling_detail"]);
+    const hiddenByDefaultLabelCategories = new Set(["grounds_detail", "facade_detail", "chamber_detail", "chamber_role_overlay", "office_detail", "signage_detail", "door_detail", "furnishing_detail", "wall_finish_detail", "floor_detail", "surface_aging_detail", "ceiling_detail"]);
     const publicInteriorPlanLabelCategories = new Set(["major_public_space", "legislative_chamber", "visitor_gallery", "generic_office_zone", "seating_section", "joint_session"]);
 
     const state = {
@@ -474,6 +477,7 @@
     document.getElementById("presetFurnishingDetails").onclick = () => focusFurnishingDetailsRoute();
     document.getElementById("presetWallFinishDetails").onclick = () => focusWallFinishDetailsRoute();
     document.getElementById("presetFloorDetails").onclick = () => focusFloorDetailsRoute();
+    document.getElementById("presetSurfaceAgingDetails").onclick = () => focusSurfaceAgingDetailsRoute();
     document.getElementById("presetCeilingDetails").onclick = () => focusCeilingDetailsRoute();
     document.getElementById("presetGameplay").onclick = () => focusGameplayItemsRoute();
 
@@ -520,6 +524,11 @@
     document.getElementById("quickFloorDetails").addEventListener("click", (event) => {
       event.preventDefault();
       focusFloorDetailsRoute();
+    });
+
+    document.getElementById("quickSurfaceAgingDetails").addEventListener("click", (event) => {
+      event.preventDefault();
+      focusSurfaceAgingDetailsRoute();
     });
 
     document.getElementById("quickCeilingDetails").addEventListener("click", (event) => {
@@ -925,6 +934,16 @@
           category: "floor_detail"
         });
       }
+      for (const detail of metadata.interior?.surface_aging_details || []) {
+        const labelText = detail.area
+          ? `${humanizeId(detail.kind || "surface_aging_detail")} - ${detail.area}`
+          : humanizeId(detail.name || detail.kind || "surface_aging_detail");
+        labels.push({
+          text: labelText,
+          location: detail.center_m,
+          category: "surface_aging_detail"
+        });
+      }
       for (const detail of metadata.interior?.ceiling_details || []) {
         const labelText = detail.room
           ? `${humanizeId(detail.kind || "ceiling_detail")} - ${detail.room}`
@@ -1154,6 +1173,7 @@
         "furnishing_detail",
         "wall_finish_detail",
         "floor_detail",
+        "surface_aging_detail",
         "ceiling_detail"
       ]);
       const distance = closeInterior.has(label.category) ? 22000 : 62000;
@@ -1360,6 +1380,28 @@
         history.pushState(null, "", "#floor-details");
       }
       focusFloorDetails();
+    }
+
+    function focusSurfaceAgingDetails() {
+      setMeshVisible("capitol_public_interior_schematic", true);
+      state.labelsVisible = true;
+      document.getElementById("labelsToggle").checked = true;
+      labelLayer.style.display = "block";
+
+      state.labelCategory = "surface_aging_detail";
+      state.labelQuery = "";
+      document.getElementById("categoryFilter").value = "surface_aging_detail";
+      document.getElementById("labelSearch").value = "";
+
+      setCamera(0.60, 0.72, 34000, [0, 0, 560]);
+      statusEl.textContent = "Focused public interior surface aging details: dust, scuffs, contact shadows, and tarnish.";
+    }
+
+    function focusSurfaceAgingDetailsRoute() {
+      if (window.location.hash !== "#surface-aging-details") {
+        history.pushState(null, "", "#surface-aging-details");
+      }
+      focusSurfaceAgingDetails();
     }
 
     function focusCeilingDetails() {
@@ -1650,6 +1692,10 @@
       }
       if (route === "floor-details" || route === "floor-finishes") {
         focusFloorDetails();
+        return;
+      }
+      if (route === "surface-aging-details" || route === "surface-aging" || route === "surface-wear") {
+        focusSurfaceAgingDetails();
         return;
       }
       if (route === "ceiling-details" || route === "ceiling-finishes") {

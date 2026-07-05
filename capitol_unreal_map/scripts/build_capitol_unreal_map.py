@@ -6169,6 +6169,137 @@ def add_public_interior_floor_details(
     add_label(labels, "Public floor borders, thresholds, and marble tile joints - schematic", 18.0, 0.0, 5.2, "public_circulation_detail")
 
 
+def add_surface_aging_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    area: str,
+    center: tuple[float, float, float],
+    size: tuple[float, float],
+    material: str,
+) -> None:
+    records.append(
+        {
+            "name": name,
+            "kind": kind,
+            "area": area,
+            "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+            "size_m": [round(size[0], 3), round(size[1], 3)],
+            "material": material,
+            "public_accuracy": "schematic_public_interior_surface_aging_detail",
+            "assignment": (
+                "Public visual surface aging detail only; not a restricted room, "
+                "security feature, staff location, or operational access map."
+            ),
+        }
+    )
+
+
+def add_public_interior_surface_aging_details(
+    obj: ObjWriter,
+    labels: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> None:
+    def add_floor_patch(
+        name: str,
+        kind: str,
+        area: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        material: str = "FloorWear",
+        angle_degrees: float = 0.0,
+    ) -> None:
+        obj.add_oriented_box(center, size, 0.010, z, math.radians(angle_degrees), name, material)
+        add_surface_aging_detail_record(records, name, kind, area, (center[0], center[1], z + 0.005), size, material)
+
+    def add_wall_patch(
+        name: str,
+        kind: str,
+        area: str,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        z: float,
+        height: float,
+        material: str = "StoneGrimeOverlay",
+    ) -> None:
+        obj.add_box(center, size, height, z, name, material)
+        add_surface_aging_detail_record(records, name, kind, area, (center[0], center[1], z + height / 2.0), size, material)
+
+    room_specs = [
+        ("rotunda_surface_aging", "Rotunda", (0.0, 0.0), (29.5, 29.5), 4.50),
+        ("house_chamber_surface_aging", "House Chamber", (0.0, -72.0), (62.0, 42.0), 4.58),
+        ("senate_chamber_surface_aging", "Senate Chamber", (0.0, 68.0), (48.0, 38.0), 4.58),
+        ("statuary_hall_surface_aging", "National Statuary Hall", (28.0, -30.0), (30.0, 20.0), 4.47),
+        ("old_senate_surface_aging", "Old Senate Chamber", (28.0, 30.0), (26.0, 18.0), 4.47),
+        ("house_gallery_surface_aging", "House galleries", (0.0, -96.0), (68.0, 10.0), 4.92),
+        ("senate_gallery_surface_aging", "Senate galleries", (0.0, 94.0), (54.0, 10.0), 4.92),
+        ("house_west_office_surface_aging", "House leadership/support offices - schematic zone", (-53.0, -55.0), (22.0, 46.0), 4.62),
+        ("house_east_office_surface_aging", "House committee/support rooms - schematic zone", (53.0, -55.0), (22.0, 46.0), 4.62),
+        ("senate_west_office_surface_aging", "Senate leadership/support offices - schematic zone", (-52.0, 55.0), (22.0, 46.0), 4.62),
+        ("senate_east_office_surface_aging", "Senate committee/support rooms - schematic zone", (52.0, 55.0), (22.0, 46.0), 4.62),
+    ]
+    for prefix, area, center, size, floor_z in room_specs:
+        cx, cy = center
+        sx, sy = size
+        north_y = cy + sy / 2.0 - 0.34
+        south_y = cy - sy / 2.0 + 0.34
+        east_x = cx + sx / 2.0 - 0.34
+        west_x = cx - sx / 2.0 + 0.34
+        add_floor_patch(f"{prefix}_north_baseboard_dust_shadow", "baseboard_dust_shadow", area, (cx, north_y - 0.16), (sx * 0.82, 0.18), floor_z + 0.026)
+        add_floor_patch(f"{prefix}_south_baseboard_dust_shadow", "baseboard_dust_shadow", area, (cx, south_y + 0.16), (sx * 0.82, 0.18), floor_z + 0.026)
+        add_floor_patch(f"{prefix}_east_baseboard_dust_shadow", "baseboard_dust_shadow", area, (east_x - 0.16, cy), (0.18, sy * 0.82), floor_z + 0.026)
+        add_floor_patch(f"{prefix}_west_baseboard_dust_shadow", "baseboard_dust_shadow", area, (west_x + 0.16, cy), (0.18, sy * 0.82), floor_z + 0.026)
+        for corner_index, (x_sign, y_sign) in enumerate([(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)], start=1):
+            x = cx + x_sign * (sx / 2.0 - 0.44)
+            y = cy + y_sign * (sy / 2.0 - 0.44)
+            if corner_index % 2:
+                add_wall_patch(f"{prefix}_corner_grime_streak_{corner_index:02d}", "wall_corner_grime_streak", area, (x, y), (0.34, 0.052), 4.54, 0.82)
+            else:
+                add_wall_patch(f"{prefix}_corner_grime_streak_{corner_index:02d}", "wall_corner_grime_streak", area, (x, y), (0.052, 0.34), 4.54, 0.82)
+
+    threshold_tracks = [
+        ("west_public_approach_surface_track", "West terrace public orientation marker", (-55.0, 0.0), (1.10, 7.0), 4.57, 0.0),
+        ("east_public_approach_surface_track", "East public approach / visitor circulation", (55.0, 0.0), (1.10, 7.0), 4.57, 0.0),
+        ("rotunda_south_surface_track", "Rotunda / House Chamber orientation", (0.0, -50.0), (6.6, 0.58), 4.61, 0.0),
+        ("rotunda_north_surface_track", "Rotunda / Senate public spine", (0.0, 50.0), (6.4, 0.58), 4.61, 0.0),
+        ("house_gallery_surface_track", "House Chamber / public gallery", (0.0, -91.0), (8.0, 0.52), 4.81, 0.0),
+        ("senate_gallery_surface_track", "Senate Chamber / public gallery", (0.0, 89.0), (7.2, 0.52), 4.81, 0.0),
+        ("statuary_surface_track", "Rotunda / National Statuary Hall", (16.2, -15.8), (4.7, 0.52), 4.57, 0.0),
+        ("old_senate_surface_track", "Rotunda / Old Senate Chamber", (16.2, 15.8), (4.5, 0.52), 4.57, 0.0),
+    ]
+    for name, area, center, size, z, angle in threshold_tracks:
+        add_floor_patch(name, "threshold_dirt_track", area, center, size, z, "FloorWear", angle)
+        add_floor_patch(f"{name}_offset", "threshold_dirt_track", area, (center[0] + size[0] * 0.13, center[1] - size[1] * 0.08), (size[0] * 0.58, size[1] * 0.30), z + 0.014, "FloorWear", angle + 2.0)
+
+    for index, x in enumerate([value * 3.2 for value in range(-7, 8)], start=1):
+        add_floor_patch(f"house_member_desk_edge_wear_patch_{index:02d}", "desk_edge_wear_patch", "House Chamber", (x, -70.0 + (index % 4 - 1.5) * 4.3), (0.72, 0.18), 5.015, "FloorWear", -4.0 + index % 5)
+        add_floor_patch(f"house_member_chair_leather_scuff_patch_{index:02d}", "chair_leather_scuff_patch", "House Chamber", (x, -80.0 + (index % 3 - 1) * 3.0), (0.46, 0.22), 5.000, "FloorWear", 3.0 - index % 4)
+
+    for index, x in enumerate([value * 2.8 for value in range(-6, 7)], start=1):
+        add_floor_patch(f"senate_desk_edge_wear_patch_{index:02d}", "desk_edge_wear_patch", "Senate Chamber", (x, 70.0 + (index % 4 - 1.5) * 3.2), (0.68, 0.18), 5.090, "FloorWear", 5.0 - index % 5)
+        add_floor_patch(f"senate_chair_leather_scuff_patch_{index:02d}", "chair_leather_scuff_patch", "Senate Chamber", (x, 79.0 + (index % 3 - 1) * 2.6), (0.42, 0.22), 5.065, "FloorWear", -3.0 + index % 4)
+
+    for index, x in enumerate([value * 5.0 for value in range(-6, 7)], start=1):
+        add_floor_patch(f"house_gallery_seat_rub_shadow_{index:02d}", "gallery_seat_rub_shadow", "House galleries", (x, -100.0), (1.2, 0.18), 5.005, "FloorWear")
+    for index, x in enumerate([value * 4.4 for value in range(-5, 6)], start=1):
+        add_floor_patch(f"senate_gallery_seat_rub_shadow_{index:02d}", "gallery_seat_rub_shadow", "Senate galleries", (x, 97.5), (1.1, 0.18), 5.005, "FloorWear")
+
+    brass_specs = [
+        ("rotunda_floor_trim_tarnish", "Rotunda", (0.0, 10.7), (3.8, 0.13), 4.72),
+        ("rotunda_medallion_tarnish_north", "Rotunda", (0.0, 3.05), (1.2, 0.11), 4.75),
+        ("rotunda_medallion_tarnish_south", "Rotunda", (0.0, -3.05), (1.2, 0.11), 4.75),
+        ("house_rostrum_rail_tarnish", "House Chamber", (0.0, -50.1), (7.2, 0.12), 4.86),
+        ("senate_presiding_rail_tarnish", "Senate Chamber", (0.0, 84.1), (6.4, 0.12), 4.86),
+        ("house_gallery_rail_tarnish", "House galleries", (0.0, -91.5), (12.0, 0.12), 5.10),
+        ("senate_gallery_rail_tarnish", "Senate galleries", (0.0, 88.7), (10.0, 0.12), 5.10),
+    ]
+    for name, area, center, size, z in brass_specs:
+        add_floor_patch(name, "brass_tarnish_patch", area, center, size, z, "FloorWear")
+
+    add_label(labels, "Layered public surface aging: dust, scuffs, contact shadows, and tarnish", -18.0, -10.0, 5.6, "surface_aging_detail")
+
+
 def add_chamber_detail_record(
     records: list[dict[str, Any]],
     name: str,
@@ -8646,6 +8777,7 @@ def build_interior() -> dict[str, Any]:
     rotunda_details: list[dict[str, Any]] = []
     ceiling_details: list[dict[str, Any]] = []
     floor_details: list[dict[str, Any]] = []
+    surface_aging_details: list[dict[str, Any]] = []
 
     # Broad second-floor public schematic. North = +Y. East = +X.
     add_room(obj, rooms, labels, "Capitol second-floor public schematic footprint", (0.0, 0.0), (150.0, 190.0), "InteriorFloor", "floorplate", z=3.95, height=0.08, with_walls=True)
@@ -8708,6 +8840,7 @@ def build_interior() -> dict[str, Any]:
     add_public_interior_wall_finish_details(obj, labels, wall_finish_details)
     add_public_interior_ceiling_details(obj, labels, ceiling_details)
     add_public_interior_floor_details(obj, labels, floor_details)
+    add_public_interior_surface_aging_details(obj, labels, surface_aging_details)
     add_label(labels, "Wainscot panels, chair rails, and picture rails - schematic", 0.0, -6.5, 7.6, "wall_treatment")
 
     obj.write(MESH_DIR / "capitol_public_interior_schematic.obj", "capitol_materials.mtl")
@@ -8732,6 +8865,7 @@ def build_interior() -> dict[str, Any]:
         "rotunda_details": rotunda_details,
         "ceiling_details": ceiling_details,
         "floor_details": floor_details,
+        "surface_aging_details": surface_aging_details,
         "interior_notice": (
             "Public schematic only. It maps major public spaces and generic chamber seating. "
             "It does not include restricted security details, private office assignments, "
@@ -9001,6 +9135,7 @@ def main() -> None:
         f"{len(interior['rotunda_details'])} rotunda detail records,",
         f"{len(interior['ceiling_details'])} ceiling detail records,",
         f"{len(interior['floor_details'])} floor detail records,",
+        f"{len(interior['surface_aging_details'])} surface-aging detail records,",
         f"{len(interior['joint_session'])} joint-session visual records,",
         f"{len(interior['seating'])} generic chamber seats/desks,",
         f"{len(gameplay['items'])} gameplay item props",

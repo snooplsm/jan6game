@@ -49,6 +49,8 @@
     "ceiling_detail_kinds": 9,
     "floor_details": 347,
     "floor_detail_kinds": 13,
+    "surface_aging_details": 191,
+    "surface_aging_detail_kinds": 7,
     "joint_session_records": 9,
     "public_art": 399,
     "public_art_types": 13,
@@ -81,8 +83,8 @@
     "destination_paths": 4,
     "required_functions": 21,
     "required_calls": 19,
-    "report_keys": 146,
-    "label_categories": 20,
+    "report_keys": 147,
+    "label_categories": 21,
     "outliner_folders": 13,
     "first_person_markers": 23,
     "material_markers": 24,
@@ -109,7 +111,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 163,
+    "required_markers": 173,
     "missing": []
   },
   "meshes": [
@@ -254,12 +256,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 258025,
-      "uvs": 776564,
-      "faces": 185569,
-      "faces_with_uvs": 185569,
-      "triangles": 405426,
-      "groups": 26657,
+      "vertices": 259553,
+      "uvs": 781148,
+      "faces": 186715,
+      "faces_with_uvs": 186715,
+      "triangles": 407718,
+      "groups": 26848,
       "materials": [
         "ArtFrameGold",
         "BenchWood",

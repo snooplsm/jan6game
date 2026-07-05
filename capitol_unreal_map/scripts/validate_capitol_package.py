@@ -240,6 +240,7 @@ REQUIRED_UNREAL_REPORT_KEYS = {
     "rotunda_details",
     "ceiling_details",
     "floor_details",
+    "surface_aging_details",
     "joint_session",
     "gameplay_items",
     "viewpoints",
@@ -262,6 +263,7 @@ REQUIRED_UNREAL_LABEL_CATEGORIES = {
     "lighting",
     "wall_treatment",
     "wall_finish_detail",
+    "surface_aging_detail",
     "landmark",
     "street_name",
     "building",
@@ -412,6 +414,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="quickFurnishingDetails"',
     'id="quickWallFinishDetails"',
     'id="quickFloorDetails"',
+    'id="quickSurfaceAgingDetails"',
     'id="quickCeilingDetails"',
     'id="quickInteriorOnly"',
     'id="quickInteriorPlan"',
@@ -432,6 +435,7 @@ REQUIRED_VIEWER_MARKERS = {
     'href="#furnishing-details"',
     'href="#wall-finish-details"',
     'href="#floor-details"',
+    'href="#surface-aging-details"',
     'href="#ceiling-details"',
     'href="#interior-only"',
     'href="#interior-plan"',
@@ -451,6 +455,7 @@ REQUIRED_VIEWER_MARKERS = {
     'id="presetFurnishingDetails"',
     'id="presetWallFinishDetails"',
     'id="presetFloorDetails"',
+    'id="presetSurfaceAgingDetails"',
     'id="presetCeilingDetails"',
     'id="presetInteriorOnly"',
     'id="presetInteriorPlan"',
@@ -469,6 +474,7 @@ REQUIRED_VIEWER_MARKERS = {
     'value="furnishing_detail"',
     'value="wall_finish_detail"',
     'value="floor_detail"',
+    'value="surface_aging_detail"',
     'value="ceiling_detail"',
     'value="interior_plan"',
     'value="chamber_role_overlay"',
@@ -485,6 +491,7 @@ REQUIRED_VIEWER_MARKERS = {
     "metadata.interior?.furnishing_details",
     "metadata.interior?.wall_finish_details",
     "metadata.interior?.floor_details",
+    "metadata.interior?.surface_aging_details",
     "metadata.interior?.ceiling_details",
     "metadata.interior?.chamber_details",
     "metadata.gameplay?.labels",
@@ -512,6 +519,8 @@ REQUIRED_VIEWER_MARKERS = {
     "focusWallFinishDetailsRoute",
     "focusFloorDetails",
     "focusFloorDetailsRoute",
+    "focusSurfaceAgingDetails",
+    "focusSurfaceAgingDetailsRoute",
     "focusCeilingDetails",
     "focusCeilingDetailsRoute",
     "focusInteriorOnly",
@@ -541,6 +550,9 @@ REQUIRED_VIEWER_MARKERS = {
     "furnishing-details",
     "wall-finish-details",
     "floor-details",
+    "surface-aging-details",
+    "surface-aging",
+    "surface-wear",
     "ceiling-details",
     "interior-only",
     "interior-cutaway",
@@ -843,6 +855,16 @@ REQUIRED_FLOOR_DETAIL_KINDS = {
     "public_room_outline_inlay",
     "public_room_axis_inlay",
     "public_column_footprint_marker",
+}
+
+REQUIRED_SURFACE_AGING_DETAIL_KINDS = {
+    "baseboard_dust_shadow",
+    "wall_corner_grime_streak",
+    "threshold_dirt_track",
+    "desk_edge_wear_patch",
+    "chair_leather_scuff_patch",
+    "gallery_seat_rub_shadow",
+    "brass_tarnish_patch",
 }
 
 REQUIRED_GROUNDS_DETAIL_KINDS = {
@@ -2302,6 +2324,47 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"floor detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
             break
 
+    surface_aging_details = interior.get("surface_aging_details", [])
+    surface_aging_detail_kinds = {detail.get("kind") for detail in surface_aging_details}
+    summary["surface_aging_details"] = len(surface_aging_details)
+    summary["surface_aging_detail_kinds"] = len(surface_aging_detail_kinds)
+    if len(surface_aging_details) < 190:
+        error(errors, f"expected at least 190 public surface-aging detail records, got {len(surface_aging_details)}")
+    missing_surface_aging_kinds = sorted(REQUIRED_SURFACE_AGING_DETAIL_KINDS - surface_aging_detail_kinds)
+    if missing_surface_aging_kinds:
+        error(errors, f"missing public surface-aging detail kinds: {', '.join(missing_surface_aging_kinds)}")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "baseboard_dust_shadow"]) < 40:
+        error(errors, "expected at least 40 public baseboard dust-shadow records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "wall_corner_grime_streak"]) < 40:
+        error(errors, "expected at least 40 public wall corner grime-streak records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "threshold_dirt_track"]) < 16:
+        error(errors, "expected at least 16 public threshold dirt-track records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "desk_edge_wear_patch"]) < 25:
+        error(errors, "expected at least 25 public desk edge wear-patch records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "chair_leather_scuff_patch"]) < 25:
+        error(errors, "expected at least 25 public chair leather scuff-patch records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "gallery_seat_rub_shadow"]) < 20:
+        error(errors, "expected at least 20 public gallery seat rub-shadow records")
+    if len([detail for detail in surface_aging_details if detail.get("kind") == "brass_tarnish_patch"]) < 7:
+        error(errors, "expected at least 7 public brass tarnish-patch records")
+    for detail in surface_aging_details:
+        if not detail.get("area"):
+            error(errors, f"surface-aging detail {detail.get('name', '<unknown>')} is missing area")
+            break
+        if not is_vec3(detail.get("center_m")):
+            error(errors, f"surface-aging detail {detail.get('name', '<unknown>')} has invalid center_m")
+            break
+        public_accuracy = detail.get("public_accuracy", "").lower()
+        assignment = detail.get("assignment", "").lower()
+        if (
+            "public" not in public_accuracy
+            or "public visual" not in assignment
+            or "security feature" not in assignment
+            or "operational" not in assignment
+        ):
+            error(errors, f"surface-aging detail {detail.get('name', '<unknown>')} lacks public/non-operational boundary")
+            break
+
     joint_session = interior.get("joint_session", [])
     joint_names = {item.get("name") for item in joint_session}
     summary["joint_session_records"] = len(joint_session)
@@ -2778,6 +2841,7 @@ def main() -> int:
     print(f"Rotunda details: {metadata_summary.get('rotunda_details', 0):,}")
     print(f"Ceiling details: {metadata_summary.get('ceiling_details', 0):,}")
     print(f"Floor details: {metadata_summary.get('floor_details', 0):,}")
+    print(f"Surface aging details: {metadata_summary.get('surface_aging_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
     print(f"Light fixture details: {metadata_summary.get('light_fixture_details', 0):,}")

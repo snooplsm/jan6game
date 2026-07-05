@@ -23,6 +23,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Public furnishing detail preview: `http://127.0.0.1:8765/viewer.html#furnishing-details`
 - Wall finish detail preview: `http://127.0.0.1:8765/viewer.html#wall-finish-details`
 - Floor finish detail preview: `http://127.0.0.1:8765/viewer.html#floor-details`
+- Surface aging detail preview: `http://127.0.0.1:8765/viewer.html#surface-aging-details`
 - Ceiling/crown detail preview: `http://127.0.0.1:8765/viewer.html#ceiling-details`
 - Texture preview: `http://127.0.0.1:8765/texture_preview.html`
 
@@ -30,7 +31,7 @@ It contains:
 
 - exterior buildings, roads, bike-lane features, crossings, traffic-signal markers, pedestrian-scale public streetscape props, road-surface repair/crack/grate visuals, public bike racks, public trash/recycling receptacles, bus-stop shelter markers, hydrant markers, and authored public grounds details derived from OpenStreetMap context plus schematic visual markers
 - pedestrian paths, curb edges, sidewalks where side-specific sidewalk tags exist, and lane-edge markings derived from the same public OSM extract
-- a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda architectural detail records, public room/galleries/wayfinding signage, public doorway panels and hardware, public benches/display cases/lecterns/receptacles/plant urns, raised wall-finish/wainscot/pilaster trim, picture rails, decorative wall panels, public architraves, public ceiling/coffer/crown-trim/vent-grille records, public floor-finish and room-shape records, House Chamber, Senate Chamber, galleries, generic chamber seating, public-art markers, visible lighting/wall-treatment details, and a joint-session House Chamber visual layout
+- a public-only Capitol interior schematic with major spaces, generic office/support zones, Rotunda architectural detail records, public room/galleries/wayfinding signage, public doorway panels and hardware, public benches/display cases/lecterns/receptacles/plant urns, raised wall-finish/wainscot/pilaster trim, picture rails, decorative wall panels, public architraves, public ceiling/coffer/crown-trim/vent-grille records, public floor-finish and room-shape records, layered public surface-aging records for dust shadows, scuffs, contact wear, and tarnish, House Chamber, Senate Chamber, galleries, generic chamber seating, public-art markers, visible lighting/wall-treatment details, and a joint-session House Chamber visual layout
 - public-facing Capitol visual details including an authored Capitol landmark mesh, approximate revolving-door assemblies, layered pavilions, pavilion setback reveal shadows, attic-window bands, cornice shadow reveals, articulated roof/courtyard recesses, recessed facade bays, arcade shadow panels, portico soffit coffers, terrace retaining walls, dormers, skylight strips, pediments, generic pediment relief blocks, stone window surrounds, arched window trim, keystones, window mullions, ashlar stone courses, vertical stone joints, facade weathering stains, limestone discoloration patches, sill runoff stains, base grime bands, roof surface joints, roof capstone blocks, sloped roof skirt panels, parapet corner piers, parapet shadow gaps, generic non-operational roof vent housings, lower terrace stair/riser bands, terrace landing slabs, worn plaza/step patches, public step-edge chip shadows, door surrounds, pilasters, exterior column bases/capitals/fluting, stair treads, approach handrails, dentil/cornice courses, cornice brackets, roof balustrades, dome ribs, dome bands, dome shell panel frames, dome drum trim/spandrels, lantern columns/balustrade, entry lamps, facade sconces, facade uplights, bollards, and benches
 - fictional, non-graphic gameplay item pickup props in a separate preview lane: flagpole with American flag and campaign-style banner variants, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
 - Unreal-friendly OBJ/MTL meshes in centimeter units
@@ -94,17 +95,17 @@ The validator checks that:
 - every generated MTL material has a valid Unreal realism-material manifest entry
 - every generated MTL material has generated basecolor, normal, and roughness texture bindings
 - every generated texture file is a valid PNG whose dimensions match `material_texture_manifest.json` and whose minimum production dimension is 4096px
-- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, public Rotunda, signage, door-hardware, furnishing, wall-finish, floor, and ceiling detail layers, fictional gameplay item props, and generated viewpoints are present
+- the expected exterior counts, pedestrian paths, curb records, lane-edge markings, public streetscape props, public grounds details, Capitol facade/furniture details, public interior rooms, generic office cells, House seats, Senate desks, public seating sections, joint-session zones, public Rotunda, signage, door-hardware, furnishing, wall-finish, floor, surface-aging, and ceiling detail layers, fictional gameplay item props, and generated viewpoints are present
 - the Unreal import script still references every generated mesh, expected destination path, import helper, label category, World Outliner folder, first-person setup/collision-proxy marker, and import-report key
 - the Unreal project config still enables the scripting plugins, Nanite/navigation settings, and generated Capitol map editor/game defaults
 
 It writes `generated/data/capitol_package_validation.json`, including an `unreal_importer` contract section. This proves local package consistency; the final editor check is still to run `unreal/import_capitol_map.py` inside Unreal 5.8.
 
-The current validation report counts 1,941,530 generated texture coordinates across the five OBJ meshes.
+The current validation report counts 1,946,114 generated texture coordinates across the five OBJ meshes.
 
 The current texture validation report counts 43 generated texture sets, 19 procedural texture styles, 129 PNG texture files, 75 material bindings, and a minimum generated texture dimension of 4096px.
 
-The current Unreal importer validation report counts 146 report-key markers, 24 material-setup markers, 38 environment/lighting markers, and 24 inspection-workflow markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
+The current Unreal importer validation report counts 147 report-key markers, 24 material-setup markers, 38 environment/lighting markers, and 24 inspection-workflow markers, including generated material graph comments, two-sided/tangent-space material flags, clear-coat material support, material texture feature reporting, capped public accent-light spawning from visible fixture-detail records, and a public schematic inspection workflow contract for browser routes, Unreal cameras, and hide/visible tags.
 
 The current generated build contains:
 
@@ -134,6 +135,7 @@ The current generated build contains:
 - 227 public Rotunda architectural detail records for wall ring, floor trim, center medallion, 16 radial floor inlays, 16 perimeter columns with base/capital blocks plus 64 fluting-groove records, 32 upper coffer panels, 4 public arch portals with 8 spandrel inlays and 4 keystone blocks, upper balustrade ring with 32 posts, oculus trim ring, 7 public statue pedestal bases, and 7 pedestal plaques
 - 425 public ceiling detail records: 127 coffer panels, 54 ceiling grid beams, 40 crown moldings, 31 medallions, 31 light canopies, 31 light-fixture trim rings, 31 warm glass fixture domes, 40 ceiling vent grilles, and 40 ceiling material-variation panels across the chambers, galleries, public rooms, and generic office/support zones
 - 347 public floor-finish/detail records for 72 marble/tile joints, 52 marble vein decals, 52 floor border strips, 24 carpet pile-variation decals, 16 carpet borders, 16 threshold tarnish decals, 8 public threshold slabs, 12 floor medallions, 10 floor-wear bands, 24 floor-wear scuff patches, 7 public room outline inlays, 10 public room axis inlays, and 44 public column footprint markers across public rooms, chamber approaches, galleries, and generic office/support zones
+- 191 public surface-aging detail records for baseboard dust shadows, wall-corner grime streaks, threshold dirt tracks, desk edge wear patches, chair leather scuff patches, gallery seat rub shadows, and brass tarnish patches across public rooms, chamber approaches, galleries, and generic office/support zones
 - 399 public-art visuals across statues, 35 statue plinth-detail records, 35 statue torso-silhouette records, 35 statue head-silhouette records, 35 statue public-plaque records, Rotunda painting/frieze panels, hall art, historic chamber art, portrait panels, 56 art-frame inner-bevel records, 56 canvas tone-patch records, and 56 art label-plaque records; 63 Unreal-spawnable public light fixtures; 127 decorative light-fixture detail records; 174 public accent-light candidates, capped to 144 Unreal-spawnable accent lights; and 11 wall-treatment records for public interior visual orientation
 - Joint-session House Chamber visual zones: President podium, Speaker chair, Vice President chair, Senators/Senate guests, Cabinet, Supreme Court, diplomatic corps, press/camera pool, and member/guest overflow blocks
 - 7 fictional non-graphic gameplay item pickup props: flagpole, nunchucks, bear spray, mace spray, throwable feces, knife, and handgun
@@ -241,6 +243,12 @@ Ceiling/crown detail quick link:
 http://127.0.0.1:8765/viewer.html#ceiling-details
 ```
 
+Surface aging detail quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#surface-aging-details
+```
+
 Chamber top-down quick link:
 
 ```text
@@ -292,7 +300,7 @@ The viewer can toggle:
 - basecolor texture preview
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public chamber role-zone inspection, House/Senate public gallery inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, public surface-aging details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, public chamber role-overlay labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, public surface-aging detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
