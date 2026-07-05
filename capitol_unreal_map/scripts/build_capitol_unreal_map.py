@@ -6306,7 +6306,14 @@ def add_chamber_realism_details(
     def rostrum_desk(name: str, chamber: str, center: tuple[float, float], size: tuple[float, float], z: float) -> None:
         obj.add_box(center, size, 0.42, z, f"{name}_desk_box", "DeskWood")
         obj.add_box((center[0], center[1] + size[1] * 0.34), (size[0] * 0.78, 0.14), 0.38, z + 0.36, f"{name}_raised_lip", "InteriorTrim")
+        front_panel_center = (center[0], center[1] - size[1] * 0.38)
+        front_panel_size = (size[0] * 0.58, 0.070)
+        obj.add_box(front_panel_center, front_panel_size, 0.18, z + 0.12, f"{name}_front_panel_detail", "InteriorTrim")
+        for pull_index, dx in enumerate([-size[0] * 0.18, size[0] * 0.18], start=1):
+            obj.add_box((center[0] + dx, center[1] - size[1] * 0.43), (0.18, 0.040), 0.045, z + 0.32, f"{name}_brass_pull_{pull_index}", "BrassRail")
         add_chamber_detail_record(records, name, "rostrum_desk", chamber, (center[0], center[1], z + 0.21), size)
+        add_chamber_detail_record(records, f"{name}_front_panel_detail", "rostrum_desk_front_panel_detail", chamber, (front_panel_center[0], front_panel_center[1], z + 0.21), front_panel_size)
+        add_chamber_detail_record(records, f"{name}_brass_pull_detail", "rostrum_desk_brass_pull_detail", chamber, (center[0], center[1] - size[1] * 0.43, z + 0.342), (size[0] * 0.42, 0.050))
 
     def gallery_bench(
         name: str,
@@ -6327,14 +6334,28 @@ def add_chamber_realism_details(
         obj.add_cylinder((x, y), 0.055, z, 2.3, f"{name}_pole", "BrassRail", segments=10)
         obj.add_cylinder((x, y), 0.15, z + 2.3, 0.18, f"{name}_finial", "BrassRail", segments=12)
         obj.add_box((x + 0.28, y), (0.55, 0.08), 0.68, z + 1.35, f"{name}_cloth_panel", flag_material)
+        for fold_index, dx in enumerate([0.12, 0.26, 0.40], start=1):
+            obj.add_box((x + dx, y + 0.006), (0.030, 0.088), 0.62, z + 1.38, f"{name}_cloth_fold_{fold_index}", "FloorWear")
+            add_chamber_detail_record(records, f"{name}_cloth_fold_{fold_index}", "chamber_flag_fold_strip", chamber, (x + dx, y + 0.006, z + 1.69), (0.030, 0.088))
+        for stripe_index in range(4):
+            stripe_z = z + 1.13 + stripe_index * 0.14
+            stripe_material = "LaneMarkingWhite" if stripe_index % 2 == 0 else flag_material
+            obj.add_box((x + 0.30, y - 0.002), (0.47, 0.090), 0.025, stripe_z, f"{name}_stripe_{stripe_index+1}", stripe_material)
+            add_chamber_detail_record(records, f"{name}_stripe_{stripe_index+1}", "chamber_flag_stripe_detail", chamber, (x + 0.30, y - 0.002, stripe_z + 0.013), (0.47, 0.090))
+        obj.add_box((x + 0.12, y - 0.004), (0.18, 0.095), 0.16, z + 1.55, f"{name}_canton_marker", "MarkerBlue")
         add_chamber_detail_record(records, name, "flag_standard", chamber, (x, y, z + 1.15), (0.7, 0.18))
+        add_chamber_detail_record(records, f"{name}_cloth_panel", "chamber_flag_cloth_panel", chamber, (x + 0.28, y, z + 1.69), (0.55, 0.08))
+        add_chamber_detail_record(records, f"{name}_canton_marker", "chamber_flag_canton_marker", chamber, (x + 0.12, y - 0.004, z + 1.63), (0.18, 0.095))
 
     def public_lectern(name: str, chamber: str, center: tuple[float, float], z: float) -> None:
         x, y = center
         obj.add_box((x, y), (0.78, 0.46), 0.82, z, f"{name}_base", "DeskWood")
         obj.add_box((x, y + 0.03), (0.92, 0.54), 0.12, z + 0.82, f"{name}_sloped_top", "InteriorTrim")
         obj.add_box((x, y - 0.32), (0.18, 0.12), 0.22, z + 0.92, f"{name}_microphone_marker", "DoorMetal")
+        obj.add_box((x + 0.24, y + 0.13), (0.06, 0.28), 0.055, z + 1.00, f"{name}_reading_lamp_arm", "LightFixtureMetal")
+        obj.add_box((x + 0.24, y + 0.30), (0.26, 0.08), 0.060, z + 1.03, f"{name}_reading_lamp_lens", "WarmLightGlass")
         add_chamber_detail_record(records, name, "public_lectern", chamber, (x, y, z + 0.58), (0.92, 0.54))
+        add_chamber_detail_record(records, f"{name}_reading_lamp", "public_lectern_reading_lamp", chamber, (x + 0.24, y + 0.24, z + 1.03), (0.28, 0.18))
 
     def public_work_table(
         name: str,
@@ -6351,7 +6372,10 @@ def add_chamber_realism_details(
             start=1,
         ):
             obj.add_box((x + dx, y + dy), (0.10, 0.10), 0.62, z - 0.58, f"{name}_leg_{post_index}", "DeskWood")
+        obj.add_box((x + sx * 0.24, y + sy * 0.20), (0.08, sy * 0.42), 0.050, z + 0.28, f"{name}_reading_lamp_arm", "LightFixtureMetal")
+        obj.add_box((x + sx * 0.24, y + sy * 0.43), (0.34, 0.08), 0.060, z + 0.31, f"{name}_reading_lamp_lens", "WarmLightGlass")
         add_chamber_detail_record(records, name, "public_work_table", chamber, (x, y, z + 0.13), size)
+        add_chamber_detail_record(records, f"{name}_reading_lamp", "public_work_table_lamp", chamber, (x + sx * 0.24, y + sy * 0.33, z + 0.31), (0.36, 0.20))
 
     def gallery_divider(name: str, chamber: str, center: tuple[float, float], orientation: str, z: float) -> None:
         x, y = center
@@ -6637,6 +6661,27 @@ def add_chamber_realism_details(
         obj.add_box(center, (0.035, radius * 1.35), 0.014, z + 0.012, f"{name}_vertical_inlay", "ArtFrameGold")
         add_chamber_detail_record(records, name, "chamber_carpet_medallion", chamber, (x, y, z + 0.010), (radius * 2.0, radius * 2.0))
 
+    def generic_rostrum_seal_medallion(
+        name: str,
+        chamber: str,
+        center: tuple[float, float],
+        radius: float,
+        z: float,
+    ) -> None:
+        x, y = center
+        obj.add_disk(center, radius, z, f"{name}_outer_disk", "ArtFrameGold", segments=36)
+        obj.add_disk(center, radius * 0.74, z + 0.006, f"{name}_inner_disk", "PublicGallery", segments=36)
+        obj.add_box(center, (radius * 1.18, 0.035), 0.014, z + 0.014, f"{name}_horizontal_mark", "BrassRail")
+        obj.add_box(center, (0.035, radius * 1.18), 0.014, z + 0.018, f"{name}_vertical_mark", "BrassRail")
+        add_chamber_detail_record(
+            records,
+            name,
+            "generic_rostrum_seal_medallion",
+            chamber,
+            (x, y, z + 0.012),
+            (radius * 2.0, radius * 2.0),
+        )
+
     # House chamber public visual details.
     for runner_name, center, size in [
         ("house_center_aisle_carpet_runner", (0.0, -74.5), (1.48, 39.0)),
@@ -6679,6 +6724,7 @@ def add_chamber_realism_details(
     rail("house_rostrum_front_brass_rail", "House Chamber", (0.0, -50.75), (14.6, 0.16), 5.42)
     rail("house_rostrum_left_brass_rail", "House Chamber", (-7.25, -48.7), (0.16, 4.1), 5.42)
     rail("house_rostrum_right_brass_rail", "House Chamber", (7.25, -48.7), (0.16, 4.1), 5.42)
+    generic_rostrum_seal_medallion("house_rostrum_generic_public_seal_medallion", "House Chamber", (0.0, -48.15), 0.56, 5.93)
     for idx, y in enumerate([-51.55, -52.05, -52.55], start=1):
         step(f"house_rostrum_step_tread_{idx}", "House Chamber", (0.0, y), (15.6 - idx * 0.8, 0.32), 4.58 + idx * 0.08)
     for idx, x in enumerate([-5.0, -3.0, -1.0, 1.0, 3.0, 5.0], start=1):
@@ -6815,6 +6861,7 @@ def add_chamber_realism_details(
     rail("senate_presiding_front_brass_rail", "Senate Chamber", (0.0, 81.85), (12.0, 0.16), 5.36)
     rail("senate_presiding_left_brass_rail", "Senate Chamber", (-6.0, 83.25), (0.16, 2.8), 5.36)
     rail("senate_presiding_right_brass_rail", "Senate Chamber", (6.0, 83.25), (0.16, 2.8), 5.36)
+    generic_rostrum_seal_medallion("senate_presiding_generic_public_seal_medallion", "Senate Chamber", (0.0, 84.02), 0.50, 5.88)
     for idx, y in enumerate([81.0, 80.55], start=1):
         step(f"senate_presiding_step_tread_{idx}", "Senate Chamber", (0.0, y), (12.6 - idx * 0.6, 0.30), 4.58 + idx * 0.08)
     for idx, x in enumerate([-4.2, -2.1, 0.0, 2.1, 4.2], start=1):

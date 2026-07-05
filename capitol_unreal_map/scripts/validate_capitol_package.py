@@ -540,13 +540,18 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "flag_standard",
     "desk_arc_marker",
     "public_lectern",
+    "public_lectern_reading_lamp",
     "public_work_table",
+    "public_work_table_lamp",
     "gallery_divider",
     "balcony_fascia",
     "desk_surface_marker",
     "aisle_step_light",
     "row_marker_plaque",
     "rostrum_microphone_cluster",
+    "rostrum_desk_front_panel_detail",
+    "rostrum_desk_brass_pull_detail",
+    "generic_rostrum_seal_medallion",
     "gallery_stanchion",
     "gallery_support_column",
     "public_display_board",
@@ -592,6 +597,10 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "gallery_tread_nosing",
     "rostrum_backdrop_trim_inlay",
     "chamber_carpet_medallion",
+    "chamber_flag_cloth_panel",
+    "chamber_flag_fold_strip",
+    "chamber_flag_stripe_detail",
+    "chamber_flag_canton_marker",
 }
 
 REQUIRED_OFFICE_DETAIL_KINDS = {
@@ -1651,8 +1660,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     chamber_detail_chambers = {detail.get("chamber") for detail in chamber_details}
     summary["chamber_details"] = len(chamber_details)
     summary["chamber_detail_kinds"] = len(chamber_detail_kinds)
-    if len(chamber_details) < 10260:
-        error(errors, f"expected at least 10260 public chamber detail records, got {len(chamber_details)}")
+    if len(chamber_details) < 10320:
+        error(errors, f"expected at least 10320 public chamber detail records, got {len(chamber_details)}")
     missing_chamber_kinds = sorted(REQUIRED_CHAMBER_DETAIL_KINDS - chamber_detail_kinds)
     if missing_chamber_kinds:
         error(errors, f"missing public chamber detail kinds: {', '.join(missing_chamber_kinds)}")
@@ -1665,8 +1674,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 7 public rostrum desk records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_lectern"]) < 2:
         error(errors, "expected at least 2 public chamber lectern records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_lectern_reading_lamp"]) < 2:
+        error(errors, "expected at least 2 public lectern reading-lamp records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_work_table"]) < 4:
         error(errors, "expected at least 4 public work table records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "public_work_table_lamp"]) < 4:
+        error(errors, "expected at least 4 public work-table lamp records")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_divider"]) < 16:
         error(errors, "expected at least 16 public gallery divider records")
     if len([detail for detail in chamber_details if detail.get("kind") == "balcony_fascia"]) < 4:
@@ -1679,6 +1692,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 public chamber row-marker plaque records")
     if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_microphone_cluster"]) < 7:
         error(errors, "expected at least 7 public rostrum microphone-cluster records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_desk_front_panel_detail"]) < 7:
+        error(errors, "expected at least 7 public rostrum desk front-panel detail records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_desk_brass_pull_detail"]) < 7:
+        error(errors, "expected at least 7 public rostrum desk brass-pull detail records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "generic_rostrum_seal_medallion"]) < 2:
+        error(errors, "expected at least 2 generic public rostrum seal medallion records")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_stanchion"]) < 32:
         error(errors, "expected at least 32 public gallery stanchion records")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_support_column"]) < 24:
@@ -1769,6 +1788,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 22 public chamber rostrum backdrop trim-inlay records")
     if len([detail for detail in chamber_details if detail.get("kind") == "chamber_carpet_medallion"]) < 4:
         error(errors, "expected at least 4 public chamber carpet medallion records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_flag_cloth_panel"]) < 4:
+        error(errors, "expected at least 4 public chamber flag cloth-panel records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_flag_fold_strip"]) < 12:
+        error(errors, "expected at least 12 public chamber flag fold-strip records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_flag_stripe_detail"]) < 16:
+        error(errors, "expected at least 16 public chamber flag stripe-detail records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "chamber_flag_canton_marker"]) < 4:
+        error(errors, "expected at least 4 public chamber flag canton-marker records")
     for detail in chamber_details[:12]:
         if not is_vec3(detail.get("center_m")):
             error(errors, f"chamber detail {detail.get('name', '<unknown>')} has invalid center_m")
