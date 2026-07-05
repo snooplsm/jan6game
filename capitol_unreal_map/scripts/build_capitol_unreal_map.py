@@ -4557,6 +4557,13 @@ def add_statue_visual(
     obj.add_cylinder((x, y), 0.62, z, 0.34, f"{name}_plinth", "StepStone", segments=18)
     obj.add_cylinder((x, y), 0.34, z + 0.34, 1.28, f"{name}_body", material, segments=18)
     obj.add_cylinder((x, y), 0.20, z + 1.62, 0.28, f"{name}_head", material, segments=18)
+    obj.add_cylinder((x, y), 0.72, z - 0.08, 0.10, f"{name}_plinth_base_step", "StepStone", segments=18)
+    obj.add_cylinder((x, y), 0.54, z + 0.31, 0.12, f"{name}_plinth_cap", "StepStone", segments=18)
+    obj.add_box((x, y - 0.51), (0.72, 0.08), 0.18, z + 0.12, f"{name}_plinth_public_plaque", "BrassRail")
+    obj.add_box((x, y), (0.82, 0.18), 0.18, z + 1.12, f"{name}_shoulder_silhouette", material)
+    obj.add_box((x - 0.34, y), (0.12, 0.12), 0.72, z + 0.70, f"{name}_left_drape_fold", material)
+    obj.add_box((x + 0.34, y), (0.12, 0.12), 0.72, z + 0.70, f"{name}_right_drape_fold", material)
+    obj.add_cylinder((x, y), 0.23, z + 1.89, 0.035, f"{name}_head_top_highlight", material, segments=18)
     records.append(
         {
             "name": name,
@@ -4569,6 +4576,26 @@ def add_statue_visual(
             "assignment": "Public-art visual marker. Not an exact current statue-by-statue placement unless explicitly named.",
         }
     )
+    detail_specs = [
+        ("plinth_detail", "statue_plinth_detail", (x, y, z + 0.18), "base_step/cap/plaque"),
+        ("torso_silhouette", "statue_torso_silhouette", (x, y, z + 1.08), "shoulders/drape"),
+        ("head_silhouette", "statue_head_silhouette", (x, y, z + 1.78), "head/highlight"),
+        ("public_plaque", "statue_public_plaque", (x, y - 0.51, z + 0.21), "generic_public_label"),
+    ]
+    for suffix, art_type, detail_center, detail_hint in detail_specs:
+        records.append(
+            {
+                "name": f"{name}_{suffix}",
+                "type": art_type,
+                "collection": collection,
+                "location": location,
+                "center_m": [round(detail_center[0], 3), round(detail_center[1], 3), round(detail_center[2], 3)],
+                "material_hint": "bronze" if material == "StatueBronze" else "marble/stone",
+                "public_accuracy": "schematic_public_art_detail",
+                "detail_hint": detail_hint,
+                "assignment": "Generic sculptural-detail silhouette for public visual realism; not an exact artwork reconstruction.",
+            }
+        )
 
 
 def add_wall_art_visual(
@@ -4589,9 +4616,19 @@ def add_wall_art_visual(
     if facing_axis == "x":
         obj.add_box((x, y), (0.16, width + 0.34), height + 0.34, z - height / 2.0, f"{name}_frame", "ArtFrameGold")
         obj.add_box((x, y), (0.18, width), height, z - height / 2.0 + 0.08, f"{name}_canvas", material)
+        obj.add_box((x, y), (0.19, width + 0.16), 0.10, z + height / 2.0 + 0.04, f"{name}_top_inner_bevel", "ArtFrameGold")
+        obj.add_box((x, y), (0.19, width + 0.16), 0.10, z - height / 2.0 - 0.08, f"{name}_bottom_inner_bevel", "ArtFrameGold")
+        obj.add_box((x, y - width * 0.22), (0.20, width * 0.34), height * 0.16, z + height * 0.10, f"{name}_canvas_mid_tone_patch", "PaintingCanvas")
+        obj.add_box((x, y + width * 0.26), (0.20, width * 0.22), height * 0.10, z - height * 0.18, f"{name}_canvas_dark_tone_patch", "PortraitCanvas")
+        obj.add_box((x, y), (0.20, min(width * 0.55, 1.1)), 0.08, z - height / 2.0 - 0.38, f"{name}_small_label_plaque", "BrassRail")
     else:
         obj.add_box((x, y), (width + 0.34, 0.16), height + 0.34, z - height / 2.0, f"{name}_frame", "ArtFrameGold")
         obj.add_box((x, y), (width, 0.18), height, z - height / 2.0 + 0.08, f"{name}_canvas", material)
+        obj.add_box((x, y), (width + 0.16, 0.19), 0.10, z + height / 2.0 + 0.04, f"{name}_top_inner_bevel", "ArtFrameGold")
+        obj.add_box((x, y), (width + 0.16, 0.19), 0.10, z - height / 2.0 - 0.08, f"{name}_bottom_inner_bevel", "ArtFrameGold")
+        obj.add_box((x - width * 0.22, y), (width * 0.34, 0.20), height * 0.16, z + height * 0.10, f"{name}_canvas_mid_tone_patch", "PaintingCanvas")
+        obj.add_box((x + width * 0.26, y), (width * 0.22, 0.20), height * 0.10, z - height * 0.18, f"{name}_canvas_dark_tone_patch", "PortraitCanvas")
+        obj.add_box((x, y), (min(width * 0.55, 1.1), 0.20), 0.08, z - height / 2.0 - 0.38, f"{name}_small_label_plaque", "BrassRail")
     records.append(
         {
             "name": name,
@@ -4603,11 +4640,54 @@ def add_wall_art_visual(
             "assignment": "Schematic public-art panel, not an exact artwork inventory record.",
         }
     )
+    detail_specs = [
+        ("inner_bevel", "art_frame_inner_bevel", (x, y, z), {"facing_axis": facing_axis}),
+        ("canvas_tone_patches", "art_canvas_tone_patch", (x, y, z), {"patch_count": 2, "facing_axis": facing_axis}),
+        ("label_plaque", "art_label_plaque", (x, y, z - height / 2.0 - 0.34), {"facing_axis": facing_axis}),
+    ]
+    for suffix, detail_type, detail_center, extra in detail_specs:
+        record: dict[str, Any] = {
+            "name": f"{name}_{suffix}",
+            "type": detail_type,
+            "location": location,
+            "center_m": [round(detail_center[0], 3), round(detail_center[1], 3), round(detail_center[2], 3)],
+            "size_m": [round(width, 3), round(height, 3)],
+            "public_accuracy": "schematic_public_art_detail",
+            "assignment": "Generic frame/canvas detail for public visual realism; not an exact artwork reconstruction.",
+        }
+        record.update(extra)
+        records.append(record)
+
+
+def add_light_fixture_detail_record(
+    records: list[dict[str, Any]],
+    name: str,
+    kind: str,
+    fixture_name: str,
+    fixture_type: str,
+    location: str,
+    center: tuple[float, float, float],
+    extra: dict[str, Any] | None = None,
+) -> None:
+    record: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "fixture_name": fixture_name,
+        "fixture_type": fixture_type,
+        "location": location,
+        "center_m": [round(center[0], 3), round(center[1], 3), round(center[2], 3)],
+        "public_accuracy": "schematic_public_light_fixture_detail",
+        "assignment": "Decorative visible fixture geometry only; spawned light metadata remains in light_fixtures.",
+    }
+    if extra:
+        record.update(extra)
+    records.append(record)
 
 
 def add_light_fixture(
     obj: ObjWriter,
     fixtures: list[dict[str, Any]],
+    fixture_details: list[dict[str, Any]],
     name: str,
     fixture_type: str,
     location: str,
@@ -4618,18 +4698,32 @@ def add_light_fixture(
 ) -> None:
     x, y = center
     if fixture_type == "chandelier":
+        obj.add_cylinder((x, y), 0.10, z + 0.18, 0.45, f"{name}_ceiling_chain", "LightFixtureMetal", segments=10)
+        obj.add_cylinder((x, y), 0.22, z + 0.58, 0.06, f"{name}_ceiling_canopy", "LightFixtureMetal", segments=16)
         obj.add_cylinder((x, y), 0.48, z - 0.16, 0.18, f"{name}_metal_ring", "LightFixtureMetal", segments=24)
         for idx in range(6):
             angle = math.tau * idx / 6.0
             px = x + 0.42 * math.cos(angle)
             py = y + 0.42 * math.sin(angle)
+            obj.add_oriented_box((x + 0.21 * math.cos(angle), y + 0.21 * math.sin(angle)), (0.42, 0.045), 0.045, z - 0.20, angle, f"{name}_radial_arm_{idx+1}", "LightFixtureMetal")
             obj.add_cylinder((px, py), 0.10, z - 0.55, 0.32, f"{name}_glass_bulb_{idx+1}", "WarmLightGlass", segments=12)
+        add_light_fixture_detail_record(fixture_details, f"{name}_ceiling_chain_detail", "chandelier_chain", name, fixture_type, location, (x, y, z + 0.40))
+        add_light_fixture_detail_record(fixture_details, f"{name}_armature_detail", "chandelier_armature", name, fixture_type, location, (x, y, z - 0.16), {"arm_count": 6})
+        add_light_fixture_detail_record(fixture_details, f"{name}_glass_bulb_detail", "chandelier_glass_bulb_cluster", name, fixture_type, location, (x, y, z - 0.40), {"bulb_count": 6})
     elif fixture_type == "sconce":
         obj.add_box((x, y), (0.35, 0.12), 0.55, z - 0.28, f"{name}_sconce_backplate", "LightFixtureMetal")
+        obj.add_box((x, y), (0.44, 0.15), 0.08, z + 0.24, f"{name}_sconce_top_cap", "BrassRail")
+        obj.add_box((x, y), (0.44, 0.15), 0.08, z - 0.40, f"{name}_sconce_bottom_cap", "BrassRail")
         obj.add_cylinder((x, y), 0.13, z - 0.12, 0.32, f"{name}_sconce_glass", "WarmLightGlass", segments=12)
+        add_light_fixture_detail_record(fixture_details, f"{name}_backplate_detail", "sconce_backplate_detail", name, fixture_type, location, (x, y, z - 0.02))
+        add_light_fixture_detail_record(fixture_details, f"{name}_glass_shade_detail", "sconce_glass_shade_detail", name, fixture_type, location, (x, y, z + 0.04))
     else:
+        obj.add_cylinder((x, y), 0.21, z + 0.50, 0.065, f"{name}_pendant_ceiling_canopy", "LightFixtureMetal", segments=16)
+        obj.add_cylinder((x, y), 0.30, z - 0.28, 0.055, f"{name}_pendant_lower_trim", "BrassRail", segments=16)
         obj.add_cylinder((x, y), 0.26, z - 0.22, 0.32, f"{name}_pendant_glass", "WarmLightGlass", segments=16)
         obj.add_cylinder((x, y), 0.07, z + 0.10, 0.42, f"{name}_pendant_stem", "LightFixtureMetal", segments=10)
+        add_light_fixture_detail_record(fixture_details, f"{name}_canopy_detail", "pendant_canopy_detail", name, fixture_type, location, (x, y, z + 0.53))
+        add_light_fixture_detail_record(fixture_details, f"{name}_glass_shade_detail", "pendant_glass_shade_detail", name, fixture_type, location, (x, y, z - 0.06))
     fixtures.append(
         {
             "name": name,
@@ -4647,9 +4741,10 @@ def add_light_fixture(
 def add_public_art_and_lighting(
     obj: ObjWriter,
     labels: list[dict[str, Any]],
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     art: list[dict[str, Any]] = []
     lights: list[dict[str, Any]] = []
+    light_details: list[dict[str, Any]] = []
 
     # Named Rotunda presidential statues are public AOC-listed objects. Their
     # exact in-room positions are schematic here.
@@ -4815,12 +4910,13 @@ def add_public_art_and_lighting(
 
     # Warm public lighting. Unreal importer can spawn actual lights from this
     # metadata; mesh geometry keeps them visible in OBJ/browser preview.
-    add_light_fixture(obj, lights, "rotunda_center_chandelier", "chandelier", "Rotunda", (0.0, 0.0), 9.1, 2600.0, 16.0)
+    add_light_fixture(obj, lights, light_details, "rotunda_center_chandelier", "chandelier", "Rotunda", (0.0, 0.0), 9.1, 2600.0, 16.0)
     for idx in range(8):
         angle = math.tau * idx / 8.0
         add_light_fixture(
             obj,
             lights,
+            light_details,
             f"rotunda_perimeter_sconce_{idx+1:02d}",
             "sconce",
             "Rotunda",
@@ -4831,20 +4927,20 @@ def add_public_art_and_lighting(
         )
 
     for idx, x in enumerate([-20.0, -10.0, 0.0, 10.0, 20.0], start=1):
-        add_light_fixture(obj, lights, f"house_chamber_pendant_{idx:02d}", "pendant", "House Chamber", (x, -72.0), 8.2, 900.0, 9.0)
-        add_light_fixture(obj, lights, f"senate_chamber_pendant_{idx:02d}", "pendant", "Senate Chamber", (x * 0.75, 68.0), 8.2, 850.0, 8.0)
+        add_light_fixture(obj, lights, light_details, f"house_chamber_pendant_{idx:02d}", "pendant", "House Chamber", (x, -72.0), 8.2, 900.0, 9.0)
+        add_light_fixture(obj, lights, light_details, f"senate_chamber_pendant_{idx:02d}", "pendant", "Senate Chamber", (x * 0.75, 68.0), 8.2, 850.0, 8.0)
 
     for idx, y in enumerate([-87.0, -80.5, -74.0, -67.5, -61.0], start=1):
-        add_light_fixture(obj, lights, f"house_west_wall_sconce_{idx:02d}", "sconce", "House Chamber", (-30.2, y), 7.0, 560.0, 6.8)
-        add_light_fixture(obj, lights, f"house_east_wall_sconce_{idx:02d}", "sconce", "House Chamber", (30.2, y), 7.0, 560.0, 6.8)
+        add_light_fixture(obj, lights, light_details, f"house_west_wall_sconce_{idx:02d}", "sconce", "House Chamber", (-30.2, y), 7.0, 560.0, 6.8)
+        add_light_fixture(obj, lights, light_details, f"house_east_wall_sconce_{idx:02d}", "sconce", "House Chamber", (30.2, y), 7.0, 560.0, 6.8)
 
     for idx, y in enumerate([58.0, 64.5, 71.0, 77.5], start=1):
-        add_light_fixture(obj, lights, f"senate_west_wall_sconce_{idx:02d}", "sconce", "Senate Chamber", (-23.2, y), 7.0, 540.0, 6.4)
-        add_light_fixture(obj, lights, f"senate_east_wall_sconce_{idx:02d}", "sconce", "Senate Chamber", (23.2, y), 7.0, 540.0, 6.4)
+        add_light_fixture(obj, lights, light_details, f"senate_west_wall_sconce_{idx:02d}", "sconce", "Senate Chamber", (-23.2, y), 7.0, 540.0, 6.4)
+        add_light_fixture(obj, lights, light_details, f"senate_east_wall_sconce_{idx:02d}", "sconce", "Senate Chamber", (23.2, y), 7.0, 540.0, 6.4)
 
     for idx, x in enumerate([-24.0, -8.0, 8.0, 24.0], start=1):
-        add_light_fixture(obj, lights, f"house_gallery_sconce_{idx:02d}", "sconce", "House galleries", (x, -100.9), 6.85, 440.0, 5.4)
-        add_light_fixture(obj, lights, f"senate_gallery_sconce_{idx:02d}", "sconce", "Senate galleries", (x * 0.78, 98.8), 6.85, 420.0, 5.2)
+        add_light_fixture(obj, lights, light_details, f"house_gallery_sconce_{idx:02d}", "sconce", "House galleries", (x, -100.9), 6.85, 440.0, 5.4)
+        add_light_fixture(obj, lights, light_details, f"senate_gallery_sconce_{idx:02d}", "sconce", "Senate galleries", (x * 0.78, 98.8), 6.85, 420.0, 5.2)
 
     transition_light_specs = [
         ("west_public_approach_transition_light", "West terrace public orientation marker", (-55.0, 0.0), 6.92, 520.0, 5.8),
@@ -4857,17 +4953,17 @@ def add_public_art_and_lighting(
         ("senate_gallery_transition_light", "Senate Chamber / public gallery", (0.0, 89.0), 6.92, 420.0, 5.0),
     ]
     for name, location, center, z, intensity, radius in transition_light_specs:
-        add_light_fixture(obj, lights, name, "pendant", location, center, z, intensity, radius)
+        add_light_fixture(obj, lights, light_details, name, "pendant", location, center, z, intensity, radius)
 
     for idx, x in enumerate([20.0, 28.0, 36.0], start=1):
-        add_light_fixture(obj, lights, f"statuary_hall_pendant_{idx:02d}", "pendant", "National Statuary Hall", (x, -30.0), 7.8, 720.0, 7.0)
-        add_light_fixture(obj, lights, f"old_senate_chamber_pendant_{idx:02d}", "pendant", "Old Senate Chamber", (x, 30.0), 7.8, 680.0, 6.5)
+        add_light_fixture(obj, lights, light_details, f"statuary_hall_pendant_{idx:02d}", "pendant", "National Statuary Hall", (x, -30.0), 7.8, 720.0, 7.0)
+        add_light_fixture(obj, lights, light_details, f"old_senate_chamber_pendant_{idx:02d}", "pendant", "Old Senate Chamber", (x, 30.0), 7.8, 680.0, 6.5)
 
     for idx, (x, y) in enumerate([(-53.0, -55.0), (53.0, -55.0), (-52.0, 55.0), (52.0, 55.0)], start=1):
-        add_light_fixture(obj, lights, f"generic_office_zone_light_{idx:02d}", "pendant", "Generic office/support zone", (x, y), 7.2, 550.0, 6.0)
+        add_light_fixture(obj, lights, light_details, f"generic_office_zone_light_{idx:02d}", "pendant", "Generic office/support zone", (x, y), 7.2, 550.0, 6.0)
 
     add_label(labels, "Warm public lighting fixtures - schematic", 0.0, 6.5, 9.7, "lighting")
-    return art, lights
+    return art, lights, light_details
 
 
 def add_wall_treatment(
@@ -7975,6 +8071,7 @@ def build_interior() -> dict[str, Any]:
     joint_session: list[dict[str, Any]] = []
     public_art: list[dict[str, Any]] = []
     light_fixtures: list[dict[str, Any]] = []
+    light_fixture_details: list[dict[str, Any]] = []
     wall_treatments: list[dict[str, Any]] = []
     wall_finish_details: list[dict[str, Any]] = []
     chamber_details: list[dict[str, Any]] = []
@@ -8031,7 +8128,7 @@ def build_interior() -> dict[str, Any]:
     seating_sections.extend(build_seating_sections(labels, seats, joint_session))
     add_chamber_public_role_zone_overlays(obj, labels, seating_sections, chamber_details)
     add_chamber_realism_details(obj, labels, chamber_details)
-    public_art, light_fixtures = add_public_art_and_lighting(obj, labels)
+    public_art, light_fixtures, light_fixture_details = add_public_art_and_lighting(obj, labels)
 
     add_wall_treatment(obj, wall_treatments, "rotunda_wall_finish", "Rotunda", (0.0, 0.0), (29.5, 29.5), 10, 10, z=4.45)
     add_wall_treatment(obj, wall_treatments, "house_chamber_wall_finish", "House Chamber", (0.0, -72.0), (62.0, 42.0), 12, 8, z=4.45)
@@ -8060,6 +8157,7 @@ def build_interior() -> dict[str, Any]:
         "joint_session": joint_session,
         "public_art": public_art,
         "light_fixtures": light_fixtures,
+        "light_fixture_details": light_fixture_details,
         "wall_treatments": wall_treatments,
         "wall_finish_details": wall_finish_details,
         "chamber_details": chamber_details,
@@ -8328,6 +8426,7 @@ def main() -> None:
         f"{len(interior['seating_sections'])} seating sections,",
         f"{len(interior['public_art'])} public-art visuals,",
         f"{len(interior['light_fixtures'])} light fixtures,",
+        f"{len(interior['light_fixture_details'])} light fixture detail records,",
         f"{len(interior['wall_treatments'])} wall-treatment records,",
         f"{len(interior['wall_finish_details'])} wall-finish detail records,",
         f"{len(interior['chamber_details'])} chamber detail records,",

@@ -50,9 +50,11 @@
     "floor_details": 255,
     "floor_detail_kinds": 10,
     "joint_session_records": 9,
-    "public_art": 91,
-    "public_art_types": 6,
+    "public_art": 399,
+    "public_art_types": 13,
     "light_fixtures": 63,
+    "light_fixture_details": 127,
+    "light_fixture_detail_kinds": 7,
     "wall_treatments": 11,
     "gameplay_items": 7,
     "gameplay_labels": 7,
@@ -251,12 +253,12 @@
     },
     {
       "path": "generated/meshes/capitol_public_interior_schematic.obj",
-      "vertices": 196901,
-      "uvs": 593620,
-      "faces": 140877,
-      "faces_with_uvs": 140877,
-      "triangles": 311866,
-      "groups": 19545,
+      "vertices": 206477,
+      "uvs": 622348,
+      "faces": 146979,
+      "faces_with_uvs": 146979,
+      "triangles": 328390,
+      "groups": 20202,
       "materials": [
         "ArtFrameGold",
         "BenchWood",
@@ -313,7 +315,7 @@
         "max": [
           7521.0,
           10200.5,
-          938.0
+          974.0
         ]
       }
     },

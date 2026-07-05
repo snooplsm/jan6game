@@ -686,11 +686,28 @@ REQUIRED_ROTUNDA_DETAIL_KINDS = {
 
 REQUIRED_PUBLIC_ART_TYPES = {
     "statue",
+    "statue_plinth_detail",
+    "statue_torso_silhouette",
+    "statue_head_silhouette",
+    "statue_public_plaque",
     "historical_painting_panel",
     "rotunda_frieze_relief_panel",
     "public_hall_art_panel",
     "historic_chamber_art_panel",
     "portrait_panel",
+    "art_frame_inner_bevel",
+    "art_canvas_tone_patch",
+    "art_label_plaque",
+}
+
+REQUIRED_LIGHT_FIXTURE_DETAIL_KINDS = {
+    "chandelier_chain",
+    "chandelier_armature",
+    "chandelier_glass_bulb_cluster",
+    "pendant_canopy_detail",
+    "pendant_glass_shade_detail",
+    "sconce_backplate_detail",
+    "sconce_glass_shade_detail",
 }
 
 REQUIRED_CEILING_DETAIL_KINDS = {
@@ -2089,29 +2106,60 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     public_art = interior.get("public_art", [])
     public_art_types = {record.get("type") for record in public_art}
     light_fixtures = interior.get("light_fixtures", [])
+    light_fixture_details = interior.get("light_fixture_details", [])
+    light_fixture_detail_kinds = {record.get("kind") for record in light_fixture_details}
     wall_treatments = interior.get("wall_treatments", [])
     summary["public_art"] = len(public_art)
     summary["public_art_types"] = len(public_art_types)
     summary["light_fixtures"] = len(light_fixtures)
+    summary["light_fixture_details"] = len(light_fixture_details)
+    summary["light_fixture_detail_kinds"] = len(light_fixture_detail_kinds)
     summary["wall_treatments"] = len(wall_treatments)
-    if len(public_art) < 90:
-        error(errors, f"expected at least 90 public-art visuals, got {len(public_art)}")
+    if len(public_art) < 395:
+        error(errors, f"expected at least 395 public-art visuals, got {len(public_art)}")
     missing_art_types = sorted(REQUIRED_PUBLIC_ART_TYPES - public_art_types)
     if missing_art_types:
         error(errors, f"missing public-art visual types: {', '.join(missing_art_types)}")
     if len([record for record in public_art if record.get("type") == "statue"]) < 35:
         error(errors, "expected at least 35 public statue visual records")
+    if len([record for record in public_art if record.get("type") == "statue_plinth_detail"]) < 35:
+        error(errors, "expected at least 35 public statue plinth-detail records")
+    if len([record for record in public_art if record.get("type") == "statue_torso_silhouette"]) < 35:
+        error(errors, "expected at least 35 public statue torso-silhouette records")
+    if len([record for record in public_art if record.get("type") == "statue_head_silhouette"]) < 35:
+        error(errors, "expected at least 35 public statue head-silhouette records")
+    if len([record for record in public_art if record.get("type") == "statue_public_plaque"]) < 35:
+        error(errors, "expected at least 35 public statue plaque records")
     if len([record for record in public_art if record.get("type") == "historical_painting_panel"]) < 8:
         error(errors, "expected at least 8 Rotunda historical painting panel records")
     if len([record for record in public_art if record.get("type") == "rotunda_frieze_relief_panel"]) < 16:
         error(errors, "expected at least 16 Rotunda frieze relief panel records")
     if len([record for record in public_art if record.get("type") == "portrait_panel"]) < 18:
         error(errors, "expected at least 18 public portrait panel records")
+    if len([record for record in public_art if record.get("type") == "art_frame_inner_bevel"]) < 56:
+        error(errors, "expected at least 56 public art inner-frame bevel records")
+    if len([record for record in public_art if record.get("type") == "art_canvas_tone_patch"]) < 56:
+        error(errors, "expected at least 56 public art canvas tone-patch records")
+    if len([record for record in public_art if record.get("type") == "art_label_plaque"]) < 56:
+        error(errors, "expected at least 56 public art label-plaque records")
     if len(light_fixtures) < 63:
         error(errors, f"expected at least 63 public light fixtures, got {len(light_fixtures)}")
+    if len(light_fixture_details) < 125:
+        error(errors, f"expected at least 125 public light fixture detail records, got {len(light_fixture_details)}")
+    missing_light_fixture_detail_kinds = sorted(REQUIRED_LIGHT_FIXTURE_DETAIL_KINDS - light_fixture_detail_kinds)
+    if missing_light_fixture_detail_kinds:
+        error(errors, f"missing public light fixture detail kinds: {', '.join(missing_light_fixture_detail_kinds)}")
+    if len([record for record in light_fixture_details if record.get("kind") == "pendant_canopy_detail"]) < 28:
+        error(errors, "expected at least 28 public pendant canopy detail records")
+    if len([record for record in light_fixture_details if record.get("kind") == "pendant_glass_shade_detail"]) < 28:
+        error(errors, "expected at least 28 public pendant glass-shade detail records")
+    if len([record for record in light_fixture_details if record.get("kind") == "sconce_backplate_detail"]) < 34:
+        error(errors, "expected at least 34 public sconce backplate detail records")
+    if len([record for record in light_fixture_details if record.get("kind") == "sconce_glass_shade_detail"]) < 34:
+        error(errors, "expected at least 34 public sconce glass-shade detail records")
     if len(wall_treatments) < 10:
         error(errors, f"expected at least 10 wall-treatment records, got {len(wall_treatments)}")
-    for record in public_art[:5] + light_fixtures[:5] + wall_treatments[:5]:
+    for record in public_art[:5] + light_fixtures[:5] + light_fixture_details[:5] + wall_treatments[:5]:
         if not is_vec3(record.get("center_m")):
             error(errors, f"interior detail {record.get('name', '<unknown>')} has invalid center_m")
             break
@@ -2507,6 +2555,7 @@ def main() -> int:
     print(f"Floor details: {metadata_summary.get('floor_details', 0):,}")
     print(f"Public art visuals: {metadata_summary.get('public_art', 0):,}")
     print(f"Light fixtures: {metadata_summary.get('light_fixtures', 0):,}")
+    print(f"Light fixture details: {metadata_summary.get('light_fixture_details', 0):,}")
     print(f"Wall treatments: {metadata_summary.get('wall_treatments', 0):,}")
     print(f"Wall-finish details: {metadata_summary.get('wall_finish_details', 0):,}")
     print(f"Gameplay item props: {metadata_summary.get('gameplay_items', 0):,}")
