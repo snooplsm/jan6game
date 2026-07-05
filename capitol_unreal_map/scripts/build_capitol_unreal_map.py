@@ -1075,6 +1075,39 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         roads.add_cylinder((x + offset[0], y + offset[1]), 0.045, 1.40, 0.025, f"{name}_button_marker", "SignalMarker", segments=8)
         add_streetscape_record(name, "pedestrian_signal_marker", (x, y, 1.75), extra={"orientation": orientation})
 
+    def add_regulatory_stop_sign(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        panel_size = (0.86, 0.10) if orientation == "east_west" else (0.10, 0.86)
+        word_bar_size = (0.48, 0.035) if orientation == "east_west" else (0.035, 0.48)
+        roads.add_cylinder((x, y), 0.045, 0.10, 2.35, f"{name}_post", "StreetLightPole", segments=8)
+        roads.add_box((x, y), panel_size, 0.72, 1.82, f"{name}_red_panel", "TrafficSignalRed")
+        roads.add_box((x, y), word_bar_size, 0.06, 2.10, f"{name}_white_word_marker", "LaneMarkingWhite")
+        add_streetscape_record(name, "regulatory_stop_sign", (x, y, 1.78), extra={"label": "STOP", "orientation": orientation})
+
+    def add_bike_route_sign(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        panel_size = (1.05, 0.12) if orientation == "east_west" else (0.12, 1.05)
+        marker_size = (0.62, 0.045) if orientation == "east_west" else (0.045, 0.62)
+        roads.add_cylinder((x, y), 0.045, 0.10, 2.15, f"{name}_post", "StreetLightPole", segments=8)
+        roads.add_box((x, y), panel_size, 0.62, 1.82, f"{name}_green_panel", "StreetSignGreen")
+        roads.add_box((x, y), marker_size, 0.055, 2.05, f"{name}_white_bike_route_marker", "LaneMarkingWhite")
+        add_streetscape_record(name, "bike_route_sign", (x, y, 1.62), extra={"label": "Bike Route", "orientation": orientation})
+
+    def add_crosswalk_ahead_sign(name: str, center: tuple[float, float], orientation: str) -> None:
+        x, y = center
+        panel_size = (0.94, 0.12) if orientation == "east_west" else (0.12, 0.94)
+        icon_size = (0.42, 0.045) if orientation == "east_west" else (0.045, 0.42)
+        roads.add_cylinder((x, y), 0.045, 0.10, 2.22, f"{name}_post", "StreetLightPole", segments=8)
+        roads.add_box((x, y), panel_size, 0.68, 1.88, f"{name}_yellow_panel", "LaneMarkingYellow")
+        roads.add_box((x, y), icon_size, 0.055, 2.12, f"{name}_crossing_icon_marker", "TrafficSignalHousing")
+        add_streetscape_record(name, "crosswalk_ahead_sign", (x, y, 1.70), extra={"label": "Crosswalk", "orientation": orientation})
+
+    def add_curb_paint_segment(name: str, center: tuple[float, float], length: float, orientation: str, material: str) -> None:
+        x, y = center
+        size = (length, 0.16) if orientation == "east_west" else (0.16, length)
+        roads.add_box(center, size, 0.024, 0.205, name, material)
+        add_streetscape_record(name, "curb_paint_segment", (x, y, 0.218), extra={"orientation": orientation, "length_m": round(length, 3), "material": material})
+
     def add_public_roadway_visual_details() -> None:
         # Authored public-facing road markings for visual realism. These are
         # schematic surface props, not traffic-control engineering plans.
@@ -1190,6 +1223,58 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             start=1,
         ):
             add_pedestrian_signal_marker(f"public_pedestrian_signal_marker_{idx:02d}", (x, y), orientation)
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-230.0, 36.0, "east_west"), (-230.0, -36.0, "east_west"), (150.0, 36.0, "east_west"), (150.0, -36.0, "east_west"),
+                (-62.0, 146.0, "north_south"), (62.0, 146.0, "north_south"), (-62.0, -146.0, "north_south"), (62.0, -146.0, "north_south"),
+                (-156.0, 120.0, "east_west"), (-156.0, -120.0, "east_west"), (-332.0, 10.0, "north_south"), (214.0, 10.0, "north_south"),
+            ],
+            start=1,
+        ):
+            add_regulatory_stop_sign(f"public_regulatory_stop_sign_{idx:02d}", (x, y), orientation)
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-318.0, 24.0, "east_west"), (-276.0, 24.0, "east_west"), (-234.0, 24.0, "east_west"), (-192.0, 24.0, "east_west"),
+                (124.0, -24.0, "east_west"), (166.0, -24.0, "east_west"), (208.0, -24.0, "east_west"),
+                (-78.0, 150.0, "north_south"), (78.0, -150.0, "north_south"),
+                (-180.0, 116.0, "east_west"), (-180.0, -116.0, "east_west"), (204.0, -34.0, "east_west"),
+            ],
+            start=1,
+        ):
+            add_bike_route_sign(f"public_bike_route_sign_{idx:02d}", (x, y), orientation)
+
+        for idx, (x, y, orientation) in enumerate(
+            [
+                (-238.0, 45.5, "east_west"), (-238.0, -45.5, "east_west"), (154.0, 45.5, "east_west"), (154.0, -45.5, "east_west"),
+                (-66.0, 152.0, "north_south"), (66.0, 152.0, "north_south"), (-66.0, -152.0, "north_south"), (66.0, -152.0, "north_south"),
+                (-160.0, 124.0, "east_west"), (-160.0, -124.0, "east_west"), (-340.0, 12.0, "north_south"), (218.0, 12.0, "north_south"),
+            ],
+            start=1,
+        ):
+            add_crosswalk_ahead_sign(f"public_crosswalk_ahead_sign_{idx:02d}", (x, y), orientation)
+
+        curb_paint_specs = [
+            ("west_approach_north_yellow", (-286.0, 31.0), 54.0, "east_west", "LaneMarkingYellow"),
+            ("west_approach_south_yellow", (-286.0, -31.0), 54.0, "east_west", "LaneMarkingYellow"),
+            ("west_approach_north_white", (-186.0, 31.0), 46.0, "east_west", "LaneMarkingWhite"),
+            ("west_approach_south_white", (-186.0, -31.0), 46.0, "east_west", "LaneMarkingWhite"),
+            ("east_approach_north_yellow", (156.0, 31.0), 44.0, "east_west", "LaneMarkingYellow"),
+            ("east_approach_south_yellow", (156.0, -31.0), 44.0, "east_west", "LaneMarkingYellow"),
+            ("north_approach_west_yellow", (-62.0, 158.0), 52.0, "north_south", "LaneMarkingYellow"),
+            ("north_approach_east_yellow", (62.0, 158.0), 52.0, "north_south", "LaneMarkingYellow"),
+            ("south_approach_west_yellow", (-62.0, -158.0), 52.0, "north_south", "LaneMarkingYellow"),
+            ("south_approach_east_yellow", (62.0, -158.0), 52.0, "north_south", "LaneMarkingYellow"),
+            ("northwest_curve_white", (-150.0, 114.0), 42.0, "east_west", "LaneMarkingWhite"),
+            ("southwest_curve_white", (-150.0, -114.0), 42.0, "east_west", "LaneMarkingWhite"),
+            ("east_plaza_white", (204.0, 30.0), 34.0, "north_south", "LaneMarkingWhite"),
+            ("east_plaza_yellow", (204.0, -30.0), 34.0, "north_south", "LaneMarkingYellow"),
+            ("west_pool_white", (-340.0, 28.0), 34.0, "north_south", "LaneMarkingWhite"),
+            ("west_pool_yellow", (-340.0, -28.0), 34.0, "north_south", "LaneMarkingYellow"),
+        ]
+        for name, center, length, orientation, material in curb_paint_specs:
+            add_curb_paint_segment(f"public_curb_paint_segment_{name}", center, length, orientation, material)
 
         for name, center, label, orientation in [
             ("west_public_wayfinding_pool", (-245.0, -26.0), "Reflecting Pool / West Front", "east_west"),
