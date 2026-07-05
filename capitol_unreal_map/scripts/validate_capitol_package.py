@@ -1366,6 +1366,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_mortar_shadow_groove",
     "facade_staggered_masonry_joint",
     "facade_chipped_limestone_block",
+    "facade_limestone_pitting_mark",
+    "facade_hairline_crack",
+    "facade_thin_rain_streak",
     "facade_panel_bevel_strip",
     "facade_beveled_massing",
     "facade_recess_shadow_panel",
@@ -2116,6 +2119,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 600 close-range staggered masonry joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_chipped_limestone_block"]) < 160:
         error(errors, "expected at least 160 close-range chipped limestone block records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_limestone_pitting_mark"]) < 160:
+        error(errors, "expected at least 160 close-range limestone pitting records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_hairline_crack"]) < 40:
+        error(errors, "expected at least 40 close-range hairline crack records")
+    if len([detail for detail in facade_details if detail.get("kind") == "facade_thin_rain_streak"]) < 48:
+        error(errors, "expected at least 48 close-range thin rain-streak records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_panel_bevel_strip"]) < 16:
         error(errors, "expected at least 16 close-range facade panel bevel-strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_beveled_massing"]) < 32:

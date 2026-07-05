@@ -5097,6 +5097,104 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 {"orientation": orientation, "edge": label, "public_accuracy": "generic_public_masonry_relief"},
             )
 
+    def add_close_range_stone_surface_wear(
+        prefix: str,
+        orientation: str,
+        fixed: float,
+        span_center: float,
+        span_length: float,
+        z_base: float,
+        z_top: float,
+        columns: int,
+        rows: int,
+    ) -> None:
+        face_offset = 0.625 if fixed >= 0.0 else -0.625
+        face = fixed + face_offset
+        row_height = (z_top - z_base) / rows
+        column_width = span_length / columns
+        min_span = span_center - span_length / 2.0
+
+        for row_index in range(rows):
+            row_z = z_base + row_height * row_index
+            for column_index in range(columns):
+                if (row_index * 5 + column_index * 7 + len(prefix)) % 3 != 0:
+                    continue
+                span_value = min_span + column_width * (column_index + 0.5)
+                spot_z = row_z + row_height * (0.30 + 0.11 * ((row_index + column_index) % 4))
+                pit_span = min(0.18 + 0.035 * ((row_index + column_index) % 3), column_width * 0.30)
+                pit_height = min(0.055 + 0.018 * ((row_index + column_index) % 2), row_height * 0.13)
+                if orientation == "east_west":
+                    center = (face, span_value + column_width * 0.16 * (((row_index + column_index) % 2) - 0.5))
+                    size = (0.020, pit_span)
+                else:
+                    center = (span_value + column_width * 0.16 * (((row_index + column_index) % 2) - 0.5), face)
+                    size = (pit_span, 0.020)
+                name = f"{prefix}_limestone_pitting_r{row_index+1:02d}_c{column_index+1:02d}"
+                obj.add_box(center, size, pit_height, spot_z, name, "StoneGrimeOverlay")
+                add_facade_detail(
+                    name,
+                    "facade_limestone_pitting_mark",
+                    (center[0], center[1], spot_z + pit_height / 2.0),
+                    {
+                        "orientation": orientation,
+                        "row": row_index + 1,
+                        "column": column_index + 1,
+                        "public_accuracy": "generic_public_surface_wear",
+                    },
+                )
+
+        crack_count = max(3, columns // 3)
+        for crack_index in range(crack_count):
+            span_value = min_span + span_length * (crack_index + 0.7) / (crack_count + 0.4)
+            crack_z = z_base + (z_top - z_base) * (0.22 + 0.13 * ((crack_index + len(prefix)) % 5))
+            segment_height = min(0.52, (z_top - z_base) * 0.09)
+            lateral_shift = column_width * 0.08
+            for segment_index, shift_sign in enumerate((-1.0, 1.0), start=1):
+                if orientation == "east_west":
+                    center = (face, span_value + shift_sign * lateral_shift)
+                    size = (0.018, 0.075)
+                else:
+                    center = (span_value + shift_sign * lateral_shift, face)
+                    size = (0.075, 0.018)
+                z = crack_z + (segment_index - 1) * segment_height * 0.82
+                name = f"{prefix}_hairline_crack_{crack_index+1:02d}_{segment_index:02d}"
+                obj.add_box(center, size, segment_height, z, name, "StoneGrimeOverlay")
+                add_facade_detail(
+                    name,
+                    "facade_hairline_crack",
+                    (center[0], center[1], z + segment_height / 2.0),
+                    {
+                        "orientation": orientation,
+                        "segment": segment_index,
+                        "public_accuracy": "generic_public_surface_wear",
+                    },
+                )
+
+        rain_count = max(6, columns // 2)
+        for streak_index in range(rain_count):
+            span_value = min_span + span_length * (streak_index + 0.5) / rain_count
+            streak_height = 0.64 + 0.16 * ((streak_index + len(prefix)) % 4)
+            streak_z = z_base + (z_top - z_base) * (0.46 + 0.07 * (streak_index % 3))
+            streak_width = 0.055 + 0.012 * (streak_index % 3)
+            if orientation == "east_west":
+                center = (face, span_value)
+                size = (0.018, streak_width)
+            else:
+                center = (span_value, face)
+                size = (streak_width, 0.018)
+            name = f"{prefix}_thin_rain_streak_{streak_index+1:02d}"
+            obj.add_box(center, size, streak_height, streak_z, name, "StoneGrimeOverlay")
+            add_facade_detail(
+                name,
+                "facade_thin_rain_streak",
+                (center[0], center[1], streak_z + streak_height / 2.0),
+                {
+                    "orientation": orientation,
+                    "height_m": round(streak_height, 3),
+                    "public_accuracy": "generic_public_surface_wear",
+                },
+            )
+
     def add_public_step_grime_seams(
         prefix: str,
         orientation: str,
@@ -6397,6 +6495,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ]
     for args in close_range_masonry_specs:
         add_close_range_masonry_relief(*args)
+        add_close_range_stone_surface_wear(*args)
 
     front_pilaster_values = [value * 5.0 for value in range(-7, 8)]
     wing_pilaster_values = [value * 5.6 for value in range(-8, 9)]
