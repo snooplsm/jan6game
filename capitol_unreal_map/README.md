@@ -6,6 +6,7 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 
 - Local viewer: `http://127.0.0.1:8765/viewer.html`
 - Interior-only preview: `http://127.0.0.1:8765/viewer.html#interior-only`
+- Full interior plan preview: `http://127.0.0.1:8765/viewer.html#interior-plan`
 - Chamber top-down preview: `http://127.0.0.1:8765/viewer.html#chambers-top`
 - House Chamber plan preview: `http://127.0.0.1:8765/viewer.html#house-plan`
 - Senate Chamber plan preview: `http://127.0.0.1:8765/viewer.html#senate-plan`
@@ -20,7 +21,6 @@ This package is a first public-data pass at a U.S. Capitol map for Unreal Engine
 - Wall finish detail preview: `http://127.0.0.1:8765/viewer.html#wall-finish-details`
 - Floor finish detail preview: `http://127.0.0.1:8765/viewer.html#floor-details`
 - Ceiling/crown detail preview: `http://127.0.0.1:8765/viewer.html#ceiling-details`
-- Chamber top-down preview: `http://127.0.0.1:8765/viewer.html#chambers-top`
 - Texture preview: `http://127.0.0.1:8765/texture_preview.html`
 
 It contains:
@@ -162,6 +162,14 @@ http://127.0.0.1:8765/viewer.html#interior-only
 
 This route hides the exterior, roof/landmark, roads, and gameplay meshes in the browser viewer so the public interior schematic can be inspected without the building shell blocking the camera.
 
+Full interior plan quick link:
+
+```text
+http://127.0.0.1:8765/viewer.html#interior-plan
+```
+
+This route keeps only the public interior schematic visible and moves the camera to a near-vertical, high plan-review view over the full public interior footprint.
+
 Gameplay item quick link:
 
 ```text
@@ -263,7 +271,7 @@ The viewer can toggle:
 - basecolor texture preview
 - labels
 
-Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
+Viewer presets include overview, Capitol exterior, roads, public grounds, public grounds details, Capitol facade/roof details, roof-only detail inspection, public interior, interior-only cutaway, full public-interior plan review, Rotunda, House Chamber, Senate Chamber, joint-session House Chamber, all-chambers top-down inspection, House/Senate chamber plan inspection, public office/support details, public signage details, door hardware details, public furnishing details, wall finish details, floor finish details, ceiling/crown details, and gameplay item preview views. The label search and category filter can focus the camera on matching public spaces, chamber labels, seating labels, chamber detail labels, circulation detail labels, grounds detail labels, facade detail labels, roof detail labels, office zones, office detail labels, signage detail labels, door detail labels, furnishing detail labels, wall finish detail labels, floor detail labels, ceiling detail labels, gameplay item labels, streets, or named surrounding buildings.
 
 Controls: drag to orbit, mouse wheel to zoom, shift-drag to pan.
 
@@ -285,6 +293,8 @@ You can open `CapitolMap.uproject` directly in Unreal 5.8 or run the import scri
 The OBJ vertices are already authored in centimeters, so import scale should remain `1.0`. OBJ/static mesh import is the primary compatibility path for this package.
 
 For Unreal full-interior inspection, use `CapitolMap_Camera_Interior_Cutaway` and hide actors tagged `CapitolMap_HideForInteriorCutaway`. The public interior mesh is tagged `CapitolMap_VisibleForInteriorCutaway`, so it remains visible while exterior, roof/landmark, roads, and gameplay preview meshes are hidden.
+
+For Unreal full-interior top-down inspection, use `CapitolMap_Camera_PublicInterior_TopDown` with the same `CapitolMap_HideForInteriorCutaway` hidden actors.
 
 For Unreal chamber inspection, use `CapitolMap_Camera_Chambers_TopDown` and hide actors in `CapitolMap/Meshes/HideForInteriorTopDown` or tagged `CapitolMap_HideForInteriorTopDown`. The public interior mesh is foldered under `CapitolMap/Meshes/InteriorTopDownVisible` and tagged `CapitolMap_VisibleForInteriorTopDown`.
 
@@ -312,6 +322,7 @@ Generated camera viewpoints:
 - `CapitolMap_Camera_HouseChamber_TopDown`
 - `CapitolMap_Camera_SenateChamber_TopDown`
 - `CapitolMap_Camera_Interior_Cutaway`
+- `CapitolMap_Camera_PublicInterior_TopDown`
 - `CapitolMap_Camera_GameplayItems`
 
 Those viewpoints are also written into `generated/data/capitol_scene_metadata.json` so downstream tools can reuse the same inspection positions.

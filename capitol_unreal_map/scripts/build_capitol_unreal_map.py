@@ -181,6 +181,14 @@ VIEWPOINTS = [
         "viewer_note": "Hide exterior/landmark/roads/gameplay meshes for unobstructed public interior inspection.",
     },
     {
+        "label": "CapitolMap_Camera_PublicInterior_TopDown",
+        "location_m": [0.0, 0.0, 150.0],
+        "target_m": [0.0, 0.0, 5.2],
+        "fov": 58.0,
+        "category": "public_interior_topdown",
+        "viewer_note": "Hide exterior/landmark/roads/gameplay meshes for a roof-off public interior plan review.",
+    },
+    {
         "label": "CapitolMap_Camera_GameplayItems",
         "location_m": [-145.0, -145.0, 9.0],
         "target_m": [-124.0, -122.0, 1.2],

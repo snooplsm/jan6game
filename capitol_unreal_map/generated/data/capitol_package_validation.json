@@ -57,7 +57,7 @@
     "gameplay_items": 7,
     "gameplay_labels": 7,
     "flagpole_banners": 5,
-    "viewpoints": 11
+    "viewpoints": 12
   },
   "materials": {
     "manifest_materials": 71,
@@ -84,7 +84,7 @@
     "first_person_markers": 23,
     "material_markers": 17,
     "environment_markers": 24,
-    "inspection_markers": 12,
+    "inspection_markers": 13,
     "missing": {
       "mesh_files": [],
       "destination_paths": [],
@@ -106,7 +106,7 @@
   },
   "viewer": {
     "path": "viewer.html",
-    "required_markers": 129,
+    "required_markers": 139,
     "missing": []
   },
   "meshes": [

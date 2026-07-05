@@ -312,6 +312,12 @@ DEFAULT_VIEWPOINTS = [
         "fov": 64.0,
     },
     {
+        "label": "CapitolMap_Camera_PublicInterior_TopDown",
+        "location_m": [0.0, 0.0, 150.0],
+        "target_m": [0.0, 0.0, 5.2],
+        "fov": 58.0,
+    },
+    {
         "label": "CapitolMap_Camera_GameplayItems",
         "location_m": [-145.0, -145.0, 9.0],
         "target_m": [-124.0, -122.0, 1.2],
