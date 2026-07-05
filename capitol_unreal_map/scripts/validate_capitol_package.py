@@ -1607,6 +1607,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "pediment_rosette_relief_detail",
     "pediment_garland_relief_detail",
     "roof_balustrade",
+    "roof_balustrade_post",
+    "roof_balustrade_top_rail",
+    "roof_balustrade_base_rail",
     "roof_articulation_volume",
     "roof_slope_skirt_panel",
     "roof_surface_joint",
@@ -2507,6 +2510,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 generic public pediment garland relief records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
         error(errors, "expected at least 6 public roof balustrade records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]) < 90:
+        error(errors, "expected at least 90 public roof balustrade post records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_top_rail"]) < 6:
+        error(errors, "expected at least 6 public roof balustrade top-rail records")
+    if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_base_rail"]) < 6:
+        error(errors, "expected at least 6 public roof balustrade base-rail records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_articulation_volume"]) < 10:
         error(errors, "expected at least 10 public roof articulation volume records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_slope_skirt_panel"]) < 28:

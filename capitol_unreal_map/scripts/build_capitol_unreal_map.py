@@ -6236,15 +6236,47 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         if orientation == "east_west":
             x = fixed + (0.16 if fixed >= 0.0 else -0.16)
             for idx, value in enumerate(values, start=1):
-                obj.add_cylinder((x, value), 0.13, z, 0.86, f"{prefix}_baluster_{idx:02d}", "ColumnStone", segments=8)
-            obj.add_box((x, (min(values) + max(values)) / 2.0), (0.22, span), 0.16, z + 0.86, f"{prefix}_top_rail", "ColumnStone")
-            center = (x, (min(values) + max(values)) / 2.0, z + 0.52)
+                post_name = f"{prefix}_balustrade_post_{idx:02d}"
+                obj.add_cylinder((x, value), 0.13, z, 0.86, post_name, "ColumnStone", segments=8)
+                add_facade_detail(
+                    post_name,
+                    "roof_balustrade_post",
+                    (x, value, z + 0.43),
+                    {"orientation": orientation, "sequence": idx, "public_accuracy": "generic_public_roofline_detail"},
+                )
+            rail_center = (x, (min(values) + max(values)) / 2.0)
+            rail_size = (0.22, span)
+            obj.add_box(rail_center, rail_size, 0.16, z + 0.86, f"{prefix}_top_rail", "ColumnStone")
+            obj.add_box(rail_center, (0.18, span), 0.12, z + 0.18, f"{prefix}_base_rail", "ColumnStone")
+            center = (rail_center[0], rail_center[1], z + 0.52)
         else:
             y = fixed + (0.16 if fixed >= 0.0 else -0.16)
             for idx, value in enumerate(values, start=1):
-                obj.add_cylinder((value, y), 0.13, z, 0.86, f"{prefix}_baluster_{idx:02d}", "ColumnStone", segments=8)
-            obj.add_box(((min(values) + max(values)) / 2.0, y), (span, 0.22), 0.16, z + 0.86, f"{prefix}_top_rail", "ColumnStone")
-            center = ((min(values) + max(values)) / 2.0, y, z + 0.52)
+                post_name = f"{prefix}_balustrade_post_{idx:02d}"
+                obj.add_cylinder((value, y), 0.13, z, 0.86, post_name, "ColumnStone", segments=8)
+                add_facade_detail(
+                    post_name,
+                    "roof_balustrade_post",
+                    (value, y, z + 0.43),
+                    {"orientation": orientation, "sequence": idx, "public_accuracy": "generic_public_roofline_detail"},
+                )
+            rail_center = ((min(values) + max(values)) / 2.0, y)
+            rail_size = (span, 0.22)
+            obj.add_box(rail_center, rail_size, 0.16, z + 0.86, f"{prefix}_top_rail", "ColumnStone")
+            obj.add_box(rail_center, (span, 0.18), 0.12, z + 0.18, f"{prefix}_base_rail", "ColumnStone")
+            center = (rail_center[0], rail_center[1], z + 0.52)
+        add_facade_detail(
+            f"{prefix}_top_rail",
+            "roof_balustrade_top_rail",
+            (center[0], center[1], z + 0.94),
+            {"orientation": orientation, "span_m": round(span, 3), "public_accuracy": "generic_public_roofline_detail"},
+        )
+        add_facade_detail(
+            f"{prefix}_base_rail",
+            "roof_balustrade_base_rail",
+            (center[0], center[1], z + 0.24),
+            {"orientation": orientation, "span_m": round(span, 3), "public_accuracy": "generic_public_roofline_detail"},
+        )
         add_facade_detail(f"{prefix}_roof_balustrade", "roof_balustrade", center, {"orientation": orientation, "count": len(values)})
 
     def add_window_grid_on_face(
