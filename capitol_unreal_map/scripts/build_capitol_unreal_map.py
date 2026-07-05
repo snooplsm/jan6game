@@ -9483,9 +9483,30 @@ def add_chamber_realism_details(
     ) -> None:
         obj.add_box(center, size, 0.18, z, f"{name}_seat", "DeskWood")
         if orientation == "east_west":
-            obj.add_box((center[0], center[1] + size[1] * 0.38), (size[0], 0.12), 0.55, z + 0.14, f"{name}_back", "ChairLeather")
+            back_center = (center[0], center[1] + size[1] * 0.38)
+            back_size = (size[0], 0.12)
+            obj.add_box(back_center, back_size, 0.55, z + 0.14, f"{name}_back", "ChairLeather")
+            for slat_index, y_offset in enumerate([-0.14, 0.0, 0.14], start=1):
+                slat_center = (center[0], center[1] + y_offset)
+                obj.add_box(slat_center, (size[0] * 0.92, 0.050), 0.030, z + 0.18, f"{name}_seat_slat_{slat_index:02d}", "InteriorTrim")
+                add_chamber_detail_record(records, f"{name}_seat_slat_{slat_index:02d}", "gallery_bench_seat_slat", chamber, (slat_center[0], slat_center[1], z + 0.195), (size[0] * 0.92, 0.050))
+            for bracket_index, x_offset in enumerate([-size[0] * 0.32, size[0] * 0.32], start=1):
+                bracket_center = (center[0] + x_offset, center[1] + size[1] * 0.08)
+                obj.add_box(bracket_center, (0.070, size[1] * 0.56), 0.22, z - 0.04, f"{name}_support_bracket_{bracket_index:02d}", "DoorMetal")
+                add_chamber_detail_record(records, f"{name}_support_bracket_{bracket_index:02d}", "gallery_bench_support_bracket", chamber, (bracket_center[0], bracket_center[1], z + 0.07), (0.070, size[1] * 0.56))
         else:
-            obj.add_box((center[0] + size[0] * 0.38, center[1]), (0.12, size[1]), 0.55, z + 0.14, f"{name}_back", "ChairLeather")
+            back_center = (center[0] + size[0] * 0.38, center[1])
+            back_size = (0.12, size[1])
+            obj.add_box(back_center, back_size, 0.55, z + 0.14, f"{name}_back", "ChairLeather")
+            for slat_index, x_offset in enumerate([-0.14, 0.0, 0.14], start=1):
+                slat_center = (center[0] + x_offset, center[1])
+                obj.add_box(slat_center, (0.050, size[1] * 0.92), 0.030, z + 0.18, f"{name}_seat_slat_{slat_index:02d}", "InteriorTrim")
+                add_chamber_detail_record(records, f"{name}_seat_slat_{slat_index:02d}", "gallery_bench_seat_slat", chamber, (slat_center[0], slat_center[1], z + 0.195), (0.050, size[1] * 0.92))
+            for bracket_index, y_offset in enumerate([-size[1] * 0.32, size[1] * 0.32], start=1):
+                bracket_center = (center[0] + size[0] * 0.08, center[1] + y_offset)
+                obj.add_box(bracket_center, (size[0] * 0.56, 0.070), 0.22, z - 0.04, f"{name}_support_bracket_{bracket_index:02d}", "DoorMetal")
+                add_chamber_detail_record(records, f"{name}_support_bracket_{bracket_index:02d}", "gallery_bench_support_bracket", chamber, (bracket_center[0], bracket_center[1], z + 0.07), (size[0] * 0.56, 0.070))
+        add_chamber_detail_record(records, f"{name}_back", "gallery_bench_back_panel", chamber, (back_center[0], back_center[1], z + 0.415), back_size)
         add_chamber_detail_record(records, name, "gallery_bench", chamber, (center[0], center[1], z + 0.16), size)
 
     def flag_standard(name: str, chamber: str, x: float, y: float, z: float, flag_material: str) -> None:

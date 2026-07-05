@@ -913,6 +913,9 @@ REQUIRED_CHAMBER_DETAIL_KINDS = {
     "dais_step",
     "gallery_rail",
     "gallery_bench",
+    "gallery_bench_back_panel",
+    "gallery_bench_seat_slat",
+    "gallery_bench_support_bracket",
     "aisle_edge",
     "backdrop_panel",
     "flag_standard",
@@ -2466,6 +2469,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"missing chamber details for {chamber_name}")
     if len([detail for detail in chamber_details if detail.get("kind") == "gallery_bench"]) < 60:
         error(errors, "expected at least 60 public gallery bench records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_bench_back_panel"]) < 60:
+        error(errors, "expected at least 60 public gallery bench back-panel records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_bench_seat_slat"]) < 180:
+        error(errors, "expected at least 180 public gallery bench seat-slat records")
+    if len([detail for detail in chamber_details if detail.get("kind") == "gallery_bench_support_bracket"]) < 120:
+        error(errors, "expected at least 120 public gallery bench support-bracket records")
     if len([detail for detail in chamber_details if detail.get("kind") == "rostrum_desk"]) < 7:
         error(errors, "expected at least 7 public rostrum desk records")
     if len([detail for detail in chamber_details if detail.get("kind") == "public_lectern"]) < 2:
