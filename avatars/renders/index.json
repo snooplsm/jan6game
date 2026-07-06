@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "count": 9,
+  "count": 12,
   "items": [
     {
       "avatar_id": "archive_ref_7prkirhg_bearded_v1",
@@ -46,6 +46,21 @@
       "avatar_id": "individual_row_0011_alexjones_v1",
       "source_reference": "individual_row_0011_alexjones",
       "path": "avatars/renders/individual_row_0011_alexjones_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0004_pamhemphill_v1",
+      "source_reference": "individual_row_0004_pamhemphill",
+      "path": "avatars/renders/individual_row_0004_pamhemphill_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0007_owenshroyer_v1",
+      "source_reference": "individual_row_0007_owenshroyer",
+      "path": "avatars/renders/individual_row_0007_owenshroyer_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0010_bikersfor45_v1",
+      "source_reference": "individual_row_0010_bikersfor45",
+      "path": "avatars/renders/individual_row_0010_bikersfor45_v1.png"
     }
   ]
 }
