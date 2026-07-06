@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "count": 6,
+  "count": 9,
   "items": [
     {
       "avatar_id": "archive_ref_7prkirhg_bearded_v1",
@@ -31,6 +31,21 @@
       "avatar_id": "individual_row_0020_dioncini_v1",
       "source_reference": "individual_row_0020_dioncini",
       "path": "avatars/renders/individual_row_0020_dioncini_v1.png"
+    },
+    {
+      "avatar_id": "joseph_fischer_v1",
+      "source_reference": "joseph_fischer",
+      "path": "avatars/renders/joseph_fischer_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0006_frankscavo_v1",
+      "source_reference": "individual_row_0006_frankscavo",
+      "path": "avatars/renders/individual_row_0006_frankscavo_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0011_alexjones_v1",
+      "source_reference": "individual_row_0011_alexjones",
+      "path": "avatars/renders/individual_row_0011_alexjones_v1.png"
     }
   ]
 }
