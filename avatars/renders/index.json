@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "count": 3,
+  "count": 4,
   "items": [
     {
       "avatar_id": "archive_ref_7prkirhg_bearded_v1",
@@ -16,6 +16,11 @@
       "avatar_id": "archive_ref_xmysi3lp_v1",
       "source_reference": "archive_ref_xmysi3lp",
       "path": "avatars/renders/archive_ref_xmysi3lp_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0016_blamarnell_v1",
+      "source_reference": "individual_row_0016_blamarnell",
+      "path": "avatars/renders/individual_row_0016_blamarnell_v1.png"
     }
   ]
 }
