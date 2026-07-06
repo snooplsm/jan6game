@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "count": 2,
+  "items": [
+    {
+      "avatar_id": "archive_ref_7prkirhg_bearded_v1",
+      "source_reference": "archive_ref_7prkirhg_bearded",
+      "path": "avatars/renders/archive_ref_7prkirhg_bearded_v1.png"
+    },
+    {
+      "avatar_id": "archive_ref_7prkirhg_bearded_v2",
+      "source_reference": "archive_ref_7prkirhg_bearded",
+      "path": "avatars/renders/archive_ref_7prkirhg_bearded_v2.png"
+    }
+  ]
+}
