@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "count": 18,
+  "records": [
+    {
+      "avatar_id": "archive_ref_7prkirhg_bearded",
+      "display_name": "Archive Reference Bearded Male 01",
+      "avatar_type": "external_visual_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/archive_ref_7prkirhg_bearded/avatar.json",
+      "sheet_name": null,
+      "row_number": null,
+      "label": null
+    },
+    {
+      "avatar_id": "archive_ref_xmysi3lp",
+      "display_name": "Archive Reference Male 01",
+      "avatar_type": "external_visual_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/archive_ref_xmysi3lp/avatar.json",
+      "sheet_name": null,
+      "row_number": null,
+      "label": null
+    },
+    {
+      "avatar_id": "individual_row_0002_bugzie",
+      "display_name": "Individuals Row 2 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0002_bugzie/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 2,
+      "label": "#IAmBugzieTheDon"
+    },
+    {
+      "avatar_id": "individual_row_0004_pamhemphill",
+      "display_name": "Individuals Row 4 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0004_pamhemphill/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 4,
+      "label": "#IAmPamHemphill"
+    },
+    {
+      "avatar_id": "individual_row_0006_frankscavo",
+      "display_name": "Individuals Row 6 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0006_frankscavo/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 6,
+      "label": "#IAmFrankScavo"
+    },
+    {
+      "avatar_id": "individual_row_0007_owenshroyer",
+      "display_name": "Individuals Row 7 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0007_owenshroyer/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 7,
+      "label": "#IAmOwenShroyer"
+    },
+    {
+      "avatar_id": "individual_row_0009_bikerbern",
+      "display_name": "Individuals Row 9 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0009_bikerbern/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 9,
+      "label": "#BikerBernLady"
+    },
+    {
+      "avatar_id": "individual_row_0010_bikersfor45",
+      "display_name": "Individuals Row 10 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0010_bikersfor45/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 10,
+      "label": "#BikersFor45Guy"
+    },
+    {
+      "avatar_id": "individual_row_0011_alexjones",
+      "display_name": "Individuals Row 11 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0011_alexjones/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 11,
+      "label": "#IAmAlexJones"
+    },
+    {
+      "avatar_id": "individual_row_0013_anthonyaguero",
+      "display_name": "Individuals Row 13 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0013_anthonyaguero/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 13,
+      "label": "#IAmAnthonyAguero"
+    },
+    {
+      "avatar_id": "individual_row_0015_antoniolamotta",
+      "display_name": "Individuals Row 15 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0015_antoniolamotta/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 15,
+      "label": "#IAmAntonioLaMotta"
+    },
+    {
+      "avatar_id": "individual_row_0016_blamarnell",
+      "display_name": "Individuals Row 16 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0016_blamarnell/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 16,
+      "label": "#IAmBlakeMarnell"
+    },
+    {
+      "avatar_id": "individual_row_0018_cjpearson",
+      "display_name": "Individuals Row 18 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0018_cjpearson/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 18,
+      "label": "#IAmCJPearson"
+    },
+    {
+      "avatar_id": "individual_row_0019_darleneswaffar",
+      "display_name": "Individuals Row 19 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0019_darleneswaffar/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 19,
+      "label": "#IAmDarleneSwaffar"
+    },
+    {
+      "avatar_id": "individual_row_0020_dioncini",
+      "display_name": "Individuals Row 20 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0020_dioncini/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 20,
+      "label": "#IAmDionCini"
+    },
+    {
+      "avatar_id": "individual_row_0021_dougmastriano",
+      "display_name": "Individuals Row 21 Reference",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individual_row_0021_dougmastriano/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": 21,
+      "label": "#IAmDougMastriano"
+    },
+    {
+      "avatar_id": "individuals_sheet_reference",
+      "display_name": "Individuals Sheet Reference Batch",
+      "avatar_type": "spreadsheet_image_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/individuals_sheet_reference/avatar.json",
+      "sheet_name": "Individuals",
+      "row_number": null,
+      "label": null
+    },
+    {
+      "avatar_id": "joseph_fischer",
+      "display_name": "Joseph Fischer",
+      "avatar_type": "real_person_reference_metadata",
+      "status": "metadata_only",
+      "path": "avatars/joseph_fischer/avatar.json",
+      "sheet_name": null,
+      "row_number": null,
+      "label": null
+    }
+  ]
+}
