@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "count": 3,
+  "count": 6,
   "items": [
     {
       "avatar_id": "archive_ref_7prkirhg_bearded_v1",
@@ -16,6 +16,21 @@
       "avatar_id": "individual_row_0016_blamarnell_v1",
       "source_reference": "individual_row_0016_blamarnell",
       "path": "avatars/renders/individual_row_0016_blamarnell_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0002_bugzie_v1",
+      "source_reference": "individual_row_0002_bugzie",
+      "path": "avatars/renders/individual_row_0002_bugzie_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0009_bikerbern_v1",
+      "source_reference": "individual_row_0009_bikerbern",
+      "path": "avatars/renders/individual_row_0009_bikerbern_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0020_dioncini_v1",
+      "source_reference": "individual_row_0020_dioncini",
+      "path": "avatars/renders/individual_row_0020_dioncini_v1.png"
     }
   ]
 }
