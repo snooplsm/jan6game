@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "avatar_id": "individual_row_0018_cjpearson",
+  "display_name": "Individuals Row 18 Reference",
+  "avatar_type": "spreadsheet_image_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "Spreadsheet image is referenced by local extracted cache only. Do not redistribute source images without a separate license review.",
+    "identity_note": "Use as a loose visual reference for a fictional avatar, not as a direct likeness recreation.",
+    "local_cache_committed": false
+  },
+  "source_row": {
+    "sheet_name": "Individuals",
+    "row_number": 18,
+    "label": "#IAmCJPearson",
+    "retrieved_utc": "2026-07-06T01:10:31Z"
+  },
+  "visual_reference_notes": {
+    "reference_type": "scene_reference_only",
+    "high_level_appearance": [
+      "black-and-white scene with several people at a broken window",
+      "one foreground person in a helmet and jacket is visible at left",
+      "one person at center wears a cap and dark clothing"
+    ],
+    "clothing_notes": [
+      "helmet with chin strap",
+      "dark jacket",
+      "cap or knit hat on a central figure",
+      "winter crowd clothing"
+    ],
+    "avatar_generation_guidance": [
+      "Use only for broader crowd and protective-gear context.",
+      "Do not infer a clean portrait outfit from this crop.",
+      "Do not recreate the exact scene composition or broken glass."
+    ]
+  }
+}

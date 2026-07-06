@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "avatar_id": "individual_row_0019_darleneswaffar",
+  "display_name": "Individuals Row 19 Reference",
+  "avatar_type": "spreadsheet_image_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "Spreadsheet image is referenced by local extracted cache only. Do not redistribute source images without a separate license review.",
+    "identity_note": "Use as a loose visual reference for a fictional avatar, not as a direct likeness recreation.",
+    "local_cache_committed": false
+  },
+  "source_row": {
+    "sheet_name": "Individuals",
+    "row_number": 19,
+    "label": "#IAmDarleneSwaffar",
+    "retrieved_utc": "2026-07-06T01:10:31Z"
+  },
+  "visual_reference_notes": {
+    "reference_type": "scene_reference_only",
+    "high_level_appearance": [
+      "group scene with a black-and-white object crop and no clear portrait framing",
+      "insufficient detail for a trustworthy clothing read"
+    ],
+    "clothing_notes": [
+      "clothing not reliably recoverable from this image crop"
+    ],
+    "avatar_generation_guidance": [
+      "Use only as weak scene context.",
+      "Do not infer outfit or body details from this crop.",
+      "Do not recreate the exact composition."
+    ]
+  }
+}
