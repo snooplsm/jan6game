@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "avatar_id": "individual_row_0020_dioncini",
+  "display_name": "Individuals Row 20 Reference",
+  "avatar_type": "spreadsheet_image_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "Spreadsheet image is referenced by local extracted cache only. Do not redistribute source images without a separate license review.",
+    "identity_note": "Use as a loose visual reference for a fictional avatar, not as a direct likeness recreation.",
+    "local_cache_committed": false
+  },
+  "source_row": {
+    "sheet_name": "Individuals",
+    "row_number": 20,
+    "label": "#IAmDionCini",
+    "retrieved_utc": "2026-07-06T01:10:31Z"
+  },
+  "image_reference": {
+    "local_cache": "tmp/spreadsheet/individual_images/row_0020_col_01.jpg",
+    "observed_file_type": "JPEG image, 144x200"
+  },
+  "visual_reference_notes": {
+    "high_level_appearance": [
+      "adult male in a blue denim-style jacket",
+      "holding a handheld radio",
+      "crowd/protest context"
+    ],
+    "clothing_notes": [
+      "blue denim jacket",
+      "casual street clothing",
+      "handheld radio in the hand"
+    ],
+    "avatar_generation_guidance": [
+      "Use a rough, practical outdoor look.",
+      "Preserve the denim-jacket silhouette.",
+      "Do not recreate the exact pose or image crop."
+    ]
+  }
+}
