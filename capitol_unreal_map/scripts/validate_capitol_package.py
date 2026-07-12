@@ -77,6 +77,16 @@ EXPECTED_UNNAMED_BUILDING_RELATION_LABELS = {
     1067405: "osm_relation_1067405",
 }
 
+EXPECTED_CIVIC_STONE_RELATION_IDS = {
+    286501,
+    286503,
+    1029365,
+    1029367,
+    1029369,
+    1029374,
+    1047027,
+}
+
 EXPECTED_DETAILED_CIVIC_RELATIONS = {
     286501,
     286503,
@@ -2078,6 +2088,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         building = relation_by_id.get(relation_id)
         if building is not None and building.get("name") != expected_label:
             error(errors, f"unnamed building relation {relation_id} expected truthful fallback label {expected_label!r}")
+    civic_stone_relation_ids = {
+        building.get("id")
+        for building in relation_buildings
+        if building.get("facade_material_class") == "neutral_civic_stone"
+    }
+    if civic_stone_relation_ids != EXPECTED_CIVIC_STONE_RELATION_IDS:
+        error(errors, "civic-stone material classification must match the reviewed historical relation set")
+    if any(not building.get("facade_material_class") for building in buildings):
+        error(errors, "expected every surrounding building to include facade_material_class provenance")
     if any(not is_number(building.get("height_m")) for building in buildings):
         error(errors, "expected every surrounding building to include numeric height_m")
     if any(not is_number(building.get("footprint_area_m2")) for building in buildings):

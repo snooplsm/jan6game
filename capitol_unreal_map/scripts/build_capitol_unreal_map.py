@@ -44,6 +44,20 @@ EARTH_M_PER_DEG_LON = 111_320.0 * math.cos(math.radians(LAT0))
 OBJ_UNIT_SCALE = 100.0  # meters to Unreal centimeters
 UV_TILE_METERS = 3.0
 
+# Historical civic relations whose dominant public exterior is documented as
+# marble, limestone, or granite rather than generic context masonry. This uses
+# the existing neutral civic-stone material; it does not assert identical stone
+# species or weathering across the buildings.
+CIVIC_STONE_BUILDING_RELATION_IDS = {
+    286501,   # Supreme Court
+    286503,   # Cannon House Office Building
+    1029365,  # Longworth House Office Building
+    1029367,  # Russell Senate Office Building
+    1029369,  # Rayburn House Office Building
+    1029374,  # Library of Congress, Thomas Jefferson Building
+    1047027,  # Dirksen Senate Office Building
+}
+
 
 def relative_to_package(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
@@ -4631,7 +4645,10 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     }
                 )
             else:
-                material = "BuildingCapitol" if is_capitol else "BuildingGeneric"
+                uses_civic_stone = is_capitol or (
+                    osm_element_type == "relation" and int(way["id"]) in CIVIC_STONE_BUILDING_RELATION_IDS
+                )
+                material = "BuildingCapitol" if uses_civic_stone else "BuildingGeneric"
                 buildings.add_extruded_polygon(points, 0.0, height, f"building_{name}_{way['id']}", material)
                 if osm_element_type == "relation":
                     for courtyard_index, inner_way_id in enumerate(way.get("inner_way_ids", []), start=1):
@@ -4682,6 +4699,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     "footprint_span_m": round(footprint_span, 2),
                     "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
                     "tags": tags,
+                    "facade_material_class": "neutral_civic_stone" if uses_civic_stone else "generic_context_masonry",
                 }
                 if way.get("osm_element_type") == "relation":
                     building_record["outer_way_id"] = way.get("outer_way_id")
