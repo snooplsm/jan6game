@@ -93,6 +93,18 @@
           "gloss"
         ]
       },
+      "historical_comparison_references": [
+        {
+          "title": "Architect of the Capitol - Capitol Power Plant",
+          "date": "2011-12-12",
+          "page_url": "https://commons.wikimedia.org/wiki/File:Flickr_-_USCapitol_-_Capitol_Power_Plant.jpg",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Flickr_-_USCapitol_-_Capitol_Power_Plant.jpg",
+          "dimensions_px": "2800x1844",
+          "rights": "U.S. federal government work; public domain in the United States",
+          "credit": "Architect of the Capitol",
+          "use": "Pre-2021 facade color, bond, mortar, window-bay, cornice, and weathering comparison."
+        }
+      ],
       "constraints": [
         "Do not apply until brick color, dimensions, bond, mortar profile, and weathering are compared against dated public facade references.",
         "Use displacement or Nanite tessellation only after connected viewport and performance verification.",

@@ -614,6 +614,11 @@ surface candidate: 4096 px/m over a 1x2 m scan with base color, normal,
 roughness, displacement, cavity, ambient occlusion, bump, specular, and gloss
 data. It is not accepted or installed yet; brick bond/color/mortar must match
 dated Power Plant references, and authored corners/openings remain mandatory.
+The comparison set now points to an official 2800x1844 Architect of the Capitol
+photograph dated December 12, 2011. The image is a U.S. federal government work
+and public domain in the United States; credit remains `Architect of the
+Capitol`. The scan stays unaccepted until that reference can be inspected at
+full resolution against its brick color, bond, mortar, openings, and trim.
 
 ### PCG lawns and reflecting pool
 
