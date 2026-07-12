@@ -414,6 +414,8 @@ The wall-fixture pass adds schematic public glazing panels, mullions, drapery pa
 
 The exterior surface-wear pass adds public/schematic road oil-stain decals, sidewalk gum marks, sidewalk leaf-litter clusters, and curb grime patches around public approach surfaces.
 
+The live Unreal scenery also includes six generic galvanized bicycle-style temporary crowd-control barricade modules at a public west-approach inspection area. Their dimensions and construction are representative visual scenery, while their placement is explicitly tagged `Public_Schematic_Placement`; it is not presented as a source-verified operational perimeter or security layout.
+
 The generic office-detail pass adds public/schematic book-spine rows, pinboard panels, inbox trays, cabinet label plates, loose cable loops, and shared support-table trays/bins across the 60 generic office/support cells.
 
 The surface-aging pass adds generic sill dust, radiator heat staining, wall contact smudges, floor mop streaks, and doorway hand smudges across public/schematic interior rooms.
