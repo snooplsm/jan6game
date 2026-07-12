@@ -452,6 +452,8 @@ The existing mapped streetlights now use explicit daylight surface response rath
 
 The 16 baked public grounds benches now use an explicit weather-exposed wood response rather than generic mid-gloss defaults: 0.68 roughness, 0.28 specular, and zero metallic. Their schematic geometry and positions remain unchanged until the benches can be removed cleanly from the combined streetscape and replaced with a compatible licensed modular asset.
 
+The shared public approach brass-rail slot now uses a moderately weathered exterior-metal response with 0.42 roughness, 0.90 metallic, and 0.50 specular. This avoids an implausible mirror-polished finish on exposed January handrails and trim while preserving the combined mesh, collision, and placement.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
