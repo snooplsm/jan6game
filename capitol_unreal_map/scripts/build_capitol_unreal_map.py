@@ -1350,6 +1350,12 @@ def parse_height(
         # atrium and its 2014 post-renovation reopening. The historical OSM tag
         # already states seven levels; this entry upgrades provenance only.
         48037324: 7.0,
+        # AOC describes Longworth as seven stories; the historical relation's
+        # five-level tag understates its full visible form on the sloped site.
+        1029365: 7.0,
+        # AOC describes Dirksen's design as a seven-story building; the
+        # historical relation's four-level tag is incomplete.
+        1047027: 7.0,
     }
     if way_id in curated_public_levels:
         return min(max(curated_public_levels[way_id] * 3.4, 3.0), 70.0), "curated_public_level_count_estimate"
@@ -1536,11 +1542,52 @@ def load_osm() -> tuple[dict[int, tuple[float, float]], list[dict[str, Any]], di
     data = json.loads(SOURCE.read_text(encoding="utf-8"))
     nodes: dict[int, tuple[float, float]] = {}
     ways: list[dict[str, Any]] = []
+    relations: list[dict[str, Any]] = []
     for element in data.get("elements", []):
         if element.get("type") == "node" and "lat" in element and "lon" in element:
             nodes[int(element["id"])] = local_xy(float(element["lat"]), float(element["lon"]))
         elif element.get("type") == "way":
             ways.append(element)
+        elif element.get("type") == "relation":
+            relations.append(element)
+
+    # Overpass stores many important civic-building tags on multipolygon
+    # relations while their member ways carry geometry only. Promote the
+    # relation's single outer ring into the ordinary building pipeline. The
+    # January 2021 extract currently contains 12 such building relations and
+    # every one has exactly one complete outer way; inner courtyard rings are
+    # retained as provenance for later courtyard-aware modular replacements.
+    way_by_id = {int(way["id"]): way for way in ways}
+    for relation in relations:
+        tags = relation.get("tags", {})
+        if not tags.get("building") or tags.get("type") != "multipolygon":
+            continue
+        outer_members = [
+            member
+            for member in relation.get("members", [])
+            if member.get("type") == "way" and member.get("role") == "outer"
+        ]
+        if len(outer_members) != 1:
+            continue
+        outer_way = way_by_id.get(int(outer_members[0]["ref"]))
+        if not outer_way or len(outer_way.get("nodes", [])) < 4:
+            continue
+        inner_way_ids = [
+            int(member["ref"])
+            for member in relation.get("members", [])
+            if member.get("type") == "way" and member.get("role") == "inner"
+        ]
+        ways.append(
+            {
+                "type": "way",
+                "id": int(relation["id"]),
+                "nodes": list(outer_way["nodes"]),
+                "tags": dict(tags),
+                "osm_element_type": "relation",
+                "outer_way_id": int(outer_way["id"]),
+                "inner_way_ids": inner_way_ids,
+            }
+        )
     return nodes, ways, data
 
 
@@ -4587,6 +4634,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 )
                 building_record = {
                     "id": way["id"],
+                    "osm_element_type": way.get("osm_element_type", "way"),
                     "name": name,
                     "height_m": round(height, 2),
                     "height_source": height_source,
@@ -4595,6 +4643,9 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     "center_m": [round(cx, 3), round(cy, 3), round(height / 2.0, 3)],
                     "tags": tags,
                 }
+                if way.get("osm_element_type") == "relation":
+                    building_record["outer_way_id"] = way.get("outer_way_id")
+                    building_record["inner_way_ids"] = way.get("inner_way_ids", [])
                 building_record.update(height_accuracy)
                 if height_provenance:
                     building_record["height_provenance"] = height_provenance

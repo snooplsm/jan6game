@@ -66,6 +66,28 @@ defensible roof-to-ground measurement.
   level-count estimate. Do not treat the atrium statement as an exact exterior
   height.
 
+## Longworth House Office Building (OSM relation 1029365)
+
+- Previous generated state: omitted because the building tags live on a
+  multipolygon relation rather than its untagged outer way.
+- Reviewed public source: [Architect of the Capitol, Longworth House Office Building](https://www.aoc.gov/explore-capitol-campus/buildings-grounds/house-office-buildings/longworth).
+- Confirmed facts: completed in spring 1933; seven stories; the sloped site's
+  rusticated base varies from two to four stories.
+- Decision: include the historical relation footprint and use a clearly labeled
+  seven-level, 23.80 m public level-count estimate. Preserve the inner courtyard
+  way ID as provenance for a later courtyard-aware modular replacement.
+
+## Dirksen Senate Office Building (OSM relation 1047027)
+
+- Previous generated state: omitted because the building tags live on a
+  multipolygon relation rather than its untagged outer way.
+- Reviewed public source: [Architect of the Capitol, Dirksen Senate Office Building](https://www.aoc.gov/explore-capitol-campus/buildings-grounds/senate-office-buildings/dirksen).
+- Confirmed facts: the approved design was a seven-story E-shaped building and
+  it opened in 1958.
+- Decision: include the historical relation footprint and use a clearly labeled
+  seven-level, 23.80 m public level-count estimate. Preserve both inner-ring way
+  IDs as provenance for later courtyard-aware geometry.
+
 ## Review rule
 
 Do not promote these targets to `source_backed_height` based on these sources.

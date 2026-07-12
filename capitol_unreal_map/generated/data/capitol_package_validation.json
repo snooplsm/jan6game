@@ -3,7 +3,7 @@
   "root": "C:\\Users\\ryan\\Documents\\Unreal\\Ryan\\capitol_unreal_map",
   "metadata": {
     "mesh_count": 5,
-    "buildings": 3631,
+    "buildings": 3643,
     "roads": 1432,
     "bike_lanes": 242,
     "pedestrian_paths": 636,
@@ -12,25 +12,25 @@
     "street_markers": 396,
     "replaced_buildings": 1,
     "building_height_sources": {
-      "building_levels_estimate": 72,
-      "curated_public_level_count_estimate": 2,
-      "dcgis_rooftop_ground_delta_estimate": 1324,
-      "explicit_height_tag": 25,
+      "building_levels_estimate": 77,
+      "curated_public_level_count_estimate": 4,
+      "dcgis_rooftop_ground_delta_estimate": 1327,
+      "explicit_height_tag": 27,
       "footprint_type_area_estimate": 2208
     },
     "height_model": {
       "dcgis_rooftop_points": 2360,
       "dcgis_ground_points": 2307,
-      "dcgis_matched_buildings": 1324,
-      "source_backed_buildings": 1349,
-      "level_count_estimated_buildings": 72,
+      "dcgis_matched_buildings": 1327,
+      "source_backed_buildings": 1354,
+      "level_count_estimated_buildings": 77,
       "heuristic_estimated_buildings": 2208,
       "height_accuracy_tiers": {
         "heuristic_visual_estimate": 2208,
-        "level_count_estimate": 72,
-        "public_elevation_delta": 1324,
-        "public_level_count_estimate": 2,
-        "source_tag": 25
+        "level_count_estimate": 77,
+        "public_elevation_delta": 1327,
+        "public_level_count_estimate": 4,
+        "source_tag": 27
       },
       "height_review_targets": 40
     },
@@ -182,12 +182,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 226224,
-      "uvs": 678672,
-      "faces": 157838,
-      "faces_with_uvs": 157838,
-      "triangles": 362996,
-      "groups": 22363,
+      "vertices": 227218,
+      "uvs": 681654,
+      "faces": 158359,
+      "faces_with_uvs": 158359,
+      "triangles": 364936,
+      "groups": 22375,
       "materials": [
         "BrassRail",
         "BuildingCapitol",
