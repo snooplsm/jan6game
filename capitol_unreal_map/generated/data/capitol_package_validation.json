@@ -12,6 +12,7 @@
     "lane_edge_markings": 571,
     "street_markers": 396,
     "replaced_buildings": 1,
+    "target_era_construction_states": 1,
     "building_height_sources": {
       "building_levels_estimate": 77,
       "curated_public_level_count_estimate": 4,

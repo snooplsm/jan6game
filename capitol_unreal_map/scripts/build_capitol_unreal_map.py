@@ -1693,6 +1693,30 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "building_details": [],
         "grounds_details": [],
         "replaced_buildings": [],
+        "target_era_construction_states": [
+            {
+                "building_id": 286503,
+                "building_name": "Cannon House Office Building",
+                "target_time_local": "2021-01-06T11:50:00-05:00",
+                "project": "Cannon Renewal",
+                "phase": "Phase 3 start window",
+                "affected_wing": "First Street SE / east wing",
+                "confirmed_state": (
+                    "Phase 2 was complete and initial Phase 3 work began in FY 2021; affected suites became "
+                    "unavailable for the 117th Congress, and January 6 events impacted the Phase 3 start."
+                ),
+                "visible_setup_status": "unverified_for_exact_target_time",
+                "geometry_policy": (
+                    "Do not add a specific scaffold, crane, hoarding, or barrier arrangement until a dated "
+                    "Jan 6, 2021 exterior image or equivalent authoritative visual record is available."
+                ),
+                "sources": [
+                    "https://www.aoc.gov/sites/default/files/2022-07/FY%202021_AOC_Performance%20and%20Accountability%20Report_Sec%20508.pdf",
+                    "https://www.aoc.gov/what-we-do/projects/cannon-renewal/project-overview",
+                    "https://www.aoc.gov/what-we-do/projects/cannon-renewal/suite-construction",
+                ],
+            }
+        ],
         "height_model": {
             "primary_sources": [
                 "explicit OSM/DCGIS height tags",

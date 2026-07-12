@@ -1967,6 +1967,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["street_markers"] = len(exterior.get("street_markers", []))
     replaced_buildings = exterior.get("replaced_buildings", [])
     summary["replaced_buildings"] = len(replaced_buildings)
+    construction_states = exterior.get("target_era_construction_states", [])
+    summary["target_era_construction_states"] = len(construction_states)
     building_details = exterior.get("building_details", [])
     building_detail_kinds = {detail.get("kind") for detail in building_details}
     courtyard_opening_proxies = [
@@ -2037,6 +2039,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
+    cannon_state = next((state for state in construction_states if state.get("building_id") == 286503), None)
+    if cannon_state is None:
+        error(errors, "missing Jan 6 target-era Cannon Renewal construction-state record")
+    else:
+        if cannon_state.get("phase") != "Phase 3 start window":
+            error(errors, "Cannon Renewal target-era state must remain in the Phase 3 start window")
+        if cannon_state.get("affected_wing") != "First Street SE / east wing":
+            error(errors, "Cannon Renewal target-era state must identify the First Street SE east wing")
+        if cannon_state.get("visible_setup_status") != "unverified_for_exact_target_time":
+            error(errors, "Cannon construction geometry must remain unverified until exact-time visual evidence exists")
+        if len(cannon_state.get("sources", [])) < 3:
+            error(errors, "Cannon Renewal target-era state requires the reviewed AOC source set")
     expected_inner_way_ids = {
         inner_way_id
         for building in relation_buildings
