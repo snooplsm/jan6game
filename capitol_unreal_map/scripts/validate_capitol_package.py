@@ -72,6 +72,18 @@ EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS = {
     1141993: "Henry J. Daly Building",
 }
 
+EXPECTED_DETAILED_CIVIC_RELATIONS = {
+    286501,
+    286503,
+    380762,
+    1029365,
+    1029367,
+    1029369,
+    1029372,
+    1029374,
+    1047027,
+}
+
 REQUIRED_PHOTOREAL_TEXTURE_FEATURES = {
     "tileable_4k_basecolor_normal_roughness_ao",
     "material_micro_pores_and_pinholes",
@@ -1941,6 +1953,11 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["replaced_buildings"] = len(replaced_buildings)
     building_details = exterior.get("building_details", [])
     building_detail_kinds = {detail.get("kind") for detail in building_details}
+    detailed_building_ids = {
+        detail.get("building_id")
+        for detail in building_details
+        if isinstance(detail.get("building_id"), int)
+    }
     building_height_sources = Counter(building.get("height_source", "missing") for building in buildings)
     summary["building_height_sources"] = dict(sorted(building_height_sources.items()))
     height_model = exterior.get("height_model", {})
@@ -1956,6 +1973,7 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     }
     summary["building_details"] = len(building_details)
     summary["building_detail_kinds"] = len(building_detail_kinds)
+    summary["detailed_civic_relations"] = len(EXPECTED_DETAILED_CIVIC_RELATIONS & detailed_building_ids)
     streetscape_props = exterior.get("streetscape_props", [])
     streetscape_prop_kinds = {prop.get("kind") for prop in streetscape_props}
     summary["streetscape_props"] = len(streetscape_props)
@@ -1997,6 +2015,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
+    missing_detailed_civic_relations = EXPECTED_DETAILED_CIVIC_RELATIONS - detailed_building_ids
+    if missing_detailed_civic_relations:
+        error(
+            errors,
+            "historical civic building relations lost facade/roof detail coverage: "
+            + ", ".join(str(item) for item in sorted(missing_detailed_civic_relations)),
+        )
     relation_by_id = {building.get("id"): building for building in relation_buildings}
     missing_relation_ids = set(EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS) - set(relation_by_id)
     if missing_relation_ids:

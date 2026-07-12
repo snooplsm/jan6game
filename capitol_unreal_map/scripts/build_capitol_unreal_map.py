@@ -1543,6 +1543,7 @@ def load_osm() -> tuple[dict[int, tuple[float, float]], list[dict[str, Any]], di
     nodes: dict[int, tuple[float, float]] = {}
     ways: list[dict[str, Any]] = []
     relations: list[dict[str, Any]] = []
+    promoted_relation_ways: list[dict[str, Any]] = []
     for element in data.get("elements", []):
         if element.get("type") == "node" and "lat" in element and "lon" in element:
             nodes[int(element["id"])] = local_xy(float(element["lat"]), float(element["lon"]))
@@ -1577,7 +1578,7 @@ def load_osm() -> tuple[dict[int, tuple[float, float]], list[dict[str, Any]], di
             for member in relation.get("members", [])
             if member.get("type") == "way" and member.get("role") == "inner"
         ]
-        ways.append(
+        promoted_relation_ways.append(
             {
                 "type": "way",
                 "id": int(relation["id"]),
@@ -1588,6 +1589,10 @@ def load_osm() -> tuple[dict[int, tuple[float, float]], list[dict[str, Any]], di
                 "inner_way_ids": inner_way_ids,
             }
         )
+    # Civic multipolygons are processed first so the intentionally capped
+    # close-range facade/roof detail budget reaches major public landmarks
+    # before anonymous context footprints consume it.
+    ways = promoted_relation_ways + ways
     return nodes, ways, data
 
 
