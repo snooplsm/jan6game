@@ -420,6 +420,8 @@ The live primary facade and column shaders now break up their former single-colo
 
 The live dome silhouette now uses a reversible outer-shell correction over the preserved combined mesh. The overlay replaces the visible stepped-cone reading with a broad cylindrical drum, flattened upper hemisphere, transition rings, 24-column/24-window drum articulation, a 16-column glazed lantern, cap, pedestal, and simplified Statue of Freedom silhouette. It is an improved public architectural approximation, not a substitute for a future measured HABS-derived dome model.
 
+The corrected drum windows also carry separate shallow stone lintels and sills, 48 pieces total, aligned tangent to the drum. A rejected experimental radial-rib pass was removed before save after viewport verification showed incorrect outward orientation.
+
 Public step and plaza stone receive a still subtler version of the same treatment: 16 percent localized wear-tone variation on steps and 14 percent broad tone variation on plaza paving. Their roughness remains 0.82 and 0.86, respectively, retaining a matte weather-exposed appearance.
 
 The dome remains interpreted as painted cast iron rather than bare metal or limestone. Its live shader now adds only 12 percent broad cool-gray exposure/repaint variation, while retaining the existing 0.64 roughness and 0.28 specular response.
