@@ -418,6 +418,8 @@ The east terrace is traced independently rather than mirrored from the west beca
 
 The live primary facade and column shaders now break up their former single-color appearance with restrained world-space limestone variation. Capitol stone blends toward a lighter warm tone at 22 percent strength over meter-scale noise; column stone uses an 18 percent blend. Existing high roughness and low specular values remain unchanged, avoiding glossy or strongly mottled marble-like results.
 
+The live dome silhouette now uses a reversible outer-shell correction over the preserved combined mesh. The overlay replaces the visible stepped-cone reading with a broad cylindrical drum, flattened upper hemisphere, transition rings, 24-column/24-window drum articulation, a 16-column glazed lantern, cap, pedestal, and simplified Statue of Freedom silhouette. It is an improved public architectural approximation, not a substitute for a future measured HABS-derived dome model.
+
 Public step and plaza stone receive a still subtler version of the same treatment: 16 percent localized wear-tone variation on steps and 14 percent broad tone variation on plaza paving. Their roughness remains 0.82 and 0.86, respectively, retaining a matte weather-exposed appearance.
 
 The dome remains interpreted as painted cast iron rather than bare metal or limestone. Its live shader now adds only 12 percent broad cool-gray exposure/repaint variation, while retaining the existing 0.64 roughness and 0.28 specular response.
