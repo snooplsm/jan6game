@@ -2822,6 +2822,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 dome drum spandrel panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_lateral_band"]) < 4:
         error(errors, "expected at least 4 dome lateral band records")
+    dome_shell_resolution = {
+        detail.get("name"): detail
+        for detail in facade_details
+        if detail.get("kind") == "dome_shell_geometry_resolution"
+    }
+    hero_shell_resolution = dome_shell_resolution.get("capitol_dome_approximate_shell_resolution", {})
+    if int(hero_shell_resolution.get("radial_segments", 0)) < 144 or int(hero_shell_resolution.get("vertical_rings", 0)) < 32:
+        error(errors, "hero Capitol dome shell must retain at least 144 radial segments and 32 vertical rings")
+    lantern_shell_resolution = dome_shell_resolution.get("dome_lantern_cap_resolution", {})
+    if int(lantern_shell_resolution.get("radial_segments", 0)) < 96 or int(lantern_shell_resolution.get("vertical_rings", 0)) < 16:
+        error(errors, "hero Capitol lantern cap must retain at least 96 radial segments and 16 vertical rings")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_rain_streak"]) < 32:
         error(errors, "expected at least 32 dome shell rain-streak weathering records")
     dome_panel_shadow_seams = [

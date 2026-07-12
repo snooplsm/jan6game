@@ -8654,7 +8654,28 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 panel_height,
                 panel_width,
             )
-    add_dome_shell((0.0, 0.0), 15.4, 34.0, 22.0, "capitol_dome_approximate_shell", "CapitolDome", segments=96, rings=16)
+    hero_dome_segments = 144
+    hero_dome_rings = 32
+    add_dome_shell(
+        (0.0, 0.0),
+        15.4,
+        34.0,
+        22.0,
+        "capitol_dome_approximate_shell",
+        "CapitolDome",
+        segments=hero_dome_segments,
+        rings=hero_dome_rings,
+    )
+    add_facade_detail(
+        "capitol_dome_approximate_shell_resolution",
+        "dome_shell_geometry_resolution",
+        (0.0, 0.0, dome_z(45.0)),
+        {
+            "radial_segments": hero_dome_segments,
+            "vertical_rings": hero_dome_rings,
+            "purpose": "hero_silhouette_tessellation",
+        },
+    )
     add_dome_shell_weathering_details()
     add_dome_cylinder((0.0, 0.0), 3.25, 55.5, 5.2, "dome_lantern_cylinder", "ColumnStone", segments=32)
     for idx in range(16):
@@ -8674,7 +8695,28 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_dome_cylinder((3.34 * math.cos(angle), 3.34 * math.sin(angle)), 0.16, 56.25, 1.7, f"dome_lantern_dark_window_{idx+1:02d}", "FacadeWindow", segments=8)
         add_lantern_window_trim(idx + 1, angle)
     add_facade_detail("dome_lantern_dark_window_ring", "lantern_window", (0.0, 0.0, dome_z(57.1)), {"count": 8})
-    add_dome_shell((0.0, 0.0), 3.25, 60.2, 4.0, "dome_lantern_cap", "CapitolDome", segments=48, rings=8)
+    lantern_cap_segments = 96
+    lantern_cap_rings = 16
+    add_dome_shell(
+        (0.0, 0.0),
+        3.25,
+        60.2,
+        4.0,
+        "dome_lantern_cap",
+        "CapitolDome",
+        segments=lantern_cap_segments,
+        rings=lantern_cap_rings,
+    )
+    add_facade_detail(
+        "dome_lantern_cap_resolution",
+        "dome_shell_geometry_resolution",
+        (0.0, 0.0, dome_z(62.2)),
+        {
+            "radial_segments": lantern_cap_segments,
+            "vertical_rings": lantern_cap_rings,
+            "purpose": "hero_lantern_silhouette_tessellation",
+        },
+    )
     add_dome_cylinder((0.0, 0.0), 0.18, 64.0, 2.1, "dome_lantern_finial", "ColumnStone", segments=12)
     add_statue_of_freedom_silhouette()
     add_facade_detail("dome_lantern_finial", "dome_finial", (0.0, 0.0, dome_z(65.05)))
