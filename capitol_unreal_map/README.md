@@ -578,6 +578,7 @@ House floor seating is modeled as 448 generic seats. Senate seating is modeled a
 - Public session-flag references: [U.S. Senate, "The Senate in Session"](https://www.senate.gov/legislative/senate-in-session.htm) and [U.S. House of Representatives History, Art & Archives, "Southwest from the Capitol"](https://history.house.gov/Blog/2022/October/10-26-swfromthecapitol/).
 - Historical source fetch: `python3 scripts/fetch_osm_historical_capitol.py` from this directory writes `source_data/capitol_osm_overpass_2021-01-06.json`. For a strict late-2020 snapshot, run `python3 scripts/fetch_osm_historical_capitol.py --date 2020-12-31T23:59:59Z --output source_data/capitol_osm_overpass_2020-12-31.json`.
 - Present-day OSM extracts are fallback/reference inputs only and should not silently replace the Jan 6 / late-2020 target-era geometry.
+- Manual decisions for unresolved high-priority surrounding-building heights are recorded in `source_data/height_review_log.md`; reviewed estimates are not promoted without an explicit total height, measured elevation, or clean public rooftop-to-ground match.
 - Interior schematic: public information about the Capitol's major spaces from Architect of the Capitol and public visitor information, reduced to a non-sensitive schematic.
 
 ## Next Fidelity Pass
