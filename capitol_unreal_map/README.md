@@ -438,7 +438,7 @@ The corrected drum windows also carry separate shallow stone lintels and sills, 
 
 The lantern glazing now carries 16 tangent sill/lintel pairs (32 shallow stone pieces). Two additional shell-rib/course experiments were rejected and removed before save because direct viewport inspection showed shelf-like or layered-cone artifacts; the corrected smooth hemisphere remains intact.
 
-The former cone-only Statue of Freedom placeholder is preserved but hidden beneath a nine-piece bronze silhouette with draped lower body, torso, head, simplified headdress, arms, shield, sword, and sword point. It improves landmark readability from public ground views but remains a schematic silhouette rather than a sculptural replica.
+The former cone-only Statue of Freedom placeholder is preserved but hidden beneath an eight-component bronze public proxy: 32-segment base and pedestal, a tapered 32-segment draped body, 24-segment head, shaped sword arm, curved 32-segment shield, slope-following sword blade, and tapered helmet crest. Unlike the previous box-and-low-sided-cylinder proxy, the generated geometry now actually contains the shield and sword claimed by its metadata, and its crest reaches the validated 87.48m overall public building-height target. It improves landmark readability from public ground views but remains explicitly schematic rather than a sculptural replica.
 
 Public step and plaza stone receive a still subtler version of the same treatment: 16 percent localized wear-tone variation on steps and 14 percent broad tone variation on plaza paving. Their roughness remains 0.82 and 0.86, respectively, retaining a matte weather-exposed appearance.
 

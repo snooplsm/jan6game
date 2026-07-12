@@ -621,6 +621,34 @@ class ObjWriter:
         self.add_face(top)
         self.add_face(list(reversed(bottom)))
 
+    def add_frustum(
+        self,
+        center: tuple[float, float],
+        bottom_radius: float,
+        top_radius: float,
+        z: float,
+        height: float,
+        name: str,
+        material: str,
+        segments: int = 32,
+    ) -> None:
+        """Add a capped circular frustum for tapered hero silhouettes."""
+        self.add_group(name, material)
+        cx, cy = center
+        bottom: list[int] = []
+        top: list[int] = []
+        for index in range(segments):
+            angle = math.tau * index / segments
+            co = math.cos(angle)
+            si = math.sin(angle)
+            bottom.append(self.add_vertex(cx + bottom_radius * co, cy + bottom_radius * si, z))
+            top.append(self.add_vertex(cx + top_radius * co, cy + top_radius * si, z + height))
+        for index in range(segments):
+            next_index = (index + 1) % segments
+            self.add_face([bottom[index], bottom[next_index], top[next_index], top[index]])
+        self.add_face(top)
+        self.add_face(list(reversed(bottom)))
+
     def add_horizontal_cylinder(
         self,
         center: tuple[float, float, float],
@@ -7343,19 +7371,58 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     def add_statue_of_freedom_silhouette() -> None:
         base_z = statue_base_z
-        obj.add_cylinder((0.0, 0.0), 0.56, base_z - 0.28, 0.28, "statue_of_freedom_round_base", "StatueBronze", segments=16)
-        obj.add_cylinder((0.0, 0.0), 0.38, base_z, 0.42, "statue_of_freedom_pedestal_silhouette", "StatueBronze", segments=14)
-        obj.add_cylinder((0.0, 0.0), 0.30, base_z + 0.36, 3.90, "statue_of_freedom_body_silhouette", "StatueBronze", segments=12)
-        obj.add_cylinder((0.0, 0.0), 0.20, base_z + 4.23, 0.48, "statue_of_freedom_head_silhouette", "StatueBronze", segments=12)
-        obj.add_box((0.0, 0.0), (1.68, 0.13), 0.18, base_z + 3.18, "statue_of_freedom_arm_silhouette", "StatueBronze")
-        obj.add_box((-0.44, 0.0), (0.16, 0.12), 3.06, base_z + 1.18, "statue_of_freedom_left_drape_silhouette", "StatueBronze")
-        obj.add_box((0.44, 0.0), (0.16, 0.12), 3.06, base_z + 1.18, "statue_of_freedom_right_drape_silhouette", "StatueBronze")
-        obj.add_cylinder((0.0, 0.0), 0.10, capitol_public_height_m - 0.52, 0.52, "statue_of_freedom_plume_silhouette", "StatueBronze", segments=10)
+        statue_radial_segments = 32
+        obj.add_cylinder((0.0, 0.0), 0.56, base_z - 0.28, 0.28, "statue_of_freedom_round_base", "StatueBronze", segments=statue_radial_segments)
+        obj.add_frustum((0.0, 0.0), 0.40, 0.34, base_z, 0.42, "statue_of_freedom_pedestal_silhouette", "StatueBronze", segments=statue_radial_segments)
+        obj.add_frustum((0.0, 0.0), 0.54, 0.27, base_z + 0.36, 3.90, "statue_of_freedom_draped_body_silhouette", "StatueBronze", segments=statue_radial_segments)
+        obj.add_cylinder((0.0, 0.0), 0.20, base_z + 4.23, 0.48, "statue_of_freedom_head_silhouette", "StatueBronze", segments=24)
+        obj.add_beam_between(
+            (-0.05, -0.10, base_z + 3.58),
+            (0.18, -0.62, base_z + 3.05),
+            0.16,
+            0.14,
+            "statue_of_freedom_sword_arm_silhouette",
+            "StatueBronze",
+        )
+        obj.add_horizontal_cylinder(
+            (0.16, 0.48, base_z + 2.35),
+            0.44,
+            0.16,
+            "x",
+            "statue_of_freedom_shield_silhouette",
+            "StatueBronze",
+            segments=32,
+        )
+        obj.add_beam_between(
+            (0.18, -0.62, base_z + 3.05),
+            (0.22, -0.78, base_z + 1.00),
+            0.10,
+            0.055,
+            "statue_of_freedom_sword_blade_silhouette",
+            "StatueBronze",
+        )
+        obj.add_vertical_tapered_prism(
+            (0.0, 0.0),
+            base_z + 4.62,
+            0.24,
+            0.08,
+            1.32,
+            0.18,
+            "east_west",
+            "statue_of_freedom_helmet_crest_silhouette",
+            "StatueBronze",
+        )
         add_facade_detail(
             "statue_of_freedom_silhouette",
             "statue_of_freedom_silhouette",
             (0.0, 0.0, base_z + statue_of_freedom_height_m / 2.0),
-            {"public_height_target_m": round(capitol_public_height_m, 2)},
+            {
+                "public_height_target_m": round(capitol_public_height_m, 2),
+                "radial_segments": statue_radial_segments,
+                "geometry": "tapered_draped_public_proxy",
+                "silhouette_components": ["base", "pedestal", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"],
+                "public_accuracy": "schematic_public_landmark_silhouette_not_sculptural_replica",
+            },
         )
 
     def add_revolving_door(name: str, center: tuple[float, float], facade: str) -> None:

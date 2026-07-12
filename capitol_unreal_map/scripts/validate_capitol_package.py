@@ -2895,8 +2895,20 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 lantern window glass pane records")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_balustrade"]) < 1:
         error(errors, "expected public lantern balustrade record")
-    if len([detail for detail in facade_details if detail.get("kind") == "statue_of_freedom_silhouette"]) < 1:
+    statue_silhouettes = [
+        detail for detail in facade_details if detail.get("kind") == "statue_of_freedom_silhouette"
+    ]
+    if len(statue_silhouettes) < 1:
         error(errors, "expected public Statue of Freedom silhouette record")
+    else:
+        statue_silhouette = statue_silhouettes[0]
+        if int(statue_silhouette.get("radial_segments", 0)) < 32:
+            error(errors, "public Statue of Freedom proxy must retain at least 32 radial body segments")
+        if statue_silhouette.get("geometry") != "tapered_draped_public_proxy":
+            error(errors, "public Statue of Freedom proxy must retain tapered silhouette geometry")
+        required_statue_components = {"base", "pedestal", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"}
+        if not required_statue_components.issubset(set(statue_silhouette.get("silhouette_components", []))):
+            error(errors, "public Statue of Freedom proxy must retain its visible shield, sword, drapery, and helmet components")
     for detail in [item for item in facade_details if item.get("kind") in {"public_entry_lamp", "public_facade_sconce", "facade_uplight"}]:
         if not is_vec3(detail.get("light_m")):
             error(errors, f"facade light {detail.get('name', '<unknown>')} has invalid light_m")

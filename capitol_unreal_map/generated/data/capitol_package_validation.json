@@ -285,11 +285,11 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 180606,
-      "uvs": 580732,
-      "faces": 140398,
-      "faces_with_uvs": 140398,
-      "triangles": 299936,
+      "vertices": 180782,
+      "uvs": 581260,
+      "faces": 140486,
+      "faces_with_uvs": 140486,
+      "triangles": 300288,
       "groups": 15351,
       "materials": [
         "BenchWood",
