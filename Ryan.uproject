@@ -193,6 +193,14 @@
 			"Enabled": true
 		},
 		{
+			"Name": "PCG",
+			"Enabled": true
+		},
+		{
+			"Name": "PCGToolset",
+			"Enabled": true
+		},
+		{
 			"Name": "MCPClientToolset",
 			"Enabled": true
 		},
