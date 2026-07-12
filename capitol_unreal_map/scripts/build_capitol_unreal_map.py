@@ -693,9 +693,9 @@ class ObjWriter:
             # height directly keeps the lower third nearly vertical, tightens
             # the crown, and avoids the bulbous/onion silhouette produced by
             # a quarter-circle profile on an anisotropically scaled sphere.
-            shoulder = max(0.0, 1.0 - t**1.25)
-            rr = radius * shoulder**0.70
-            zz = z + height * t
+            theta = t * math.pi / 2.0
+            rr = radius * math.cos(theta)
+            zz = z + height * math.sin(theta)
             current: list[int] = []
             if ring == rings:
                 current = [self.add_vertex(cx, cy, z + height)]
@@ -6693,8 +6693,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     def dome_shell_radius(z: float) -> float:
         t = max(0.0, min(1.0, (z - 34.0) / 22.0))
-        shoulder = max(0.0, 1.0 - t**1.25)
-        return 15.4 * shoulder**0.70
+        return 15.4 * math.sqrt(max(0.0, 1.0 - t * t))
 
     def add_dome_shell_panel_frame(
         name: str,
@@ -8446,10 +8445,10 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx//2+1:02d}", angle, 25.25)
     for idx in range(24):
         angle = math.tau * idx / 24.0
-        px = 15.65 * math.cos(angle)
-        py = 15.65 * math.sin(angle)
-        add_dome_cylinder((px, py), 0.10, 34.5, 16.5, f"dome_vertical_rib_{idx+1:02d}", "ColumnStone", segments=8)
         add_dome_curved_rib(idx + 1, angle)
+        rib_mid_radius = dome_shell_radius(43.8) + 0.36
+        px = rib_mid_radius * math.cos(angle)
+        py = rib_mid_radius * math.sin(angle)
         add_facade_detail(
             f"dome_vertical_rib_{idx+1:02d}",
             "dome_vertical_rib",
@@ -8457,7 +8456,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"radial_index": idx + 1},
         )
     for band_index, (outer_radius, inner_radius, z) in enumerate(
-        [(15.25, 14.95, 37.8), (13.75, 13.40, 42.6), (11.45, 11.10, 47.4), (8.55, 8.23, 51.2)],
+        [(15.25, 14.95, 37.8), (14.30, 13.95, 42.6), (12.35, 12.00, 47.4), (9.75, 9.43, 51.2)],
         start=1,
     ):
         add_dome_ring((0.0, 0.0), outer_radius, inner_radius, z, 0.16, f"dome_lateral_stone_band_{band_index}", "ColumnStone", segments=96)
