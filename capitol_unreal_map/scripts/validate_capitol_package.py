@@ -2824,8 +2824,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 4 dome lateral band records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_rain_streak"]) < 32:
         error(errors, "expected at least 32 dome shell rain-streak weathering records")
-    if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_shadow_seam"]) < 48:
-        error(errors, "expected at least 48 dome shell panel shadow seam records")
+    dome_panel_shadow_seams = [
+        detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_shadow_seam"
+    ]
+    if len(dome_panel_shadow_seams) < 72:
+        error(errors, "expected 72 public dome shell panel-shadow seams across the documented 36 bays")
+    if any(int(detail.get("bay_count", 0)) != 36 for detail in dome_panel_shadow_seams):
+        error(errors, "dome shell panel-shadow seams must declare the documented 36-bay rhythm")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_column"]) < 16:
         error(errors, "expected at least 16 lantern column records")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_trim"]) < 8:

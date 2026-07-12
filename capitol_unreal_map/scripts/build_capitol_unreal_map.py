@@ -6950,8 +6950,10 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + height / 2.0)),
                 {"angle_degrees": round(math.degrees(angle), 2), "public_accuracy": "generic_public_dome_weathering"},
             )
-        for index in range(24):
-            angle = math.tau * (index + 0.5) / 24.0
+        # Place the relief seams between the documented exterior ribs so the
+        # panel treatment and structural rhythm share one 36-bay system.
+        for index in range(documented_dome_rib_count):
+            angle = math.tau * (index + 0.5) / documented_dome_rib_count
             for seam_index, (z, height, width) in enumerate([(35.95, 1.10, 0.040), (44.75, 0.92, 0.036)], start=1):
                 radius = dome_shell_radius(z + height / 2.0) + 0.39
                 name = f"dome_shell_panel_shadow_seam_{index+1:02d}_{seam_index:02d}"
@@ -6960,7 +6962,11 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     name,
                     "dome_shell_panel_shadow_seam",
                     (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + height / 2.0)),
-                    {"angle_degrees": round(math.degrees(angle), 2), "public_accuracy": "generic_public_dome_panel_relief"},
+                    {
+                        "angle_degrees": round(math.degrees(angle), 2),
+                        "bay_count": documented_dome_rib_count,
+                        "public_accuracy": "reference_aligned_public_dome_panel_relief",
+                    },
                 )
 
     def add_dome_transition_skirt_details() -> None:
