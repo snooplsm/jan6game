@@ -16,15 +16,15 @@
       "status": "ready_for_live_evaluation",
       "source_pack": "PN Grass Library",
       "asset_paths": [
-        "/Game/PN_GrassLibrary/Meshes/grassMesh/lowGrass_04_01_mesh",
         "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_01_01_mesh",
-        "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_02_01_mesh"
+        "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_02_01_mesh",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Lolium_perenne_01_06"
       ],
       "use": "Closely mown, dense winter turf on grassable Capitol grounds only.",
       "constraints": [
         "Tint toward muted cool green and dormant straw rather than saturated summer green.",
         "Keep hardscape, roads, paths, planting beds, pool, and building footprints excluded.",
-        "Use varied scale, rotation, and at least three compatible clump meshes to suppress tiling."
+        "Use varied scale, rotation, and all three live-registry-verified clump meshes to suppress tiling."
       ]
     },
     {
@@ -45,14 +45,13 @@
       "status": "installed_pending_live_evaluation",
       "source_pack": "Maxtree Plant Models Vol. 60",
       "asset_paths": [
-        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01",
-        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Lolium_perenne_01_06"
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01"
       ],
-      "use": "Selected high-detail planting-bed specimens and close-view turf accents where species and January appearance are defensible.",
+      "use": "Selected high-detail planting-bed specimens where species and January appearance are defensible.",
       "constraints": [
         "Do not scatter flowering, tropical, or fully leafed specimens merely because they are high polygon count.",
         "Evaluate winter material appearance, physical dimensions, Nanite/LOD behavior, and draw cost in Unreal before placement.",
-        "Prefer perennial ryegrass only as a minor compatible turf component; it is not evidence of the Capitol lawn's exact 2021 cultivar mix."
+        "Keep planting-bed species separate from the turf asset set and do not infer an exact 2021 planting plan from pack availability."
       ]
     },
     {

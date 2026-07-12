@@ -66,7 +66,7 @@ def main() -> None:
             "preferred_grass_meshes": [
                 "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_01_01_mesh",
                 "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_02_01_mesh",
-                "/Game/PN_GrassLibrary/Meshes/grassMesh/lowGrass_04_01_mesh",
+                "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Lolium_perenne_01_06",
             ],
         },
         "seasonal_profile": {
