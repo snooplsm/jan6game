@@ -589,6 +589,18 @@ The current direction is Unreal 5.8, first-person scale, most-compatible static 
 - curated real PBR texture source replacement where licensing permits
 - higher-fidelity sculpted modular meshes for stone ornament, gallery surfaces, labels, and worn floor/furniture surfaces
 
+The procedural meshes are now explicitly treated as GIS-aligned blockout,
+collision, or distant context rather than final first-person art. Replacement
+work is governed by `unreal/high_fidelity_asset_manifest.json`: close-view
+assets must have authored silhouettes and surface geometry, authored PBR maps,
+Nanite or verified LODs, plausible January 6 configuration, retained license
+evidence, and an accepted first-person viewport capture. Merely increasing a
+flat generated texture's resolution does not satisfy this gate. The installed
+PN Grass Library, Maxtree Vol. 60, and project-owned winter Hornbeam derivative
+are catalogued there with seasonal and placement constraints; the generic
+plastic barricade download is explicitly rejected. The highest-priority missing
+replacement remains a modular high-resolution Capitol exterior.
+
 ### PCG lawns and reflecting pool
 
 Run `scripts/build_pcg_landscape_manifest.py` after rebuilding the scene

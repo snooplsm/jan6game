@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "purpose": "Quality and historical-suitability gates for replacing visible procedural scenery in the January 6, 2021 Capitol scene.",
+  "global_acceptance_gates": {
+    "close_view_mesh": "Authored silhouette and surface geometry; no primitive/blockout replacement within first-person inspection range.",
+    "materials": "Authored PBR response with base color, normal, and roughness data; metallic data where physically applicable.",
+    "textures": "Use the source pack's highest practical texture tier for hero assets; do not upscale generated flat-color maps and call them high resolution.",
+    "rendering": "Nanite or a verified LOD chain for dense static meshes; foliage must retain working wind and masked-material behavior.",
+    "history": "Placement and visible configuration must be plausible for Washington, DC at 2021-01-06 11:50 America/New_York.",
+    "verification": "Capture a first-person viewport image before accepting a live replacement; reject overlap, floating pivots, wrong scale, obvious repetition, or seasonal mismatch.",
+    "licensing": "Retain Fab entitlement or explicit source license/attribution evidence before versioning third-party content."
+  },
+  "installed_candidates": [
+    {
+      "role": "capitol_grounds_winter_turf",
+      "status": "ready_for_live_evaluation",
+      "source_pack": "PN Grass Library",
+      "asset_paths": [
+        "/Game/PN_GrassLibrary/Meshes/grassMesh/lowGrass_04_01_mesh",
+        "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_01_01_mesh",
+        "/Game/PN_GrassLibrary/Meshes/grassMesh/grass_02_01_mesh"
+      ],
+      "use": "Closely mown, dense winter turf on grassable Capitol grounds only.",
+      "constraints": [
+        "Tint toward muted cool green and dormant straw rather than saturated summer green.",
+        "Keep hardscape, roads, paths, planting beds, pool, and building footprints excluded.",
+        "Use varied scale, rotation, and at least three compatible clump meshes to suppress tiling."
+      ]
+    },
+    {
+      "role": "capitol_grounds_leafless_tree",
+      "status": "accepted_and_placed",
+      "source_pack": "European Hornbeam",
+      "asset_paths": [
+        "/Game/HistoricalOSM/Vegetation/HornbeamWinter/SM_Hornbeam_Field01_Winter"
+      ],
+      "use": "Leafless/retained-leaf winter field trees at the 16 authored grounds positions.",
+      "constraints": [
+        "Preserve the authored January material instances and four-level project-owned LOD chain.",
+        "Do not replace source-mapped context trees wholesale with a single species."
+      ]
+    },
+    {
+      "role": "ornamental_planting_and_hero_vegetation",
+      "status": "installed_pending_live_evaluation",
+      "source_pack": "Maxtree Plant Models Vol. 60",
+      "asset_paths": [
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Lolium_perenne_01_06"
+      ],
+      "use": "Selected high-detail planting-bed specimens and close-view turf accents where species and January appearance are defensible.",
+      "constraints": [
+        "Do not scatter flowering, tropical, or fully leafed specimens merely because they are high polygon count.",
+        "Evaluate winter material appearance, physical dimensions, Nanite/LOD behavior, and draw cost in Unreal before placement.",
+        "Prefer perennial ryegrass only as a minor compatible turf component; it is not evidence of the Capitol lawn's exact 2021 cultivar mix."
+      ]
+    },
+    {
+      "role": "grounds_lamp",
+      "status": "staged_not_placed",
+      "source_pack": "Sousinho Lamp post light",
+      "asset_paths": [
+        "/Game/HistoricalOSM/Props/LampPostLight/SM_LampPostLight"
+      ],
+      "use": "Temporary authored PBR lamp candidate after baked placeholder faces can be removed cleanly.",
+      "constraints": [
+        "Do not overlay it on the existing baked rectangular-globe geometry.",
+        "Treat it as a quality improvement candidate, not as evidence of an exact Architect of the Capitol fixture type."
+      ]
+    }
+  ],
+  "required_replacements": [
+    {
+      "priority": 1,
+      "role": "us_capitol_exterior",
+      "current_state": "procedural_public_reference_blockout",
+      "required_result": "Historically configured modular high-resolution Capitol exterior with authored dome, porticos, columns, stairs, windows, roofline, and stone ornament.",
+      "candidate": "Leartes Studios US Capitol Exterior Environment",
+      "candidate_url": "https://www.fab.com/listings/2d60d04d-ccca-4561-b456-10394b248e5d",
+      "status": "not_installed"
+    },
+    {
+      "priority": 2,
+      "role": "dc_street_furniture",
+      "current_state": "combined_procedural_mesh_with_baked_placeholders",
+      "required_result": "Modular PBR traffic signals, street lamps, benches, bollards, hydrants, signs, and crowd-control barriers with source-derived transforms.",
+      "status": "candidate_selection_and_clean_mesh_separation_required"
+    },
+    {
+      "priority": 3,
+      "role": "public_capitol_interior",
+      "current_state": "public_schematic_blockout",
+      "required_result": "Authored modular public Rotunda and chamber surfaces, furnishings, architectural trim, and lighting based only on public references.",
+      "status": "reference_modeling_required"
+    },
+    {
+      "priority": 4,
+      "role": "surrounding_building_facades",
+      "current_state": "osm_dcgis_massing_with_procedural_detail",
+      "required_result": "Reusable high-resolution facade kits applied to street-level priority buildings while preserving historical footprints and audited heights.",
+      "status": "reference_and_modular_kit_required"
+    }
+  ],
+  "explicit_rejections": [
+    {
+      "source": "Fence_Barricade-f350fc5d",
+      "reason": "Generic low-detail plastic construction barrier; wrong crowd-control typology and insufficient close-view fidelity."
+    },
+    {
+      "source": "generated procedural detail meshes",
+      "reason": "Retain only as GIS-aligned blockout, collision, or distant context; they are not final first-person art."
+    }
+  ]
+}
