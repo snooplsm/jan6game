@@ -26,6 +26,9 @@ Detailed map notes are in `capitol_unreal_map/README.md`.
 
 ## Asset And Data Sources
 
+Third-party asset credits and license notices are collected in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
 Use these as source/reference inputs for replacing blocky geometry with authored Unreal-ready assets:
 
 - [DC Open Data](https://opendata.dc.gov/) - public footprints, planimetrics, roads, curbs, sidewalks, fixtures, and streetscape source data.
