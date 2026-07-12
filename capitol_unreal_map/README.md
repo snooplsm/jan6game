@@ -434,6 +434,8 @@ The exterior surface-wear pass adds public/schematic road oil-stain decals, side
 
 The shared live streetscape shaders now replace flat color/default gloss with explicit weather-exposed response: asphalt uses 25 percent dark aggregate-tone variation with 0.93 roughness/0.12 specular; sidewalk concrete uses 16 percent variation with 0.90/0.15; curb concrete uses 14 percent variation with 0.88/0.16. Geometry and historical map alignment remain unchanged.
 
+The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
+
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
 
 The live Unreal scenery also includes six generic galvanized bicycle-style temporary crowd-control barricade modules at a public west-approach inspection area. Their dimensions and construction are representative visual scenery, while their placement is explicitly tagged `Public_Schematic_Placement`; it is not presented as a source-verified operational perimeter or security layout.
