@@ -26,7 +26,9 @@
     "time_local": "2021-01-06T11:50:00-05:00",
     "elevation_deg": 28.2848,
     "azimuth_deg_true_clockwise_from_north": 173.9374,
-    "calculation": "NOAA fractional-year equation-of-time and solar-declination approximation"
+    "calculation": "NOAA fractional-year equation-of-time and solar-declination approximation",
+    "unreal_directional_light_rotation_deg": [-28.2848, 96.0626, 0.0],
+    "unreal_conversion": "World +X is east and +Y is north. Incoming light rays use the reciprocal compass bearing (solar azimuth + 180 degrees); Unreal yaw from +X is 90 degrees minus that ray bearing, normalized to 96.0626 degrees."
   },
   "raw_isd_fields": {
     "TMP": "+0061,5",

@@ -2076,6 +2076,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "target solar elevation must remain 28.2848 degrees at 11:50 EST")
     if solar_position.get("azimuth_deg_true_clockwise_from_north") != 173.9374:
         error(errors, "target solar azimuth must remain 173.9374 degrees true at 11:50 EST")
+    if solar_position.get("unreal_directional_light_rotation_deg") != [-28.2848, 96.0626, 0.0]:
+        error(errors, "target solar position must retain the east/north world-to-Unreal directional-light conversion")
     cannon_state = next((state for state in construction_states if state.get("building_id") == 286503), None)
     if cannon_state is None:
         error(errors, "missing Jan 6 target-era Cannon Renewal construction-state record")
@@ -4045,6 +4047,8 @@ def validate_unreal_importer(errors: list[str]) -> dict[str, Any]:
         return summary
 
     text = UNREAL_IMPORTER_PATH.read_text(encoding="utf-8")
+    if '"directional_light_rotation_deg": [-28.2848, 96.0626, 0.0]' not in text:
+        error(errors, "Unreal importer must retain the validated Jan 6 solar directional-light rotation")
     try:
         tree = ast.parse(text, filename=str(UNREAL_IMPORTER_PATH))
     except SyntaxError as exc:
