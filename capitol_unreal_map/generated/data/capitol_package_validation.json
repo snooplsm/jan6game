@@ -180,7 +180,7 @@
   },
   "high_fidelity_assets": {
     "acceptance_gates": 7,
-    "installed_candidates": 4,
+    "installed_candidates": 5,
     "required_replacements": 5,
     "explicit_rejections": 2
   },

@@ -67,6 +67,38 @@
         "Do not overlay it on the existing baked rectangular-globe geometry.",
         "Treat it as a quality improvement candidate, not as evidence of an exact Architect of the Capitol fixture type."
       ]
+    },
+    {
+      "role": "brick_civic_surface_scan",
+      "status": "not_installed_pending_historical_match",
+      "source_pack": "Quixel Megascans Brick Wall",
+      "candidate_url": "https://www.fab.com/listings/e2865ee3-968d-4b1c-aafb-fa76a4951563",
+      "asset_paths": [
+        "/Game/Megascans/Surfaces/Brick_Wall_Candidate"
+      ],
+      "use": "Conditional scanned surface candidate for reviewed historic brick facades such as the Capitol Power Plant; not an architectural module or an automatic acceptance.",
+      "quality_evidence": {
+        "price": "free",
+        "scan_area_m": "1x2",
+        "texel_density_px_per_m": 4096,
+        "maps": [
+          "basecolor",
+          "normal",
+          "roughness",
+          "displacement",
+          "cavity",
+          "ambient_occlusion",
+          "bump",
+          "specular",
+          "gloss"
+        ]
+      },
+      "constraints": [
+        "Do not apply until brick color, dimensions, bond, mortar profile, and weathering are compared against dated public facade references.",
+        "Use displacement or Nanite tessellation only after connected viewport and performance verification.",
+        "Still requires authored corner, opening, arch, sill, lintel, cornice, and roof-edge modules.",
+        "Replace the placeholder asset path with the actual Fab import path after installation."
+      ]
     }
   ],
   "required_replacements": [

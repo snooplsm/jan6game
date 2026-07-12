@@ -609,6 +609,11 @@ track: the Capitol Power Plant and other reviewed brick buildings must use a
 licensed or reference-modeled modular brick kit with real PBR maps and credible
 brick/mortar depth. Recoloring generic masonry or upscaling a generated flat
 texture is explicitly insufficient.
+A free Quixel Megascans `Brick Wall` scan is catalogued as a conditional
+surface candidate: 4096 px/m over a 1x2 m scan with base color, normal,
+roughness, displacement, cavity, ambient occlusion, bump, specular, and gloss
+data. It is not accepted or installed yet; brick bond/color/mortar must match
+dated Power Plant references, and authored corners/openings remain mandatory.
 
 ### PCG lawns and reflecting pool
 
