@@ -33,6 +33,7 @@ DCGIS_ELEVATION_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_el
 DCGIS_TRAFFIC_SIGN_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_traffic_signs.json"
 DCGIS_FIXTURE_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_public_fixtures.json"
 DCGIS_GROUND_SURFACE_SOURCE = ROOT / "source_data" / "dc_planimetrics_1999_capitol_ground_surfaces.json"
+NOAA_TARGET_WEATHER_SOURCE = ROOT / "source_data" / "noaa_dca_2021-01-06_1652.json"
 GENERATED = ROOT / "generated"
 MESH_DIR = GENERATED / "meshes"
 DATA_DIR = GENERATED / "data"
@@ -1679,6 +1680,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     dcgis_road_polygons = dcgis_ground_surface_model.get("roads", [])
     dcgis_sidewalk_polygons = dcgis_ground_surface_model.get("sidewalks", [])
     dcgis_height_match_count = 0
+    target_era_weather = json.loads(NOAA_TARGET_WEATHER_SOURCE.read_text(encoding="utf-8"))
     metadata: dict[str, Any] = {
         "buildings": [],
         "roads": [],
@@ -1717,6 +1719,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 ],
             }
         ],
+        "target_era_weather": target_era_weather,
         "height_model": {
             "primary_sources": [
                 "explicit OSM/DCGIS height tags",

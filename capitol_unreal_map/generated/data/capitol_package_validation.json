@@ -13,6 +13,7 @@
     "street_markers": 396,
     "replaced_buildings": 1,
     "target_era_construction_states": 1,
+    "target_era_weather_observation": "2021-01-06T16:52:00Z",
     "building_height_sources": {
       "building_levels_estimate": 77,
       "curated_public_level_count_estimate": 4,

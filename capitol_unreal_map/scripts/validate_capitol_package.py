@@ -22,6 +22,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 TARGET_OSM_DATE_UTC = "2021-01-06T17:00:00Z"
 HISTORICAL_OSM_SOURCE_REL = "source_data/capitol_osm_overpass_2021-01-06.json"
+NOAA_TARGET_WEATHER_SOURCE_REL = "source_data/noaa_dca_2021-01-06_1652.json"
 MESH_DIR = ROOT / "generated" / "meshes"
 DATA_DIR = ROOT / "generated" / "data"
 METADATA_PATH = DATA_DIR / "capitol_scene_metadata.json"
@@ -1969,6 +1970,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["replaced_buildings"] = len(replaced_buildings)
     construction_states = exterior.get("target_era_construction_states", [])
     summary["target_era_construction_states"] = len(construction_states)
+    target_weather = exterior.get("target_era_weather", {})
+    summary["target_era_weather_observation"] = target_weather.get("observation_time_utc")
     building_details = exterior.get("building_details", [])
     building_detail_kinds = {detail.get("kind") for detail in building_details}
     courtyard_opening_proxies = [
@@ -2039,6 +2042,26 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
+    weather_source_path = ROOT / NOAA_TARGET_WEATHER_SOURCE_REL
+    if not weather_source_path.exists():
+        error(errors, f"missing NOAA target-era weather source: {NOAA_TARGET_WEATHER_SOURCE_REL}")
+    if target_weather.get("observation_time_utc") != "2021-01-06T16:52:00Z":
+        error(errors, "target-era weather must use the 16:52 UTC DCA observation nearest 11:50 local")
+    decoded_weather = target_weather.get("decoded", {})
+    expected_weather = {
+        "air_temperature_c": 6.1,
+        "dew_point_c": -1.1,
+        "wind_direction_deg_true": 320,
+        "wind_speed_m_s": 9.8,
+        "visibility_m": 16093,
+        "sky_condition": "overcast",
+        "ceiling_height_m": 1341,
+    }
+    for key, expected_value in expected_weather.items():
+        if decoded_weather.get(key) != expected_value:
+            error(errors, f"target-era weather {key} expected {expected_value!r}, got {decoded_weather.get(key)!r}")
+    if target_weather.get("target_time_offset_seconds") != 120:
+        error(errors, "target-era weather observation must remain documented as 120 seconds after target time")
     cannon_state = next((state for state in construction_states if state.get("building_id") == 286503), None)
     if cannon_state is None:
         error(errors, "missing Jan 6 target-era Cannon Renewal construction-state record")

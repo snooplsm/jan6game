@@ -1,0 +1,40 @@
+{
+  "station": {
+    "name": "Ronald Reagan Washington National Airport",
+    "usaf": "724050",
+    "wban": "13743",
+    "icao": "KDCA"
+  },
+  "observation_time_utc": "2021-01-06T16:52:00Z",
+  "observation_time_local": "2021-01-06T11:52:00-05:00",
+  "target_time_local": "2021-01-06T11:50:00-05:00",
+  "target_time_offset_seconds": 120,
+  "decoded": {
+    "air_temperature_c": 6.1,
+    "dew_point_c": -1.1,
+    "sea_level_pressure_hpa": 1020.0,
+    "wind_direction_deg_true": 320,
+    "wind_speed_m_s": 9.8,
+    "visibility_m": 16093,
+    "sky_condition": "overcast",
+    "ceiling_height_m": 1341,
+    "precipitation_last_hour_mm": 0.0
+  },
+  "raw_isd_fields": {
+    "TMP": "+0061,5",
+    "DEW": "-0011,5",
+    "SLP": "10200,5",
+    "WND": "320,5,N,0098,5",
+    "VIS": "016093,5,N,5",
+    "CIG": "01341,5,M,N",
+    "GA1": "08,5,+01341,5,99,9",
+    "AA1": "01,0000,9,5"
+  },
+  "source": {
+    "provider": "NOAA National Centers for Environmental Information",
+    "dataset": "Global Hourly Integrated Surface Database",
+    "csv_url": "https://www.ncei.noaa.gov/data/global-hourly/access/2021/72405013743.csv",
+    "retrieved_utc": "2026-07-12",
+    "usage_note": "Nearest routine station observation to the 11:50 a.m. target time; airport conditions are treated as regional weather evidence, not a claim of block-level microclimate."
+  }
+}
