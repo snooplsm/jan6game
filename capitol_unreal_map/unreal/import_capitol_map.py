@@ -133,6 +133,26 @@ PHOTOREAL_PREVIEW_PROFILE = {
     },
     "realism_note": "Renderer and camera-profile tuning for a stronger photoreal preview of the generated public-data blockout; mesh fidelity and licensed/scanned PBR sources remain the limiting factors.",
 }
+TARGET_ERA_WEATHER_PROFILE = {
+    "target_time_local": "2021-01-06T11:50:00-05:00",
+    "observation_time_utc": "2021-01-06T16:52:00Z",
+    "station": "KDCA / 724050-13743",
+    "air_temperature_c": 6.1,
+    "dew_point_c": -1.1,
+    "sea_level_pressure_hpa": 1020.0,
+    "wind_direction_deg_true": 320,
+    "wind_speed_m_s": 9.8,
+    "visibility_m": 16093,
+    "sky_condition": "overcast",
+    "ceiling_height_m": 1341,
+    "precipitation_last_hour_mm": 0.0,
+    "source_metadata_path": "source_data/noaa_dca_2021-01-06_1652.json",
+    "cloud_handoff": {
+        "required": True,
+        "status": "pending_connected_viewport_verification",
+        "policy": "Use a guarded built-in or licensed volumetric-cloud material only after asset/property discovery; do not substitute exponential fog for the observed overcast layer.",
+    },
+}
 PLAYER_START_LABEL = "CapitolMap_PlayerStart_WestFront"
 PLAYER_START_LOCATION_CM = [-9000.0, 0.0, 120.0]
 PLAYER_START_ROTATION_DEG = [0.0, 4.0, 0.0]
@@ -2423,6 +2443,7 @@ def write_unreal_import_report(
             "public_accent_light_setup": PUBLIC_ACCENT_LIGHT_SETUP,
             "public_accent_light_kind_settings": PUBLIC_ACCENT_LIGHT_KIND_SETTINGS,
             "photoreal_preview_profile": PHOTOREAL_PREVIEW_PROFILE,
+            "target_era_weather_profile": TARGET_ERA_WEATHER_PROFILE,
             "scene_setup_stats": scene_setup_stats or {},
             "first_person_setup": FIRST_PERSON_IMPORT_SETUP,
             "collision_proxy_setup": FIRST_PERSON_COLLISION_PROXIES,
