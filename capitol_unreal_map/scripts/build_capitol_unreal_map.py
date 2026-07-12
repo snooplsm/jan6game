@@ -740,6 +740,56 @@ class ObjWriter:
             next_index = (index + 1) % 4
             self.add_face([corners[index], corners[4 + index], corners[4 + next_index], corners[next_index]])
 
+    def add_vertical_arch_band(
+        self,
+        center: tuple[float, float],
+        base_z: float,
+        half_span: float,
+        rise: float,
+        trim: float,
+        depth: float,
+        orientation: str,
+        name: str,
+        material: str,
+        segments: int = 24,
+    ) -> None:
+        """Create a continuous extruded elliptical arch band in a facade plane."""
+        if orientation not in {"east_west", "north_south"}:
+            raise ValueError(f"unsupported arch-band orientation: {orientation!r}")
+        self.add_group(name, material)
+        cx, cy = center
+        layers: list[tuple[list[int], list[int]]] = []
+        for depth_sign in (-1.0, 1.0):
+            inner: list[int] = []
+            outer: list[int] = []
+            for index in range(segments + 1):
+                angle = math.pi * index / segments
+                inner_h = half_span * math.cos(angle)
+                inner_z = base_z + rise * math.sin(angle)
+                outer_h = (half_span + trim) * math.cos(angle)
+                outer_z = base_z + (rise + trim) * math.sin(angle)
+                if orientation == "east_west":
+                    fixed = cx + depth_sign * depth / 2.0
+                    inner.append(self.add_vertex(fixed, cy + inner_h, inner_z))
+                    outer.append(self.add_vertex(fixed, cy + outer_h, outer_z))
+                else:
+                    fixed = cy + depth_sign * depth / 2.0
+                    inner.append(self.add_vertex(cx + inner_h, fixed, inner_z))
+                    outer.append(self.add_vertex(cx + outer_h, fixed, outer_z))
+            layers.append((inner, outer))
+        for layer_index, (inner, outer) in enumerate(layers):
+            for index in range(segments):
+                face = [inner[index], inner[index + 1], outer[index + 1], outer[index]]
+                self.add_face(face if layer_index == 1 else list(reversed(face)))
+        inner_negative, outer_negative = layers[0]
+        inner_positive, outer_positive = layers[1]
+        for index in range(segments):
+            next_index = index + 1
+            self.add_face([outer_negative[index], outer_negative[next_index], outer_positive[next_index], outer_positive[index]])
+            self.add_face([inner_positive[index], inner_positive[next_index], inner_negative[next_index], inner_negative[index]])
+        self.add_face([inner_negative[0], outer_negative[0], outer_positive[0], inner_positive[0]])
+        self.add_face([inner_positive[-1], outer_positive[-1], outer_negative[-1], inner_negative[-1]])
+
     def add_ring(
         self,
         center: tuple[float, float],
@@ -5424,21 +5474,23 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     ) -> None:
         x, y = center
         arch_height = width * 0.32
-        fractions = [-0.86, -0.58, -0.30, 0.0, 0.30, 0.58, 0.86]
-        for stone_index, fraction in enumerate(fractions, start=1):
-            lateral_offset = fraction * width / 2.0
-            lift = arch_height * math.sqrt(max(0.0, 1.0 - fraction * fraction))
-            stone_z = z + height + lift - 0.08
-            stone_height = 0.18 if abs(fraction) > 0.65 else 0.22
-            if orientation == "east_west":
-                face_x = x + (0.36 if x >= 0.0 else -0.36)
-                stone_center = (face_x, y + lateral_offset)
-                stone_size = (0.20, max(0.20, width * 0.13))
-            else:
-                face_y = y + (0.36 if y >= 0.0 else -0.36)
-                stone_center = (x + lateral_offset, face_y)
-                stone_size = (max(0.20, width * 0.13), 0.20)
-            obj.add_box(stone_center, stone_size, stone_height, stone_z, f"{name}_arch_voussoir_{stone_index:02d}", "ColumnStone")
+        arch_segments = 24
+        if orientation == "east_west":
+            face_center = (x + (0.36 if x >= 0.0 else -0.36), y)
+        else:
+            face_center = (x, y + (0.36 if y >= 0.0 else -0.36))
+        obj.add_vertical_arch_band(
+            face_center,
+            z + height,
+            width / 2.0,
+            arch_height,
+            0.14,
+            0.20,
+            orientation,
+            f"{name}_continuous_arch_band",
+            "ColumnStone",
+            segments=arch_segments,
+        )
 
         if orientation == "east_west":
             face_x = x + (0.43 if x >= 0.0 else -0.43)
@@ -5453,7 +5505,11 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             name,
             "facade_arch_window_trim",
             (x, y, z + height + arch_height / 2.0),
-            {"orientation": orientation, "voussoir_count": len(fractions)},
+            {
+                "orientation": orientation,
+                "geometry": "continuous_extruded_arch_band",
+                "arch_segments": arch_segments,
+            },
         )
         add_facade_detail(
             f"{name}_center_keystone",

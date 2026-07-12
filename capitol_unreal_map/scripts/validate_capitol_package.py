@@ -2765,8 +2765,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 14 public plaza linear drain-slot records")
     if len([detail for detail in facade_details if detail.get("kind") == "plaza_wear_patch"]) < 30:
         error(errors, "expected at least 30 public plaza wear patch records")
-    if len([detail for detail in facade_details if detail.get("kind") == "facade_arch_window_trim"]) < 112:
+    facade_arch_trims = [
+        detail for detail in facade_details if detail.get("kind") == "facade_arch_window_trim"
+    ]
+    if len(facade_arch_trims) < 112:
         error(errors, "expected at least 112 public facade arched window trim records")
+    if any(detail.get("geometry") != "continuous_extruded_arch_band" for detail in facade_arch_trims):
+        error(errors, "facade arched-window trims must use continuous curved bands rather than box chains")
+    if any(int(detail.get("arch_segments", 0)) < 24 for detail in facade_arch_trims):
+        error(errors, "facade arched-window trims must retain at least 24 curve segments")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_window_keystone"]) < 112:
         error(errors, "expected at least 112 public facade window keystone records")
     if len([detail for detail in facade_details if detail.get("kind") == "pediment_sculptural_relief_block"]) < 32:
