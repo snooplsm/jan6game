@@ -551,7 +551,10 @@ metadata. The generated manifest keeps grass generation deterministic and
 historically seasonal: January 6 uses dense, closely mown, muted Mid-Atlantic
 winter turf rather than saturated summer grass. The Unreal lawn-base material
 adds subtle world-space cool-green-to-dormant-straw color variation while
-retaining high roughness and low specular response. It identifies the local
+retaining high roughness and low specular response. A secondary fine-scale
+world-space mask now varies roughness only from 0.86 to 0.96, breaking up broad
+flat highlights without changing seasonal color, grass density, or exclusions.
+It identifies the local
 Fab grass dependencies, 32 grassable grounds surfaces, hardscape exclusions,
 historical road and bike-lane exclusions, and the public reflecting-pool record.
 The Water handoff specifies a shallow, nearly still pool suitable for Lumen and
