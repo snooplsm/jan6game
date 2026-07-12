@@ -412,7 +412,7 @@ The live west-terrace close-range pass adds a reversible shallow stone-joint ove
 
 The lower west-terrace follow-up traces four separate stepped riser planes and adds shallow nosing shadows plus seven regularly spaced expansion joints per riser. These overlays follow the existing stair setbacks, retain the original walkable geometry, and avoid inventing new circulation routes.
 
-The central west-terrace silhouette now includes a reversible stone balustrade aligned to the traced terrace-top elevation: 31 repeated balusters with separate bases, shafts, and caps between continuous lower and upper stone rails. It is a public-facing architectural approximation and does not alter the underlying terrace collision.
+The central west-terrace silhouette now includes a reversible stone balustrade aligned to the traced terrace-top elevation: 31 repeated balusters with separate bases, shafts, and caps between continuous lower and upper stone rails. A close-range refinement adds a restrained vase-shaped belly plus upper and lower collars to each baluster, replacing the earlier pipe-like profile without changing the rails or collision. It is a public-facing architectural approximation and does not alter the underlying terrace collision.
 
 The east terrace is traced independently rather than mirrored from the west because its current stair projection extends farther outward. Its central public terrace top now carries a separate 25-baluster stone module aligned near X=103m and Z=6.45m, again preserving the imported mesh and collision beneath it.
 
