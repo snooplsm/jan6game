@@ -4,6 +4,7 @@
   "metadata": {
     "mesh_count": 5,
     "buildings": 3643,
+    "building_multipolygon_relations": 12,
     "roads": 1432,
     "bike_lanes": 242,
     "pedestrian_paths": 636,

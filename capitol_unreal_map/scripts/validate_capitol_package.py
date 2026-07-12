@@ -57,6 +57,21 @@ REQUIRED_HIGH_FIDELITY_ROLES = {
     "surrounding_building_facades",
 }
 
+EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS = {
+    286501: "Supreme Court of the United States",
+    286503: "Cannon House Office Building",
+    380762: "E. Barrett Prettyman Federal Courthouse",
+    554408: None,
+    1029365: "Longworth House Office Building",
+    1029367: "Russell Senate Office Building",
+    1029369: "Rayburn House Office Building",
+    1029372: "United States Botanic Garden",
+    1029374: "Library of Congress, Thomas Jefferson Building",
+    1047027: "Dirksen Senate Office Building",
+    1067405: None,
+    1141993: "Henry J. Daly Building",
+}
+
 REQUIRED_PHOTOREAL_TEXTURE_FEATURES = {
     "tileable_4k_basecolor_normal_roughness_ao",
     "material_micro_pores_and_pinholes",
@@ -1914,6 +1929,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     exterior = metadata.get("exterior", {})
     buildings = exterior.get("buildings", [])
     summary["buildings"] = len(buildings)
+    relation_buildings = [building for building in buildings if building.get("osm_element_type") == "relation"]
+    summary["building_multipolygon_relations"] = len(relation_buildings)
     summary["roads"] = len(exterior.get("roads", []))
     summary["bike_lanes"] = len(exterior.get("bike_lanes", []))
     summary["pedestrian_paths"] = len(exterior.get("pedestrian_paths", []))
@@ -1980,6 +1997,32 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
+    relation_by_id = {building.get("id"): building for building in relation_buildings}
+    missing_relation_ids = set(EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS) - set(relation_by_id)
+    if missing_relation_ids:
+        error(
+            errors,
+            "missing historical building multipolygon relations: "
+            + ", ".join(str(item) for item in sorted(missing_relation_ids)),
+        )
+    unexpected_relation_ids = set(relation_by_id) - set(EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS)
+    if unexpected_relation_ids:
+        error(
+            errors,
+            "unexpected historical building multipolygon relations: "
+            + ", ".join(str(item) for item in sorted(unexpected_relation_ids)),
+        )
+    for relation_id, expected_name in EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS.items():
+        building = relation_by_id.get(relation_id)
+        if building is None:
+            continue
+        if expected_name is not None and building.get("name") != expected_name:
+            error(errors, f"building relation {relation_id} expected name {expected_name!r}, got {building.get('name')!r}")
+        if not isinstance(building.get("outer_way_id"), int):
+            error(errors, f"building relation {relation_id} missing integer outer_way_id provenance")
+        inner_way_ids = building.get("inner_way_ids")
+        if not isinstance(inner_way_ids, list) or not inner_way_ids or any(not isinstance(item, int) for item in inner_way_ids):
+            error(errors, f"building relation {relation_id} missing inner_way_ids provenance")
     if any(not is_number(building.get("height_m")) for building in buildings):
         error(errors, "expected every surrounding building to include numeric height_m")
     if any(not is_number(building.get("footprint_area_m2")) for building in buildings):
@@ -4223,6 +4266,7 @@ def main() -> int:
     print(f"Texture coordinates: {sum(int(mesh.get('uvs', 0)) for mesh in mesh_stats):,}")
     print(f"Triangles: {triangles:,}")
     print(f"Buildings: {metadata_summary.get('buildings', 0):,}")
+    print(f"Building multipolygon relations: {metadata_summary.get('building_multipolygon_relations', 0):,}")
     print(f"Roads/paths: {metadata_summary.get('roads', 0):,}")
     print(f"Bike features: {metadata_summary.get('bike_lanes', 0):,}")
     print(f"Pedestrian paths: {metadata_summary.get('pedestrian_paths', 0):,}")
