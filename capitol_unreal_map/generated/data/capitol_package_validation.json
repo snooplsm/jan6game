@@ -171,6 +171,12 @@
     "max_z_m": 87.48,
     "tolerance_m": 0.35
   },
+  "high_fidelity_assets": {
+    "acceptance_gates": 7,
+    "installed_candidates": 4,
+    "required_replacements": 4,
+    "explicit_rejections": 2
+  },
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",

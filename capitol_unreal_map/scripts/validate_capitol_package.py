@@ -28,6 +28,7 @@ METADATA_PATH = DATA_DIR / "capitol_scene_metadata.json"
 MTL_PATH = MESH_DIR / "capitol_materials.mtl"
 REPORT_PATH = DATA_DIR / "capitol_package_validation.json"
 MATERIAL_MANIFEST_PATH = ROOT / "unreal" / "material_realism_manifest.json"
+HIGH_FIDELITY_ASSET_MANIFEST_PATH = ROOT / "unreal" / "high_fidelity_asset_manifest.json"
 TEXTURE_MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
 UNREAL_IMPORTER_PATH = ROOT / "unreal" / "import_capitol_map.py"
 UPROJECT_PATH = ROOT / "CapitolMap.uproject"
@@ -39,6 +40,22 @@ MIN_TEXTURE_SIZE_PX = int(os.environ.get("CAPITOL_MIN_TEXTURE_SIZE", "4096"))
 CAPITOL_PUBLIC_HEIGHT_TARGET_M = 87.48
 LANDMARK_HEIGHT_TOLERANCE_M = 0.35
 LANDMARK_MESH_REL = "generated/meshes/capitol_landmark_visual_details.obj"
+
+REQUIRED_HIGH_FIDELITY_GATES = {
+    "close_view_mesh",
+    "materials",
+    "textures",
+    "rendering",
+    "history",
+    "verification",
+    "licensing",
+}
+REQUIRED_HIGH_FIDELITY_ROLES = {
+    "us_capitol_exterior",
+    "dc_street_furniture",
+    "public_capitol_interior",
+    "surrounding_building_facades",
+}
 
 REQUIRED_PHOTOREAL_TEXTURE_FEATURES = {
     "tileable_4k_basecolor_normal_roughness_ao",
@@ -4047,6 +4064,114 @@ def validate_landmark_height_contract(metadata: dict[str, Any], mesh_stats: list
     return summary
 
 
+def validate_high_fidelity_asset_manifest(errors: list[str]) -> dict[str, Any]:
+    summary = {
+        "acceptance_gates": 0,
+        "installed_candidates": 0,
+        "required_replacements": 0,
+        "explicit_rejections": 0,
+    }
+    if not HIGH_FIDELITY_ASSET_MANIFEST_PATH.exists():
+        error(errors, f"missing high-fidelity asset manifest: {HIGH_FIDELITY_ASSET_MANIFEST_PATH}")
+        return summary
+
+    try:
+        manifest = json.loads(HIGH_FIDELITY_ASSET_MANIFEST_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        error(errors, f"invalid high-fidelity asset manifest: {exc}")
+        return summary
+
+    if manifest.get("schema_version") != 1:
+        error(errors, "high-fidelity asset manifest schema_version must be 1")
+
+    gates = manifest.get("global_acceptance_gates")
+    if not isinstance(gates, dict):
+        error(errors, "high-fidelity asset manifest missing global_acceptance_gates object")
+        gates = {}
+    summary["acceptance_gates"] = len(gates)
+    missing_gates = REQUIRED_HIGH_FIDELITY_GATES - set(gates)
+    if missing_gates:
+        error(errors, f"high-fidelity asset manifest missing gates: {', '.join(sorted(missing_gates))}")
+    for name, text in gates.items():
+        if not isinstance(text, str) or len(text.strip()) < 24:
+            error(errors, f"high-fidelity acceptance gate {name!r} must contain a substantive rule")
+
+    candidates = manifest.get("installed_candidates")
+    if not isinstance(candidates, list):
+        error(errors, "high-fidelity asset manifest installed_candidates must be a list")
+        candidates = []
+    summary["installed_candidates"] = len(candidates)
+    candidate_roles: set[str] = set()
+    candidate_paths: set[str] = set()
+    for index, candidate in enumerate(candidates):
+        if not isinstance(candidate, dict):
+            error(errors, f"high-fidelity candidate {index} must be an object")
+            continue
+        role = candidate.get("role")
+        if not isinstance(role, str) or not role:
+            error(errors, f"high-fidelity candidate {index} missing role")
+        elif role in candidate_roles:
+            error(errors, f"duplicate high-fidelity candidate role: {role}")
+        else:
+            candidate_roles.add(role)
+        paths = candidate.get("asset_paths")
+        if not isinstance(paths, list) or not paths:
+            error(errors, f"high-fidelity candidate {role or index!r} has no asset_paths")
+            continue
+        for asset_path in paths:
+            if not isinstance(asset_path, str) or not asset_path.startswith("/Game/"):
+                error(errors, f"high-fidelity candidate {role or index!r} has invalid Unreal asset path: {asset_path!r}")
+            elif asset_path in candidate_paths:
+                error(errors, f"duplicate high-fidelity candidate asset path: {asset_path}")
+            else:
+                candidate_paths.add(asset_path)
+
+    replacements = manifest.get("required_replacements")
+    if not isinstance(replacements, list):
+        error(errors, "high-fidelity asset manifest required_replacements must be a list")
+        replacements = []
+    summary["required_replacements"] = len(replacements)
+    replacement_roles: set[str] = set()
+    priorities: set[int] = set()
+    for index, replacement in enumerate(replacements):
+        if not isinstance(replacement, dict):
+            error(errors, f"high-fidelity replacement {index} must be an object")
+            continue
+        role = replacement.get("role")
+        priority = replacement.get("priority")
+        required_result = replacement.get("required_result")
+        if not isinstance(role, str) or not role:
+            error(errors, f"high-fidelity replacement {index} missing role")
+        elif role in replacement_roles:
+            error(errors, f"duplicate high-fidelity replacement role: {role}")
+        else:
+            replacement_roles.add(role)
+        if not isinstance(priority, int) or priority < 1:
+            error(errors, f"high-fidelity replacement {role or index!r} has invalid priority")
+        elif priority in priorities:
+            error(errors, f"duplicate high-fidelity replacement priority: {priority}")
+        else:
+            priorities.add(priority)
+        if not isinstance(required_result, str) or len(required_result.strip()) < 40:
+            error(errors, f"high-fidelity replacement {role or index!r} must define a substantive required_result")
+
+    missing_roles = REQUIRED_HIGH_FIDELITY_ROLES - replacement_roles
+    if missing_roles:
+        error(errors, f"high-fidelity asset manifest missing replacement roles: {', '.join(sorted(missing_roles))}")
+
+    rejections = manifest.get("explicit_rejections")
+    if not isinstance(rejections, list) or not rejections:
+        error(errors, "high-fidelity asset manifest must retain explicit_rejections")
+        rejections = []
+    summary["explicit_rejections"] = len(rejections)
+    rejected_sources = {item.get("source") for item in rejections if isinstance(item, dict)}
+    if "generated procedural detail meshes" not in rejected_sources:
+        error(errors, "procedural detail meshes must remain explicitly rejected as final first-person art")
+    if any(item.get("current_state") == "final_art" for item in replacements if isinstance(item, dict)):
+        error(errors, "required high-fidelity replacements cannot declare their current procedural state as final_art")
+    return summary
+
+
 def main() -> int:
     errors: list[str] = []
     if not METADATA_PATH.exists():
@@ -4064,6 +4189,7 @@ def main() -> int:
     viewer_summary = validate_viewer_contract(errors)
     mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
     landmark_height_summary = validate_landmark_height_contract(metadata, mesh_stats, errors)
+    high_fidelity_asset_summary = validate_high_fidelity_asset_manifest(errors)
 
     report = {
         "ok": not errors,
@@ -4075,6 +4201,7 @@ def main() -> int:
         "unreal_project_config": unreal_project_config_summary,
         "viewer": viewer_summary,
         "landmark_height": landmark_height_summary,
+        "high_fidelity_assets": high_fidelity_asset_summary,
         "meshes": mesh_stats,
         "errors": errors,
     }
@@ -4141,6 +4268,9 @@ def main() -> int:
     print(f"Unreal project config markers: {unreal_project_config_summary.get('required_markers', 0):,}")
     print(f"Viewer markers: {viewer_summary.get('required_markers', 0):,}")
     print(f"Landmark public height target: {landmark_height_summary.get('max_z_m')}m / {landmark_height_summary.get('public_height_target_m')}m")
+    print(f"High-fidelity gates: {high_fidelity_asset_summary.get('acceptance_gates', 0):,}")
+    print(f"High-fidelity candidates: {high_fidelity_asset_summary.get('installed_candidates', 0):,}")
+    print(f"Required high-fidelity replacements: {high_fidelity_asset_summary.get('required_replacements', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
 
