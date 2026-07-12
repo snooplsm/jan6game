@@ -6504,6 +6504,9 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"orientation": orientation, "size_m": [round(size[0], 3), round(size[1], 3)]},
         )
 
+    hero_column_radial_segments = 48
+    hero_column_flute_count = 24
+
     def add_exterior_column_ornament(
         prefix: str,
         center: tuple[float, float],
@@ -6512,10 +6515,10 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         height: float,
         orientation: str,
     ) -> None:
-        obj.add_cylinder(center, radius * 1.34, z_base - 0.12, 0.16, f"{prefix}_round_plinth", "ColumnStone", segments=24)
-        obj.add_ring(center, radius * 1.24, radius * 0.92, z_base + 0.08, 0.20, f"{prefix}_base_torus", "ColumnStone", segments=24)
-        obj.add_ring(center, radius * 1.16, radius * 0.98, z_base + 0.34, 0.075, f"{prefix}_base_reed_ring", "ColumnStone", segments=24)
-        obj.add_ring(center, radius * 1.18, radius * 0.90, z_base + height - 0.32, 0.22, f"{prefix}_capital_torus", "ColumnStone", segments=24)
+        obj.add_cylinder(center, radius * 1.34, z_base - 0.12, 0.16, f"{prefix}_round_plinth", "ColumnStone", segments=hero_column_radial_segments)
+        obj.add_ring(center, radius * 1.24, radius * 0.92, z_base + 0.08, 0.20, f"{prefix}_base_torus", "ColumnStone", segments=hero_column_radial_segments)
+        obj.add_ring(center, radius * 1.16, radius * 0.98, z_base + 0.34, 0.075, f"{prefix}_base_reed_ring", "ColumnStone", segments=hero_column_radial_segments)
+        obj.add_ring(center, radius * 1.18, radius * 0.90, z_base + height - 0.32, 0.22, f"{prefix}_capital_torus", "ColumnStone", segments=hero_column_radial_segments)
         obj.add_box(center, (radius * 2.65, radius * 2.65), 0.18, z_base + height - 0.02, f"{prefix}_square_abacus", "ColumnStone")
         obj.add_box(center, (radius * 2.28, radius * 2.28), 0.075, z_base + height + 0.17, f"{prefix}_abacus_top_bevel", "ColumnStone")
 
@@ -6581,7 +6584,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 {"orientation": orientation, "angle_degrees": round(math.degrees(angle), 2)},
             )
 
-        flute_count = 12
+        flute_count = hero_column_flute_count
         flute_height = max(0.5, height - 1.24)
         for flute_index in range(flute_count):
             angle = math.tau * flute_index / flute_count
@@ -6644,9 +6647,18 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         for idx, value in enumerate(values, start=1):
             center = (fixed, value) if orientation == "east_west" else (value, fixed)
             name = f"{prefix}_column_{idx:02d}"
-            obj.add_cylinder(center, 0.46, z_base, height, name, "ColumnStone", segments=18)
+            obj.add_cylinder(center, 0.46, z_base, height, name, "ColumnStone", segments=hero_column_radial_segments)
             add_exterior_column_ornament(name, center, 0.46, z_base, height, orientation)
-            add_facade_detail(name, "exterior_column", (center[0], center[1], z_base + height / 2.0))
+            add_facade_detail(
+                name,
+                "exterior_column",
+                (center[0], center[1], z_base + height / 2.0),
+                {
+                    "radial_segments": hero_column_radial_segments,
+                    "flute_count": hero_column_flute_count,
+                    "order": "schematic_corinthian",
+                },
+            )
 
     def add_dentil_row(prefix: str, orientation: str, fixed: float, values: list[float], z: float) -> None:
         for idx, value in enumerate(values, start=1):
@@ -8435,9 +8447,26 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         for idx, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
             column_center = (x * 0.92, y)
             column_name = f"{side}_portico_column_{idx}"
-            obj.add_cylinder(column_center, 0.62, 0.2, 13.5, column_name, "ColumnStone", segments=20)
+            obj.add_cylinder(
+                column_center,
+                0.62,
+                0.2,
+                13.5,
+                column_name,
+                "ColumnStone",
+                segments=hero_column_radial_segments,
+            )
             add_exterior_column_ornament(column_name, column_center, 0.62, 0.2, 13.5, "east_west")
-            add_facade_detail(column_name, "exterior_column", (column_center[0], column_center[1], 6.95))
+            add_facade_detail(
+                column_name,
+                "exterior_column",
+                (column_center[0], column_center[1], 6.95),
+                {
+                    "radial_segments": hero_column_radial_segments,
+                    "flute_count": hero_column_flute_count,
+                    "order": "schematic_corinthian",
+                },
+            )
         add_portico_intercolumn_shadows(
             f"{side}_front_portico",
             "east_west",

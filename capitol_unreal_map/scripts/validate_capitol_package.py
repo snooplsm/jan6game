@@ -2641,8 +2641,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 28 public exterior column capital records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_fluting"]) < 28:
         error(errors, "expected at least 28 public exterior column fluting records")
-    if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_fluting_groove"]) < 336:
-        error(errors, "expected at least 336 public exterior column fluting groove records")
+    if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_fluting_groove"]) < 672:
+        error(errors, "expected the 672 public exterior column fluting groove records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_base_ring_detail"]) < 28:
         error(errors, "expected at least 28 public exterior column base ring detail records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_abacus_detail"]) < 28:
@@ -2653,6 +2653,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 56 public exterior column capital volute detail records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_base_chip_detail"]) < 112:
         error(errors, "expected at least 112 public exterior column base chip detail records")
+    exterior_columns = [detail for detail in facade_details if detail.get("kind") == "exterior_column"]
+    if len(exterior_columns) < 28:
+        error(errors, "expected at least 28 public exterior column records")
+    if any(int(detail.get("radial_segments", 0)) < 48 for detail in exterior_columns):
+        error(errors, "hero exterior columns must retain at least 48 radial shaft segments")
+    if any(int(detail.get("flute_count", 0)) != 24 for detail in exterior_columns):
+        error(errors, "hero exterior columns must retain the 24-flute Corinthian rhythm")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
         error(errors, "expected at least 70 public portico soffit coffer records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_intercolumn_shadow"]) < 24:
