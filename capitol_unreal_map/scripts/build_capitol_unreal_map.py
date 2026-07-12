@@ -820,7 +820,7 @@ def load_dcgis_elevation_points() -> dict[str, Any]:
     if not DCGIS_ELEVATION_SOURCE.exists():
         return {
             "available": False,
-            "source_file": str(DCGIS_ELEVATION_SOURCE.relative_to(ROOT)),
+            "source_file": relative_to_package(DCGIS_ELEVATION_SOURCE),
             "rooftop_points": [],
             "ground_points": [],
         }
@@ -832,7 +832,7 @@ def load_dcgis_elevation_points() -> dict[str, Any]:
     ground_points = parse_dcgis_elevation_layer(ground_features)
     return {
         "available": True,
-        "source_file": str(DCGIS_ELEVATION_SOURCE.relative_to(ROOT)),
+        "source_file": relative_to_package(DCGIS_ELEVATION_SOURCE),
         "service_url": data.get("service_url"),
         "bbox_lonlat": data.get("bbox_lonlat"),
         "retrieved_utc": data.get("retrieved_utc"),
@@ -905,7 +905,7 @@ def load_dcgis_traffic_signs() -> dict[str, Any]:
     if not DCGIS_TRAFFIC_SIGN_SOURCE.exists():
         return {
             "available": False,
-            "source_file": str(DCGIS_TRAFFIC_SIGN_SOURCE.relative_to(ROOT)),
+            "source_file": relative_to_package(DCGIS_TRAFFIC_SIGN_SOURCE),
             "traffic_sign_points": [],
             "overhead_signs": [],
         }
@@ -917,7 +917,7 @@ def load_dcgis_traffic_signs() -> dict[str, Any]:
     overhead_signs = parse_dcgis_overhead_traffic_signs(overhead_sign_features)
     return {
         "available": True,
-        "source_file": str(DCGIS_TRAFFIC_SIGN_SOURCE.relative_to(ROOT)),
+        "source_file": relative_to_package(DCGIS_TRAFFIC_SIGN_SOURCE),
         "service_url": data.get("service_url"),
         "bbox_lonlat": data.get("bbox_lonlat"),
         "retrieved_utc": data.get("retrieved_utc"),
@@ -964,7 +964,7 @@ def load_dcgis_public_fixtures() -> dict[str, Any]:
     if not DCGIS_FIXTURE_SOURCE.exists():
         return {
             "available": False,
-            "source_file": str(DCGIS_FIXTURE_SOURCE.relative_to(ROOT)),
+            "source_file": relative_to_package(DCGIS_FIXTURE_SOURCE),
             "fire_hydrants": [],
             "miscellaneous_points": [],
             "street_trees": [],
@@ -1004,7 +1004,7 @@ def load_dcgis_public_fixtures() -> dict[str, Any]:
     )
     return {
         "available": True,
-        "source_file": str(DCGIS_FIXTURE_SOURCE.relative_to(ROOT)),
+        "source_file": relative_to_package(DCGIS_FIXTURE_SOURCE),
         "service_url": data.get("service_url"),
         "bbox_lonlat": data.get("bbox_lonlat"),
         "retrieved_utc": data.get("retrieved_utc"),
@@ -1119,7 +1119,7 @@ def load_dcgis_ground_surfaces() -> dict[str, Any]:
     if not DCGIS_GROUND_SURFACE_SOURCE.exists():
         return {
             "available": False,
-            "source_file": str(DCGIS_GROUND_SURFACE_SOURCE.relative_to(ROOT)),
+            "source_file": relative_to_package(DCGIS_GROUND_SURFACE_SOURCE),
             "curbs": [],
             "roads": [],
             "sidewalks": [],
@@ -1149,7 +1149,7 @@ def load_dcgis_ground_surfaces() -> dict[str, Any]:
     )
     return {
         "available": True,
-        "source_file": str(DCGIS_GROUND_SURFACE_SOURCE.relative_to(ROOT)),
+        "source_file": relative_to_package(DCGIS_GROUND_SURFACE_SOURCE),
         "service_url": data.get("service_url"),
         "bbox_lonlat": data.get("bbox_lonlat"),
         "retrieved_utc": data.get("retrieved_utc"),
@@ -1341,6 +1341,14 @@ def parse_height(
                 value *= 0.3048
             max_height = 120.0 if is_capitol else 70.0
             return min(max(value, 3.0), max_height), "explicit_height_tag"
+    curated_public_levels = {
+        # The U.S. Senate describes Hart as a nine-story structure and its
+        # central atrium as 90 feet high. This supports a level-count estimate,
+        # not an exact exterior roof height.
+        66733226: 9.0,
+    }
+    if way_id in curated_public_levels:
+        return min(max(curated_public_levels[way_id] * 3.4, 3.0), 70.0), "curated_public_level_count_estimate"
     levels = parse_numeric_tag(tags.get("building:levels"))
     if levels is not None:
         return min(max(levels * 3.4, 3.0), 70.0), "building_levels_estimate"
@@ -1375,6 +1383,14 @@ def building_height_accuracy_record(
             "height_confidence": 0.62,
             "height_accuracy_note": "OSM building:levels converted with a conservative 3.4m-per-level visual estimate.",
         },
+        "curated_public_level_count_estimate": {
+            "height_accuracy_tier": "public_level_count_estimate",
+            "height_confidence": 0.72,
+            "height_accuracy_note": (
+                "An authoritative public source states the building's story count; converted with the same "
+                "conservative 3.4m-per-level visual estimate and not treated as an exact roof height."
+            ),
+        },
         "footprint_type_area_estimate": {
             "height_accuracy_tier": "heuristic_visual_estimate",
             "height_confidence": 0.38,
@@ -1404,7 +1420,7 @@ def building_height_accuracy_record(
     if height_source == "footprint_type_area_estimate":
         review_priority += 3
         review_reasons.append("heuristic_height")
-    elif height_source == "building_levels_estimate":
+    elif height_source in {"building_levels_estimate", "curated_public_level_count_estimate"}:
         review_priority += 1
         review_reasons.append("level_count_height")
     if footprint_area_m2 >= 900.0:
@@ -4875,12 +4891,16 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         + height_source_counts.get("dcgis_rooftop_ground_delta_estimate", 0)
     )
     metadata["height_model"]["level_count_estimated_buildings"] = height_source_counts.get("building_levels_estimate", 0)
+    metadata["height_model"]["curated_public_level_count_estimated_buildings"] = height_source_counts.get(
+        "curated_public_level_count_estimate", 0
+    )
     metadata["height_model"]["heuristic_estimated_buildings"] = height_source_counts.get("footprint_type_area_estimate", 0)
     review_candidates = [
         building
         for building in metadata["buildings"]
         if building.get("height_review_priority", 0) >= 4
-        and building.get("height_source") in {"footprint_type_area_estimate", "building_levels_estimate"}
+        and building.get("height_source")
+        in {"footprint_type_area_estimate", "building_levels_estimate", "curated_public_level_count_estimate"}
     ]
     review_candidates.sort(
         key=lambda building: (

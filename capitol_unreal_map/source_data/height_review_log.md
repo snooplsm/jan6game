@@ -42,6 +42,18 @@ defensible roof-to-ground measurement.
   20.4 m and is not defensible for this large institutional building without a
   measured elevation or a building-specific floor-to-floor source.
 
+## Hart Senate Office Building (OSM way 66733226)
+
+- Previous model height: 13.60 m.
+- Reviewed public source: [U.S. Senate, Hart Senate Office Building](https://www.senate.gov/about/historic-buildings-spaces/office-buildings/hart-building.htm).
+- Confirmed facts: first occupied in November 1982; nine stories; a 90-foot-high
+  central atrium; three additional underground parking levels.
+- Decision: replace the footprint/type/area heuristic with a public
+  level-count estimate of 30.60 m using the package's conservative 3.4 m per
+  above-ground story rule. Keep the result classified as an estimate rather
+  than an exact or measured exterior height. The underground parking levels do
+  not contribute to the visible extrusion.
+
 ## Review rule
 
 Do not promote these targets to `source_backed_height` based on these sources.
