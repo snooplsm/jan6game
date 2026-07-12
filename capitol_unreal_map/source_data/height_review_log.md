@@ -88,6 +88,32 @@ defensible roof-to-ground measurement.
   seven-level, 23.80 m public level-count estimate. Preserve both inner-ring way
   IDs as provenance for later courtyard-aware geometry.
 
+## Rayburn House Office Building (OSM relation 1029369)
+
+- Current model height: 14.51 m from the historical relation's explicit height
+  tag.
+- Reviewed public source: [Architect of the Capitol, Rayburn House Office Building](https://www.aoc.gov/explore-capitol-campus/buildings-grounds/house-office-buildings/rayburn).
+- Confirmed facts: four principal floors, three underground garage levels, a
+  basement, a sub-basement, and a rooftop machinery penthouse; fully occupied
+  by April 1965 and therefore long-established by January 2021.
+- Decision: retain the explicit 14.51 m main-mass height. Underground levels do
+  not contribute to visible extrusion. The machinery penthouse and modified-H
+  articulation remain required reference-modeled roof details rather than a
+  reason to inflate the whole footprint.
+
+## Russell Senate Office Building (OSM relation 1029367)
+
+- Current model height: 13.60 m from the historical relation's four-level tag.
+- Reviewed public sources: [Architect of the Capitol, Russell Senate Office Building](https://www.aoc.gov/explore-capitol-campus/buildings-grounds/senate-office-buildings/russell)
+  and [U.S. Senate, Russell Senate Office Building](https://www.senate.gov/about/historic-buildings-spaces/office-buildings/russell-building.htm).
+- Confirmed facts: the restrained exterior was deliberately limited in height;
+  it presents three stories above ground toward Constitution Avenue and five
+  stories on the downslope C Street side.
+- Decision: retain the four-level, 13.60 m extrusion as a documented average
+  blockout. A higher-fidelity replacement must model the grade-dependent
+  three-to-five-story exposure and courtyard explicitly rather than applying a
+  uniform taller extrusion.
+
 ## Review rule
 
 Do not promote these targets to `source_backed_height` based on these sources.
