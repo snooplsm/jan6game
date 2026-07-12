@@ -468,6 +468,8 @@ The combined DCGIS context-tree canopy slot preserves its existing winter-brown 
 
 The paired DCGIS context-tree trunk slot preserves its dark brown base color and now uses 0.91 roughness, 0.12 specular, and zero metallic for dry winter bark. This keeps the schematic surrounding-tree layer visually consistent with the winter canopy treatment without changing source positions, trunk geometry, or species-neutral labeling.
 
+The shared public planter-stone slot preserves its warm-gray base color and now uses a dry weathered cast-stone response with 0.86 roughness, 0.18 specular, and zero metallic. Public planter geometry and vegetation placement remain unchanged.
+
 The shared exterior light-fixture hardware slot preserves its dark bronze color and now uses a weathered architectural-metal response with 0.50 roughness, 0.85 metallic, and 0.50 specular. This improves public entry lamps and facade accents in daylight without changing fixture placement, light actors, or the historical sun rig.
 
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
