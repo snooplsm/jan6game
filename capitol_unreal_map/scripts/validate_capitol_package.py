@@ -2647,8 +2647,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 28 public exterior column base ring detail records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_abacus_detail"]) < 28:
         error(errors, "expected at least 28 public exterior column capital abacus detail records")
-    if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_leaf_detail"]) < 224:
-        error(errors, "expected at least 224 public exterior column capital leaf detail records")
+    capital_leaves = [
+        detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_leaf_detail"
+    ]
+    if len(capital_leaves) < 448:
+        error(errors, "expected the 448 two-tier exterior column capital leaf detail records")
+    if {detail.get("tier") for detail in capital_leaves} != {"lower", "upper"}:
+        error(errors, "hero exterior column capitals must retain staggered lower and upper leaf tiers")
+    if any(detail.get("geometry") != "tapered_pointed_acanthus_proxy" for detail in capital_leaves):
+        error(errors, "hero exterior column capital leaves must use tapered profiles rather than rectangular blocks")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_volute_detail"]) < 56:
         error(errors, "expected at least 56 public exterior column capital volute detail records")
     capital_volutes = [

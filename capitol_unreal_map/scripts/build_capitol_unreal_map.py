@@ -6556,28 +6556,50 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box(center, (radius * 2.65, radius * 2.65), 0.18, z_base + height - 0.02, f"{prefix}_square_abacus", "ColumnStone")
         obj.add_box(center, (radius * 2.28, radius * 2.28), 0.075, z_base + height + 0.17, f"{prefix}_abacus_top_bevel", "ColumnStone")
 
-        for leaf_index in range(8):
-            angle = math.tau * leaf_index / 8.0
-            leaf_center = (
-                center[0] + radius * 1.06 * math.cos(angle),
-                center[1] + radius * 1.06 * math.sin(angle),
-            )
-            leaf_name = f"{prefix}_capital_leaf_detail_{leaf_index + 1:02d}"
-            obj.add_oriented_box(
-                leaf_center,
-                (0.10, radius * 0.34),
-                0.34,
-                z_base + height - 0.70,
-                angle + math.pi / 2.0,
-                leaf_name,
-                "ColumnStone",
-            )
-            add_facade_detail(
-                leaf_name,
-                "exterior_column_capital_leaf_detail",
-                (leaf_center[0], leaf_center[1], z_base + height - 0.53),
-                {"orientation": orientation, "angle_degrees": round(math.degrees(angle), 2)},
-            )
+        leaf_tiers = [
+            ("lower", 1.08, -0.72, 0.38, 0.0),
+            ("upper", 0.94, -0.44, 0.30, math.pi / 8.0),
+        ]
+        for tier_name, radius_scale, z_offset, leaf_height, angle_offset in leaf_tiers:
+            for leaf_index in range(8):
+                angle = math.tau * leaf_index / 8.0 + angle_offset
+                leaf_center = (
+                    center[0] + radius * radius_scale * math.cos(angle),
+                    center[1] + radius * radius_scale * math.sin(angle),
+                )
+                leaf_width = radius * (0.30 if tier_name == "lower" else 0.26)
+                leaf_length = radius * (0.50 if tier_name == "lower" else 0.42)
+                rotation = angle - math.pi / 2.0
+                ca = math.cos(rotation)
+                sa = math.sin(rotation)
+                local_points = [
+                    (-leaf_width * 0.50, -leaf_length * 0.50),
+                    (leaf_width * 0.50, -leaf_length * 0.50),
+                    (leaf_width * 0.62, -leaf_length * 0.04),
+                    (leaf_width * 0.34, leaf_length * 0.24),
+                    (0.0, leaf_length * 0.50),
+                    (-leaf_width * 0.34, leaf_length * 0.24),
+                    (-leaf_width * 0.62, -leaf_length * 0.04),
+                ]
+                leaf_points = [
+                    (leaf_center[0] + lx * ca - ly * sa, leaf_center[1] + lx * sa + ly * ca)
+                    for lx, ly in local_points
+                ]
+                leaf_name = f"{prefix}_capital_{tier_name}_leaf_detail_{leaf_index + 1:02d}"
+                leaf_z = z_base + height + z_offset
+                obj.add_extruded_polygon(leaf_points, leaf_z, leaf_height, leaf_name, "ColumnStone")
+                add_facade_detail(
+                    leaf_name,
+                    "exterior_column_capital_leaf_detail",
+                    (leaf_center[0], leaf_center[1], leaf_z + leaf_height / 2.0),
+                    {
+                        "orientation": orientation,
+                        "angle_degrees": round(math.degrees(angle), 2),
+                        "tier": tier_name,
+                        "geometry": "tapered_pointed_acanthus_proxy",
+                        "profile_vertices": len(local_points),
+                    },
+                )
 
         face_sign = 1.0 if (center[0] if orientation == "east_west" else center[1]) >= 0.0 else -1.0
         for volute_index, tangent_offset in enumerate((-radius * 0.58, radius * 0.58), start=1):
