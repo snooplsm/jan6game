@@ -513,8 +513,10 @@ The current direction is Unreal 5.8, first-person scale, most-compatible static 
 
 Run `scripts/build_pcg_landscape_manifest.py` after rebuilding the scene
 metadata. The generated manifest keeps grass generation deterministic and
-historically seasonal: January 6 uses a reduced-density, muted Mid-Atlantic
-winter lawn profile rather than saturated summer turf. It identifies the local
+historically seasonal: January 6 uses dense, closely mown, muted Mid-Atlantic
+winter turf rather than saturated summer grass. The Unreal lawn-base material
+adds subtle world-space cool-green-to-dormant-straw color variation while
+retaining high roughness and low specular response. It identifies the local
 Fab grass dependencies, 32 grassable grounds surfaces, hardscape exclusions,
 historical road and bike-lane exclusions, and the public reflecting-pool record.
 The Water handoff specifies a shallow, nearly still pool suitable for Lumen and
