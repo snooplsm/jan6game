@@ -72,6 +72,11 @@ EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS = {
     1141993: "Henry J. Daly Building",
 }
 
+EXPECTED_UNNAMED_BUILDING_RELATION_LABELS = {
+    554408: "osm_relation_554408",
+    1067405: "osm_relation_1067405",
+}
+
 EXPECTED_DETAILED_CIVIC_RELATIONS = {
     286501,
     286503,
@@ -2048,6 +2053,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         inner_way_ids = building.get("inner_way_ids")
         if not isinstance(inner_way_ids, list) or not inner_way_ids or any(not isinstance(item, int) for item in inner_way_ids):
             error(errors, f"building relation {relation_id} missing inner_way_ids provenance")
+    for relation_id, expected_label in EXPECTED_UNNAMED_BUILDING_RELATION_LABELS.items():
+        building = relation_by_id.get(relation_id)
+        if building is not None and building.get("name") != expected_label:
+            error(errors, f"unnamed building relation {relation_id} expected truthful fallback label {expected_label!r}")
     if any(not is_number(building.get("height_m")) for building in buildings):
         error(errors, "expected every surrounding building to include numeric height_m")
     if any(not is_number(building.get("footprint_area_m2")) for building in buildings):

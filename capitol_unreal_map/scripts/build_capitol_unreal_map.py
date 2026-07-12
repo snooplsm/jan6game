@@ -4574,7 +4574,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         points = way_points(way, nodes)
         if len(points) < 2:
             continue
-        name = tags.get("name") or tags.get("official_name") or f"osm_way_{way['id']}"
+        osm_element_type = way.get("osm_element_type", "way")
+        name = tags.get("name") or tags.get("official_name") or f"osm_{osm_element_type}_{way['id']}"
         is_capitol = "capitol" in name.lower() and tags.get("building")
         is_us_capitol = tags.get("wikidata") == "Q54109" or name == "United States Capitol"
 
@@ -4639,7 +4640,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 )
                 building_record = {
                     "id": way["id"],
-                    "osm_element_type": way.get("osm_element_type", "way"),
+                    "osm_element_type": osm_element_type,
                     "name": name,
                     "height_m": round(height, 2),
                     "height_source": height_source,
