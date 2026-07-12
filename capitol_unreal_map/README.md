@@ -444,6 +444,8 @@ The exterior surface-wear pass adds public/schematic road oil-stain decals, side
 
 The shared live streetscape shaders now replace flat color/default gloss with explicit weather-exposed response: asphalt uses 25 percent dark aggregate-tone variation with 0.93 roughness/0.12 specular; sidewalk concrete uses 16 percent variation with 0.90/0.15; curb concrete uses 14 percent variation with 0.88/0.16. Geometry and historical map alignment remain unchanged.
 
+The combined streetscape traffic-signal housing slot now uses an explicit powder-coated metal response instead of Unreal's generic mid-gloss defaults: 0.72 roughness, restrained 0.18 metallic, and 0.32 specular. This improves the existing source-positioned signal heads and dark backplates without changing their geometry, placement, or target-era map alignment.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
