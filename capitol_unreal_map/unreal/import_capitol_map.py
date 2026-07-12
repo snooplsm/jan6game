@@ -145,6 +145,8 @@ TARGET_ERA_WEATHER_PROFILE = {
     "visibility_m": 16093,
     "sky_condition": "overcast",
     "ceiling_height_m": 1341,
+    "solar_elevation_deg": 28.2848,
+    "solar_azimuth_deg_true": 173.9374,
     "precipitation_last_hour_mm": 0.0,
     "source_metadata_path": "source_data/noaa_dca_2021-01-06_1652.json",
     "cloud_handoff": {
@@ -667,7 +669,8 @@ ENVIRONMENT_IMPORT_SETUP = {
     "directional_light_actor_class": "DirectionalLight",
     "directional_light_label": "CapitolMap_Sun_DirectionalLight",
     "directional_light_location_cm": [-18000.0, -22000.0, 38000.0],
-    "directional_light_rotation_deg": [-42.0, -34.0, 0.0],
+    "directional_light_rotation_deg": [-28.2848, 173.9374, 0.0],
+    "directional_light_rotation_basis": "Target solar elevation 28.2848 deg and azimuth 173.9374 deg true at 2021-01-06 11:50 EST; Unreal directional-light pitch is negative elevation.",
     "directional_light_intensity": 4.2,
     "sky_light_actor_class": "SkyLight",
     "sky_light_label": "CapitolMap_SkyLight",

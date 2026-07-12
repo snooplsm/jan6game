@@ -20,6 +20,14 @@
     "ceiling_height_m": 1341,
     "precipitation_last_hour_mm": 0.0
   },
+  "target_solar_position": {
+    "latitude_deg": 38.889939,
+    "longitude_deg": -77.009051,
+    "time_local": "2021-01-06T11:50:00-05:00",
+    "elevation_deg": 28.2848,
+    "azimuth_deg_true_clockwise_from_north": 173.9374,
+    "calculation": "NOAA fractional-year equation-of-time and solar-declination approximation"
+  },
   "raw_isd_fields": {
     "TMP": "+0061,5",
     "DEW": "-0011,5",

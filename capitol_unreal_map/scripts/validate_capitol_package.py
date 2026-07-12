@@ -568,6 +568,9 @@ REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
     "wind_speed_m_s",
     "sky_condition",
     "ceiling_height_m",
+    "solar_elevation_deg",
+    "solar_azimuth_deg_true",
+    "directional_light_rotation_basis",
     "DirectionalLight",
     "SkyLight",
     "SkyAtmosphere",
@@ -2068,6 +2071,11 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, f"target-era weather {key} expected {expected_value!r}, got {decoded_weather.get(key)!r}")
     if target_weather.get("target_time_offset_seconds") != 120:
         error(errors, "target-era weather observation must remain documented as 120 seconds after target time")
+    solar_position = target_weather.get("target_solar_position", {})
+    if solar_position.get("elevation_deg") != 28.2848:
+        error(errors, "target solar elevation must remain 28.2848 degrees at 11:50 EST")
+    if solar_position.get("azimuth_deg_true_clockwise_from_north") != 173.9374:
+        error(errors, "target solar azimuth must remain 173.9374 degrees true at 11:50 EST")
     cannon_state = next((state for state in construction_states if state.get("building_id") == 286503), None)
     if cannon_state is None:
         error(errors, "missing Jan 6 target-era Cannon Renewal construction-state record")
