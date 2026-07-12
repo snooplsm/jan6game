@@ -482,6 +482,8 @@ Road-surface repair materials now separate aged patch asphalt from bituminous cr
 
 The live `FloorWear` material now matches its realism-manifest role as a transparent public scuff overlay instead of an opaque flat-color surface. It uses translucent blending with 0.42 opacity, 0.92 roughness, 0.16 specular, and zero metallic. Overlay geometry and underlying floor materials remain unchanged.
 
+The realism manifest now mirrors the accepted live streetscape values for winter vegetation, turf, public stone, road repairs and markings, bike infrastructure, signs, signal lenses/housings, lamps, benches, bollards, doors, brass, and bronze fixtures so a future generated import does not silently restore older glossy defaults. Clear coat remains only on physically appropriate glass, lens, brass, and bronze surfaces. The package validator also normalizes parsed OBJ paths to forward-slash form, allowing the landmark-height contract to validate consistently on Windows as well as POSIX systems.
+
 The shared exterior light-fixture hardware slot preserves its dark bronze color and now uses a weathered architectural-metal response with 0.50 roughness, 0.85 metallic, and 0.50 specular. This improves public entry lamps and facade accents in daylight without changing fixture placement, light actors, or the historical sun rig.
 
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.

@@ -60,10 +60,10 @@
       0.49,
       0.46
     ],
-    "roughness": 0.9,
+    "roughness": 0.74,
     "metallic": 0.0,
-    "specular": 0.2,
-    "note": "Worn exterior steps"
+    "specular": 0.22,
+    "note": "Foot-worn exterior steps"
   },
   "StoneGrimeOverlay": {
     "base_color": [
@@ -83,10 +83,10 @@
       0.26,
       0.1
     ],
-    "roughness": 0.96,
+    "roughness": 0.92,
     "metallic": 0.0,
     "specular": 0.12,
-    "note": "Campus ground cover"
+    "note": "Dry muted January campus ground cover"
   },
   "PlazaStone": {
     "base_color": [
@@ -94,10 +94,10 @@
       0.53,
       0.47
     ],
-    "roughness": 0.88,
+    "roughness": 0.82,
     "metallic": 0.0,
-    "specular": 0.22,
-    "note": "Paved plaza stone"
+    "specular": 0.2,
+    "note": "Dry paved plaza stone"
   },
   "RoadAsphalt": {
     "base_color": [
@@ -116,10 +116,10 @@
       0.032,
       0.034
     ],
-    "roughness": 0.96,
+    "roughness": 0.86,
     "metallic": 0.0,
-    "specular": 0.12,
-    "note": "Darker public road repair patches"
+    "specular": 0.14,
+    "note": "Aggregate-rich aged public road repair patches"
   },
   "RoadCrackSealant": {
     "base_color": [
@@ -127,10 +127,10 @@
       0.011,
       0.012
     ],
-    "roughness": 0.98,
+    "roughness": 0.58,
     "metallic": 0.0,
-    "specular": 0.08,
-    "note": "Matte crack sealant and road utility recesses"
+    "specular": 0.25,
+    "note": "Bituminous crack sealant and road utility recesses"
   },
   "LaneMarkingWhite": {
     "base_color": [
@@ -138,10 +138,10 @@
       0.88,
       0.82
     ],
-    "roughness": 0.74,
+    "roughness": 0.72,
     "metallic": 0.0,
-    "specular": 0.22,
-    "note": "Painted white roadway markings"
+    "specular": 0.2,
+    "note": "Worn white thermoplastic roadway markings"
   },
   "LaneMarkingYellow": {
     "base_color": [
@@ -151,8 +151,8 @@
     ],
     "roughness": 0.72,
     "metallic": 0.0,
-    "specular": 0.24,
-    "note": "Painted yellow roadway markings"
+    "specular": 0.2,
+    "note": "Worn yellow thermoplastic roadway markings"
   },
   "SidewalkConcrete": {
     "base_color": [
@@ -182,10 +182,10 @@
       0.28,
       0.13
     ],
-    "roughness": 0.78,
+    "roughness": 0.88,
     "metallic": 0.0,
-    "specular": 0.24,
-    "note": "Painted bike lane surface"
+    "specular": 0.15,
+    "note": "Worn painted bike lane surface"
   },
   "BikeLanePost": {
     "base_color": [
@@ -195,8 +195,8 @@
     ],
     "roughness": 0.62,
     "metallic": 0.0,
-    "specular": 0.32,
-    "note": "Flexible lane marker posts"
+    "specular": 0.25,
+    "note": "Weathered flexible polymer lane marker posts"
   },
   "CrosswalkWhite": {
     "base_color": [
@@ -204,10 +204,10 @@
       0.88,
       0.82
     ],
-    "roughness": 0.76,
+    "roughness": 0.78,
     "metallic": 0.0,
-    "specular": 0.22,
-    "note": "Crossing marker paint"
+    "specular": 0.18,
+    "note": "Heavily worn crossing marker paint"
   },
   "SignalMarker": {
     "base_color": [
@@ -215,10 +215,10 @@
       0.68,
       0.08
     ],
-    "roughness": 0.45,
+    "roughness": 0.72,
     "metallic": 0.0,
-    "specular": 0.45,
-    "note": "Traffic signal/crossing marker placeholder"
+    "specular": 0.2,
+    "note": "Worn yellow signal-area road paint"
   },
   "InteriorFloor": {
     "base_color": [
@@ -309,12 +309,12 @@
       0.56,
       0.18
     ],
-    "roughness": 0.34,
-    "metallic": 1.0,
-    "specular": 0.6,
-    "clear_coat": 0.36,
-    "clear_coat_roughness": 0.18,
-    "note": "Brass rails and trim"
+    "roughness": 0.42,
+    "metallic": 0.9,
+    "specular": 0.5,
+    "clear_coat": 0.2,
+    "clear_coat_roughness": 0.28,
+    "note": "Moderately weathered exterior brass rails and trim"
   },
   "RotundaFloor": {
     "base_color": [
@@ -433,10 +433,10 @@
       0.18,
       0.075
     ],
-    "roughness": 0.42,
+    "roughness": 0.4,
     "metallic": 0.0,
-    "specular": 0.42,
-    "note": "Street sign placeholder material"
+    "specular": 0.35,
+    "note": "Non-emissive semi-gloss green street-sign sheeting"
   },
   "DoorGlass": {
     "base_color": [
@@ -444,13 +444,12 @@
       0.58,
       0.72
     ],
-    "roughness": 0.08,
+    "roughness": 0.12,
     "metallic": 0.0,
-    "specular": 0.8,
+    "specular": 0.5,
     "clear_coat": 0.85,
     "clear_coat_roughness": 0.04,
-    "opacity": 0.45,
-    "note": "Revolving door glass"
+    "note": "Opaque blue-gray public-entry glazing for schematic exterior"
   },
   "DoorMetal": {
     "base_color": [
@@ -458,12 +457,10 @@
       0.15,
       0.16
     ],
-    "roughness": 0.3,
-    "metallic": 1.0,
-    "specular": 0.55,
-    "clear_coat": 0.22,
-    "clear_coat_roughness": 0.22,
-    "note": "Door metal and dark recesses"
+    "roughness": 0.48,
+    "metallic": 0.75,
+    "specular": 0.45,
+    "note": "Satin architectural door metal and dark recesses"
   },
   "PresidentPodium": {
     "base_color": [
@@ -612,12 +609,12 @@
       0.13,
       0.09
     ],
-    "roughness": 0.36,
-    "metallic": 1.0,
-    "specular": 0.58,
-    "clear_coat": 0.30,
-    "clear_coat_roughness": 0.20,
-    "note": "Dark metal light fixture hardware"
+    "roughness": 0.5,
+    "metallic": 0.85,
+    "specular": 0.5,
+    "clear_coat": 0.18,
+    "clear_coat_roughness": 0.3,
+    "note": "Weathered dark-bronze exterior light fixture hardware"
   },
   "FacadeWindow": {
     "base_color": [
@@ -639,12 +636,10 @@
       0.11,
       0.1
     ],
-    "roughness": 0.34,
-    "metallic": 1.0,
-    "specular": 0.52,
-    "clear_coat": 0.20,
-    "clear_coat_roughness": 0.22,
-    "note": "Exterior streetlight and sign post metal"
+    "roughness": 0.74,
+    "metallic": 0.65,
+    "specular": 0.35,
+    "note": "Weathered exterior streetlight and sign post metal"
   },
   "StreetLightGlass": {
     "base_color": [
@@ -652,13 +647,12 @@
       0.86,
       0.54
     ],
-    "roughness": 0.16,
+    "roughness": 0.18,
     "metallic": 0.0,
-    "specular": 0.78,
+    "specular": 0.5,
     "clear_coat": 0.72,
     "clear_coat_roughness": 0.08,
-    "opacity": 0.7,
-    "note": "Warm exterior streetlight glass"
+    "note": "Non-emissive exterior streetlight glass for daylight scene"
   },
   "TrafficSignalHousing": {
     "base_color": [
@@ -666,12 +660,10 @@
       0.052,
       0.045
     ],
-    "roughness": 0.44,
-    "metallic": 0.55,
-    "specular": 0.42,
-    "clear_coat": 0.18,
-    "clear_coat_roughness": 0.28,
-    "note": "Dark traffic signal housing"
+    "roughness": 0.72,
+    "metallic": 0.18,
+    "specular": 0.32,
+    "note": "Weathered powder-coated traffic signal housing"
   },
   "TrafficSignalRed": {
     "base_color": [
@@ -679,12 +671,12 @@
       0.06,
       0.035
     ],
-    "roughness": 0.18,
+    "roughness": 0.24,
     "metallic": 0.0,
-    "specular": 0.65,
+    "specular": 0.5,
     "clear_coat": 0.68,
-    "clear_coat_roughness": 0.10,
-    "note": "Red traffic signal lens"
+    "clear_coat_roughness": 0.1,
+    "note": "Non-emissive red daylight traffic signal lens"
   },
   "TrafficSignalYellow": {
     "base_color": [
@@ -692,12 +684,12 @@
       0.68,
       0.05
     ],
-    "roughness": 0.18,
+    "roughness": 0.24,
     "metallic": 0.0,
-    "specular": 0.65,
+    "specular": 0.5,
     "clear_coat": 0.68,
-    "clear_coat_roughness": 0.10,
-    "note": "Yellow traffic signal lens"
+    "clear_coat_roughness": 0.1,
+    "note": "Non-emissive amber daylight traffic signal lens"
   },
   "TrafficSignalGreen": {
     "base_color": [
@@ -705,12 +697,12 @@
       0.5,
       0.16
     ],
-    "roughness": 0.18,
+    "roughness": 0.24,
     "metallic": 0.0,
-    "specular": 0.65,
+    "specular": 0.5,
     "clear_coat": 0.68,
-    "clear_coat_roughness": 0.10,
-    "note": "Green traffic signal lens"
+    "clear_coat_roughness": 0.1,
+    "note": "Non-emissive green daylight traffic signal lens"
   },
   "TreeTrunk": {
     "base_color": [
@@ -718,21 +710,21 @@
       0.13,
       0.055
     ],
-    "roughness": 0.82,
+    "roughness": 0.91,
     "metallic": 0.0,
-    "specular": 0.18,
-    "note": "Tree trunk bark"
+    "specular": 0.12,
+    "note": "Dry winter tree trunk bark"
   },
   "TreeCanopy": {
     "base_color": [
-      0.075,
-      0.28,
-      0.1
+      0.14,
+      0.11,
+      0.07
     ],
-    "roughness": 0.96,
+    "roughness": 0.9,
     "metallic": 0.0,
-    "specular": 0.12,
-    "note": "Street tree canopy"
+    "specular": 0.1,
+    "note": "Species-neutral winter-brown context tree canopy"
   },
   "PlanterStone": {
     "base_color": [
@@ -740,10 +732,10 @@
       0.5,
       0.45
     ],
-    "roughness": 0.88,
+    "roughness": 0.86,
     "metallic": 0.0,
-    "specular": 0.22,
-    "note": "Stone planter ring"
+    "specular": 0.18,
+    "note": "Dry weathered cast-stone planter ring"
   },
   "BenchWood": {
     "base_color": [
@@ -751,12 +743,10 @@
       0.14,
       0.055
     ],
-    "roughness": 0.5,
+    "roughness": 0.68,
     "metallic": 0.0,
-    "specular": 0.42,
-    "clear_coat": 0.26,
-    "clear_coat_roughness": 0.36,
-    "note": "Public bench wood"
+    "specular": 0.28,
+    "note": "Weather-exposed public bench wood"
   },
   "BollardMetal": {
     "base_color": [
@@ -764,12 +754,10 @@
       0.12,
       0.115
     ],
-    "roughness": 0.36,
-    "metallic": 1.0,
-    "specular": 0.5,
-    "clear_coat": 0.20,
-    "clear_coat_roughness": 0.22,
-    "note": "Public bollards and bench hardware"
+    "roughness": 0.78,
+    "metallic": 0.0,
+    "specular": 0.3,
+    "note": "Weathered painted public bollards and bench hardware"
   },
   "GameplayPickupPad": {
     "base_color": [

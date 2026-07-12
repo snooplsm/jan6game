@@ -1746,7 +1746,7 @@ def png_dimensions(path: Path) -> tuple[int, int] | None:
 
 def parse_obj(path: Path, materials: set[str], errors: list[str]) -> dict[str, Any]:
     stats: dict[str, Any] = {
-        "path": str(path.relative_to(ROOT)),
+        "path": path.relative_to(ROOT).as_posix(),
         "vertices": 0,
         "uvs": 0,
         "faces": 0,

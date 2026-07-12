@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "root": "/Volumes/128gb/metahuman/capitol_unreal_map",
+  "root": "C:\\Users\\ryan\\Documents\\Unreal\\Ryan\\capitol_unreal_map",
   "metadata": {
     "mesh_count": 5,
     "buildings": 3631,
@@ -114,7 +114,7 @@
     "manifest_materials": 75,
     "missing_manifest_materials": 0,
     "extra_manifest_materials": 0,
-    "clear_coat_materials": 25
+    "clear_coat_materials": 20
   },
   "textures": {
     "texture_sets": 43,
@@ -126,7 +126,7 @@
     "expected_min_texture_size_px": 4096
   },
   "unreal_importer": {
-    "path": "unreal/import_capitol_map.py",
+    "path": "unreal\\import_capitol_map.py",
     "mesh_files": 5,
     "destination_paths": 4,
     "required_functions": 23,
@@ -272,12 +272,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 141206,
-      "uvs": 439036,
-      "faces": 107426,
-      "faces_with_uvs": 107426,
-      "triangles": 224184,
-      "groups": 14623,
+      "vertices": 141862,
+      "uvs": 442004,
+      "faces": 108226,
+      "faces_with_uvs": 108226,
+      "triangles": 225552,
+      "groups": 14599,
       "materials": [
         "BenchWood",
         "BollardMetal",
