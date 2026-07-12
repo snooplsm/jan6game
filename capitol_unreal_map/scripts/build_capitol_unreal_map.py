@@ -790,6 +790,44 @@ class ObjWriter:
         self.add_face([inner_negative[0], outer_negative[0], outer_positive[0], inner_positive[0]])
         self.add_face([inner_positive[-1], outer_positive[-1], outer_negative[-1], inner_negative[-1]])
 
+    def add_vertical_tapered_prism(
+        self,
+        center: tuple[float, float],
+        base_z: float,
+        bottom_width: float,
+        top_width: float,
+        height: float,
+        depth: float,
+        orientation: str,
+        name: str,
+        material: str,
+    ) -> None:
+        """Extrude a vertical trapezoid from a facade plane for keystones."""
+        if orientation not in {"east_west", "north_south"}:
+            raise ValueError(f"unsupported tapered-prism orientation: {orientation!r}")
+        self.add_group(name, material)
+        cx, cy = center
+        profile = [
+            (-bottom_width / 2.0, base_z),
+            (bottom_width / 2.0, base_z),
+            (top_width / 2.0, base_z + height),
+            (-top_width / 2.0, base_z + height),
+        ]
+        negative: list[int] = []
+        positive: list[int] = []
+        for lateral, vertical in profile:
+            if orientation == "east_west":
+                negative.append(self.add_vertex(cx - depth / 2.0, cy + lateral, vertical))
+                positive.append(self.add_vertex(cx + depth / 2.0, cy + lateral, vertical))
+            else:
+                negative.append(self.add_vertex(cx + lateral, cy - depth / 2.0, vertical))
+                positive.append(self.add_vertex(cx + lateral, cy + depth / 2.0, vertical))
+        self.add_face(positive)
+        self.add_face(list(reversed(negative)))
+        for index in range(4):
+            next_index = (index + 1) % 4
+            self.add_face([negative[index], negative[next_index], positive[next_index], positive[index]])
+
     def add_ring(
         self,
         center: tuple[float, float],
@@ -5495,12 +5533,21 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         if orientation == "east_west":
             face_x = x + (0.43 if x >= 0.0 else -0.43)
             keystone_center = (face_x, y)
-            keystone_size = (0.24, 0.28)
         else:
             face_y = y + (0.43 if y >= 0.0 else -0.43)
             keystone_center = (x, face_y)
-            keystone_size = (0.28, 0.24)
-        obj.add_box(keystone_center, keystone_size, 0.44, z + height + arch_height * 0.78, f"{name}_center_keystone", "ColumnStone")
+        keystone_base_z = z + height + arch_height * 0.78
+        obj.add_vertical_tapered_prism(
+            keystone_center,
+            keystone_base_z,
+            0.20,
+            0.36,
+            0.44,
+            0.24,
+            orientation,
+            f"{name}_center_keystone",
+            "ColumnStone",
+        )
         add_facade_detail(
             name,
             "facade_arch_window_trim",
@@ -5514,8 +5561,13 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_facade_detail(
             f"{name}_center_keystone",
             "facade_window_keystone",
-            (x, y, z + height + arch_height),
-            {"orientation": orientation},
+            (x, y, keystone_base_z + 0.22),
+            {
+                "orientation": orientation,
+                "geometry": "tapered_vertical_trapezoid",
+                "bottom_width_m": 0.20,
+                "top_width_m": 0.36,
+            },
         )
 
     def add_arch_window_trim_grid(

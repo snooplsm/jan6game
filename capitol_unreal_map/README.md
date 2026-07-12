@@ -432,7 +432,7 @@ The four principal exterior pediments now use eight continuous constant-thicknes
 
 The ten principal hipped-roof assemblies retain their existing 40 true sloped roof planes, but their 40 diagonal hip-shadow lines now use arbitrary 3D beams running continuously from each eave corner to its ridge endpoint. This replaces the former flat bars placed at average height, which intersected or floated above the pitched surfaces; validation requires every hip line to declare slope-following geometry.
 
-All 112 arched exterior window surrounds now use continuous, depth-extruded 24-segment elliptical stone bands. These replace 784 isolated voussoir boxes that only approximated a curve; the separate center keystones remain, while validation requires every arch trim to retain continuous geometry and at least 24 curve segments.
+All 112 arched exterior window surrounds now use continuous, depth-extruded 24-segment elliptical stone bands. These replace 784 isolated voussoir boxes that only approximated a curve. Their former rectangular center keystones are now depth-extruded trapezoidal wedges that widen from 0.20m at the base to 0.36m toward the arch crown; validation requires every arch trim to retain continuous geometry and every keystone to retain the tapered profile.
 
 The corrected drum windows also carry separate shallow stone lintels and sills, 48 pieces total, aligned tangent to the drum. A rejected experimental radial-rib pass was removed before save after viewport verification showed incorrect outward orientation.
 

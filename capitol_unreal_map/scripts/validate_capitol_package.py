@@ -2774,8 +2774,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "facade arched-window trims must use continuous curved bands rather than box chains")
     if any(int(detail.get("arch_segments", 0)) < 24 for detail in facade_arch_trims):
         error(errors, "facade arched-window trims must retain at least 24 curve segments")
-    if len([detail for detail in facade_details if detail.get("kind") == "facade_window_keystone"]) < 112:
+    facade_window_keystones = [
+        detail for detail in facade_details if detail.get("kind") == "facade_window_keystone"
+    ]
+    if len(facade_window_keystones) < 112:
         error(errors, "expected at least 112 public facade window keystone records")
+    if any(detail.get("geometry") != "tapered_vertical_trapezoid" for detail in facade_window_keystones):
+        error(errors, "facade window keystones must use tapered wedge geometry rather than rectangular boxes")
+    if any(float(detail.get("top_width_m", 0.0)) <= float(detail.get("bottom_width_m", 0.0)) for detail in facade_window_keystones):
+        error(errors, "facade window keystone profiles must widen toward the arch crown")
     if len([detail for detail in facade_details if detail.get("kind") == "pediment_sculptural_relief_block"]) < 32:
         error(errors, "expected at least 32 generic public pediment relief block records")
     if len([detail for detail in facade_details if detail.get("kind") == "pediment_rosette_relief_detail"]) < 32:
