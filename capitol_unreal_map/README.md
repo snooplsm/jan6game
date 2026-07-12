@@ -456,6 +456,8 @@ The shared public approach brass-rail slot now uses a moderately weathered exter
 
 The shared public bollard slot now uses a weathered painted-metal response with 0.78 roughness, zero metallic, and 0.30 specular. Treating the visible paint as dielectric avoids the raw-steel look while preserving the source-derived street-furniture geometry, collision, and placement.
 
+The shared public-entry materials now use explicit daylight response rather than flat-color defaults. Dark door hardware uses a satin architectural-metal finish with 0.48 roughness, 0.75 metallic, and 0.45 specular; blue-gray exterior glazing uses 0.12 roughness, zero metallic, and 0.50 specular and remains non-emissive. The glazing stays opaque in this schematic pass to avoid exposing unsupported interior volumes or introducing translucent sorting artifacts.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
