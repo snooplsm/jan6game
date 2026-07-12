@@ -2793,10 +2793,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 public roof dormer glass-highlight records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_skylight_strip"]) < 8:
         error(errors, "expected at least 8 public roof skylight strip records")
-    if len([detail for detail in facade_details if detail.get("kind") == "dome_vertical_rib"]) < 24:
-        error(errors, "expected at least 24 dome vertical rib records")
-    if len([detail for detail in facade_details if detail.get("kind") == "dome_curved_rib"]) < 24:
-        error(errors, "expected at least 24 visible dome curved rib records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_vertical_rib"]) < 36:
+        error(errors, "expected the 36 documented dome vertical rib records")
+    if len([detail for detail in facade_details if detail.get("kind") == "dome_curved_rib"]) < 36:
+        error(errors, "expected the 36 documented visible dome curved rib records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_skirt_panel"]) < 24:
         error(errors, "expected at least 24 public dome transition skirt panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_step_ring"]) < 3:

@@ -8603,8 +8603,12 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             add_dome_window_trim(idx // 2 + 1, angle, 15.42)
             add_dome_cylinder((wx, wy), 0.30, 22.8, 1.25, f"dome_drum_dark_window_{idx//2+1:02d}", "FacadeWindow", segments=10)
             add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx//2+1:02d}", angle, 25.25)
-    for idx in range(24):
-        angle = math.tau * idx / 24.0
+    # Thomas U. Walter's circa-1860 cupola-roof drawing (Library of Congress
+    # item 93510472) explicitly calls for 36 hollow ribs. Preserve that
+    # documented rhythm instead of the former simplified 24-part spacing.
+    documented_dome_rib_count = 36
+    for idx in range(documented_dome_rib_count):
+        angle = math.tau * idx / documented_dome_rib_count
         add_dome_curved_rib(idx + 1, angle)
         rib_mid_radius = dome_shell_radius(43.8) + 0.36
         px = rib_mid_radius * math.cos(angle)
@@ -8630,8 +8634,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         [(36.2, 1.04, 1.05), (40.6, 1.00, 0.98), (45.0, 0.88, 0.86), (49.1, 0.72, 0.72)],
         start=1,
     ):
-        for idx in range(24):
-            angle = math.tau * (idx + 0.5) / 24.0
+        for idx in range(documented_dome_rib_count):
+            angle = math.tau * (idx + 0.5) / documented_dome_rib_count
             add_dome_shell_panel_frame(
                 f"dome_shell_panel_frame_r{row_index:02d}_{idx+1:02d}",
                 angle,
