@@ -72,14 +72,14 @@ def main() -> None:
         "seasonal_profile": {
             "season": "mid_atlantic_winter",
             "date": "2021-01-06",
-            "grass_density_multiplier": 0.62,
+            "grass_density_multiplier": 1.0,
             "grass_height_scale_range": [0.72, 0.94],
             "grass_color_tint_linear": [0.42, 0.48, 0.28, 1.0],
             "dry_blade_fraction": 0.28,
             "flower_density_multiplier": 0.0,
             "mowing_pattern_strength": 0.18,
             "wind_strength": 0.22,
-            "note": "Dormant/cool-season maintained lawn; avoid saturated summer green.",
+            "note": "Dense dormant/cool-season maintained turf; avoid saturated summer green. The current generated grounds are static meshes, so the live Unreal map uses PCG-spawned HISM turf rather than Landscape Grass Type until a future landscape conversion.",
         },
         "pcg": {
             "graph_asset": "/Game/HistoricalOSM/PCG/PCG_CapitolWinterLawns",
@@ -94,7 +94,8 @@ def main() -> None:
             ],
             "grass_surfaces": grass_surfaces,
             "sampling": {
-                "points_per_square_meter": 18.0,
+                "points_per_square_meter": 33.33,
+                "volume_sampler_spacing_cm": 17.32,
                 "looseness": 0.82,
                 "random_yaw": True,
                 "scale_min": 0.72,
