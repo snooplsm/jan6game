@@ -547,3 +547,8 @@ refraction, reduced near/far normal strengths, dark neutral albedo/scattering,
 and increased shallow-depth absorption. The remaining blue response in direct
 inspection views is predominantly reflected January sky rather than blue water
 color.
+
+The pool coping now includes a reversible close-range joint overlay aligned to
+the traced Z=0.40m coping top: 400cm block spacing along both long sides and
+300cm spacing across both ends, for 64 shallow joints total. The Water actor,
+basin mesh, and collision remain unchanged.
