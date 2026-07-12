@@ -7698,24 +7698,42 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     def add_approach_handrails(name: str, orientation: str, center: tuple[float, float], span: float, offsets: tuple[float, float]) -> None:
         x, y = center
         for side_index, offset in enumerate(offsets, start=1):
+            low_z = 1.26
+            high_z = 2.18
             if orientation == "east_west":
-                rail_center = (x, y + offset)
-                rail_size = (span, 0.13)
-                post_offsets = [-span * 0.42, 0.0, span * 0.42]
-                for post_index, post_offset in enumerate(post_offsets, start=1):
-                    obj.add_box((x + post_offset, y + offset), (0.13, 0.13), 0.92, 0.28, f"{name}_{side_index}_post_{post_index}", "DoorMetal")
+                toward_building = -1.0 if x > 0.0 else 1.0
+                low_point = (x - toward_building * span / 2.0, y + offset, low_z)
+                high_point = (x + toward_building * span / 2.0, y + offset, high_z)
             else:
-                rail_center = (x + offset, y)
-                rail_size = (0.13, span)
-                post_offsets = [-span * 0.42, 0.0, span * 0.42]
-                for post_index, post_offset in enumerate(post_offsets, start=1):
-                    obj.add_box((x + offset, y + post_offset), (0.13, 0.13), 0.92, 0.28, f"{name}_{side_index}_post_{post_index}", "DoorMetal")
-            obj.add_box(rail_center, rail_size, 0.12, 1.20, f"{name}_{side_index}_top_rail", "BrassRail")
+                toward_building = -1.0 if y > 0.0 else 1.0
+                low_point = (x + offset, y - toward_building * span / 2.0, low_z)
+                high_point = (x + offset, y + toward_building * span / 2.0, high_z)
+            obj.add_beam_between(low_point, high_point, 0.13, 0.12, f"{name}_{side_index}_top_rail", "BrassRail")
+            for post_index, t in enumerate((0.08, 0.50, 0.92), start=1):
+                post_x = low_point[0] + (high_point[0] - low_point[0]) * t
+                post_y = low_point[1] + (high_point[1] - low_point[1]) * t
+                post_top_z = low_point[2] + (high_point[2] - low_point[2]) * t
+                obj.add_cylinder(
+                    (post_x, post_y),
+                    0.065,
+                    0.28,
+                    post_top_z - 0.28,
+                    f"{name}_{side_index}_post_{post_index}",
+                    "DoorMetal",
+                    segments=16,
+                )
+            rail_center = tuple((a + b) / 2.0 for a, b in zip(low_point, high_point))
             add_facade_detail(
                 f"{name}_{side_index}",
                 "public_approach_handrail",
-                (rail_center[0], rail_center[1], 1.26),
-                {"orientation": orientation},
+                rail_center,
+                {
+                    "orientation": orientation,
+                    "geometry": "slope_following_3d_beam_with_round_posts",
+                    "rise_m": round(high_z - low_z, 3),
+                    "post_count": 3,
+                    "post_radial_segments": 16,
+                },
             )
 
     def add_facade_recess_panel(

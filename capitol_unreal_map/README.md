@@ -434,6 +434,8 @@ The ten principal hipped-roof assemblies retain their existing 40 true sloped ro
 
 All 112 arched exterior window surrounds now use continuous, depth-extruded 24-segment elliptical stone bands. These replace 784 isolated voussoir boxes that only approximated a curve. Their former rectangular center keystones are now depth-extruded trapezoidal wedges that widen from 0.20m at the base to 0.36m toward the arch crown; validation requires every arch trim to retain continuous geometry and every keystone to retain the tapered profile.
 
+The eight public exterior approach handrails now use continuous 3D beams that rise 0.92m toward the building along the entrance stairs. Their 24 former identical square posts are replaced by 16-segment round posts whose individual heights meet the sloped rails; validation rejects level box rails, inadequate rise, or low-sided posts.
+
 The corrected drum windows also carry separate shallow stone lintels and sills, 48 pieces total, aligned tangent to the drum. A rejected experimental radial-rib pass was removed before save after viewport verification showed incorrect outward orientation.
 
 The lantern glazing now carries 16 tangent sill/lintel pairs (32 shallow stone pieces). Two additional shell-rib/course experiments were rejected and removed before save because direct viewport inspection showed shelf-like or layered-cone artifacts; the corrected smooth hemisphere remains intact.

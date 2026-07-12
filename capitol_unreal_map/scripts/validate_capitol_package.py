@@ -2715,8 +2715,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 16 public landing/step nosing-strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_approach_side_curb"]) < 8:
         error(errors, "expected at least 8 public approach side-curb records")
-    if len([detail for detail in facade_details if detail.get("kind") == "public_approach_handrail"]) < 8:
+    public_approach_handrails = [
+        detail for detail in facade_details if detail.get("kind") == "public_approach_handrail"
+    ]
+    if len(public_approach_handrails) < 8:
         error(errors, "expected at least 8 public approach handrail records")
+    if any(detail.get("geometry") != "slope_following_3d_beam_with_round_posts" for detail in public_approach_handrails):
+        error(errors, "public approach handrails must follow the stair slope rather than remain level box beams")
+    if any(float(detail.get("rise_m", 0.0)) < 0.8 for detail in public_approach_handrails):
+        error(errors, "public approach handrails must retain a visible stair rise")
+    if any(int(detail.get("post_radial_segments", 0)) < 16 for detail in public_approach_handrails):
+        error(errors, "public approach handrail posts must retain at least 16 radial segments")
     if len([detail for detail in facade_details if detail.get("kind") == "public_door_surround"]) < 12:
         error(errors, "expected at least 12 public door surround records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_revolving_door_glass_drum"]) < 12:
