@@ -655,6 +655,52 @@ class ObjWriter:
         self.add_face(positive)
         self.add_face(list(reversed(negative)))
 
+    def add_sloped_prism(
+        self,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        depth: float,
+        thickness: float,
+        orientation: str,
+        name: str,
+        material: str,
+    ) -> None:
+        """Extrude a constant-thickness beam along a slope in XZ or YZ."""
+        if orientation not in {"east_west", "north_south"}:
+            raise ValueError(f"unsupported sloped-prism orientation: {orientation!r}")
+        self.add_group(name, material)
+        start_h = start[1] if orientation == "east_west" else start[0]
+        end_h = end[1] if orientation == "east_west" else end[0]
+        dh = end_h - start_h
+        dz = end[2] - start[2]
+        length = math.hypot(dh, dz)
+        if length <= 1e-6:
+            raise ValueError(f"sloped prism {name!r} has zero length")
+        normal_h = -dz / length * thickness / 2.0
+        normal_z = dh / length * thickness / 2.0
+        profile = [
+            (start_h + normal_h, start[2] + normal_z),
+            (end_h + normal_h, end[2] + normal_z),
+            (end_h - normal_h, end[2] - normal_z),
+            (start_h - normal_h, start[2] - normal_z),
+        ]
+        negative: list[int] = []
+        positive: list[int] = []
+        half_depth = depth / 2.0
+        fixed = start[0] if orientation == "east_west" else start[1]
+        for horizontal, vertical in profile:
+            if orientation == "east_west":
+                negative.append(self.add_vertex(fixed - half_depth, horizontal, vertical))
+                positive.append(self.add_vertex(fixed + half_depth, horizontal, vertical))
+            else:
+                negative.append(self.add_vertex(horizontal, fixed - half_depth, vertical))
+                positive.append(self.add_vertex(horizontal, fixed + half_depth, vertical))
+        self.add_face(positive)
+        self.add_face(list(reversed(negative)))
+        for index in range(4):
+            next_index = (index + 1) % 4
+            self.add_face([negative[index], negative[next_index], positive[next_index], positive[index]])
+
     def add_ring(
         self,
         center: tuple[float, float],
@@ -7927,27 +7973,26 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         height: float,
     ) -> None:
         cx, cy = center
-        segments = 5
-        segment_span = width / (segments * 2.25)
         for side_sign in (-1.0, 1.0):
-            for segment_index in range(segments):
-                t = (segment_index + 0.5) / segments
-                lateral = side_sign * (width / 2.0) * t
-                block_z = z + height * (1.0 - t) + 0.08
-                if orientation == "east_west":
-                    block_center = (cx, cy + lateral)
-                    size = (0.55, segment_span)
-                else:
-                    block_center = (cx + lateral, cy)
-                    size = (segment_span, 0.55)
-                name = f"{prefix}_raking_cornice_{'left' if side_sign < 0 else 'right'}_{segment_index+1:02d}"
-                obj.add_box(block_center, size, 0.16, block_z, name, "ColumnStone")
-                add_facade_detail(
-                    name,
-                    "pediment_raking_cornice_block",
-                    (block_center[0], block_center[1], block_z + 0.08),
-                    {"orientation": orientation, "stepped_visual": True},
-                )
+            if orientation == "east_west":
+                start = (cx, cy + side_sign * width / 2.0, z + 0.08)
+                end = (cx, cy, z + height + 0.08)
+            else:
+                start = (cx + side_sign * width / 2.0, cy, z + 0.08)
+                end = (cx, cy, z + height + 0.08)
+            side_name = "left" if side_sign < 0 else "right"
+            name = f"{prefix}_raking_cornice_{side_name}_continuous"
+            obj.add_sloped_prism(start, end, 0.62, 0.22, orientation, name, "ColumnStone")
+            add_facade_detail(
+                name,
+                "pediment_raking_cornice",
+                ((start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0, (start[2] + end[2]) / 2.0),
+                {
+                    "orientation": orientation,
+                    "geometry": "continuous_sloped_prism",
+                    "slope_length_m": round(math.dist(start, end), 3),
+                },
+            )
 
     def add_portico_side_cornice_returns(
         prefix: str,

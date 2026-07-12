@@ -1658,7 +1658,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "portico_frieze_panel_detail",
     "portico_cornice_band",
     "portico_entablature_shadow_seam",
-    "pediment_raking_cornice_block",
+    "pediment_raking_cornice",
     "portico_side_cornice_return",
     "terrace_retaining_wall",
     "public_stair_tread",
@@ -2688,8 +2688,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 4 public portico cornice band records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_entablature_shadow_seam"]) < 8:
         error(errors, "expected at least 8 public portico entablature shadow-seam records")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_raking_cornice_block"]) < 40:
-        error(errors, "expected at least 40 public pediment raking-cornice block records")
+    pediment_raking_cornices = [
+        detail for detail in facade_details if detail.get("kind") == "pediment_raking_cornice"
+    ]
+    if len(pediment_raking_cornices) < 8:
+        error(errors, "expected the 8 continuous public pediment raking-cornice records")
+    if any(detail.get("geometry") != "continuous_sloped_prism" for detail in pediment_raking_cornices):
+        error(errors, "pediment raking cornices must use continuous sloped prisms rather than stepped blocks")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_side_cornice_return"]) < 8:
         error(errors, "expected at least 8 public portico side cornice-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "terrace_retaining_wall"]) < 8:
