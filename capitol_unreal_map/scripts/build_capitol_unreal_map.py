@@ -693,11 +693,9 @@ class ObjWriter:
             # height directly keeps the lower third nearly vertical, tightens
             # the crown, and avoids the bulbous/onion silhouette produced by
             # a quarter-circle profile on an anisotropically scaled sphere.
-            eased_height = t * t * (3.0 - 2.0 * t)
-            shoulder = max(0.0, 1.0 - t**1.72)
-            crown_taper = 1.0 - 0.10 * t**3
-            rr = radius * math.sqrt(shoulder) * crown_taper
-            zz = z + height * eased_height
+            shoulder = max(0.0, 1.0 - t**1.25)
+            rr = radius * shoulder**0.70
+            zz = z + height * t
             current: list[int] = []
             if ring == rings:
                 current = [self.add_vertex(cx, cy, z + height)]
@@ -6695,9 +6693,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     def dome_shell_radius(z: float) -> float:
         t = max(0.0, min(1.0, (z - 34.0) / 22.0))
-        shoulder = max(0.0, 1.0 - t**1.72)
-        crown_taper = 1.0 - 0.10 * t**3
-        return 15.4 * math.sqrt(shoulder) * crown_taper
+        shoulder = max(0.0, 1.0 - t**1.25)
+        return 15.4 * shoulder**0.70
 
     def add_dome_shell_panel_frame(
         name: str,
