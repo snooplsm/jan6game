@@ -450,6 +450,8 @@ The red, amber, and green traffic-signal lens slots now use an explicit daylight
 
 The existing mapped streetlights now use explicit daylight surface response rather than flat-color defaults. Their painted poles use 0.74 roughness, 0.65 metallic, and 0.35 specular; their globe material uses 0.18 roughness and 0.50 specular and remains intentionally non-emissive for the fixed 11:50 a.m. January scene. Fixture geometry and source-derived placement remain unchanged pending a licensed modular DC-style lamp replacement.
 
+The 16 baked public grounds benches now use an explicit weather-exposed wood response rather than generic mid-gloss defaults: 0.68 roughness, 0.28 specular, and zero metallic. Their schematic geometry and positions remain unchanged until the benches can be removed cleanly from the combined streetscape and replaced with a compatible licensed modular asset.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
