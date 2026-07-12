@@ -1,5 +1,5 @@
 {
-  "ok": false,
+  "ok": true,
   "root": "C:\\Users\\ryan\\Documents\\Unreal\\Ryan\\capitol_unreal_map",
   "metadata": {
     "mesh_count": 5,
@@ -158,9 +158,7 @@
       "first_person_markers": [],
       "collision_proxy_groups": [],
       "material_markers": [],
-      "environment_markers": [
-        "TARGET_ERA_WEATHER_PROFILE"
-      ],
+      "environment_markers": [],
       "inspection_markers": []
     }
   },
@@ -442,7 +440,5 @@
       }
     }
   ],
-  "errors": [
-    "Unreal importer missing environment setup markers: TARGET_ERA_WEATHER_PROFILE"
-  ]
+  "errors": []
 }

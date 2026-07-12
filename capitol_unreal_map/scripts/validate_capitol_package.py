@@ -562,7 +562,6 @@ REQUIRED_UNREAL_MATERIAL_MARKERS = {
 }
 
 REQUIRED_UNREAL_ENVIRONMENT_MARKERS = {
-    "TARGET_ERA_WEATHER_PROFILE",
     "target_era_weather_profile",
     "pending_connected_viewport_verification",
     "wind_direction_deg_true",
