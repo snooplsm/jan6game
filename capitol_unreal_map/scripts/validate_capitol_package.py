@@ -2651,6 +2651,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 224 public exterior column capital leaf detail records")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_volute_detail"]) < 56:
         error(errors, "expected at least 56 public exterior column capital volute detail records")
+    capital_volutes = [
+        detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_volute_detail"
+    ]
+    if any(detail.get("geometry") != "layered_curved_scroll" for detail in capital_volutes):
+        error(errors, "hero exterior column volutes must use curved scroll geometry rather than rectangular blocks")
+    if any(int(detail.get("radial_segments", 0)) < 24 for detail in capital_volutes):
+        error(errors, "hero exterior column volutes must retain at least 24 radial segments")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_base_chip_detail"]) < 112:
         error(errors, "expected at least 112 public exterior column base chip detail records")
     exterior_columns = [detail for detail in facade_details if detail.get("kind") == "exterior_column"]

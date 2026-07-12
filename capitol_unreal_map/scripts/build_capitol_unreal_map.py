@@ -621,6 +621,40 @@ class ObjWriter:
         self.add_face(top)
         self.add_face(list(reversed(bottom)))
 
+    def add_horizontal_cylinder(
+        self,
+        center: tuple[float, float, float],
+        radius: float,
+        depth: float,
+        axis: str,
+        name: str,
+        material: str,
+        segments: int = 24,
+    ) -> None:
+        """Add a capped cylinder whose axis lies along world X or Y."""
+        if axis not in {"x", "y"}:
+            raise ValueError(f"horizontal cylinder axis must be 'x' or 'y', got {axis!r}")
+        self.add_group(name, material)
+        cx, cy, cz = center
+        negative: list[int] = []
+        positive: list[int] = []
+        half_depth = depth / 2.0
+        for index in range(segments):
+            angle = math.tau * index / segments
+            tangent = radius * math.cos(angle)
+            vertical = radius * math.sin(angle)
+            if axis == "x":
+                negative.append(self.add_vertex(cx - half_depth, cy + tangent, cz + vertical))
+                positive.append(self.add_vertex(cx + half_depth, cy + tangent, cz + vertical))
+            else:
+                negative.append(self.add_vertex(cx + tangent, cy - half_depth, cz + vertical))
+                positive.append(self.add_vertex(cx + tangent, cy + half_depth, cz + vertical))
+        for index in range(segments):
+            next_index = (index + 1) % segments
+            self.add_face([negative[index], negative[next_index], positive[next_index], positive[index]])
+        self.add_face(positive)
+        self.add_face(list(reversed(negative)))
+
     def add_ring(
         self,
         center: tuple[float, float],
@@ -6549,17 +6583,40 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         for volute_index, tangent_offset in enumerate((-radius * 0.58, radius * 0.58), start=1):
             if orientation == "east_west":
                 volute_center = (center[0] + face_sign * radius * 1.22, center[1] + tangent_offset)
-                volute_size = (0.11, radius * 0.34)
             else:
                 volute_center = (center[0] + tangent_offset, center[1] + face_sign * radius * 1.22)
-                volute_size = (radius * 0.34, 0.11)
             volute_name = f"{prefix}_capital_volute_detail_{volute_index:02d}"
-            obj.add_box(volute_center, volute_size, 0.30, z_base + height - 0.43, volute_name, "ColumnStone")
+            volute_axis = "x" if orientation == "east_west" else "y"
+            volute_radius = radius * 0.28
+            volute_z = z_base + height - 0.28
+            obj.add_horizontal_cylinder(
+                (volute_center[0], volute_center[1], volute_z),
+                volute_radius,
+                0.20,
+                volute_axis,
+                f"{volute_name}_outer_scroll",
+                "ColumnStone",
+                segments=24,
+            )
+            obj.add_horizontal_cylinder(
+                (volute_center[0], volute_center[1], volute_z),
+                volute_radius * 0.52,
+                0.26,
+                volute_axis,
+                f"{volute_name}_inner_boss",
+                "StoneGrimeOverlay",
+                segments=24,
+            )
             add_facade_detail(
                 volute_name,
                 "exterior_column_capital_volute_detail",
-                (volute_center[0], volute_center[1], z_base + height - 0.28),
-                {"orientation": orientation, "face_sign": face_sign},
+                (volute_center[0], volute_center[1], volute_z),
+                {
+                    "orientation": orientation,
+                    "face_sign": face_sign,
+                    "geometry": "layered_curved_scroll",
+                    "radial_segments": 24,
+                },
             )
 
         for chip_index, angle in enumerate((0.0, math.pi / 2.0, math.pi, math.pi * 1.5), start=1):
