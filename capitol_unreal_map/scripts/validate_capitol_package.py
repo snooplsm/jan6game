@@ -2797,6 +2797,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected the 36 documented dome vertical rib records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_curved_rib"]) < 36:
         error(errors, "expected the 36 documented visible dome curved rib records")
+    coarse_dome_ribs = [
+        detail
+        for detail in facade_details
+        if detail.get("kind") == "dome_curved_rib" and int(detail.get("segments", 0)) < 20
+    ]
+    if coarse_dome_ribs:
+        error(errors, "documented exterior dome ribs must use at least 20 continuous profile samples")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_skirt_panel"]) < 24:
         error(errors, "expected at least 24 public dome transition skirt panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_step_ring"]) < 3:

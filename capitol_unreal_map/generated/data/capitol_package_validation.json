@@ -285,12 +285,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 144358,
-      "uvs": 449492,
-      "faces": 110098,
-      "faces_with_uvs": 110098,
-      "triangles": 229296,
-      "groups": 14911,
+      "vertices": 148390,
+      "uvs": 461588,
+      "faces": 113122,
+      "faces_with_uvs": 113122,
+      "triangles": 235344,
+      "groups": 15415,
       "materials": [
         "BenchWood",
         "BollardMetal",

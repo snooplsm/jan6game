@@ -6899,20 +6899,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         )
 
     def add_dome_curved_rib(index: int, angle: float) -> None:
+        # Sample the shell continuously so the ribs read as curved ironwork,
+        # not as the former ten separated blocks. Slight overlap hides joints
+        # at first-person and telephoto inspection distances.
+        profile_start_z = 34.25
+        profile_end_z = 54.05
+        profile_sample_count = 24
+        profile_step = (profile_end_z - profile_start_z) / profile_sample_count
         segments_spec = [
-            (34.35, 1.18),
-            (36.05, 1.28),
-            (37.95, 1.34),
-            (40.10, 1.28),
-            (42.35, 1.22),
-            (44.70, 1.14),
-            (47.05, 1.02),
-            (49.30, 0.92),
-            (51.35, 0.78),
-            (53.05, 0.56),
+            (profile_start_z + sample_index * profile_step, profile_step + 0.10)
+            for sample_index in range(profile_sample_count)
         ]
         for segment_index, (z, height) in enumerate(segments_spec, start=1):
             radius = dome_shell_radius(z + height / 2.0) + 0.36
+            taper = 1.0 - 0.32 * ((segment_index - 1) / max(1, profile_sample_count - 1))
             add_radial_trim_bar(
                 f"dome_curved_rib_{index:02d}_segment_{segment_index:02d}",
                 angle,
@@ -6920,15 +6920,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 0.0,
                 z,
                 height,
-                0.14,
-                0.34,
+                0.14 * taper,
+                0.34 * taper,
             )
         mid_radius = dome_shell_radius(43.8) + 0.36
         add_facade_detail(
             f"dome_curved_rib_{index:02d}",
             "dome_curved_rib",
             (mid_radius * math.cos(angle), mid_radius * math.sin(angle), dome_z(43.8)),
-            {"radial_index": index, "segments": len(segments_spec)},
+            {
+                "radial_index": index,
+                "segments": len(segments_spec),
+                "profile": "continuous_overlapping_shell_samples",
+                "source_reference": "Library of Congress item 93510472",
+            },
         )
 
     def add_dome_shell_weathering_details() -> None:
