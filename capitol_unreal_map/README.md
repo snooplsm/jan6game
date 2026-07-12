@@ -474,6 +474,8 @@ The mapped bike-lane materials now preserve their historical geometry and colors
 
 Mapped white and yellow lane lines now use a worn non-metallic thermoplastic response with 0.72 roughness and 0.20 specular. Heavier-wear crosswalk paint uses a slightly duller 0.78 roughness and 0.18 specular. Historical line geometry, colors, stop bars, and crosswalk placement remain unchanged.
 
+The generated `SignalMarker` slot is confirmed by the material manifest as yellow road paint rather than signal hardware and now matches the lane-marking response at 0.72 roughness, 0.20 specular, and zero metallic. The unrelated broadly reused `MarkerBlue` slot remains unchanged.
+
 Mapped green street-name sign faces now use a semi-gloss non-metallic sheeting response with 0.40 roughness and 0.35 specular while remaining non-emissive. This improves daylight readability without incorrectly treating retroreflective sheeting as self-illumination; source-derived sign placement, mounting hardware, and text-stroke geometry remain unchanged.
 
 Road-surface repair materials now separate aged patch asphalt from bituminous crack sealant. Aggregate-rich patches use 0.86 roughness and 0.14 specular, while the darker sealant strips use a smoother 0.58 roughness and 0.25 specular; both remain non-metallic. Existing repair geometry and mapped road alignment remain unchanged.
