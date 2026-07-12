@@ -33,6 +33,11 @@ __pycache__/
 Build/Receipts/
 StagedBuilds/
 
+# Locally installed Fab/Marketplace dependencies. Acquire through the owner's
+# Fab library rather than redistributing vendor content through this repository.
+Content/PN_GrassLibrary/
+Content/Maxtree/
+
 # Local generated/reference image content. Track reproducible scripts/manifests.
 ryan/*
 !ryan/scripts/
