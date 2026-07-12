@@ -446,6 +446,8 @@ The shared live streetscape shaders now replace flat color/default gloss with ex
 
 The combined streetscape traffic-signal housing slot now uses an explicit powder-coated metal response instead of Unreal's generic mid-gloss defaults: 0.72 roughness, restrained 0.18 metallic, and 0.32 specular. This improves the existing source-positioned signal heads and dark backplates without changing their geometry, placement, or target-era map alignment.
 
+The red, amber, and green traffic-signal lens slots now use an explicit daylight polycarbonate response with 0.24 roughness and 0.50 specular. They intentionally remain non-emissive in the static combined streetscape so all three colors do not appear illuminated at once; a future modular signal asset can drive mutually exclusive active aspects.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
