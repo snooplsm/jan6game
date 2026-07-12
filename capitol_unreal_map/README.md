@@ -464,6 +464,8 @@ The baked `GroundGrass` slot now preserves its existing dark muted January color
 
 The combined DCGIS context-tree canopy slot preserves its existing winter-brown color and now uses an explicit dry organic response with 0.90 roughness, 0.10 specular, and zero metallic. This removes generic plastic sheen while keeping the surrounding-tree layer species-neutral; the dedicated Capitol-ground Hornbeams remain the higher-fidelity winter tree set.
 
+The paired DCGIS context-tree trunk slot preserves its dark brown base color and now uses 0.91 roughness, 0.12 specular, and zero metallic for dry winter bark. This keeps the schematic surrounding-tree layer visually consistent with the winter canopy treatment without changing source positions, trunk geometry, or species-neutral labeling.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
