@@ -472,6 +472,8 @@ The shared public planter-stone slot preserves its warm-gray base color and now 
 
 The mapped bike-lane materials now preserve their historical geometry and colors while using explicit weathered street response. Green pavement coating uses 0.88 roughness, 0.15 specular, and zero metallic; off-white delineator posts use a flexible-polymer response with 0.62 roughness, 0.25 specular, and zero metallic. Cycleway alignment, post placement, and reflector details remain unchanged.
 
+Mapped white and yellow lane lines now use a worn non-metallic thermoplastic response with 0.72 roughness and 0.20 specular. Heavier-wear crosswalk paint uses a slightly duller 0.78 roughness and 0.18 specular. Historical line geometry, colors, stop bars, and crosswalk placement remain unchanged.
+
 The shared exterior light-fixture hardware slot preserves its dark bronze color and now uses a weathered architectural-metal response with 0.50 roughness, 0.85 metallic, and 0.50 specular. This improves public entry lamps and facade accents in daylight without changing fixture placement, light actors, or the historical sun rig.
 
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
