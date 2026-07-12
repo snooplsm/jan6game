@@ -4645,7 +4645,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                     }
                 )
             else:
-                uses_civic_stone = is_capitol or (
+                uses_civic_stone = (
                     osm_element_type == "relation" and int(way["id"]) in CIVIC_STONE_BUILDING_RELATION_IDS
                 )
                 material = "BuildingCapitol" if uses_civic_stone else "BuildingGeneric"

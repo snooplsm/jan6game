@@ -2088,12 +2088,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         building = relation_by_id.get(relation_id)
         if building is not None and building.get("name") != expected_label:
             error(errors, f"unnamed building relation {relation_id} expected truthful fallback label {expected_label!r}")
-    civic_stone_relation_ids = {
+    civic_stone_building_ids = {
         building.get("id")
-        for building in relation_buildings
+        for building in buildings
         if building.get("facade_material_class") == "neutral_civic_stone"
     }
-    if civic_stone_relation_ids != EXPECTED_CIVIC_STONE_RELATION_IDS:
+    if civic_stone_building_ids != EXPECTED_CIVIC_STONE_RELATION_IDS:
         error(errors, "civic-stone material classification must match the reviewed historical relation set")
     if any(not building.get("facade_material_class") for building in buildings):
         error(errors, "expected every surrounding building to include facade_material_class provenance")
