@@ -1,0 +1,23 @@
+# Unreal generated data
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+
+# IDE and OS files
+*.VC.db
+*.VC.opendb
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# Local build/package output
+Build/Receipts/
+StagedBuilds/
+
