@@ -422,6 +422,8 @@ The live dome silhouette now uses a reversible outer-shell correction over the p
 
 The corrected drum windows also carry separate shallow stone lintels and sills, 48 pieces total, aligned tangent to the drum. A rejected experimental radial-rib pass was removed before save after viewport verification showed incorrect outward orientation.
 
+The lantern glazing now carries 16 tangent sill/lintel pairs (32 shallow stone pieces). Two additional shell-rib/course experiments were rejected and removed before save because direct viewport inspection showed shelf-like or layered-cone artifacts; the corrected smooth hemisphere remains intact.
+
 Public step and plaza stone receive a still subtler version of the same treatment: 16 percent localized wear-tone variation on steps and 14 percent broad tone variation on plaza paving. Their roughness remains 0.82 and 0.86, respectively, retaining a matte weather-exposed appearance.
 
 The dome remains interpreted as painted cast iron rather than bare metal or limestone. Its live shader now adds only 12 percent broad cool-gray exposure/repaint variation, while retaining the existing 0.64 roughness and 0.28 specular response.
