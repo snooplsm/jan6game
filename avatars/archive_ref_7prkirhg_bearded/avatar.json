@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "avatar_id": "archive_ref_7prkirhg_bearded",
+  "display_name": "Archive Reference Bearded Male 01",
+  "avatar_type": "external_visual_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "External Archive images are referenced by URL only. Do not commit or redistribute source images without a separate license review.",
+    "identity_note": "Use as a loose visual reference for a fictional avatar, not as a direct likeness recreation.",
+    "local_cache_committed": false
+  },
+  "external_visual_references": [
+    {
+      "id": "archive_ref_7prkirhg_full_body",
+      "publisher": "Internet Archive",
+      "url": "https://archive.org/download/7pRKirHg7LBPDwBtR/7pRKirHg7LBPDwBtR.png",
+      "retrieved_utc": "2026-07-05T22:43:03Z",
+      "retrieval_tool": "curl",
+      "observed_file_type": "PNG image, 447x730, RGB",
+      "local_cache_committed": false
+    },
+    {
+      "id": "archive_ref_xkz2nbc2_beard_detail",
+      "publisher": "Internet Archive",
+      "url": "https://dn710209.ca.archive.org/0/items/XkZ2nBc2fnsfhBZZY/XkZ2nBc2fnsfhBZZY.webp",
+      "retrieved_utc": "2026-07-05T22:43:03Z",
+      "retrieval_tool": "curl",
+      "observed_file_type": "WebP image, 562x670",
+      "local_cache_committed": false
+    }
+  ],
+  "visual_reference_notes": {
+    "source": "Derived from the provided external image URLs for avatar art direction only.",
+    "high_level_appearance": [
+      "young adult male",
+      "medium-light skin tone",
+      "dark thick medium-length hair with natural volume",
+      "straight nose, fuller lower face, and neutral-to-focused expression",
+      "rugged but not heavily aged face"
+    ],
+    "beard_definition": [
+      "short dark connected mustache and beard",
+      "mustache connects into the beard at the mouth corners",
+      "denser growth around chin and jawline",
+      "lighter, shorter cheek coverage",
+      "trimmed natural beard, not long, not clean-shaven, no goatee-only style"
+    ],
+    "clothing_reference": [
+      "red and black plaid hooded flannel or overshirt",
+      "gray graphic T-shirt underneath",
+      "red backpack shoulder straps",
+      "dark pants",
+      "casual indoor crowd-scene clothing"
+    ],
+    "avoid": [
+      "Do not recreate the exact person, exact scene, or exact photo crop.",
+      "Do not include copyrighted shirt graphics or readable brand/text details unless separately licensed.",
+      "Do not include watermarks, news overlays, or Archive UI.",
+      "Do not infer personal details not present in the source images."
+    ]
+  },
+  "avatar_generation_guidance": {
+    "preferred_reference_mode": "Use broad hair, beard, clothing, and build cues for a new fictional character.",
+    "metahuman_notes": [
+      "Create a realistic young adult male with dark medium-length hair and a short connected full beard.",
+      "Use red/black plaid outerwear, a gray T-shirt, and red backpack straps for clothing recreation.",
+      "Keep the final generated avatar clearly production-created and fictional."
+    ]
+  }
+}

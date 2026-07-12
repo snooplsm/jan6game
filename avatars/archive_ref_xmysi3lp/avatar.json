@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "avatar_id": "archive_ref_xmysi3lp",
+  "display_name": "Archive Reference Male 01",
+  "avatar_type": "external_visual_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "External Archive images are referenced by URL only. Do not commit or redistribute source images without a separate license review.",
+    "identity_note": "Use as a loose visual reference for a fictional avatar, not as a direct likeness recreation.",
+    "local_cache_committed": false
+  },
+  "external_visual_references": [
+    {
+      "id": "archive_ref_xmysi3lp_200px",
+      "publisher": "Internet Archive",
+      "url": "https://archive.org/download/xMYSi3LpYhePLNMxR/xMYSi3LpYhePLNMxR.200px.jpg",
+      "retrieved_utc": "2026-07-05T22:43:03Z",
+      "retrieval_tool": "curl",
+      "observed_file_type": "JPEG image, 144x200, RGB",
+      "local_cache_committed": false
+    }
+  ],
+  "visual_reference_notes": {
+    "source": "Derived from the provided external image URL for avatar art direction only.",
+    "high_level_appearance": [
+      "light-skinned adult male",
+      "weathered outdoor face with slight redness and under-eye tiredness",
+      "short salt-and-pepper stubble beard and mustache",
+      "plain, rugged, non-model facial proportions",
+      "neutral outdoor selfie expression"
+    ],
+    "clothing_reference": [
+      "dark charcoal or black puffer-style hooded jacket zipped high at the neck",
+      "dark gray ribbed knit beanie",
+      "black hood framing the face",
+      "cold-weather outdoor clothing with no visible jewelry or accessories beyond hat and hood"
+    ],
+    "avoid": [
+      "Do not recreate the exact photo crop, pose, or identity.",
+      "Do not include watermarks or Archive UI.",
+      "Do not infer personal details not present in the source image."
+    ]
+  },
+  "avatar_generation_guidance": {
+    "preferred_reference_mode": "Use broad age, weathering, facial-hair, and clothing cues for a new fictional character.",
+    "metahuman_notes": [
+      "Create a realistic adult male with a weathered face, tired eyes, and short salt-and-pepper stubble.",
+      "For clothed references, use a dark hooded cold-weather jacket and dark knit cap.",
+      "Keep the final generated avatar clearly production-created and fictional."
+    ]
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "avatar_id": "individuals_sheet_reference",
+  "display_name": "Individuals Sheet Reference Batch",
+  "avatar_type": "spreadsheet_image_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "The spreadsheet image sources are referenced by URL only. Do not commit or redistribute source images without a separate license review.",
+    "identity_note": "Use these rows as loose visual references for fictional avatars, not as direct likeness recreations.",
+    "local_cache_committed": false
+  },
+  "source_sheet": {
+    "url": "https://docs.google.com/spreadsheets/d/18NzncPJ-5oaYrDfq_VnjaSTLyY_vKaoSTgc6lznl9GU/edit?gid=0#gid=0",
+    "export_url": "https://docs.google.com/spreadsheets/d/18NzncPJ-5oaYrDfq_VnjaSTLyY_vKaoSTgc6lznl9GU/export?format=csv&gid=0",
+    "sheet_name": "Individuals",
+    "retrieved_utc": "2026-07-05T22:43:03Z"
+  },
+  "reference_rows": [
+    {
+      "row": 2,
+      "label": "#IAmBugzieTheDon",
+      "image_file": "tmp/spreadsheet/individual_images/row_0002_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in a dark knit cap and black hooded winter jacket",
+        "weathered face with short salt-and-pepper stubble",
+        "outdoor cold-weather clothing"
+      ],
+      "clothing_notes": [
+        "dark ribbed beanie or knit cap",
+        "black hooded jacket or heavy coat zipped high",
+        "dark outer layer with a utilitarian winter look"
+      ]
+    },
+    {
+      "row": 4,
+      "label": "#IAmPamHemphill",
+      "image_file": "tmp/spreadsheet/individual_images/row_0004_col_01.jpg",
+      "reference_type": "scene_reference_only",
+      "high_level_appearance": [
+        "large U.S. flag scene with crowd, no clear clothing read from the embedded image"
+      ],
+      "clothing_notes": [
+        "clothing not reliably recoverable from this image crop"
+      ]
+    },
+    {
+      "row": 6,
+      "label": "#IAmFrankScavo",
+      "image_file": "tmp/spreadsheet/individual_images/row_0006_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in an olive-brown jacket with a dark bag strap",
+        "light pants and casual outdoor footwear",
+        "hand visible carrying a small dark object"
+      ],
+      "clothing_notes": [
+        "olive or brown jacket",
+        "dark shoulder strap crossing the chest",
+        "light jeans or cargo-style pants"
+      ]
+    },
+    {
+      "row": 7,
+      "label": "#IAmOwenShroyer",
+      "image_file": "tmp/spreadsheet/individual_images/row_0007_col_01.jpg",
+      "reference_type": "scene_reference_only",
+      "high_level_appearance": [
+        "crowd scene with a large printed banner, no reliable avatar clothing read"
+      ],
+      "clothing_notes": [
+        "clothing not reliably recoverable from this image crop"
+      ]
+    },
+    {
+      "row": 9,
+      "label": "#BikerBernLady",
+      "image_file": "tmp/spreadsheet/individual_images/row_0009_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "older adult male in a dark backward baseball cap and sunglasses",
+        "gray beard with a rugged outdoor look",
+        "dark jacket or vest"
+      ],
+      "clothing_notes": [
+        "black or dark baseball cap worn backward",
+        "sunglasses",
+        "dark jacket or biker-style outerwear"
+      ]
+    },
+    {
+      "row": 10,
+      "label": "#BikersFor45Guy",
+      "image_file": "tmp/spreadsheet/individual_images/row_0010_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in a tan jacket with protective headgear",
+        "outdoor group crowd context"
+      ],
+      "clothing_notes": [
+        "tan or beige jacket",
+        "helmet or headset-style headgear",
+        "casual utility clothing"
+      ]
+    },
+    {
+      "row": 11,
+      "label": "#IAmAlexJones",
+      "image_file": "tmp/spreadsheet/individual_images/row_0011_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in a black cap and dark jacket",
+        "outdoor crowd scene"
+      ],
+      "clothing_notes": [
+        "black baseball cap",
+        "dark jacket",
+        "layered casual outerwear"
+      ]
+    },
+    {
+      "row": 13,
+      "label": "#IAmAnthonyAguero",
+      "image_file": "tmp/spreadsheet/individual_images/row_0013_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in dark outerwear",
+        "crowd scene context, clothing obscured by crop"
+      ],
+      "clothing_notes": [
+        "dark jacket or hoodie",
+        "casual outdoor protest clothing"
+      ]
+    },
+    {
+      "row": 15,
+      "label": "#IAmAntonioLaMotta",
+      "image_file": "tmp/spreadsheet/individual_images/row_0015_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in a plain dark jacket",
+        "detail is partial but the outerwear reads as everyday casual"
+      ],
+      "clothing_notes": [
+        "dark jacket",
+        "simple everyday outerwear"
+      ]
+    },
+    {
+      "row": 16,
+      "label": "#IAmBlakeMarnell",
+      "image_file": "tmp/spreadsheet/individual_images/row_0016_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male with dark hair and a short beard",
+        "red plaid flannel-style outerwear over a gray T-shirt",
+        "red backpack straps visible"
+      ],
+      "clothing_notes": [
+        "red and black plaid hooded flannel or overshirt",
+        "gray graphic T-shirt",
+        "red backpack shoulder straps",
+        "dark pants"
+      ]
+    },
+    {
+      "row": 18,
+      "label": "#IAmCJPearson",
+      "image_file": "tmp/spreadsheet/individual_images/row_0018_col_01.png",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in a white cap and dark jacket",
+        "outdoor crowd scene with Capitol in background"
+      ],
+      "clothing_notes": [
+        "white baseball cap",
+        "dark jacket",
+        "casual crowd-weather clothing"
+      ]
+    },
+    {
+      "row": 19,
+      "label": "#IAmDarleneSwaffar",
+      "image_file": "tmp/spreadsheet/individual_images/row_0019_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult in a dark coat, mostly obscured by crowd context"
+      ],
+      "clothing_notes": [
+        "dark coat or jacket",
+        "winter crowd clothing"
+      ]
+    },
+    {
+      "row": 20,
+      "label": "#IAmDionCini",
+      "image_file": "tmp/spreadsheet/individual_images/row_0020_col_01.jpg",
+      "reference_type": "usable_avatar_reference",
+      "high_level_appearance": [
+        "adult male in a blue denim-style jacket holding a handheld radio",
+        "casual crowd and protest clothing"
+      ],
+      "clothing_notes": [
+        "blue denim jacket",
+        "handheld radio",
+        "casual street clothing"
+      ]
+    },
+    {
+      "row": 21,
+      "label": "#IAmDougMastriano",
+      "image_file": "tmp/spreadsheet/individual_images/row_0021_col_01.jpg",
+      "reference_type": "scene_reference_only",
+      "high_level_appearance": [
+        "image exists but clothing is not readable from the extracted crop"
+      ],
+      "clothing_notes": [
+        "clothing not reliably recoverable from this image crop"
+      ]
+    }
+  ],
+  "avatar_generation_guidance": {
+    "preferred_reference_mode": "Use the usable rows as loose visual references for fictional avatars and clothing recreation.",
+    "metahuman_notes": [
+      "Preserve broad age, build, grooming, and clothing silhouette cues, not identity.",
+      "When clothing is visible, keep the item type and layering but change logos, text, insignia, and exact styling.",
+      "For scene_reference_only rows, do not infer a precise outfit; use them only for general crowd-scene context."
+    ]
+  }
+}

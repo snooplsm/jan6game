@@ -1,11 +1,19 @@
-# Unreal generated data
+# Unreal generated data for the live root project
 Binaries/
 DerivedDataCache/
 Intermediate/
 Saved/
 .vs/
 
-# IDE and OS files
+# Unreal generated data for the source package
+capitol_unreal_map/Binaries/
+capitol_unreal_map/DerivedDataCache/
+capitol_unreal_map/Intermediate/
+capitol_unreal_map/Saved/
+capitol_unreal_map/.vs/
+capitol_unreal_map/generated/data/unreal_import_report.json
+
+# IDE, Python, and OS files
 *.VC.db
 *.VC.opendb
 *.sln
@@ -15,9 +23,26 @@ Saved/
 *.tmp
 *.log
 .DS_Store
+**/.DS_Store
 Thumbs.db
+__pycache__/
+**/__pycache__/
+*.py[cod]
 
 # Local build/package output
 Build/Receipts/
 StagedBuilds/
 
+# Local generated/reference image content. Track reproducible scripts/manifests.
+ryan/*
+!ryan/scripts/
+ryan/scripts/*
+!ryan/scripts/build_synthetic_people_roster.py
+!ryan/scripts/build_generation_queue.py
+!ryan/scripts/copy_latest_generated_image.py
+!ryan/generated_people_corrected/
+ryan/generated_people_corrected/*
+!ryan/generated_people_corrected/prompts.jsonl
+!ryan/generated_people_corrected/manifest.csv
+!ryan/generated_people_corrected/generation_queue.csv
+!ryan/generated_people_corrected/distribution_notes.md

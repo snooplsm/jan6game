@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "avatar_id": "individual_row_0013_anthonyaguero",
+  "display_name": "Individuals Row 13 Reference",
+  "avatar_type": "spreadsheet_image_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "Spreadsheet image is referenced by local extracted cache only. Do not redistribute source images without a separate license review.",
+    "identity_note": "Use as a loose visual reference for a fictional avatar, not as a direct likeness recreation.",
+    "local_cache_committed": false
+  },
+  "source_row": {
+    "sheet_name": "Individuals",
+    "row_number": 13,
+    "label": "#IAmAnthonyAguero",
+    "retrieved_utc": "2026-07-06T01:10:31Z"
+  },
+  "visual_reference_notes": {
+    "high_level_appearance": [
+      "adult male in dark outerwear",
+      "crowd scene context",
+      "clothing partially obscured by crop"
+    ],
+    "clothing_notes": [
+      "dark jacket or hoodie",
+      "casual outdoor protest clothing"
+    ],
+    "avatar_generation_guidance": [
+      "Use only broad outerwear and crowd context.",
+      "Do not infer fine outfit details from this crop.",
+      "Do not recreate the exact pose or image crop."
+    ]
+  }
+}

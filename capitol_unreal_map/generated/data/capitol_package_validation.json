@@ -1,0 +1,431 @@
+{
+  "ok": true,
+  "root": "/Volumes/128gb/metahuman/capitol_unreal_map",
+  "metadata": {
+    "mesh_count": 5,
+    "buildings": 3631,
+    "roads": 1432,
+    "bike_lanes": 242,
+    "pedestrian_paths": 636,
+    "curbs": 2449,
+    "lane_edge_markings": 571,
+    "street_markers": 396,
+    "replaced_buildings": 1,
+    "building_height_sources": {
+      "building_levels_estimate": 74,
+      "dcgis_rooftop_ground_delta_estimate": 1324,
+      "explicit_height_tag": 25,
+      "footprint_type_area_estimate": 2208
+    },
+    "height_model": {
+      "dcgis_rooftop_points": 2360,
+      "dcgis_ground_points": 2307,
+      "dcgis_matched_buildings": 1324,
+      "source_backed_buildings": 1349,
+      "level_count_estimated_buildings": 74,
+      "heuristic_estimated_buildings": 2208,
+      "height_accuracy_tiers": {
+        "heuristic_visual_estimate": 2208,
+        "level_count_estimate": 74,
+        "public_elevation_delta": 1324,
+        "source_tag": 25
+      },
+      "height_review_targets": 40
+    },
+    "building_details": 9748,
+    "building_detail_kinds": 50,
+    "streetscape_props": 7139,
+    "streetscape_prop_kinds": 67,
+    "traffic_sign_model": {
+      "dcgis_traffic_sign_points": 252,
+      "dcgis_overhead_signs": 6,
+      "generated_public_traffic_sign_props": 252,
+      "generated_public_overhead_sign_props": 6
+    },
+    "public_fixture_model": {
+      "dcgis_fire_hydrants": 18,
+      "dcgis_miscellaneous_points": 2700,
+      "dcgis_street_trees": 9754,
+      "dcgis_utility_poles": 2873,
+      "generated_fire_hydrant_props": 18,
+      "generated_misc_fixture_props": 240,
+      "generated_street_tree_props": 480,
+      "generated_utility_pole_props": 220
+    },
+    "ground_surface_model": {
+      "dcgis_curb_lines": 1307,
+      "dcgis_road_polygons": 1238,
+      "dcgis_sidewalk_polygons": 640,
+      "generated_curb_line_props": 1307,
+      "generated_sidewalk_edge_props": 640,
+      "generated_sidewalk_surface_patches": 220,
+      "generated_road_edge_props": 220,
+      "generated_road_surface_patches": 140
+    },
+    "grounds_details": 215,
+    "grounds_detail_kinds": 15,
+    "grounds_walk_lamps": 18,
+    "landmark_elements": 20,
+    "facade_details": 8330,
+    "facade_detail_kinds": 145,
+    "revolving_door_visuals": 12,
+    "rooms": 15,
+    "house_seats": 448,
+    "senate_desks": 100,
+    "office_cells": 60,
+    "office_details": 1648,
+    "office_detail_kinds": 29,
+    "seating_sections": 16,
+    "regular_session_seating_sections": 7,
+    "joint_session_seating_sections": 9,
+    "chamber_details": 12976,
+    "chamber_detail_kinds": 93,
+    "circulation_details": 577,
+    "circulation_detail_kinds": 40,
+    "signage_details": 261,
+    "signage_detail_kinds": 8,
+    "door_details": 384,
+    "door_detail_kinds": 14,
+    "furnishing_details": 536,
+    "furnishing_detail_kinds": 17,
+    "wall_finish_details": 2044,
+    "wall_finish_detail_kinds": 18,
+    "rotunda_details": 360,
+    "rotunda_detail_kinds": 23,
+    "ceiling_details": 873,
+    "ceiling_detail_kinds": 15,
+    "floor_details": 410,
+    "floor_detail_kinds": 14,
+    "surface_aging_details": 309,
+    "surface_aging_detail_kinds": 12,
+    "joint_session_records": 9,
+    "public_art": 595,
+    "public_art_types": 21,
+    "light_fixtures": 63,
+    "light_fixture_details": 384,
+    "light_fixture_detail_kinds": 11,
+    "wall_treatments": 11,
+    "gameplay_items": 7,
+    "gameplay_labels": 7,
+    "flagpole_banners": 5,
+    "viewpoints": 19
+  },
+  "materials": {
+    "manifest_materials": 75,
+    "missing_manifest_materials": 0,
+    "extra_manifest_materials": 0,
+    "clear_coat_materials": 25
+  },
+  "textures": {
+    "texture_sets": 43,
+    "texture_material_bindings": 75,
+    "texture_files": 172,
+    "texture_styles": 19,
+    "photoreal_texture_features": 10,
+    "min_texture_size_px": 4096,
+    "expected_min_texture_size_px": 4096
+  },
+  "unreal_importer": {
+    "path": "unreal/import_capitol_map.py",
+    "mesh_files": 5,
+    "destination_paths": 4,
+    "required_functions": 23,
+    "required_calls": 21,
+    "report_keys": 232,
+    "label_categories": 23,
+    "outliner_folders": 14,
+    "first_person_markers": 59,
+    "material_markers": 27,
+    "environment_markers": 58,
+    "inspection_markers": 40,
+    "collision_proxy_specs": 54,
+    "collision_proxy_groups": 7,
+    "missing": {
+      "mesh_files": [],
+      "destination_paths": [],
+      "required_functions": [],
+      "required_calls": [],
+      "report_keys": [],
+      "label_categories": [],
+      "outliner_folders": [],
+      "first_person_markers": [],
+      "collision_proxy_groups": [],
+      "material_markers": [],
+      "environment_markers": [],
+      "inspection_markers": []
+    }
+  },
+  "unreal_project_config": {
+    "files": 4,
+    "required_markers": 58,
+    "missing": {}
+  },
+  "viewer": {
+    "path": "viewer.html",
+    "required_markers": 271,
+    "missing": []
+  },
+  "landmark_height": {
+    "mesh": "generated/meshes/capitol_landmark_visual_details.obj",
+    "public_height_target_m": 87.48,
+    "max_z_m": 87.48,
+    "tolerance_m": 0.35
+  },
+  "meshes": [
+    {
+      "path": "generated/meshes/capitol_exterior_buildings.obj",
+      "vertices": 226224,
+      "uvs": 678672,
+      "faces": 157838,
+      "faces_with_uvs": 157838,
+      "triangles": 362996,
+      "groups": 22363,
+      "materials": [
+        "BrassRail",
+        "BuildingCapitol",
+        "BuildingGeneric",
+        "DoorGlass",
+        "DoorMetal",
+        "FacadeWindow",
+        "LaneMarkingWhite",
+        "MarkerBlue",
+        "RoadCrackSealant",
+        "RoadPatchAsphalt",
+        "StepStone",
+        "StoneGrimeOverlay",
+        "StreetSignGreen"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -81165.0561,
+          -86524.5832,
+          0.0
+        ],
+        "max": [
+          107255.1238,
+          100769.0904,
+          5074.92
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
+      "vertices": 867652,
+      "uvs": 1396596,
+      "faces": 322643,
+      "faces_with_uvs": 322643,
+      "triangles": 751310,
+      "groups": 26803,
+      "materials": [
+        "BenchWood",
+        "BikeLaneGreen",
+        "BikeLanePost",
+        "BollardMetal",
+        "BrassRail",
+        "CrosswalkWhite",
+        "CurbConcrete",
+        "DoorGlass",
+        "DoorMetal",
+        "FloorWear",
+        "GroundGrass",
+        "LaneMarkingWhite",
+        "LaneMarkingYellow",
+        "LightFixtureMetal",
+        "MarkerBlue",
+        "PlanterStone",
+        "PlazaStone",
+        "RoadAsphalt",
+        "RoadCrackSealant",
+        "RoadPatchAsphalt",
+        "SidewalkConcrete",
+        "SignalMarker",
+        "StepStone",
+        "StoneGrimeOverlay",
+        "StreetLightGlass",
+        "StreetLightPole",
+        "StreetSignGreen",
+        "TrafficSignalGreen",
+        "TrafficSignalHousing",
+        "TrafficSignalRed",
+        "TrafficSignalYellow",
+        "TreeCanopy",
+        "TreeTrunk"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -214016.0294,
+          -948771.2577,
+          1.8
+        ],
+        "max": [
+          201832.6327,
+          181039.6356,
+          520.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_landmark_visual_details.obj",
+      "vertices": 141206,
+      "uvs": 439036,
+      "faces": 107426,
+      "faces_with_uvs": 107426,
+      "triangles": 224184,
+      "groups": 14623,
+      "materials": [
+        "BenchWood",
+        "BollardMetal",
+        "BrassRail",
+        "BuildingGeneric",
+        "CapitolDome",
+        "CapitolStone",
+        "ColumnStone",
+        "DoorGlass",
+        "DoorMetal",
+        "FacadeWindow",
+        "GroundGrass",
+        "LightFixtureMetal",
+        "PlazaStone",
+        "RoadCrackSealant",
+        "RotundaWall",
+        "StatueBronze",
+        "StepStone",
+        "StoneGrimeOverlay",
+        "StreetLightGlass",
+        "StreetLightPole",
+        "WarmLightGlass"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -21500.0,
+          -18000.0,
+          -6.0
+        ],
+        "max": [
+          21500.0,
+          18000.0,
+          8748.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_public_interior_schematic.obj",
+      "vertices": 404422,
+      "uvs": 1213264,
+      "faces": 277358,
+      "faces_with_uvs": 277358,
+      "triangles": 658548,
+      "groups": 35972,
+      "materials": [
+        "ArtFrameGold",
+        "BenchWood",
+        "BrassRail",
+        "CabinetZone",
+        "ChairLeather",
+        "ColumnStone",
+        "DeskWood",
+        "DiplomaticZone",
+        "DoorGlass",
+        "DoorMetal",
+        "FloorWear",
+        "GroundGrass",
+        "HouseCarpet",
+        "HouseDesk",
+        "HouseSeat",
+        "InteriorFloor",
+        "InteriorTrim",
+        "InteriorWall",
+        "ItemCloth",
+        "JointSessionZone",
+        "LaneMarkingWhite",
+        "LaneMarkingYellow",
+        "LightFixtureMetal",
+        "MarkerBlue",
+        "OfficeZone",
+        "PaintingCanvas",
+        "PlanterStone",
+        "PortraitCanvas",
+        "PresidentPodium",
+        "PressZone",
+        "PublicGallery",
+        "RoadCrackSealant",
+        "RotundaFloor",
+        "RotundaWall",
+        "SenateCarpet",
+        "SenateChair",
+        "SenateDesk",
+        "StatueBronze",
+        "StatueMarble",
+        "StepStone",
+        "StoneGrimeOverlay",
+        "StreetSignGreen",
+        "SupremeCourtZone",
+        "TrafficSignalRed",
+        "TreeCanopy",
+        "WarmLightGlass"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -7521.0,
+          -10429.0,
+          395.0
+        ],
+        "max": [
+          7521.0,
+          10200.5,
+          1379.0
+        ]
+      }
+    },
+    {
+      "path": "generated/meshes/capitol_gameplay_items.obj",
+      "vertices": 884,
+      "uvs": 2652,
+      "faces": 610,
+      "faces_with_uvs": 610,
+      "triangles": 1432,
+      "groups": 84,
+      "materials": [
+        "GameplayPickupPad",
+        "ItemBlade",
+        "ItemCloth",
+        "ItemGrip",
+        "ItemMetal",
+        "ItemOrganicBrown",
+        "ItemSprayCan",
+        "ItemWarningOrange",
+        "ItemWood",
+        "LaneMarkingWhite",
+        "MarkerBlue"
+      ],
+      "mtllibs": [
+        "capitol_materials.mtl"
+      ],
+      "bbox_cm": {
+        "min": [
+          -13470.0,
+          -12808.0,
+          8.0
+        ],
+        "max": [
+          -10530.0,
+          -11606.0,
+          190.0
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

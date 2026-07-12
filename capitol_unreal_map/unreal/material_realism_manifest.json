@@ -1,0 +1,883 @@
+{
+  "BuildingGeneric": {
+    "base_color": [
+      0.62,
+      0.61,
+      0.58
+    ],
+    "roughness": 0.86,
+    "metallic": 0.0,
+    "specular": 0.25,
+    "note": "Generic surrounding stone/concrete buildings"
+  },
+  "BuildingCapitol": {
+    "base_color": [
+      0.86,
+      0.84,
+      0.77
+    ],
+    "roughness": 0.72,
+    "metallic": 0.0,
+    "specular": 0.32,
+    "note": "Capitol building stone"
+  },
+  "CapitolStone": {
+    "base_color": [
+      0.82,
+      0.8,
+      0.72
+    ],
+    "roughness": 0.76,
+    "metallic": 0.0,
+    "specular": 0.3,
+    "note": "Light weathered limestone/sandstone"
+  },
+  "CapitolDome": {
+    "base_color": [
+      0.76,
+      0.76,
+      0.72
+    ],
+    "roughness": 0.58,
+    "metallic": 0.0,
+    "specular": 0.38,
+    "note": "Painted dome surface"
+  },
+  "ColumnStone": {
+    "base_color": [
+      0.88,
+      0.86,
+      0.79
+    ],
+    "roughness": 0.7,
+    "metallic": 0.0,
+    "specular": 0.34,
+    "note": "Columns and light stone trim"
+  },
+  "StepStone": {
+    "base_color": [
+      0.5,
+      0.49,
+      0.46
+    ],
+    "roughness": 0.9,
+    "metallic": 0.0,
+    "specular": 0.2,
+    "note": "Worn exterior steps"
+  },
+  "StoneGrimeOverlay": {
+    "base_color": [
+      0.24,
+      0.23,
+      0.2
+    ],
+    "roughness": 0.94,
+    "metallic": 0.0,
+    "specular": 0.12,
+    "opacity": 0.46,
+    "note": "Transparent exterior stone grime, runoff, discoloration, and chipped-edge overlay"
+  },
+  "GroundGrass": {
+    "base_color": [
+      0.13,
+      0.26,
+      0.1
+    ],
+    "roughness": 0.96,
+    "metallic": 0.0,
+    "specular": 0.12,
+    "note": "Campus ground cover"
+  },
+  "PlazaStone": {
+    "base_color": [
+      0.55,
+      0.53,
+      0.47
+    ],
+    "roughness": 0.88,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Paved plaza stone"
+  },
+  "RoadAsphalt": {
+    "base_color": [
+      0.035,
+      0.037,
+      0.04
+    ],
+    "roughness": 0.94,
+    "metallic": 0.0,
+    "specular": 0.14,
+    "note": "Matte asphalt"
+  },
+  "RoadPatchAsphalt": {
+    "base_color": [
+      0.03,
+      0.032,
+      0.034
+    ],
+    "roughness": 0.96,
+    "metallic": 0.0,
+    "specular": 0.12,
+    "note": "Darker public road repair patches"
+  },
+  "RoadCrackSealant": {
+    "base_color": [
+      0.01,
+      0.011,
+      0.012
+    ],
+    "roughness": 0.98,
+    "metallic": 0.0,
+    "specular": 0.08,
+    "note": "Matte crack sealant and road utility recesses"
+  },
+  "LaneMarkingWhite": {
+    "base_color": [
+      0.88,
+      0.88,
+      0.82
+    ],
+    "roughness": 0.74,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Painted white roadway markings"
+  },
+  "LaneMarkingYellow": {
+    "base_color": [
+      0.9,
+      0.68,
+      0.1
+    ],
+    "roughness": 0.72,
+    "metallic": 0.0,
+    "specular": 0.24,
+    "note": "Painted yellow roadway markings"
+  },
+  "SidewalkConcrete": {
+    "base_color": [
+      0.54,
+      0.54,
+      0.5
+    ],
+    "roughness": 0.9,
+    "metallic": 0.0,
+    "specular": 0.2,
+    "note": "Sidewalk concrete"
+  },
+  "CurbConcrete": {
+    "base_color": [
+      0.68,
+      0.68,
+      0.64
+    ],
+    "roughness": 0.88,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Raised concrete curb edges"
+  },
+  "BikeLaneGreen": {
+    "base_color": [
+      0.035,
+      0.28,
+      0.13
+    ],
+    "roughness": 0.78,
+    "metallic": 0.0,
+    "specular": 0.24,
+    "note": "Painted bike lane surface"
+  },
+  "BikeLanePost": {
+    "base_color": [
+      0.88,
+      0.86,
+      0.78
+    ],
+    "roughness": 0.62,
+    "metallic": 0.0,
+    "specular": 0.32,
+    "note": "Flexible lane marker posts"
+  },
+  "CrosswalkWhite": {
+    "base_color": [
+      0.88,
+      0.88,
+      0.82
+    ],
+    "roughness": 0.76,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Crossing marker paint"
+  },
+  "SignalMarker": {
+    "base_color": [
+      0.95,
+      0.68,
+      0.08
+    ],
+    "roughness": 0.45,
+    "metallic": 0.0,
+    "specular": 0.45,
+    "note": "Traffic signal/crossing marker placeholder"
+  },
+  "InteriorFloor": {
+    "base_color": [
+      0.56,
+      0.5,
+      0.43
+    ],
+    "roughness": 0.7,
+    "metallic": 0.0,
+    "specular": 0.28,
+    "note": "Generic polished interior floor"
+  },
+  "InteriorWall": {
+    "base_color": [
+      0.78,
+      0.74,
+      0.65
+    ],
+    "roughness": 0.82,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Interior wall plaster/stone"
+  },
+  "InteriorTrim": {
+    "base_color": [
+      0.48,
+      0.36,
+      0.22
+    ],
+    "roughness": 0.52,
+    "metallic": 0.0,
+    "specular": 0.42,
+    "clear_coat": 0.28,
+    "clear_coat_roughness": 0.42,
+    "note": "Wood trim"
+  },
+  "HouseCarpet": {
+    "base_color": [
+      0.045,
+      0.075,
+      0.25
+    ],
+    "roughness": 0.98,
+    "metallic": 0.0,
+    "specular": 0.05,
+    "note": "House blue carpet"
+  },
+  "SenateCarpet": {
+    "base_color": [
+      0.3,
+      0.035,
+      0.035
+    ],
+    "roughness": 0.98,
+    "metallic": 0.0,
+    "specular": 0.05,
+    "note": "Senate red carpet"
+  },
+  "DeskWood": {
+    "base_color": [
+      0.24,
+      0.12,
+      0.045
+    ],
+    "roughness": 0.46,
+    "metallic": 0.0,
+    "specular": 0.46,
+    "clear_coat": 0.42,
+    "clear_coat_roughness": 0.28,
+    "note": "Polished dark wood desks"
+  },
+  "ChairLeather": {
+    "base_color": [
+      0.045,
+      0.038,
+      0.03
+    ],
+    "roughness": 0.42,
+    "metallic": 0.0,
+    "specular": 0.52,
+    "clear_coat": 0.32,
+    "clear_coat_roughness": 0.34,
+    "note": "Dark leather chairs"
+  },
+  "BrassRail": {
+    "base_color": [
+      0.76,
+      0.56,
+      0.18
+    ],
+    "roughness": 0.34,
+    "metallic": 1.0,
+    "specular": 0.6,
+    "clear_coat": 0.36,
+    "clear_coat_roughness": 0.18,
+    "note": "Brass rails and trim"
+  },
+  "RotundaFloor": {
+    "base_color": [
+      0.72,
+      0.62,
+      0.45
+    ],
+    "roughness": 0.62,
+    "metallic": 0.0,
+    "specular": 0.34,
+    "note": "Rotunda floor stone"
+  },
+  "FloorWear": {
+    "base_color": [
+      0.36,
+      0.34,
+      0.3
+    ],
+    "roughness": 0.92,
+    "metallic": 0.0,
+    "specular": 0.16,
+    "opacity": 0.42,
+    "note": "Transparent public floor wear and scuff overlay"
+  },
+  "RotundaWall": {
+    "base_color": [
+      0.84,
+      0.79,
+      0.69
+    ],
+    "roughness": 0.7,
+    "metallic": 0.0,
+    "specular": 0.3,
+    "note": "Rotunda wall stone"
+  },
+  "HouseSeat": {
+    "base_color": [
+      0.08,
+      0.16,
+      0.42
+    ],
+    "roughness": 0.7,
+    "metallic": 0.0,
+    "specular": 0.3,
+    "note": "House seat upholstery"
+  },
+  "HouseDesk": {
+    "base_color": [
+      0.22,
+      0.13,
+      0.07
+    ],
+    "roughness": 0.46,
+    "metallic": 0.0,
+    "specular": 0.46,
+    "note": "House desks"
+  },
+  "SenateDesk": {
+    "base_color": [
+      0.27,
+      0.13,
+      0.055
+    ],
+    "roughness": 0.42,
+    "metallic": 0.0,
+    "specular": 0.48,
+    "note": "Senate desks"
+  },
+  "SenateChair": {
+    "base_color": [
+      0.065,
+      0.055,
+      0.045
+    ],
+    "roughness": 0.44,
+    "metallic": 0.0,
+    "specular": 0.5,
+    "note": "Senate chair upholstery/leather"
+  },
+  "PublicGallery": {
+    "base_color": [
+      0.2,
+      0.23,
+      0.24
+    ],
+    "roughness": 0.68,
+    "metallic": 0.0,
+    "specular": 0.28,
+    "note": "Gallery risers/platforms"
+  },
+  "OfficeZone": {
+    "base_color": [
+      0.4,
+      0.46,
+      0.54
+    ],
+    "roughness": 0.76,
+    "metallic": 0.0,
+    "specular": 0.2,
+    "note": "Generic office/support zone floor"
+  },
+  "MarkerBlue": {
+    "base_color": [
+      0.075,
+      0.25,
+      0.78
+    ],
+    "roughness": 0.6,
+    "metallic": 0.0,
+    "specular": 0.35,
+    "note": "Blue public marker"
+  },
+  "StreetSignGreen": {
+    "base_color": [
+      0.02,
+      0.18,
+      0.075
+    ],
+    "roughness": 0.42,
+    "metallic": 0.0,
+    "specular": 0.42,
+    "note": "Street sign placeholder material"
+  },
+  "DoorGlass": {
+    "base_color": [
+      0.36,
+      0.58,
+      0.72
+    ],
+    "roughness": 0.08,
+    "metallic": 0.0,
+    "specular": 0.8,
+    "clear_coat": 0.85,
+    "clear_coat_roughness": 0.04,
+    "opacity": 0.45,
+    "note": "Revolving door glass"
+  },
+  "DoorMetal": {
+    "base_color": [
+      0.14,
+      0.15,
+      0.16
+    ],
+    "roughness": 0.3,
+    "metallic": 1.0,
+    "specular": 0.55,
+    "clear_coat": 0.22,
+    "clear_coat_roughness": 0.22,
+    "note": "Door metal and dark recesses"
+  },
+  "PresidentPodium": {
+    "base_color": [
+      0.16,
+      0.075,
+      0.028
+    ],
+    "roughness": 0.42,
+    "metallic": 0.0,
+    "specular": 0.48,
+    "clear_coat": 0.44,
+    "clear_coat_roughness": 0.26,
+    "note": "Joint-session podium wood"
+  },
+  "JointSessionZone": {
+    "base_color": [
+      0.35,
+      0.3,
+      0.22
+    ],
+    "roughness": 0.76,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Generic joint-session overflow zone"
+  },
+  "SupremeCourtZone": {
+    "base_color": [
+      0.13,
+      0.13,
+      0.13
+    ],
+    "roughness": 0.7,
+    "metallic": 0.0,
+    "specular": 0.3,
+    "note": "Generic Supreme Court seating zone"
+  },
+  "CabinetZone": {
+    "base_color": [
+      0.055,
+      0.12,
+      0.26
+    ],
+    "roughness": 0.72,
+    "metallic": 0.0,
+    "specular": 0.28,
+    "note": "Generic Cabinet seating zone"
+  },
+  "DiplomaticZone": {
+    "base_color": [
+      0.2,
+      0.12,
+      0.26
+    ],
+    "roughness": 0.72,
+    "metallic": 0.0,
+    "specular": 0.28,
+    "note": "Generic diplomatic corps zone"
+  },
+  "PressZone": {
+    "base_color": [
+      0.12,
+      0.15,
+      0.15
+    ],
+    "roughness": 0.78,
+    "metallic": 0.0,
+    "specular": 0.24,
+    "note": "Generic press/camera pool zone"
+  },
+  "StatueMarble": {
+    "base_color": [
+      0.74,
+      0.7,
+      0.62
+    ],
+    "roughness": 0.68,
+    "metallic": 0.0,
+    "specular": 0.34,
+    "note": "Schematic marble or stone statue material"
+  },
+  "StatueBronze": {
+    "base_color": [
+      0.3,
+      0.2,
+      0.1
+    ],
+    "roughness": 0.46,
+    "metallic": 1.0,
+    "specular": 0.56,
+    "clear_coat": 0.24,
+    "clear_coat_roughness": 0.24,
+    "note": "Schematic bronze statue material"
+  },
+  "ArtFrameGold": {
+    "base_color": [
+      0.76,
+      0.54,
+      0.14
+    ],
+    "roughness": 0.32,
+    "metallic": 1.0,
+    "specular": 0.62,
+    "clear_coat": 0.38,
+    "clear_coat_roughness": 0.16,
+    "note": "Gilded art and picture frame trim"
+  },
+  "PaintingCanvas": {
+    "base_color": [
+      0.38,
+      0.24,
+      0.15
+    ],
+    "roughness": 0.82,
+    "metallic": 0.0,
+    "specular": 0.2,
+    "note": "Warm historical painting canvas placeholder"
+  },
+  "PortraitCanvas": {
+    "base_color": [
+      0.22,
+      0.16,
+      0.12
+    ],
+    "roughness": 0.84,
+    "metallic": 0.0,
+    "specular": 0.18,
+    "note": "Portrait canvas placeholder"
+  },
+  "WarmLightGlass": {
+    "base_color": [
+      1.0,
+      0.78,
+      0.42
+    ],
+    "roughness": 0.18,
+    "metallic": 0.0,
+    "specular": 0.78,
+    "clear_coat": 0.74,
+    "clear_coat_roughness": 0.08,
+    "opacity": 0.72,
+    "note": "Warm translucent glass light shade"
+  },
+  "LightFixtureMetal": {
+    "base_color": [
+      0.16,
+      0.13,
+      0.09
+    ],
+    "roughness": 0.36,
+    "metallic": 1.0,
+    "specular": 0.58,
+    "clear_coat": 0.30,
+    "clear_coat_roughness": 0.20,
+    "note": "Dark metal light fixture hardware"
+  },
+  "FacadeWindow": {
+    "base_color": [
+      0.08,
+      0.13,
+      0.16
+    ],
+    "roughness": 0.12,
+    "metallic": 0.0,
+    "specular": 0.72,
+    "clear_coat": 0.78,
+    "clear_coat_roughness": 0.06,
+    "opacity": 0.72,
+    "note": "Dark public facade window glass"
+  },
+  "StreetLightPole": {
+    "base_color": [
+      0.11,
+      0.11,
+      0.1
+    ],
+    "roughness": 0.34,
+    "metallic": 1.0,
+    "specular": 0.52,
+    "clear_coat": 0.20,
+    "clear_coat_roughness": 0.22,
+    "note": "Exterior streetlight and sign post metal"
+  },
+  "StreetLightGlass": {
+    "base_color": [
+      1.0,
+      0.86,
+      0.54
+    ],
+    "roughness": 0.16,
+    "metallic": 0.0,
+    "specular": 0.78,
+    "clear_coat": 0.72,
+    "clear_coat_roughness": 0.08,
+    "opacity": 0.7,
+    "note": "Warm exterior streetlight glass"
+  },
+  "TrafficSignalHousing": {
+    "base_color": [
+      0.045,
+      0.052,
+      0.045
+    ],
+    "roughness": 0.44,
+    "metallic": 0.55,
+    "specular": 0.42,
+    "clear_coat": 0.18,
+    "clear_coat_roughness": 0.28,
+    "note": "Dark traffic signal housing"
+  },
+  "TrafficSignalRed": {
+    "base_color": [
+      0.85,
+      0.06,
+      0.035
+    ],
+    "roughness": 0.18,
+    "metallic": 0.0,
+    "specular": 0.65,
+    "clear_coat": 0.68,
+    "clear_coat_roughness": 0.10,
+    "note": "Red traffic signal lens"
+  },
+  "TrafficSignalYellow": {
+    "base_color": [
+      0.95,
+      0.68,
+      0.05
+    ],
+    "roughness": 0.18,
+    "metallic": 0.0,
+    "specular": 0.65,
+    "clear_coat": 0.68,
+    "clear_coat_roughness": 0.10,
+    "note": "Yellow traffic signal lens"
+  },
+  "TrafficSignalGreen": {
+    "base_color": [
+      0.04,
+      0.5,
+      0.16
+    ],
+    "roughness": 0.18,
+    "metallic": 0.0,
+    "specular": 0.65,
+    "clear_coat": 0.68,
+    "clear_coat_roughness": 0.10,
+    "note": "Green traffic signal lens"
+  },
+  "TreeTrunk": {
+    "base_color": [
+      0.25,
+      0.13,
+      0.055
+    ],
+    "roughness": 0.82,
+    "metallic": 0.0,
+    "specular": 0.18,
+    "note": "Tree trunk bark"
+  },
+  "TreeCanopy": {
+    "base_color": [
+      0.075,
+      0.28,
+      0.1
+    ],
+    "roughness": 0.96,
+    "metallic": 0.0,
+    "specular": 0.12,
+    "note": "Street tree canopy"
+  },
+  "PlanterStone": {
+    "base_color": [
+      0.52,
+      0.5,
+      0.45
+    ],
+    "roughness": 0.88,
+    "metallic": 0.0,
+    "specular": 0.22,
+    "note": "Stone planter ring"
+  },
+  "BenchWood": {
+    "base_color": [
+      0.28,
+      0.14,
+      0.055
+    ],
+    "roughness": 0.5,
+    "metallic": 0.0,
+    "specular": 0.42,
+    "clear_coat": 0.26,
+    "clear_coat_roughness": 0.36,
+    "note": "Public bench wood"
+  },
+  "BollardMetal": {
+    "base_color": [
+      0.12,
+      0.12,
+      0.115
+    ],
+    "roughness": 0.36,
+    "metallic": 1.0,
+    "specular": 0.5,
+    "clear_coat": 0.20,
+    "clear_coat_roughness": 0.22,
+    "note": "Public bollards and bench hardware"
+  },
+  "GameplayPickupPad": {
+    "base_color": [
+      0.12,
+      0.18,
+      0.24
+    ],
+    "roughness": 0.72,
+    "metallic": 0.0,
+    "specular": 0.25,
+    "note": "Non-historical gameplay pickup display pad"
+  },
+  "ItemWood": {
+    "base_color": [
+      0.3,
+      0.15,
+      0.06
+    ],
+    "roughness": 0.5,
+    "metallic": 0.0,
+    "specular": 0.42,
+    "clear_coat": 0.24,
+    "clear_coat_roughness": 0.38,
+    "note": "Abstract gameplay item wood"
+  },
+  "ItemMetal": {
+    "base_color": [
+      0.16,
+      0.16,
+      0.15
+    ],
+    "roughness": 0.34,
+    "metallic": 1.0,
+    "specular": 0.52,
+    "clear_coat": 0.20,
+    "clear_coat_roughness": 0.22,
+    "note": "Abstract gameplay item metal"
+  },
+  "ItemGrip": {
+    "base_color": [
+      0.055,
+      0.055,
+      0.052
+    ],
+    "roughness": 0.48,
+    "metallic": 0.0,
+    "specular": 0.42,
+    "note": "Abstract gameplay item grip"
+  },
+  "ItemSprayCan": {
+    "base_color": [
+      0.88,
+      0.3,
+      0.08
+    ],
+    "roughness": 0.38,
+    "metallic": 0.65,
+    "specular": 0.5,
+    "clear_coat": 0.26,
+    "clear_coat_roughness": 0.20,
+    "note": "Abstract irritant spray can prop"
+  },
+  "ItemWarningOrange": {
+    "base_color": [
+      0.95,
+      0.38,
+      0.04
+    ],
+    "roughness": 0.42,
+    "metallic": 0.35,
+    "specular": 0.48,
+    "clear_coat": 0.24,
+    "clear_coat_roughness": 0.24,
+    "note": "Abstract warning-orange spray can prop"
+  },
+  "ItemOrganicBrown": {
+    "base_color": [
+      0.22,
+      0.11,
+      0.045
+    ],
+    "roughness": 0.96,
+    "metallic": 0.0,
+    "specular": 0.06,
+    "note": "Non-graphic throwable organic prop"
+  },
+  "ItemBlade": {
+    "base_color": [
+      0.7,
+      0.7,
+      0.66
+    ],
+    "roughness": 0.34,
+    "metallic": 1.0,
+    "specular": 0.58,
+    "clear_coat": 0.28,
+    "clear_coat_roughness": 0.18,
+    "note": "Abstract blade material for game prop"
+  },
+  "ItemCloth": {
+    "base_color": [
+      0.72,
+      0.06,
+      0.04
+    ],
+    "roughness": 0.82,
+    "metallic": 0.0,
+    "specular": 0.16,
+    "note": "Abstract flag cloth material"
+  }
+}

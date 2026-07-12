@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "count": 18,
+  "items": [
+    {
+      "avatar_id": "archive_ref_7prkirhg_bearded_v1",
+      "source_reference": "archive_ref_7prkirhg_bearded",
+      "path": "avatars/renders/archive_ref_7prkirhg_bearded_v1.png"
+    },
+    {
+      "avatar_id": "archive_ref_xmysi3lp_v1",
+      "source_reference": "archive_ref_xmysi3lp",
+      "path": "avatars/renders/archive_ref_xmysi3lp_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0016_blamarnell_v1",
+      "source_reference": "individual_row_0016_blamarnell",
+      "path": "avatars/renders/individual_row_0016_blamarnell_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0002_bugzie_v1",
+      "source_reference": "individual_row_0002_bugzie",
+      "path": "avatars/renders/individual_row_0002_bugzie_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0009_bikerbern_v1",
+      "source_reference": "individual_row_0009_bikerbern",
+      "path": "avatars/renders/individual_row_0009_bikerbern_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0020_dioncini_v1",
+      "source_reference": "individual_row_0020_dioncini",
+      "path": "avatars/renders/individual_row_0020_dioncini_v1.png"
+    },
+    {
+      "avatar_id": "joseph_fischer_v1",
+      "source_reference": "joseph_fischer",
+      "path": "avatars/renders/joseph_fischer_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0006_frankscavo_v1",
+      "source_reference": "individual_row_0006_frankscavo",
+      "path": "avatars/renders/individual_row_0006_frankscavo_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0011_alexjones_v1",
+      "source_reference": "individual_row_0011_alexjones",
+      "path": "avatars/renders/individual_row_0011_alexjones_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0004_pamhemphill_v1",
+      "source_reference": "individual_row_0004_pamhemphill",
+      "path": "avatars/renders/individual_row_0004_pamhemphill_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0007_owenshroyer_v1",
+      "source_reference": "individual_row_0007_owenshroyer",
+      "path": "avatars/renders/individual_row_0007_owenshroyer_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0010_bikersfor45_v1",
+      "source_reference": "individual_row_0010_bikersfor45",
+      "path": "avatars/renders/individual_row_0010_bikersfor45_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0013_anthonyaguero_v1",
+      "source_reference": "individual_row_0013_anthonyaguero",
+      "path": "avatars/renders/individual_row_0013_anthonyaguero_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0015_antoniolamotta_v1",
+      "source_reference": "individual_row_0015_antoniolamotta",
+      "path": "avatars/renders/individual_row_0015_antoniolamotta_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0018_cjpearson_v1",
+      "source_reference": "individual_row_0018_cjpearson",
+      "path": "avatars/renders/individual_row_0018_cjpearson_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0019_darleneswaffar_v1",
+      "source_reference": "individual_row_0019_darleneswaffar",
+      "path": "avatars/renders/individual_row_0019_darleneswaffar_v1.png"
+    },
+    {
+      "avatar_id": "individual_row_0021_dougmastriano_v1",
+      "source_reference": "individual_row_0021_dougmastriano",
+      "path": "avatars/renders/individual_row_0021_dougmastriano_v1.png"
+    },
+    {
+      "avatar_id": "individuals_sheet_reference_v1",
+      "source_reference": "individuals_sheet_reference",
+      "path": "avatars/renders/individuals_sheet_reference_v1.png"
+    }
+  ]
+}

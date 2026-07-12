@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "avatar_id": "joseph_fischer",
+  "display_name": "Joseph Fischer",
+  "aliases": [
+    "Joseph Fisher"
+  ],
+  "avatar_type": "real_person_reference_metadata",
+  "status": "metadata_only",
+  "source_policy": {
+    "external_images_are_not_vendored": true,
+    "license_note": "External news images are referenced by URL only. Do not commit or redistribute source images without a separate license review.",
+    "neutrality_note": "This record is source-attributed avatar reference metadata and should not imply guilt, conviction, or factual claims beyond cited public sources.",
+    "yt_dlp_scope": "yt-dlp is used only against the NBC article page to capture embedded media metadata. Direct image URLs are kept as external visual references only."
+  },
+  "source_page": {
+    "id": "nbcnews_rcna147421",
+    "publisher": "NBC News",
+    "url": "https://www.nbcnews.com/politics/justice-department/supreme-court-tackles-jan-6-obstruction-charge-trump-case-looming-rcna147421",
+    "retrieved_utc": "2026-07-05T19:22:05Z",
+    "retrieval_tool": "yt-dlp 2026.06.09",
+    "retrieval_command": "yt-dlp --force-generic --skip-download --print <fields> <source_page.url>",
+    "retrieval_target": "source_page.url only",
+    "yt_dlp_extractor": "generic",
+    "yt_dlp_forced_generic": true,
+    "yt_dlp_id": "supreme-court-tackles-jan-6-obstruction-charge-trump-case-looming-rcna147421",
+    "yt_dlp_title": "Videos show Joseph Fischer's involvement in the Jan. 6 Capitol riot",
+    "yt_dlp_upload_date": "20240413",
+    "yt_dlp_duration_seconds": 76.0,
+    "yt_dlp_thumbnail": "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1200-630,f_auto,q_auto:best/rockcms/2024-04/240402-donald-trump-january-6-se-319p-36d71e.jpg",
+    "yt_dlp_manifest_url": "https://prodamdnewsencoding.akamaized.net/out/v1/1d0ab8bb06d14424b8fcf24be762b062/43b6f121beb24ffaa1509325e7e23fb2/15bb94d4cae942ed8a198cc8f63db8ed/d286a97445514ab3a7c00bb19823533b/f8fdd6ff3a2a47d6ad0e7c243092b4e7/index_2.m3u8",
+    "note": "The NBC-specific yt-dlp extractor errored on this page, so the generic extractor was forced and successfully found the embedded media metadata."
+  },
+  "external_visual_references": [
+    {
+      "id": "nbcnews_joseph_fischer_image",
+      "publisher": "NBC News",
+      "url": "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-560w,f_avif,q_auto:eco,dpr_2/rockcms/2024-04/240412-joseph-fischer-se-531p-c1cd23.jpg",
+      "retrieval_tool": "external URL reference only",
+      "observed_file_type": "AVIF image served from .jpg URL",
+      "local_cache_committed": false
+    },
+    {
+      "id": "abc27_joseph_fischer_image",
+      "publisher": "ABC27",
+      "url": "https://www.abc27.com/wp-content/uploads/sites/55/2021/02/Joseph-Fischer.png",
+      "retrieval_tool": "external URL reference only",
+      "observed_file_type": "PNG image, 922x719, RGBA",
+      "local_cache_committed": false
+    }
+  ],
+  "visual_reference_notes": {
+    "source": "Derived from provided external reference image URLs for avatar art direction only.",
+    "high_level_appearance": [
+      "light-skinned older adult male",
+      "heavyset face and neck",
+      "short thinning brown-gray hair",
+      "mustache and goatee",
+      "neutral forward-facing expression in the ABC27 reference image"
+    ],
+    "avoid": [
+      "Do not include news outlet graphics or watermarks in generated avatar assets.",
+      "Do not include inmate/prison context unless explicitly needed for a cited historical reference scene.",
+      "Do not infer personal details not present in source metadata."
+    ]
+  },
+  "avatar_generation_guidance": {
+    "preferred_reference_mode": "Use external URLs as human art references; keep generated game assets clearly production-created.",
+    "metahuman_notes": [
+      "Create a realistic adult male face with heavyset proportions, short thinning hair, mustache, and goatee.",
+      "Use neutral expression and front-facing capture for base avatar setup.",
+      "Separate identity/source metadata from any generated mesh or texture asset."
+    ]
+  }
+}
