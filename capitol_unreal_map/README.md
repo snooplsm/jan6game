@@ -539,3 +539,11 @@ Fab grass dependencies, 32 grassable grounds surfaces, hardscape exclusions,
 historical road and bike-lane exclusions, and the public reflecting-pool record.
 The Water handoff specifies a shallow, nearly still pool suitable for Lumen and
 optional planar reflections. It does not describe restricted infrastructure.
+
+The live reflecting-pool instance explicitly disables waves, river behavior,
+ocean foam, lake transitions, and caustics. Its final winter-water tuning uses
+0.075 roughness, physically typical 0.5 specular, low 0.025/0.04 near/far
+refraction, reduced near/far normal strengths, dark neutral albedo/scattering,
+and increased shallow-depth absorption. The remaining blue response in direct
+inspection views is predominantly reflected January sky rather than blue water
+color.
