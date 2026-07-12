@@ -51,6 +51,7 @@ REQUIRED_HIGH_FIDELITY_GATES = {
     "licensing",
 }
 REQUIRED_HIGH_FIDELITY_ROLES = {
+    "brick_civic_facades",
     "us_capitol_exterior",
     "dc_street_furniture",
     "public_capitol_interior",

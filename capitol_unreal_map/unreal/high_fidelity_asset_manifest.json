@@ -99,6 +99,18 @@
       "current_state": "osm_dcgis_massing_with_procedural_detail",
       "required_result": "Reusable high-resolution facade kits applied to street-level priority buildings while preserving historical footprints and audited heights.",
       "status": "reference_and_modular_kit_required"
+    },
+    {
+      "priority": 5,
+      "role": "brick_civic_facades",
+      "current_state": "generic_context_masonry_without_authored_brick_asset",
+      "required_result": "Licensed high-resolution modular brick facade kit with authored brick and mortar geometry or displacement-ready material, real PBR maps, corner/arch/lintel modules, and historically reviewed bond/color variants for close-view civic buildings including the Capitol Power Plant.",
+      "status": "licensed_asset_or_reference_modeled_kit_required",
+      "constraints": [
+        "Do not simulate final brickwork by tinting the generic masonry shader or upscaling generated flat textures.",
+        "Keep the Capitol Power Plant under generic context masonry until a reviewed brick kit is available rather than misclassifying it as Capitol limestone.",
+        "Validate brick scale, bond, mortar depth, openings, and January weathering in a first-person viewport before acceptance."
+      ]
     }
   ],
   "explicit_rejections": [

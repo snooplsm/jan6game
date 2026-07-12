@@ -600,6 +600,11 @@ PN Grass Library, Maxtree Vol. 60, and project-owned winter Hornbeam derivative
 are catalogued there with seasonal and placement constraints; the generic
 plastic barricade download is explicitly rejected. The highest-priority missing
 replacement remains a modular high-resolution Capitol exterior.
+The asset manifest also carries a separate brick-civic-facade replacement
+track: the Capitol Power Plant and other reviewed brick buildings must use a
+licensed or reference-modeled modular brick kit with real PBR maps and credible
+brick/mortar depth. Recoloring generic masonry or upscaling a generated flat
+texture is explicitly insufficient.
 
 ### PCG lawns and reflecting pool
 
