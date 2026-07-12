@@ -62,6 +62,9 @@ It contains:
 - `generated/data/capitol_scene_metadata.json`
 - `generated/data/capitol_package_validation.json`
 - `generated/data/material_texture_manifest.json`
+- `generated/data/pcg_landscape_manifest.json` for Unreal PCG lawn surfaces,
+  hardscape/transport exclusions, the winter vegetation profile, and the
+  Capitol Reflecting Pool Water-plugin handoff
 - `generated/data/unreal_import_report.json` after the Unreal import script is run
 - `generated/textures/*_{basecolor,normal,roughness,ambient_occlusion}.png`
 - `unreal/material_realism_manifest.json`
@@ -78,6 +81,7 @@ From the repository root:
 python3 capitol_unreal_map/scripts/generate_material_textures.py
 python3 capitol_unreal_map/scripts/fetch_dcgis_planimetrics.py
 python3 capitol_unreal_map/scripts/build_capitol_unreal_map.py
+python3 capitol_unreal_map/scripts/build_pcg_landscape_manifest.py
 ```
 
 Texture generation defaults to production 4096x4096 PNG maps. For a quick local preview run, override the size explicitly:
@@ -502,3 +506,14 @@ The current direction is Unreal 5.8, first-person scale, most-compatible static 
 - reference-modeled close-range facade modules beyond the current procedural arch trim, keystone, grime, bracket, pilaster, doorway, dentil, column-groove, frieze-panel, and pediment-relief pass
 - curated real PBR texture source replacement where licensing permits
 - higher-fidelity sculpted modular meshes for stone ornament, gallery surfaces, labels, and worn floor/furniture surfaces
+
+### PCG lawns and reflecting pool
+
+Run `scripts/build_pcg_landscape_manifest.py` after rebuilding the scene
+metadata. The generated manifest keeps grass generation deterministic and
+historically seasonal: January 6 uses a reduced-density, muted Mid-Atlantic
+winter lawn profile rather than saturated summer turf. It identifies the local
+Fab grass dependencies, 32 grassable grounds surfaces, hardscape exclusions,
+historical road and bike-lane exclusions, and the public reflecting-pool record.
+The Water handoff specifies a shallow, nearly still pool suitable for Lumen and
+optional planar reflections. It does not describe restricted infrastructure.
