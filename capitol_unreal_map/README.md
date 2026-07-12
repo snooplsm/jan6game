@@ -424,6 +424,8 @@ The corrected drum windows also carry separate shallow stone lintels and sills, 
 
 The lantern glazing now carries 16 tangent sill/lintel pairs (32 shallow stone pieces). Two additional shell-rib/course experiments were rejected and removed before save because direct viewport inspection showed shelf-like or layered-cone artifacts; the corrected smooth hemisphere remains intact.
 
+The former cone-only Statue of Freedom placeholder is preserved but hidden beneath a nine-piece bronze silhouette with draped lower body, torso, head, simplified headdress, arms, shield, sword, and sword point. It improves landmark readability from public ground views but remains a schematic silhouette rather than a sculptural replica.
+
 Public step and plaza stone receive a still subtler version of the same treatment: 16 percent localized wear-tone variation on steps and 14 percent broad tone variation on plaza paving. Their roughness remains 0.82 and 0.86, respectively, retaining a matte weather-exposed appearance.
 
 The dome remains interpreted as painted cast iron rather than bare metal or limestone. Its live shader now adds only 12 percent broad cool-gray exposure/repaint variation, while retaining the existing 0.64 roughness and 0.28 specular response.
