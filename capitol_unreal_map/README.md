@@ -460,6 +460,8 @@ The shared public-entry materials now use explicit daylight response rather than
 
 The public approach plaza and step slots now use differentiated dry limestone response. Broad plaza paving uses 0.82 roughness and 0.20 specular, while frequently walked step surfaces use a slightly smoother 0.74 roughness and 0.22 specular to suggest restrained foot polishing; both remain non-metallic. Walkable geometry, nosing overlays, and collision remain unchanged.
 
+The baked `GroundGrass` slot now preserves its existing dark muted January color while using explicit dry winter-turf response: 0.92 roughness, 0.12 specular, and zero metallic. This brings non-PCG grass patches into the same seasonal lighting range as the winter lawn base without changing density, placement, or hardscape exclusions.
+
 The shared surrounding-building facade shader now uses 34 percent broad warm-gray masonry variation with 0.82 roughness and 0.18 specular, improving tonal separation across the mapped context without changing footprints or heights. Context windows now use a muted winter-sky Fresnel blend with 0.22 roughness and 0.45 specular instead of nearly black flat panels.
 
 The reusable leafless-tree bark shader now replaces its former single flat brown and inherited mid-gloss response with 24 percent gray-brown patch variation, 0.88 roughness, and 0.16 specular. This improves all placed January trees without changing their source mesh, transforms, or count.
