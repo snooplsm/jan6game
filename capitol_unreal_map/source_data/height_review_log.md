@@ -54,6 +54,18 @@ defensible roof-to-ground measurement.
   than an exact or measured exterior height. The underground parking levels do
   not contribute to the visible extrusion.
 
+## O'Neill House Office Building (OSM way 48037324)
+
+- Current model height: 23.80 m.
+- Reviewed public source: [Architect of the Capitol, O'Neill House Office Building](https://www.aoc.gov/explore-capitol-campus/buildings-grounds/house-office-buildings/oneill).
+- Confirmed facts: the renovation added a seven-story central atrium and a
+  six-story north entrance atrium; the building reopened for federal occupancy
+  in 2014 and transferred to House ownership in 2017.
+- Decision: retain the existing seven-level, 23.80 m visual estimate and upgrade
+  its provenance from an OSM-only level count to an authoritative public
+  level-count estimate. Do not treat the atrium statement as an exact exterior
+  height.
+
 ## Review rule
 
 Do not promote these targets to `source_backed_height` based on these sources.

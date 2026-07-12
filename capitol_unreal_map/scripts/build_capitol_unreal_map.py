@@ -1346,6 +1346,10 @@ def parse_height(
         # central atrium as 90 feet high. This supports a level-count estimate,
         # not an exact exterior roof height.
         66733226: 9.0,
+        # The Architect of the Capitol documents O'Neill's seven-story central
+        # atrium and its 2014 post-renovation reopening. The historical OSM tag
+        # already states seven levels; this entry upgrades provenance only.
+        48037324: 7.0,
     }
     if way_id in curated_public_levels:
         return min(max(curated_public_levels[way_id] * 3.4, 3.0), 70.0), "curated_public_level_count_estimate"
