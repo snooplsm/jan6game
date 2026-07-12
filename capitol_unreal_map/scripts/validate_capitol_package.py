@@ -1958,6 +1958,11 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["replaced_buildings"] = len(replaced_buildings)
     building_details = exterior.get("building_details", [])
     building_detail_kinds = {detail.get("kind") for detail in building_details}
+    courtyard_opening_proxies = [
+        detail
+        for detail in building_details
+        if detail.get("kind") == "surrounding_building_courtyard_opening_proxy"
+    ]
     detailed_building_ids = {
         detail.get("building_id")
         for detail in building_details
@@ -1978,6 +1983,7 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     }
     summary["building_details"] = len(building_details)
     summary["building_detail_kinds"] = len(building_detail_kinds)
+    summary["courtyard_opening_proxies"] = len(courtyard_opening_proxies)
     summary["detailed_civic_relations"] = len(EXPECTED_DETAILED_CIVIC_RELATIONS & detailed_building_ids)
     streetscape_props = exterior.get("streetscape_props", [])
     streetscape_prop_kinds = {prop.get("kind") for prop in streetscape_props}
@@ -2020,6 +2026,21 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
     if summary["buildings"] < 2000:
         error(errors, "expected at least 2000 surrounding building footprints")
+    expected_inner_way_ids = {
+        inner_way_id
+        for building in relation_buildings
+        for inner_way_id in building.get("inner_way_ids", [])
+        if isinstance(inner_way_id, int)
+    }
+    proxy_inner_way_ids = {
+        proxy.get("source_inner_way_id")
+        for proxy in courtyard_opening_proxies
+        if isinstance(proxy.get("source_inner_way_id"), int)
+    }
+    if proxy_inner_way_ids != expected_inner_way_ids:
+        error(errors, "courtyard-opening proxies must cover every historical building relation inner ring exactly once")
+    if any(proxy.get("boolean_cut") is not False for proxy in courtyard_opening_proxies):
+        error(errors, "courtyard-opening proxies must remain explicitly labeled as non-boolean visual proxies")
     missing_detailed_civic_relations = EXPECTED_DETAILED_CIVIC_RELATIONS - detailed_building_ids
     if missing_detailed_civic_relations:
         error(

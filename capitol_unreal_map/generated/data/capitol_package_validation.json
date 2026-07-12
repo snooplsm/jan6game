@@ -35,8 +35,9 @@
       },
       "height_review_targets": 40
     },
-    "building_details": 12558,
-    "building_detail_kinds": 50,
+    "building_details": 12577,
+    "building_detail_kinds": 51,
+    "courtyard_opening_proxies": 19,
     "detailed_civic_relations": 9,
     "streetscape_props": 7139,
     "streetscape_prop_kinds": 67,
@@ -184,12 +185,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 270978,
-      "uvs": 812934,
-      "faces": 191179,
-      "faces_with_uvs": 191179,
-      "triangles": 430576,
-      "groups": 27845,
+      "vertices": 271166,
+      "uvs": 813122,
+      "faces": 191198,
+      "faces_with_uvs": 191198,
+      "triangles": 430726,
+      "groups": 27864,
       "materials": [
         "BrassRail",
         "BuildingCapitol",

@@ -1644,6 +1644,11 @@ def sample_polyline(points: list[tuple[float, float]], spacing: float) -> list[t
 def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, Any]]) -> dict[str, Any]:
     buildings = ObjWriter("capitol_exterior_buildings")
     roads = ObjWriter("capitol_exterior_roads_bike_lanes_markers")
+    source_way_by_id = {
+        int(way["id"]): way
+        for way in ways
+        if way.get("osm_element_type", "way") == "way"
+    }
     dcgis_elevation_model = load_dcgis_elevation_points()
     dcgis_rooftop_points = dcgis_elevation_model.get("rooftop_points", [])
     dcgis_ground_points = dcgis_elevation_model.get("ground_points", [])
@@ -4628,6 +4633,35 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             else:
                 material = "BuildingCapitol" if is_capitol else "BuildingGeneric"
                 buildings.add_extruded_polygon(points, 0.0, height, f"building_{name}_{way['id']}", material)
+                if osm_element_type == "relation":
+                    for courtyard_index, inner_way_id in enumerate(way.get("inner_way_ids", []), start=1):
+                        inner_way = source_way_by_id.get(int(inner_way_id))
+                        inner_points = way_points(inner_way, nodes) if inner_way else []
+                        if len(inner_points) < 3:
+                            continue
+                        courtyard_name = f"building_{name}_{way['id']}_courtyard_opening_proxy_{courtyard_index:02d}"
+                        buildings.add_flat_polygon(
+                            inner_points,
+                            height + 0.025,
+                            courtyard_name,
+                            "FacadeWindow",
+                        )
+                        courtyard_cx = sum(point[0] for point in inner_points) / len(inner_points)
+                        courtyard_cy = sum(point[1] for point in inner_points) / len(inner_points)
+                        add_building_detail_record(
+                            courtyard_name,
+                            "surrounding_building_courtyard_opening_proxy",
+                            int(way["id"]),
+                            name,
+                            (courtyard_cx, courtyard_cy, height + 0.025),
+                            {
+                                "public_accuracy": "source_aligned_public_historical_inner_ring_proxy",
+                                "source_relation_id": int(way["id"]),
+                                "source_inner_way_id": int(inner_way_id),
+                                "boolean_cut": False,
+                                "replacement_note": "Replace with true courtyard void, inner facades, and roof-edge geometry in the modular high-fidelity pass.",
+                            },
+                        )
                 add_surrounding_building_visuals(way["id"], name, points, height, (cx, cy))
                 add_surrounding_building_rooftop_equipment_layer(way["id"], name, points, height, (cx, cy))
                 height_accuracy = building_height_accuracy_record(
