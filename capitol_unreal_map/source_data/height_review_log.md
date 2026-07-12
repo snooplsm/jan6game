@@ -26,8 +26,24 @@ defensible roof-to-ground measurement.
 - Decision: retain the 27.67 m height estimate. The published dimensions support
   footprint-scale review but do not state exterior height.
 
+## Eric E. Hotung International Law Building (OSM way 48040818)
+
+- Current model height: 30.24 m.
+- Current source class: deterministic footprint/type/area estimate.
+- Target-era footprint evidence: the historical OSM/DCGIS record identifies the
+  building at 550 1st Street NW and carries a DCGIS capture date of April 4,
+  2005.
+- Reviewed public source: [Georgetown Law's Hotung building virtual tour](https://www.law.georgetown.edu/admissions-aid/connect-with-georgetown-law/virtual-tour/the-eric-e-hotung-international-law-center-building/).
+- Confirmed facts: completed in August 2004; six stories; therefore present and
+  in substantially its current institutional use well before January 6, 2021.
+- Decision: retain the 30.24 m estimate. The source confirms story count but not
+  total exterior height, roof height, floor-to-floor dimensions, or rooftop
+  mechanical height. Applying the generic 3.4 m-per-level rule would produce
+  20.4 m and is not defensible for this large institutional building without a
+  measured elevation or a building-specific floor-to-floor source.
+
 ## Review rule
 
-Do not promote either target to `source_backed_height` based on these sources.
+Do not promote these targets to `source_backed_height` based on these sources.
 Future promotion requires an explicit total height, measured elevation drawing,
 or a clean public rooftop-to-ground elevation match for the target footprint.
