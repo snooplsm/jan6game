@@ -2791,8 +2791,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 40 large-component primary sloped roof plane records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_roof_ridge_line"]) < 10:
         error(errors, "expected at least 10 large-component primary roof ridge-line records")
-    if len([detail for detail in facade_details if detail.get("kind") == "primary_roof_hip_shadow_line"]) < 40:
+    primary_roof_hip_lines = [
+        detail for detail in facade_details if detail.get("kind") == "primary_roof_hip_shadow_line"
+    ]
+    if len(primary_roof_hip_lines) < 40:
         error(errors, "expected at least 40 large-component primary roof hip shadow-line records")
+    if any(detail.get("geometry") != "slope_following_3d_beam" for detail in primary_roof_hip_lines):
+        error(errors, "primary roof hip lines must follow the 3D eave-to-ridge slope rather than float horizontally")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_surface_joint"]) < 55:
         error(errors, "expected at least 55 public roof surface joint records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_monitor_ridge"]) < 8:

@@ -430,6 +430,8 @@ The 28 close-view exterior portico columns now use 48-sided shafts and matching 
 
 The four principal exterior pediments now use eight continuous constant-thickness sloped stone prisms for their left/right raking cornices. These replace 40 stair-stepped box segments, eliminating the block staircase silhouette along the east, west, north, and south classical rooflines; validation rejects any return to stepped cornice geometry.
 
+The ten principal hipped-roof assemblies retain their existing 40 true sloped roof planes, but their 40 diagonal hip-shadow lines now use arbitrary 3D beams running continuously from each eave corner to its ridge endpoint. This replaces the former flat bars placed at average height, which intersected or floated above the pitched surfaces; validation requires every hip line to declare slope-following geometry.
+
 The corrected drum windows also carry separate shallow stone lintels and sills, 48 pieces total, aligned tangent to the drum. A rejected experimental radial-rib pass was removed before save after viewport verification showed incorrect outward orientation.
 
 The lantern glazing now carries 16 tangent sill/lintel pairs (32 shallow stone pieces). Two additional shell-rib/course experiments were rejected and removed before save because direct viewport inspection showed shelf-like or layered-cone artifacts; the corrected smooth hemisphere remains intact.

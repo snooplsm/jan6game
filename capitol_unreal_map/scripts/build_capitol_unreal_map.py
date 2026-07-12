@@ -701,6 +701,45 @@ class ObjWriter:
             next_index = (index + 1) % 4
             self.add_face([negative[index], negative[next_index], positive[next_index], positive[index]])
 
+    def add_beam_between(
+        self,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        width: float,
+        thickness: float,
+        name: str,
+        material: str,
+    ) -> None:
+        """Add an eight-vertex rectangular beam between arbitrary 3D points."""
+        ux = end[0] - start[0]
+        uy = end[1] - start[1]
+        uz = end[2] - start[2]
+        length = math.sqrt(ux * ux + uy * uy + uz * uz)
+        horizontal = math.hypot(ux, uy)
+        if length <= 1e-6 or horizontal <= 1e-6:
+            raise ValueError(f"3D beam {name!r} requires a nonzero horizontal span")
+        ux, uy, uz = ux / length, uy / length, uz / length
+        vx, vy, vz = -uy / horizontal, ux / horizontal, 0.0
+        wx = uy * vz - uz * vy
+        wy = uz * vx - ux * vz
+        wz = ux * vy - uy * vx
+        corners: list[int] = []
+        for point in (start, end):
+            for v_sign, w_sign in ((-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)):
+                corners.append(
+                    self.add_vertex(
+                        point[0] + vx * width * 0.5 * v_sign + wx * thickness * 0.5 * w_sign,
+                        point[1] + vy * width * 0.5 * v_sign + wy * thickness * 0.5 * w_sign,
+                        point[2] + vz * width * 0.5 * v_sign + wz * thickness * 0.5 * w_sign,
+                    )
+                )
+        self.add_group(name, material)
+        self.add_face([corners[0], corners[1], corners[2], corners[3]])
+        self.add_face([corners[7], corners[6], corners[5], corners[4]])
+        for index in range(4):
+            next_index = (index + 1) % 4
+            self.add_face([corners[index], corners[4 + index], corners[4 + next_index], corners[next_index]])
+
     def add_ring(
         self,
         center: tuple[float, float],
@@ -5626,21 +5665,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             start: tuple[float, float, float],
             end: tuple[float, float, float],
         ) -> None:
-            sx0, sy0, sz0 = start
-            ex0, ey0, ez0 = end
-            center_xy = ((sx0 + ex0) / 2.0, (sy0 + ey0) / 2.0)
-            length = math.hypot(ex0 - sx0, ey0 - sy0)
-            angle = math.atan2(ey0 - sy0, ex0 - sx0)
-            z_mid = (sz0 + ez0) / 2.0 + 0.016
+            raised_start = (start[0], start[1], start[2] + 0.016)
+            raised_end = (end[0], end[1], end[2] + 0.016)
+            center = tuple((a + b) / 2.0 for a, b in zip(raised_start, raised_end))
+            length = math.dist(raised_start, raised_end)
             group_name = f"{name}_{suffix}_hip_shadow_line"
-            obj.add_oriented_box(center_xy, (length, 0.11), 0.035, z_mid, angle, group_name, "StepStone")
+            obj.add_beam_between(raised_start, raised_end, 0.11, 0.035, group_name, "StepStone")
             add_facade_detail(
                 group_name,
                 "primary_roof_hip_shadow_line",
-                (center_xy[0], center_xy[1], z_mid + 0.018),
+                center,
                 {
                     "roof_zone": name,
                     "length_m": round(length, 3),
+                    "geometry": "slope_following_3d_beam",
                     "public_accuracy": "large_component_schematic_roof_form",
                 },
             )
