@@ -201,6 +201,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "Water",
+			"Enabled": true
+		},
+		{
 			"Name": "MCPClientToolset",
 			"Enabled": true
 		},
