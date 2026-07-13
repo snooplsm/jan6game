@@ -1638,6 +1638,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_recess_shadow_panel",
     "facade_arcade_shadow_bay",
     "primary_facade_bay_recess_depth",
+    "west_front_reference_lateral_stair",
+    "west_front_reference_lateral_stair_balustrade",
+    "west_front_reference_lower_arcade",
     "primary_facade_bay_side_return",
     "primary_facade_bay_lintel_sill",
     "facade_corner_quoin_block",
@@ -2776,6 +2779,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 24 public facade arcade shadow bay records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_recess_depth"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay recess-depth records")
+    if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lateral_stair"]) < 28:
+        error(errors, "expected both 14-tread west-front lateral stair flights")
+    if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lateral_stair_balustrade"]) < 2:
+        error(errors, "expected paired west-front lateral stair balustrade records")
+    if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lower_arcade"]) < 1:
+        error(errors, "expected the west-front lower terrace arcade reference record")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_side_return"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay side-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_lintel_sill"]) < 76:

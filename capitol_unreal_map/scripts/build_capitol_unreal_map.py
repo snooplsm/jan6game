@@ -9013,6 +9013,15 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         ("house_south_front", "north_south", -102.20, [-36.0, -27.0, -18.0, -9.0, 0.0, 9.0, 18.0, 27.0, 36.0], 1.68, 3.50, 9.95),
         ("senate_inner_south", "north_south", 39.05, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 1.68, 3.35, 9.70),
         ("house_inner_north", "north_south", -38.05, [-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0], 1.68, 3.35, 9.70),
+        (
+            "west_wing_return_facades",
+            "east_west",
+            -42.25,
+            [-92.0, -84.0, -76.0, -68.0, -60.0, -52.0, 52.0, 60.0, 68.0, 76.0, 84.0, 92.0],
+            1.68,
+            3.35,
+            9.70,
+        ),
     ]
     for args in primary_facade_bay_specs:
         add_primary_facade_bay_depths(*args)
@@ -9169,6 +9178,73 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "west_front_reference_broad_stair",
             (tread_x, 0.0, tread_z + 0.0475),
         )
+
+    # The upper west terrace is reached by paired lateral flights flanking the
+    # central arcade. Model them independently from the broad Mall-facing stair
+    # so the characteristic split-level west-front silhouette remains legible.
+    for side_name, side_sign in (("north", 1.0), ("south", -1.0)):
+        flight_y = side_sign * 52.0
+        for step_index in range(14):
+            tread_x = -91.0 + step_index * 1.28
+            tread_z = 0.94 + step_index * 0.18
+            obj.add_box(
+                (tread_x, flight_y),
+                (1.42, 12.5),
+                0.20,
+                tread_z,
+                f"west_front_{side_name}_lateral_stair_tread_{step_index + 1:02d}",
+                "StepStone",
+            )
+            add_facade_detail(
+                f"west_front_{side_name}_lateral_stair_tread_{step_index + 1:02d}",
+                "west_front_reference_lateral_stair",
+                (tread_x, flight_y, tread_z + 0.10),
+                {"side": side_name, "public_accuracy": "reference_proportioned_modern_west_front"},
+            )
+        add_beveled_massing(
+            f"west_front_{side_name}_upper_stair_landing",
+            (-70.4, flight_y),
+            (7.2, 16.0),
+            0.34,
+            3.30,
+            "StepStone",
+            bevel=0.12,
+        )
+        for edge_sign in (-1.0, 1.0):
+            edge_y = flight_y + edge_sign * 6.65
+            for post_index in range(8):
+                post_x = -90.0 + post_index * 2.45
+                post_z = 1.34 + post_index * 0.345
+                obj.add_box(
+                    (post_x, edge_y),
+                    (0.42, 0.42),
+                    1.10,
+                    post_z,
+                    f"west_front_{side_name}_stair_balustrade_post_{edge_sign:+.0f}_{post_index + 1:02d}",
+                    "ColumnStone",
+                )
+        add_facade_detail(
+            f"west_front_{side_name}_lateral_stair_balustrade",
+            "west_front_reference_lateral_stair_balustrade",
+            (-81.4, flight_y, 2.75),
+            {"side": side_name, "post_count": 16},
+        )
+
+    add_arcade_shadow_bays(
+        "west_front_lower_terrace_arcade",
+        "east_west",
+        -76.15,
+        [-42.0, -35.0, -28.0, -21.0, -14.0, -7.0, 0.0, 7.0, 14.0, 21.0, 28.0, 35.0, 42.0],
+        1.48,
+        4.15,
+        4.85,
+    )
+    add_facade_detail(
+        "west_front_lower_terrace_arcade_reference",
+        "west_front_reference_lower_arcade",
+        (-76.6, 0.0, 3.55),
+        {"bay_count": 13, "public_accuracy": "reference_proportioned_modern_west_front"},
+    )
 
     for side, x in (("east", 67.0), ("west", -67.0)):
         front_sign = 1.0 if x > 0.0 else -1.0
