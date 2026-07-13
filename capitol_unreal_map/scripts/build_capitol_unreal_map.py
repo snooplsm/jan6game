@@ -9999,15 +9999,19 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 0.44 + seam_row * 0.11,
             )
         front_column_values = [-27.0, -21.0, -15.0, -9.0, -3.0, 3.0, 9.0, 15.0, 21.0, 27.0]
+        portico_outer_face = x + front_sign * 8.5
+        column_projection = 9.35
+        column_shaft_radius = 0.72
         for idx, y in enumerate(front_column_values, start=1):
-            # Place the colonnade outside the projecting wall. The earlier
-            # x*0.92 placement put the columns inside the solid portico block,
-            # making the west front read as a flat window wall.
-            column_center = (x + front_sign * 2.2, y)
+            # The portico block is 17m deep, so its public outer face lies
+            # 8.5m from center. Keep the full shaft beyond that plane; the
+            # former 2.2m offset still buried each column about 6.3m inside
+            # the solid block despite claiming to expose the colonnade.
+            column_center = (x + front_sign * column_projection, y)
             column_name = f"{side}_portico_column_{idx}"
             obj.add_cylinder(
                 column_center,
-                0.72,
+                column_shaft_radius,
                 3.45,
                 10.35,
                 column_name,
@@ -10023,12 +10027,19 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     "radial_segments": hero_column_radial_segments,
                     "flute_count": hero_column_flute_count,
                     "order": "schematic_corinthian",
+                    "facade": side,
+                    "portico_center_m": round(x, 3),
+                    "portico_outer_face_m": round(portico_outer_face, 3),
+                    "column_projection_m": column_projection,
+                    "shaft_radius_m": column_shaft_radius,
+                    "shaft_clearance_m": round(column_projection - 8.5 - column_shaft_radius, 3),
+                    "source_reference": "HABS DC-38-13 west portico composition",
                 },
             )
         add_portico_intercolumn_shadows(
             f"{side}_front_portico",
             "east_west",
-            x + front_sign * 0.7,
+            portico_outer_face + front_sign * 0.04,
             front_column_values,
             4.0,
             9.6,
@@ -10036,7 +10047,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_arcade_shadow_bays(
             f"{side}_front_portico",
             "east_west",
-            x + front_sign * 0.55,
+            portico_outer_face + front_sign * 0.03,
             [-24.0, -18.0, -12.0, -6.0, 0.0, 6.0, 12.0, 18.0, 24.0],
             2.15,
             9.8,
@@ -10044,11 +10055,11 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         )
         add_element(f"{side.title()} front steps and colonnade", "landmark", (x, 0.0, 3.0))
         for door_index, y in enumerate([-9.0, 0.0, 9.0], start=1):
-            add_revolving_door(f"{side}_front_{door_index}", (x * 0.86, y), side)
+            add_revolving_door(f"{side}_front_{door_index}", (portico_outer_face + front_sign * 0.05, y), side)
         for lamp_index, y in enumerate([-18.0, -6.0, 6.0, 18.0], start=1):
-            add_public_entry_lamp(f"{side}_front_lamp_{lamp_index}", (x * 0.92, y))
+            add_public_entry_lamp(f"{side}_front_lamp_{lamp_index}", (portico_outer_face + front_sign * 0.08, y))
         for sconce_index, y in enumerate([-13.5, -4.5, 4.5, 13.5], start=1):
-            add_public_facade_sconce(f"{side}_front_public_sconce_{sconce_index:02d}", (x * 0.86, y), side)
+            add_public_facade_sconce(f"{side}_front_public_sconce_{sconce_index:02d}", (portico_outer_face + front_sign * 0.06, y), side)
         add_approach_handrails(f"{side}_front_approach_handrail", "east_west", (x * 0.98, 0.0), 12.5, (-35.5, 35.5))
 
     for side, y in (("north", 99.0), ("south", -99.0)):

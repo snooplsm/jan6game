@@ -46,6 +46,11 @@ Modern west-front composition references:
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/
+- Library of Congress HABS survey `DC-38-13`, Jack E. Boucher's 1975 public
+  close-up of the West Front central section, portico, and dome:
+  https://www.loc.gov/pictures/collection/hh/item/dc0253.photos.025941p/
+  This is used to check the public colonnade/arcade depth ordering and terrace
+  composition, not as January 2021 temporary-condition evidence.
 - Architect of the Capitol, *Genius of America Pediment*, explicitly locating
   the central sculptural pediment at the East Central Entrance:
   https://www.aoc.gov/explore-capitol-campus/art/genius-america-pediment
@@ -57,6 +62,11 @@ The central West Front is therefore not assigned a mirrored copy of the East
 Front sculptural pediment. Its generated portico now ends in a flat layered
 entablature/crown below the dome; the east, north, and south pediments retain
 their separate geometry.
+
+The principal portico blocks are 17m deep in the authored reconstruction. Their
+outer facade planes therefore sit 8.5m from the block centers. The ten-column
+rows now use 9.35m center projections with 0.72m shafts, leaving 0.13m clear
+beyond the solid wall; the former 2.2m offset buried each row inside the block.
 
 January 6, 2021 temporary West Front configuration references:
 

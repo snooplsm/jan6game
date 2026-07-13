@@ -3031,6 +3031,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "hero exterior columns must retain at least 48 radial shaft segments")
     if any(int(detail.get("flute_count", 0)) != 24 for detail in exterior_columns):
         error(errors, "hero exterior columns must retain the 24-flute Corinthian rhythm")
+    principal_portico_columns = [
+        detail
+        for detail in exterior_columns
+        if str(detail.get("name", "")).startswith(("east_portico_column_", "west_portico_column_"))
+    ]
+    if len(principal_portico_columns) != 20:
+        error(errors, "expected ten exposed columns on each principal east/west portico")
+    if any(float(detail.get("shaft_clearance_m", -1.0)) < 0.10 for detail in principal_portico_columns):
+        error(errors, "principal portico column shafts must remain wholly beyond the solid portico outer face")
+    if any(abs(float(detail.get("column_projection_m", 0.0)) - 9.35) > 0.001 for detail in principal_portico_columns):
+        error(errors, "principal portico columns must retain the corrected 9.35m center projection")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
         error(errors, "expected at least 70 public portico soffit coffer records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_intercolumn_shadow"]) < 24:
