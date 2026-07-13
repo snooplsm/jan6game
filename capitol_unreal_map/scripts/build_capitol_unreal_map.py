@@ -9514,6 +9514,136 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"target_date": "2021-01-06", "tier_count": 8, "geometry_role": "temporary_modular_overlay"},
         )
 
+    def add_jan6_bike_rack_line(
+        name: str,
+        start: tuple[float, float],
+        end: tuple[float, float],
+        source_role: str,
+    ) -> int:
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        length = math.hypot(dx, dy)
+        ux = dx / length
+        uy = dy / length
+        nx = -uy
+        ny = ux
+        module_pitch = 2.48
+        module_count = max(1, int(length / module_pitch))
+        module_span = length / module_count
+        line_angle = math.atan2(dy, dx)
+        for module_index in range(module_count):
+            cell_start = module_index / module_count
+            cell_end = (module_index + 1) / module_count
+            inset = min(0.045, module_span * 0.02)
+            p0 = (start[0] + dx * cell_start + ux * inset, start[1] + dy * cell_start + uy * inset)
+            p1 = (start[0] + dx * cell_end - ux * inset, start[1] + dy * cell_end - uy * inset)
+            prefix = f"{name}_module_{module_index + 1:03d}"
+            obj.add_beam_between(p0 + (0.34,), p1 + (0.34,), 0.070, 0.070, f"{prefix}_lower_rail", "CurbConcrete")
+            obj.add_beam_between(p0 + (1.16,), p1 + (1.16,), 0.080, 0.080, f"{prefix}_rounded_top_rail", "CurbConcrete")
+            for bar_index in range(13):
+                t = bar_index / 12.0
+                bar = (p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t)
+                obj.add_cylinder(bar, 0.024, 0.28, 0.88, f"{prefix}_vertical_bar_{bar_index + 1:02d}", "CurbConcrete", segments=10)
+            for foot_index, t in enumerate((0.12, 0.88), start=1):
+                foot_center = (p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t)
+                obj.add_beam_between(
+                    (foot_center[0] - nx * 0.38, foot_center[1] - ny * 0.38, 0.10),
+                    (foot_center[0] + nx * 0.38, foot_center[1] + ny * 0.38, 0.10),
+                    0.10,
+                    0.08,
+                    f"{prefix}_ground_foot_{foot_index:02d}",
+                    "CurbConcrete",
+                )
+                obj.add_cylinder(foot_center, 0.055, 0.24, 0.18, f"{prefix}_lower_rail_weld_collar_{foot_index:02d}", "CurbConcrete", segments=12)
+            module_center = ((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0)
+            obj.add_oriented_box(module_center, (0.46, 0.065), 0.24, 0.57, line_angle, f"{prefix}_unbranded_id_plate", "CurbConcrete")
+            for fastener_index, tangent_offset in enumerate((-0.16, 0.16), start=1):
+                fastener = (module_center[0] + ux * tangent_offset, module_center[1] + uy * tangent_offset)
+                obj.add_cylinder(fastener, 0.024, 0.78, 0.035, f"{prefix}_plate_fastener_pair_{fastener_index:02d}", "DoorMetal", segments=10)
+        midpoint = ((start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0)
+        add_facade_detail(
+            name,
+            "jan6_target_date_bike_rack_barricade_line",
+            (midpoint[0], midpoint[1], 0.62),
+            {
+                "target_date": "2021-01-06",
+                "scene_time_local": "11:50",
+                "state": "pre_first_breach_intact",
+                "source_role": source_role,
+                "module_count": module_count,
+                "line_length_m": round(length, 3),
+                "module_typology": "galvanized_bicycle_rack_style_crowd_control",
+                "geometry_role": "temporary_modular_overlay",
+            },
+        )
+        return module_count
+
+    def add_jan6_snow_fence_line(name: str, start: tuple[float, float], end: tuple[float, float]) -> None:
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        length = math.hypot(dx, dy)
+        post_count = int(length / 2.8) + 1
+        for post_index in range(post_count):
+            t = post_index / max(1, post_count - 1)
+            post = (start[0] + dx * t, start[1] + dy * t)
+            obj.add_cylinder(post, 0.035, 0.05, 1.16, f"{name}_post_{post_index + 1:03d}", "DoorMetal", segments=8)
+        for strand_index, strand_z in enumerate((0.22, 0.46, 0.70, 0.94, 1.16), start=1):
+            obj.add_beam_between(start + (strand_z,), end + (strand_z,), 0.035, 0.035, f"{name}_open_grid_strand_{strand_index:02d}", "DoorMetal")
+        midpoint = ((start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0)
+        add_facade_detail(
+            name,
+            "jan6_target_date_snow_fence_line",
+            (midpoint[0], midpoint[1], 0.62),
+            {
+                "target_date": "2021-01-06",
+                "scene_time_local": "11:50",
+                "state": "pre_first_breach_intact",
+                "post_count": post_count,
+                "geometry": "open_grid_posts_and_five_horizontal_strands",
+                "documented_color": "dark_colored_plastic_mesh",
+                "geometry_role": "temporary_modular_overlay",
+            },
+        )
+
+    first_peace_modules = add_jan6_bike_rack_line(
+        "jan6_2021_peace_circle_first_outer_barricade",
+        (-282.0, 72.5),
+        (-267.0, 89.5),
+        "peace_circle_first_outer_metal_barricade_line",
+    )
+    second_peace_modules = add_jan6_bike_rack_line(
+        "jan6_2021_peace_circle_second_manned_barricade",
+        (-278.8, 70.5),
+        (-262.4, 88.2),
+        "peace_circle_second_manned_mesh_reinforced_line",
+    )
+    west_front_modules = add_jan6_bike_rack_line(
+        "jan6_2021_west_front_north_south_police_line",
+        (-151.0, -112.0),
+        (-151.0, 112.0),
+        "west_front_north_to_south_police_line",
+    )
+    add_jan6_snow_fence_line(
+        "jan6_2021_peace_circle_second_line_dark_mesh_fence",
+        (-278.45, 70.18),
+        (-262.05, 87.88),
+    )
+    add_facade_detail(
+        "jan6_2021_pre_breach_west_security_inventory",
+        "jan6_target_date_pre_breach_security_inventory",
+        (-190.0, 0.0, 0.6),
+        {
+            "target_date": "2021-01-06",
+            "scene_time_local": "11:50",
+            "state": "pre_first_breach_intact",
+            "bike_rack_modules": first_peace_modules + second_peace_modules + west_front_modules,
+            "barrier_lines": 3,
+            "snow_fence_lines": 1,
+            "source_basis": "federal_case_records_and_target_time_before_12_53_first_breach",
+            "geometry_role": "temporary_modular_overlay",
+        },
+    )
+
     def add_olmsted_lantern(name: str, center: tuple[float, float], style_index: int, placement_confidence: str) -> None:
         x, y = center
         obj.add_box(center, (1.28, 1.28), 0.24, 0.04, f"{name}_sandstone_plinth", "ColumnStone")

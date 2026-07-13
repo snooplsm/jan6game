@@ -1646,6 +1646,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "jan6_target_date_lower_west_tunnel",
     "jan6_target_date_white_sheeted_stair_scaffolding",
     "jan6_target_date_inaugural_seating_tiers",
+    "jan6_target_date_bike_rack_barricade_line",
+    "jan6_target_date_snow_fence_line",
+    "jan6_target_date_pre_breach_security_inventory",
     "olmsted_west_boundary_lantern",
     "olmsted_west_boundary_lantern_inventory",
     "olmsted_west_boundary_drinking_fountain",
@@ -2849,6 +2852,49 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ]
     if len(target_date_seating) != 2 or any(int(detail.get("tier_count", 0)) < 8 for detail in target_date_seating):
         error(errors, "expected paired eight-tier January 6 inaugural seating assemblies")
+    target_date_barricade_lines = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_bike_rack_barricade_line"
+    ]
+    if len(target_date_barricade_lines) != 3:
+        error(errors, "expected both Peace Circle lines and the West Front north-south January 6 bike-rack line")
+    if {detail.get("source_role") for detail in target_date_barricade_lines} != {
+        "peace_circle_first_outer_metal_barricade_line",
+        "peace_circle_second_manned_mesh_reinforced_line",
+        "west_front_north_to_south_police_line",
+    }:
+        error(errors, "January 6 bike-rack lines must retain their distinct source-supported perimeter roles")
+    if any(
+        detail.get("target_date") != "2021-01-06"
+        or detail.get("scene_time_local") != "11:50"
+        or detail.get("state") != "pre_first_breach_intact"
+        or detail.get("module_typology") != "galvanized_bicycle_rack_style_crowd_control"
+        or int(detail.get("module_count", 0)) < 8
+        for detail in target_date_barricade_lines
+    ):
+        error(errors, "January 6 bike-rack lines must remain intact, modular, and time-stamped before the first breach")
+    target_date_snow_fences = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_snow_fence_line"
+    ]
+    if len(target_date_snow_fences) != 1 or any(
+        detail.get("scene_time_local") != "11:50"
+        or detail.get("state") != "pre_first_breach_intact"
+        or int(detail.get("post_count", 0)) < 8
+        or detail.get("documented_color") != "dark_colored_plastic_mesh"
+        for detail in target_date_snow_fences
+    ):
+        error(errors, "expected one intact, open-grid January 6 West Front snow-fence line")
+    target_date_security_inventory = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_pre_breach_security_inventory"
+    ]
+    if len(target_date_security_inventory) != 1 or any(
+        detail.get("scene_time_local") != "11:50"
+        or detail.get("state") != "pre_first_breach_intact"
+        or int(detail.get("bike_rack_modules", 0)) < 100
+        or int(detail.get("barrier_lines", 0)) != 3
+        or int(detail.get("snow_fence_lines", 0)) != 1
+        for detail in target_date_security_inventory
+    ):
+        error(errors, "January 6 pre-breach security inventory must retain three barricade lines and dark mesh fencing")
     olmsted_lanterns = [
         detail for detail in facade_details if detail.get("kind") == "olmsted_west_boundary_lantern"
     ]

@@ -74,3 +74,21 @@ The January 2021 OSM snapshot supplies Peace Monument Circle and Garfield
 Circle anchors for the four restored lantern placements. No surveyed point
 inventory for the other ten lanterns or wall-fountain niche is included, so
 those coordinates remain explicitly labeled corridor approximations.
+
+January 6 pre-breach barricade state at the requested 11:50 a.m. scene time:
+
+- U.S. Department of Justice statement of facts describing the restricted
+  perimeter as bike racks, snow fencing, officers, and AREA CLOSED signs, plus
+  a bike-rack police line extending from the north end of the West Front to the
+  south end:
+  https://www.justice.gov/usao-dc/press-release/file/1592621/dl
+- U.S. Department of Justice statement of facts documenting a first Peace
+  Circle barricade line, a second manned line of linked metal bike racks backed
+  by dark plastic mesh, the first bypass at about 12:50 p.m., and the second
+  line breach at about 12:54 p.m.:
+  https://www.justice.gov/usao/media/1349621/dl
+
+Because the configured scene time is 11:50 a.m., both Peace Circle lines, the
+dark mesh backing, and the West Front north-to-south rack line are represented
+in their intact pre-breach state. Their broad corridors and typology are
+source-backed; exact module transforms remain a clearly labeled reconstruction.
