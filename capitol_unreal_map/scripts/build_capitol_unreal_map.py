@@ -7531,6 +7531,29 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"radial_index": index},
         )
 
+    def add_dome_drum_tier_window(
+        index: int,
+        tier: str,
+        angle: float,
+        radius: float,
+        z: float,
+        height: float,
+        width: float,
+    ) -> None:
+        """Build a complete recessed drum window, including visible stone trim."""
+        prefix = f"dome_drum_{tier}_window_{index:02d}"
+        trim_radius = radius + 0.10
+        jamb_offset = width / 2.0 + 0.11
+        add_radial_trim_bar(f"{prefix}_glass", angle, radius, 0.0, z, height, width, 0.12, "FacadeWindow")
+        add_radial_trim_bar(f"{prefix}_left_jamb", angle, trim_radius, -jamb_offset, z - 0.08, height + 0.16, 0.14, 0.28)
+        add_radial_trim_bar(f"{prefix}_right_jamb", angle, trim_radius, jamb_offset, z - 0.08, height + 0.16, 0.14, 0.28)
+        add_radial_trim_bar(f"{prefix}_lintel", angle, trim_radius, 0.0, z + height, 0.18, width + 0.42, 0.30)
+        add_radial_trim_bar(f"{prefix}_sill", angle, trim_radius, 0.0, z - 0.10, 0.18, width + 0.42, 0.30)
+        center = (radius * math.cos(angle), radius * math.sin(angle), dome_z(z + height / 2.0))
+        detail = {"radial_index": index, "tier": tier, "size_m": [round(width, 3), round(height, 3)]}
+        add_facade_detail(f"{prefix}_glass", "dome_drum_window_glass_pane", center, detail)
+        add_facade_detail(f"{prefix}_trim", "dome_drum_window_trim", center, detail)
+
     def dome_shell_radius(z: float) -> float:
         t = max(0.0, min(1.0, (z - 34.0) / 22.0))
         return 15.4 * math.sqrt(max(0.0, 1.0 - t * t))
@@ -9110,6 +9133,43 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_element("Senate wing exterior massing", "landmark", (0.0, 68.0, 8.0))
     add_element("House wing exterior massing", "landmark", (0.0, -68.0, 8.0))
 
+    # The modern west-front composition is read from the Mall as a broad
+    # terrace stair, a recessed arcade/substructure, and an upper Corinthian
+    # portico. Keep these volumes separate so the portico columns cannot be
+    # buried inside the solid massing block as they were in the first pass.
+    west_terrace_levels = [
+        ("west_front_lower_terrace", (-99.0, 0.0), (24.0, 166.0), 0.08, 0.32),
+        ("west_front_middle_terrace", (-85.5, 0.0), (12.0, 148.0), 0.40, 0.58),
+        ("west_front_upper_terrace", (-75.5, 0.0), (8.0, 126.0), 0.98, 0.72),
+    ]
+    for name, center, size, z, height in west_terrace_levels:
+        add_beveled_massing(name, center, size, height, z, "StepStone", bevel=0.18)
+        add_facade_detail(
+            name,
+            "west_front_reference_terrace_level",
+            (center[0], center[1], z + height / 2.0),
+            {
+                "public_accuracy": "reference_proportioned_modern_west_front",
+                "reference": "Architect of the Capitol and public west-front photography",
+            },
+        )
+    for index in range(12):
+        tread_x = -113.0 + index * 1.18
+        tread_z = 0.04 + index * 0.075
+        obj.add_box(
+            (tread_x, 0.0),
+            (1.28, 174.0 - index * 2.7),
+            0.095,
+            tread_z,
+            f"west_front_broad_lower_stair_tread_{index + 1:02d}",
+            "StepStone",
+        )
+        add_facade_detail(
+            f"west_front_broad_lower_stair_tread_{index + 1:02d}",
+            "west_front_reference_broad_stair",
+            (tread_x, 0.0, tread_z + 0.0475),
+        )
+
     for side, x in (("east", 67.0), ("west", -67.0)):
         front_sign = 1.0 if x > 0.0 else -1.0
         for step_index in range(5):
@@ -9168,23 +9228,27 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 18,
                 0.44 + seam_row * 0.11,
             )
-        for idx, y in enumerate([-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0], start=1):
-            column_center = (x * 0.92, y)
+        front_column_values = [-27.0, -21.0, -15.0, -9.0, -3.0, 3.0, 9.0, 15.0, 21.0, 27.0]
+        for idx, y in enumerate(front_column_values, start=1):
+            # Place the colonnade outside the projecting wall. The earlier
+            # x*0.92 placement put the columns inside the solid portico block,
+            # making the west front read as a flat window wall.
+            column_center = (x + front_sign * 2.2, y)
             column_name = f"{side}_portico_column_{idx}"
             obj.add_cylinder(
                 column_center,
-                0.62,
-                0.2,
-                13.5,
+                0.72,
+                3.45,
+                10.35,
                 column_name,
                 "ColumnStone",
                 segments=hero_column_radial_segments,
             )
-            add_exterior_column_ornament(column_name, column_center, 0.62, 0.2, 13.5, "east_west")
+            add_exterior_column_ornament(column_name, column_center, 0.72, 3.45, 10.35, "east_west")
             add_facade_detail(
                 column_name,
                 "exterior_column",
-                (column_center[0], column_center[1], 6.95),
+                (column_center[0], column_center[1], 8.625),
                 {
                     "radial_segments": hero_column_radial_segments,
                     "flute_count": hero_column_flute_count,
@@ -9194,16 +9258,16 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_portico_intercolumn_shadows(
             f"{side}_front_portico",
             "east_west",
-            x * 0.91,
-            [-24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0],
-            2.05,
-            9.8,
+            x + front_sign * 0.7,
+            front_column_values,
+            4.0,
+            9.6,
         )
         add_arcade_shadow_bays(
             f"{side}_front_portico",
             "east_west",
-            x * 0.91,
-            [-20.0, -12.0, -4.0, 4.0, 12.0, 20.0],
+            x + front_sign * 0.55,
+            [-24.0, -18.0, -12.0, -6.0, 0.0, 6.0, 12.0, 18.0, 24.0],
             2.15,
             9.8,
             4.3,
@@ -9355,18 +9419,26 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_dome_cylinder((14.55 * math.cos(angle), 14.55 * math.sin(angle)), 0.09, 30.92, 0.64, f"dome_upper_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
     add_facade_detail("dome_lower_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(21.1)), {"count": 48})
     add_facade_detail("dome_upper_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(31.24)), {"count": 48})
-    for idx in range(32):
-        angle = math.tau * idx / 32.0
+    for idx in range(36):
+        angle = math.tau * idx / 36.0
         px = 15.15 * math.cos(angle)
         py = 15.15 * math.sin(angle)
-        add_dome_cylinder((px, py), 0.18, 19.0, 10.4, f"dome_drum_pilaster_{idx+1:02d}", "ColumnStone", segments=10)
+        add_dome_cylinder((px, py), 0.21, 19.0, 14.35, f"dome_drum_pilaster_{idx+1:02d}", "ColumnStone", segments=12)
         add_dome_drum_arcade_bay(idx + 1, angle)
-        if idx % 2 == 0:
-            wx = 15.25 * math.cos(angle)
-            wy = 15.25 * math.sin(angle)
-            add_dome_window_trim(idx // 2 + 1, angle, 15.42)
-            add_dome_cylinder((wx, wy), 0.30, 22.8, 1.25, f"dome_drum_dark_window_{idx//2+1:02d}", "FacadeWindow", segments=10)
-            add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx//2+1:02d}", angle, 25.25)
+        lower_window_angle = angle + math.pi / 36.0
+        add_dome_drum_tier_window(idx + 1, "lower", lower_window_angle, 15.46, 21.15, 3.55, 1.05)
+        add_dome_drum_tier_window(idx + 1, "upper", lower_window_angle, 15.46, 29.35, 3.15, 0.92)
+        add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx+1:02d}", angle, 27.15)
+    add_facade_detail(
+        "dome_drum_two_tier_window_rhythm",
+        "dome_drum_reference_window_rhythm",
+        (0.0, 0.0, dome_z(27.2)),
+        {
+            "bay_count": 36,
+            "tiers": 2,
+            "public_accuracy": "aoc_dimension_and_public_reference_aligned",
+        },
+    )
     # Thomas U. Walter's circa-1860 cupola-roof drawing (Library of Congress
     # item 93510472) explicitly calls for 36 hollow ribs. Preserve that
     # documented rhythm instead of the former simplified 24-part spacing.

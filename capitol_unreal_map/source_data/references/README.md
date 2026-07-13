@@ -16,3 +16,20 @@ Primary dome profile reference:
 Overall building dimensions are checked against the Architect of the Capitol:
 751 ft 4 in north–south length, 350 ft greatest width including approaches,
 and 288 ft from the East Front baseline to the top of the Statue of Freedom.
+The same official source set gives a 135 ft exterior dome diameter and a 199 ft
+dome height from the skirt to the base of the Statue of Freedom. These values
+govern the replacement silhouette; historical drawings remain detail/profile
+references rather than a substitute for the modern west-front configuration.
+
+Modern west-front composition references:
+
+- Architect of the Capitol, *U.S. Capitol Building*:
+  https://www.aoc.gov/explore-capitol-campus/buildings-grounds/capitol-building
+- Architect of the Capitol, *Dome By-The-Numbers*:
+  https://www.aoc.gov/what-we-do/projects/dome-restoration-project/by-the-numbers
+- Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
+  no known restrictions on publication:
+  https://www.loc.gov/pictures/item/95860420/
+- Current public west-front photography is used only to align the stable
+  architectural composition; foliage, temporary fixtures, and seasonal state
+  are not copied into the January 6, 2021 scene.
