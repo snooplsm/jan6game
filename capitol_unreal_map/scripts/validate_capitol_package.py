@@ -2245,6 +2245,21 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, "duplicate One Independence Square audit must retain its 37 shared-node evidence")
     if any(building.get("id") == 535720702 for building in buildings):
         error(errors, "duplicate tenant-labeled One Independence Square footprint must not remain visibly extruded")
+    yotel_transition = next((building for building in buildings if building.get("id") == 74035728), None)
+    if yotel_transition is None:
+        error(errors, "expected historical 415 New Jersey Avenue NW hotel footprint 74035728")
+    else:
+        if yotel_transition.get("name") != "YOTEL Washington DC transition site":
+            error(errors, "415 New Jersey Avenue NW must retain its Jan 6 pre-opening transition identity")
+        identity = yotel_transition.get("identity_provenance", {})
+        if identity.get("target_date_state") != "pre_opening_transition_near_completion":
+            error(errors, "YOTEL transition site must retain its Jan 6, 2021 pre-opening state")
+        if identity.get("target_date") != "2021-01-06" or identity.get("former_name") != "Liaison Washington Capitol Hill":
+            error(errors, "YOTEL transition provenance must retain target date and former-property identity")
+        if yotel_transition.get("height_source") != "footprint_type_area_estimate":
+            error(errors, "YOTEL transition height must remain explicitly heuristic pending reliable roof-height evidence")
+        if abs(float(yotel_transition.get("height_m", 0.0)) - 32.98) > 0.01:
+            error(errors, "curated YOTEL identity must not perturb the pre-existing 32.98m deterministic height seed")
     if summary["roads"] < 1400:
         error(errors, "expected at least 1400 historical-source roads/paths")
     if summary["bike_lanes"] < 240:

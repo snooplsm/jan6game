@@ -164,6 +164,27 @@ defensible roof-to-ground measurement.
   back to the more articulated DCGIS footprint, avoiding a false double tower
   and coincident-surface flicker.
 
+## YOTEL Washington DC transition site (OSM way 74035728)
+
+- Current model height: 32.98 m from the deterministic footprint/type/area
+  heuristic; historical address is 415 New Jersey Avenue NW.
+- Reviewed public sources: YOTEL's [March 2020 transition
+  announcement](https://www.yotel.com/ja/node/2851) and [February 1, 2021
+  opening announcement](https://www.yotel.com/en/press/yotel-washington-dc-officially-opens).
+- Confirmed facts: the former Liaison Washington Capitol Hill underwent a
+  year-long full reconstruction and remodel; YOTEL said the property would
+  remain open through the transition and officially debuted the completed
+  hotel on February 1, 2021.
+- Target-date decision: identify the January 6 footprint as `YOTEL Washington
+  DC transition site`, record the former Liaison identity, and classify it as
+  a pre-opening transition near completion. This is 26 days before the official
+  YOTEL debut, so do not silently apply the completed summer 2021 rooftop pool
+  state.
+- Height decision: retain the 32.98 m heuristic. YOTEL's later `Deck 11`
+  branding identifies a rooftop level, while a secondary trade report calls
+  the hotel 13 stories; neither is a sufficiently clear total exterior roof
+  height for replacing the current extrusion.
+
 ## Review rule
 
 Do not promote these targets to `source_backed_height` based on these sources.

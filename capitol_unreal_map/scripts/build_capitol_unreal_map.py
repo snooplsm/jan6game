@@ -85,6 +85,16 @@ CURATED_SURROUNDING_BUILDING_IDENTITIES = {
         "public_source_url": "https://images4.loopnet.com/d2/4_nGZbPwun-iQYyXK4QgELjNUZlR5IQt48whGZArEWg/document.pdf",
         "identity_note": "Property sheet identifies 250 E Street SW as a nine-floor office building; GSA lease records corroborate the address and Independence Square ownership entity.",
     },
+    74035728: {
+        "name": "YOTEL Washington DC transition site",
+        "public_source_url": "https://www.yotel.com/en/press/yotel-washington-dc-officially-opens",
+        "identity_note": "YOTEL identifies 415 New Jersey Avenue NW as the former Liaison Washington Capitol Hill after a year-long reconstruction, with its official debut on February 1, 2021.",
+        "target_date_state": "pre_opening_transition_near_completion",
+        "target_date": "2021-01-06",
+        "target_date_note": "Twenty-six days before YOTEL's official debut; the property had remained open through the transition according to YOTEL's March 2020 announcement.",
+        "transition_source_url": "https://www.yotel.com/ja/node/2851",
+        "former_name": "Liaison Washington Capitol Hill",
+    },
 }
 
 # One Independence Square's property sheet supplies actual slab-to-slab
@@ -4967,7 +4977,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         if len(points) < 2:
             continue
         osm_element_type = way.get("osm_element_type", "way")
-        name = tags.get("name") or tags.get("official_name") or f"osm_{osm_element_type}_{way['id']}"
+        source_name = tags.get("name") or tags.get("official_name") or f"osm_{osm_element_type}_{way['id']}"
+        name = source_name
         curated_identity = CURATED_SURROUNDING_BUILDING_IDENTITIES.get(int(way["id"]))
         if curated_identity:
             name = str(curated_identity["name"])
@@ -5084,7 +5095,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 tags,
                 is_us_capitol,
                 int(way["id"]),
-                name,
+                source_name,
                 footprint_area,
                 footprint_span,
             )
@@ -5189,6 +5200,15 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "public_source_url": curated_identity["public_source_url"],
                         "note": curated_identity["identity_note"],
                     }
+                    for identity_field in (
+                        "target_date_state",
+                        "target_date",
+                        "target_date_note",
+                        "transition_source_url",
+                        "former_name",
+                    ):
+                        if identity_field in curated_identity:
+                            building_record["identity_provenance"][identity_field] = curated_identity[identity_field]
                 if height_source == "curated_public_structural_stack_height":
                     building_record["height_provenance"] = {
                         "source": "One Independence Square property sheet",
