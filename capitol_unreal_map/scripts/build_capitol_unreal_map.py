@@ -59,6 +59,16 @@ CIVIC_STONE_BUILDING_RELATION_IDS = {
     1047027,  # Dirksen Senate Office Building
 }
 
+# Historical OSM tags call these multi-storey parking buildings, but the
+# Architect of the Capitol documents the two House garages beneath the park's
+# green roof. Keep this override ID-specific rather than inferring that all
+# parking structures are below grade.
+CURATED_BELOW_GRADE_BUILDING_WAY_IDS = {
+    888787619: "House parking garage beneath the west half of the green-roof park",
+    888787620: "House parking garage beneath the east half of the green-roof park",
+}
+CURATED_BELOW_GRADE_SOURCE_URL = "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+
 
 def relative_to_package(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
@@ -4916,7 +4926,13 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             cy = sum(p[1] for p in points) / len(points)
             footprint_area = polygon_area_m2(points)
             footprint_span = footprint_span_m(points)
-            if tags.get("location", "").lower() == "underground":
+            curated_below_grade_reason = CURATED_BELOW_GRADE_BUILDING_WAY_IDS.get(int(way["id"]))
+            if tags.get("location", "").lower() == "underground" or curated_below_grade_reason:
+                reason = (
+                    "Historical OSM location=underground; excluded from visible above-ground massing."
+                    if tags.get("location", "").lower() == "underground"
+                    else f"Authoritative public source identifies this as below-grade: {curated_below_grade_reason}."
+                )
                 metadata["excluded_underground_structures"].append(
                     {
                         "id": int(way["id"]),
@@ -4925,7 +4941,8 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         "center_m": [round(cx, 3), round(cy, 3), 0.0],
                         "footprint_area_m2": round(footprint_area, 2),
                         "footprint_span_m": round(footprint_span, 2),
-                        "reason": "Historical OSM location=underground; excluded from visible above-ground massing.",
+                        "reason": reason,
+                        "public_source_url": CURATED_BELOW_GRADE_SOURCE_URL if curated_below_grade_reason else None,
                         "tags": tags,
                     }
                 )

@@ -53,6 +53,22 @@ defensible roof-to-ground measurement.
   original tags in scene metadata. This corrects a source-interpretation error;
   it does not expose or model subsurface layout.
 
+## House parking garages beneath the green-roof park (OSM ways 888787619 and 888787620)
+
+- Previous model heights: 41.52 m and 41.09 m deterministic
+  footprint/type/area estimates.
+- Historical OSM evidence: both footprints are tagged `building=parking`,
+  `amenity=parking`, and `parking=multi-storey`, but lack an explicit
+  `location=underground` tag.
+- Reviewed public source: [Architect of the Capitol, "Water Features
+  Everywhere"](https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere).
+- Confirmed fact: the two House Garage fountains sit in the park south of the
+  Capitol, and that park is the green roof for the parking garages below.
+- Decision: exclude these two ID-specific footprints from visible above-ground
+  building massing and retain source-cited metadata records. Do not generalize
+  this override to other `parking=multi-storey` features, and do not model or
+  expose garage interiors.
+
 ## Hart Senate Office Building (OSM way 66733226)
 
 - Previous model height: 13.60 m.

@@ -2233,6 +2233,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM way 888787630 to be recorded as an excluded underground structure")
     if any(int(item.get("id", -1)) == 888787630 for item in exterior.get("buildings", [])):
         error(errors, "OSM way 888787630 is underground and must not appear in visible building massing")
+    curated_house_garage_ids = {888787619, 888787620}
+    excluded_house_garage_ids = {
+        int(item.get("id", -1))
+        for item in excluded_underground_structures
+        if item.get("public_source_url") == "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+    }
+    if not curated_house_garage_ids.issubset(excluded_house_garage_ids):
+        error(errors, "expected both source-verified below-grade House garage ways in underground exclusions")
+    if any(int(item.get("id", -1)) in curated_house_garage_ids for item in exterior.get("buildings", [])):
+        error(errors, "below-grade House garages must not appear as visible above-ground building massing")
     if len(building_details) < 7800:
         error(errors, f"expected at least 7800 surrounding building visual detail records, got {len(building_details)}")
     missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
