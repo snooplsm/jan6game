@@ -9409,6 +9409,111 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             },
         )
 
+    # January 6, 2021 target-date overlay. The west front was already occupied
+    # by the approximately 10,000-square-foot inaugural platform and temporary
+    # seating/scaffolding. Keep it as named modular geometry so a normal-day
+    # architectural presentation can omit the entire overlay at import time.
+    inaugural_deck_center = (-82.0, 0.0)
+    inaugural_deck_size = (30.5, 30.5)  # 930.25 m2 / approximately 10,013 ft2
+    obj.add_box(inaugural_deck_center, inaugural_deck_size, 0.34, 3.18, "jan6_2021_inaugural_main_platform", "PublicGallery")
+    for x_index, scaffold_x in enumerate([-96.0, -92.0, -88.0, -84.0, -80.0, -76.0, -72.0, -68.0], start=1):
+        for y_index, scaffold_y in enumerate([-14.0, -10.0, -6.0, -2.0, 2.0, 6.0, 10.0, 14.0], start=1):
+            obj.add_cylinder(
+                (scaffold_x, scaffold_y),
+                0.065,
+                0.50,
+                2.68,
+                f"jan6_2021_inaugural_platform_post_{x_index:02d}_{y_index:02d}",
+                "DoorMetal",
+                segments=8,
+            )
+    for brace_index, brace_y in enumerate((-14.0, -8.0, 0.0, 8.0, 14.0), start=1):
+        obj.add_beam_between(
+            (-96.0, brace_y, 0.72),
+            (-68.0, brace_y, 3.02),
+            0.10,
+            0.10,
+            f"jan6_2021_inaugural_platform_long_brace_{brace_index:02d}",
+            "DoorMetal",
+        )
+        obj.add_beam_between(
+            (-96.0, brace_y, 3.02),
+            (-68.0, brace_y, 0.72),
+            0.10,
+            0.10,
+            f"jan6_2021_inaugural_platform_cross_brace_{brace_index:02d}",
+            "DoorMetal",
+        )
+    # The deck narrowed the west entrance into the area consistently called
+    # the Tunnel in the federal January 6 record.
+    obj.add_box((-81.4, -2.45), (26.6, 0.18), 2.62, 0.52, "jan6_2021_lower_west_tunnel_south_wall", "LaneMarkingWhite")
+    obj.add_box((-81.4, 2.45), (26.6, 0.18), 2.62, 0.52, "jan6_2021_lower_west_tunnel_north_wall", "LaneMarkingWhite")
+    obj.add_box((-95.0, 0.0), (0.24, 5.15), 0.34, 2.82, "jan6_2021_lower_west_tunnel_header", "DoorMetal")
+    obj.add_box((-94.82, 0.0), (0.10, 4.55), 2.16, 0.56, "jan6_2021_lower_west_tunnel_dark_mouth", "DoorMetal")
+    add_facade_detail(
+        "jan6_2021_inaugural_main_platform",
+        "jan6_target_date_inaugural_platform",
+        (-82.0, 0.0, 3.35),
+        {
+            "target_date": "2021-01-06",
+            "area_square_feet": 10013,
+            "official_reference_area_square_feet": 10000,
+            "geometry_role": "temporary_modular_overlay",
+            "reference": "DOJ federal filings and Architect of the Capitol construction photography",
+        },
+    )
+    add_facade_detail(
+        "jan6_2021_lower_west_tunnel",
+        "jan6_target_date_lower_west_tunnel",
+        (-81.4, 0.0, 1.83),
+        {"target_date": "2021-01-06", "clear_width_m": 4.72, "geometry_role": "temporary_modular_overlay"},
+    )
+
+    for side_name, side_sign in (("northwest", 1.0), ("southwest", -1.0)):
+        scaffold_y = side_sign * 49.0
+        for x_index, scaffold_x in enumerate((-96.0, -91.5, -87.0, -82.5, -78.0, -73.5, -69.0), start=1):
+            for y_index, y_offset in enumerate((-8.0, -4.0, 0.0, 4.0, 8.0), start=1):
+                obj.add_cylinder(
+                    (scaffold_x, scaffold_y + y_offset),
+                    0.07,
+                    0.45,
+                    6.75,
+                    f"jan6_2021_{side_name}_stair_scaffold_post_{x_index:02d}_{y_index:02d}",
+                    "DoorMetal",
+                    segments=8,
+                )
+        outer_y = scaffold_y + side_sign * 8.25
+        obj.add_box((-82.5, outer_y), (27.5, 0.16), 6.55, 0.55, f"jan6_2021_{side_name}_scaffold_white_sheet_outer", "LaneMarkingWhite")
+        obj.add_box((-96.2, scaffold_y), (0.16, 16.6), 6.55, 0.55, f"jan6_2021_{side_name}_scaffold_white_sheet_west", "LaneMarkingWhite")
+        for tier_index in range(8):
+            tier_y = side_sign * (17.3 + tier_index * 2.05)
+            tier_z = 3.54 + tier_index * 0.42
+            obj.add_box(
+                (-81.5, tier_y),
+                (24.0, 1.82),
+                0.20,
+                tier_z,
+                f"jan6_2021_{side_name}_temporary_seating_tier_{tier_index + 1:02d}",
+                "PublicGallery",
+            )
+        add_facade_detail(
+            f"jan6_2021_{side_name}_stair_scaffolding",
+            "jan6_target_date_white_sheeted_stair_scaffolding",
+            (-82.5, scaffold_y, 3.8),
+            {
+                "target_date": "2021-01-06",
+                "side": side_name,
+                "covered_stair": side_name,
+                "geometry_role": "temporary_modular_overlay",
+            },
+        )
+        add_facade_detail(
+            f"jan6_2021_{side_name}_temporary_seating",
+            "jan6_target_date_inaugural_seating_tiers",
+            (-81.5, side_sign * 24.5, 5.1),
+            {"target_date": "2021-01-06", "tier_count": 8, "geometry_role": "temporary_modular_overlay"},
+        )
+
     for side, x in (("east", 67.0), ("west", -67.0)):
         front_sign = 1.0 if x > 0.0 else -1.0
         for step_index in range(5):

@@ -33,3 +33,25 @@ Modern west-front composition references:
 - Current public west-front photography is used only to align the stable
   architectural composition; foliage, temporary fixtures, and seasonal state
   are not copied into the January 6, 2021 scene.
+
+January 6, 2021 temporary West Front configuration references:
+
+- U.S. Department of Justice statement of facts describing the purpose-built
+  10,000 sq ft inaugural platform and the narrowed Lower West Terrace entrance
+  known as the Tunnel:
+  https://www.justice.gov/d9/press-releases/attachments/2023/04/05/nolfanthony_23-mj-71_sof_redacted_0.pdf
+- U.S. Department of Justice statement of facts describing white-sheeted
+  scaffolding over the Northwest Stairs on January 6:
+  https://www.justice.gov/usao-dc/media/1346166/dl
+- Architect of the Capitol Photo Branch, *2021 Inaugural Platform
+  Construction*, photographed December 1, 2020 and published as a U.S. federal
+  government work:
+  https://commons.wikimedia.org/wiki/File:2021_Inaugural_Platform_Construction_(50750989848).jpg
+- Architect of the Capitol, *West Central Fountain*, confirming that the west
+  central fountain is covered by the special platform during inauguration
+  preparations:
+  https://www.aoc.gov/explore-capitol-campus/features/west-central-fountain
+
+The inaugural platform, tunnel walls, white-sheeted stair scaffolds, and
+temporary seating tiers are authored as a separately named modular overlay.
+They are part of the target-date scene but are not permanent Capitol fabric.

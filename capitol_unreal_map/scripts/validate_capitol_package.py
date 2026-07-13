@@ -1642,6 +1642,10 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "west_front_reference_lateral_stair_balustrade",
     "west_front_reference_lower_arcade",
     "west_wing_return_pavilion",
+    "jan6_target_date_inaugural_platform",
+    "jan6_target_date_lower_west_tunnel",
+    "jan6_target_date_white_sheeted_stair_scaffolding",
+    "jan6_target_date_inaugural_seating_tiers",
     "primary_facade_bay_side_return",
     "primary_facade_bay_lintel_sill",
     "facade_corner_quoin_block",
@@ -2815,6 +2819,32 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected projecting west-facing return pavilions for both congressional wings")
     if any(int(detail.get("window_bays", 0)) < 5 or int(detail.get("window_levels", 0)) < 3 for detail in wing_return_pavilions):
         error(errors, "west-facing wing return pavilions must retain five bays across three window levels")
+    target_date_platforms = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_inaugural_platform"
+    ]
+    if len(target_date_platforms) != 1:
+        error(errors, "expected one modular January 6 inaugural-platform overlay")
+    elif (
+        target_date_platforms[0].get("target_date") != "2021-01-06"
+        or abs(float(target_date_platforms[0].get("area_square_feet", 0)) - 10000.0) > 250.0
+        or target_date_platforms[0].get("geometry_role") != "temporary_modular_overlay"
+    ):
+        error(errors, "January 6 inaugural platform must remain date-stamped, modular, and approximately 10,000 square feet")
+    target_date_tunnels = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_lower_west_tunnel"
+    ]
+    if len(target_date_tunnels) != 1 or target_date_tunnels[0].get("target_date") != "2021-01-06":
+        error(errors, "expected one date-stamped January 6 Lower West Terrace tunnel assembly")
+    target_date_scaffolds = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_white_sheeted_stair_scaffolding"
+    ]
+    if len(target_date_scaffolds) != 2 or {detail.get("side") for detail in target_date_scaffolds} != {"northwest", "southwest"}:
+        error(errors, "expected paired northwest and southwest white-sheeted January 6 stair scaffolds")
+    target_date_seating = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_inaugural_seating_tiers"
+    ]
+    if len(target_date_seating) != 2 or any(int(detail.get("tier_count", 0)) < 8 for detail in target_date_seating):
+        error(errors, "expected paired eight-tier January 6 inaugural seating assemblies")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_side_return"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay side-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_lintel_sill"]) < 76:
