@@ -9514,6 +9514,107 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"target_date": "2021-01-06", "tier_count": 8, "geometry_role": "temporary_modular_overlay"},
         )
 
+    def add_olmsted_lantern(name: str, center: tuple[float, float], style_index: int, placement_confidence: str) -> None:
+        x, y = center
+        obj.add_box(center, (1.28, 1.28), 0.24, 0.04, f"{name}_sandstone_plinth", "ColumnStone")
+        obj.add_box(center, (0.98, 0.98), 2.18, 0.28, f"{name}_sandstone_pier", "CapitolStone")
+        obj.add_box(center, (1.16, 1.16), 0.20, 2.46, f"{name}_carved_cap_lower", "ColumnStone")
+        obj.add_frustum(center, 0.72, 0.54, 2.66, 0.34, f"{name}_carved_cap_crown", "ColumnStone", segments=8)
+        obj.add_box(center, (0.94, 0.94), 1.34, 3.00, f"{name}_clear_glass_body", "StreetLightGlass")
+        for corner_index, (dx, dy) in enumerate(((-0.48, -0.48), (-0.48, 0.48), (0.48, -0.48), (0.48, 0.48)), start=1):
+            obj.add_cylinder((x + dx, y + dy), 0.055, 2.92, 1.52, f"{name}_bronze_corner_frame_{corner_index:02d}", "StatueBronze", segments=12)
+        for rail_index, rail_z in enumerate((3.02, 3.62, 4.26), start=1):
+            obj.add_box(center, (1.08, 0.07), 0.07, rail_z, f"{name}_bronze_rail_x_{rail_index:02d}", "StatueBronze")
+            obj.add_box(center, (0.07, 1.08), 0.07, rail_z, f"{name}_bronze_rail_y_{rail_index:02d}", "StatueBronze")
+        # Twelve flame-like electric bulbs reproduce the original gas-jet count
+        # documented by the AOC without introducing a new texture asset.
+        for bulb_index in range(12):
+            angle = math.tau * bulb_index / 12.0
+            bulb_center = (x + 0.31 * math.cos(angle), y + 0.31 * math.sin(angle))
+            obj.add_frustum(
+                bulb_center,
+                0.055,
+                0.018,
+                3.30,
+                0.34,
+                f"{name}_twelve_jet_bulb_{bulb_index + 1:02d}",
+                "StreetLightGlass",
+                segments=10,
+            )
+        roof_bottom = (0.82, 0.88, 0.76, 0.92)[style_index - 1]
+        roof_top = (0.18, 0.24, 0.12, 0.20)[style_index - 1]
+        obj.add_frustum(center, roof_bottom, roof_top, 4.34, 0.62, f"{name}_victorian_roof_style_{style_index}", "StatueBronze", segments=8)
+        obj.add_cylinder(center, 0.075, 4.96, 0.34, f"{name}_roof_finial", "StatueBronze", segments=12)
+        add_facade_detail(
+            name,
+            "olmsted_west_boundary_lantern",
+            (x, y, 2.65),
+            {
+                "style_index": style_index,
+                "style_family_count": 4,
+                "bulb_count": 12,
+                "materials": ["sandstone_pier", "brown_patinated_bronze", "clear_safety_glass"],
+                "placement_confidence": placement_confidence,
+                "target_date": "2021-01-06",
+            },
+        )
+
+    restored_lantern_specs = [
+        ("peace_circle_north", (-264.0, 91.0), 1),
+        ("peace_circle_south", (-263.0, 70.0), 2),
+        ("garfield_circle_north", (-263.0, -95.0), 3),
+        ("garfield_circle_south", (-264.0, -116.0), 4),
+    ]
+    for lantern_name, lantern_center, style_index in restored_lantern_specs:
+        add_olmsted_lantern(f"olmsted_restored_2020_{lantern_name}_lantern", lantern_center, style_index, "osm_circle_anchor_plus_aoc_entry_description")
+    remaining_lantern_y = [-76.0, -61.0, -46.0, -31.0, -16.0, 16.0, 31.0, 46.0, 61.0, 76.0]
+    for lantern_index, lantern_y in enumerate(remaining_lantern_y, start=1):
+        add_olmsted_lantern(
+            f"olmsted_first_street_boundary_lantern_{lantern_index:02d}",
+            (-272.0 + (lantern_index % 2) * 1.2, lantern_y),
+            (lantern_index - 1) % 4 + 1,
+            "aoc_count_and_corridor_approximate_not_surveyed",
+        )
+    add_facade_detail(
+        "olmsted_west_boundary_lantern_inventory",
+        "olmsted_west_boundary_lantern_inventory",
+        (-268.0, 0.0, 2.6),
+        {
+            "lantern_count": 14,
+            "style_count": 4,
+            "restored_by_target_date": 4,
+            "remaining_in_restoration_program": 10,
+            "source": "Architect of the Capitol Olmsted Lanterns Restoration, 2021-02-04",
+        },
+    )
+
+    # Olmsted's wall fountain sits opposite the Grant Memorial. Its exact
+    # surveyed niche coordinate is unavailable in the package, so this uses the
+    # center-west First Street boundary corridor as an explicit approximation.
+    fountain_center = (-260.5, 0.0)
+    obj.add_box(fountain_center, (0.92, 8.4), 3.55, 0.08, "olmsted_west_boundary_drinking_fountain_wall", "CapitolStone")
+    obj.add_vertical_arch_band((-261.02, 0.0), 2.18, 1.52, 0.94, 0.20, 0.24, "east_west", "olmsted_west_boundary_fountain_arch", "ColumnStone", segments=32)
+    obj.add_ring((-262.0, 0.0), 1.82, 1.42, 0.22, 0.34, "olmsted_west_boundary_fountain_basin", "ColumnStone", segments=48)
+    obj.add_cylinder((-261.72, 0.0), 0.16, 1.02, 0.78, "olmsted_west_boundary_fountain_heron_torso", "ColumnStone", segments=20)
+    obj.add_beam_between((-261.72, 0.0, 1.68), (-261.30, 0.0, 2.24), 0.16, 0.16, "olmsted_west_boundary_fountain_heron_neck", "ColumnStone")
+    obj.add_cylinder((-261.24, 0.0), 0.13, 2.16, 0.20, "olmsted_west_boundary_fountain_heron_head", "ColumnStone", segments=16)
+    obj.add_beam_between((-261.13, 0.0, 2.26), (-260.78, 0.0, 2.21), 0.07, 0.07, "olmsted_west_boundary_fountain_heron_beak", "ColumnStone")
+    for leg_index, leg_y in enumerate((-0.10, 0.10), start=1):
+        obj.add_cylinder((-261.78, leg_y), 0.035, 0.55, 0.62, f"olmsted_west_boundary_fountain_heron_leg_{leg_index:02d}", "ColumnStone", segments=10)
+    obj.add_cylinder((-261.30, 0.0), 0.055, 1.72, 0.34, "olmsted_west_boundary_fountain_water_spout", "DoorMetal", segments=12)
+    add_facade_detail(
+        "olmsted_west_boundary_drinking_fountain",
+        "olmsted_west_boundary_drinking_fountain",
+        (-261.4, 0.0, 1.55),
+        {
+            "designer": "Frederick Law Olmsted",
+            "focal_carving": "blue_heron_stone_proxy",
+            "landmark_relation": "opposite_ulysses_s_grant_memorial",
+            "placement_confidence": "aoc_feature_relation_approximate_not_surveyed",
+            "target_date": "2021-01-06",
+        },
+    )
+
     for side, x in (("east", 67.0), ("west", -67.0)):
         front_sign = 1.0 if x > 0.0 else -1.0
         for step_index in range(5):

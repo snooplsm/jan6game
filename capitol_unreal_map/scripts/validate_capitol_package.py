@@ -1646,6 +1646,9 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "jan6_target_date_lower_west_tunnel",
     "jan6_target_date_white_sheeted_stair_scaffolding",
     "jan6_target_date_inaugural_seating_tiers",
+    "olmsted_west_boundary_lantern",
+    "olmsted_west_boundary_lantern_inventory",
+    "olmsted_west_boundary_drinking_fountain",
     "primary_facade_bay_side_return",
     "primary_facade_bay_lintel_sill",
     "facade_corner_quoin_block",
@@ -2845,6 +2848,40 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ]
     if len(target_date_seating) != 2 or any(int(detail.get("tier_count", 0)) < 8 for detail in target_date_seating):
         error(errors, "expected paired eight-tier January 6 inaugural seating assemblies")
+    olmsted_lanterns = [
+        detail for detail in facade_details if detail.get("kind") == "olmsted_west_boundary_lantern"
+    ]
+    if len(olmsted_lanterns) != 14:
+        error(errors, "expected the documented inventory of 14 elaborate Olmsted West Front lanterns")
+    if {int(detail.get("style_index", 0)) for detail in olmsted_lanterns} != {1, 2, 3, 4}:
+        error(errors, "Olmsted West Front lanterns must retain all four documented style families")
+    if any(
+        int(detail.get("bulb_count", 0)) != 12
+        or detail.get("target_date") != "2021-01-06"
+        for detail in olmsted_lanterns
+    ):
+        error(errors, "Olmsted lantern assemblies must retain 12 gas-jet-style bulbs and January 6 target-date metadata")
+    lantern_inventories = [
+        detail for detail in facade_details if detail.get("kind") == "olmsted_west_boundary_lantern_inventory"
+    ]
+    if len(lantern_inventories) != 1 or any(
+        int(detail.get("lantern_count", 0)) != 14
+        or int(detail.get("style_count", 0)) != 4
+        or int(detail.get("restored_by_target_date", 0)) != 4
+        or int(detail.get("remaining_in_restoration_program", 0)) != 10
+        for detail in lantern_inventories
+    ):
+        error(errors, "Olmsted lantern inventory must preserve the target-date 4-restored/10-remaining state")
+    olmsted_wall_fountains = [
+        detail for detail in facade_details if detail.get("kind") == "olmsted_west_boundary_drinking_fountain"
+    ]
+    if len(olmsted_wall_fountains) != 1 or any(
+        detail.get("designer") != "Frederick Law Olmsted"
+        or detail.get("focal_carving") != "blue_heron_stone_proxy"
+        or detail.get("target_date") != "2021-01-06"
+        for detail in olmsted_wall_fountains
+    ):
+        error(errors, "expected one date-stamped Olmsted west-boundary fountain with blue-heron focal carving")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_side_return"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay side-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_lintel_sill"]) < 76:

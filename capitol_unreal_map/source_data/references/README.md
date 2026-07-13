@@ -55,3 +55,22 @@ January 6, 2021 temporary West Front configuration references:
 The inaugural platform, tunnel walls, white-sheeted stair scaffolds, and
 temporary seating tiers are authored as a separately named modular overlay.
 They are part of the target-date scene but are not permanent Capitol fabric.
+
+Permanent Olmsted West Front grounds fixtures:
+
+- Architect of the Capitol, *Olmsted Lanterns Restoration*:
+  https://www.aoc.gov/explore-capitol-campus/blog/olmsted-lanterns-restoration
+  This establishes 14 elaborate lanterns in four styles on or near First
+  Street, four restored in 2020, sandstone piers and carved caps, brown-patina
+  bronze frames, clear safety glass, and twelve gas-jet-style LED bulbs per
+  restored lantern. It also identifies the four restored fixtures as paired
+  entrances near Peace and Garfield Circles.
+- Architect of the Capitol, *West Boundary Wall Drinking Fountain*:
+  https://www.aoc.gov/explore-capitol-campus/features/west-boundary-wall-drinking-fountain
+  This identifies Olmsted as designer, locates the fountain opposite the Grant
+  Memorial, and documents the blue-heron stone carving at its focal point.
+
+The January 2021 OSM snapshot supplies Peace Monument Circle and Garfield
+Circle anchors for the four restored lantern placements. No surveyed point
+inventory for the other ten lanterns or wall-fountain niche is included, so
+those coordinates remain explicitly labeled corridor approximations.

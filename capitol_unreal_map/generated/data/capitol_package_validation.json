@@ -77,8 +77,8 @@
     "grounds_detail_kinds": 18,
     "grounds_walk_lamps": 18,
     "landmark_elements": 20,
-    "facade_details": 9874,
-    "facade_detail_kinds": 160,
+    "facade_details": 9890,
+    "facade_detail_kinds": 163,
     "revolving_door_visuals": 12,
     "rooms": 15,
     "house_seats": 448,
@@ -296,12 +296,12 @@
     },
     {
       "path": "generated/meshes/capitol_landmark_visual_details.obj",
-      "vertices": 235842,
-      "uvs": 757988,
-      "faces": 177830,
-      "faces_with_uvs": 177830,
-      "triangles": 402328,
-      "groups": 17389,
+      "vertices": 242934,
+      "uvs": 779580,
+      "faces": 182364,
+      "faces_with_uvs": 182364,
+      "triangles": 414852,
+      "groups": 17805,
       "materials": [
         "BenchWood",
         "BollardMetal",
@@ -332,7 +332,7 @@
       ],
       "bbox_cm": {
         "min": [
-          -21500.0,
+          -27292.0,
           -18000.0,
           -6.0
         ],
