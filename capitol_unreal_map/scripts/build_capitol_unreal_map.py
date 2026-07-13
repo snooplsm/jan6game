@@ -8263,22 +8263,51 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 panel_size = (0.08, width)
                 impost_size = (0.11, width + 0.34)
                 keystone_center = (center[0], value)
-                keystone_size = (0.16, 0.26)
             else:
                 center = (value, fixed + face_offset)
                 panel_size = (width, 0.08)
                 impost_size = (width + 0.34, 0.11)
                 keystone_center = (value, center[1])
-                keystone_size = (0.26, 0.16)
             name = f"{prefix}_arcade_shadow_bay_{idx:02d}"
             obj.add_box(center, panel_size, height, z_base, f"{name}_dark_recess", "DoorMetal")
             obj.add_box(center, impost_size, 0.18, z_base + height * 0.82, f"{name}_impost_band", "ColumnStone")
-            obj.add_box(keystone_center, keystone_size, 0.42, z_base + height * 0.82, f"{name}_keystone", "ColumnStone")
+            arch_spring_z = z_base + height * 0.62
+            arch_rise = height * 0.30
+            arch_segments = 32
+            obj.add_vertical_arch_band(
+                center,
+                arch_spring_z,
+                width * 0.43,
+                arch_rise,
+                0.22,
+                0.30,
+                orientation,
+                f"{name}_continuous_arch_profile",
+                "ColumnStone",
+                segments=arch_segments,
+            )
+            obj.add_vertical_tapered_prism(
+                keystone_center,
+                arch_spring_z + arch_rise * 0.78,
+                0.22,
+                0.44,
+                0.54,
+                0.34,
+                orientation,
+                f"{name}_keystone",
+                "ColumnStone",
+            )
             add_facade_detail(
                 name,
                 "facade_arcade_shadow_bay",
                 (center[0], center[1], z_base + height / 2.0),
-                {"orientation": orientation, "width_m": round(width, 3), "height_m": round(height, 3)},
+                {
+                    "orientation": orientation,
+                    "width_m": round(width, 3),
+                    "height_m": round(height, 3),
+                    "geometry": "continuous_extruded_arch_profile",
+                    "arch_segments": arch_segments,
+                },
             )
 
     def add_portico_soffit_coffers(
@@ -9245,6 +9274,50 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         (-76.6, 0.0, 3.55),
         {"bay_count": 13, "public_accuracy": "reference_proportioned_modern_west_front"},
     )
+
+    # Projecting west-facing pavilions give the House and Senate wing returns
+    # their own three-storey hierarchy instead of leaving two flat slabs beside
+    # the central portico. The openings use the same continuous arch geometry
+    # as the close-range public facade system.
+    for wing_name, wing_y in (("house", -68.0), ("senate", 68.0)):
+        pavilion_name = f"west_{wing_name}_wing_return_pavilion"
+        add_beveled_massing(
+            pavilion_name,
+            (-44.2, wing_y),
+            (4.4, 30.0),
+            13.25,
+            1.18,
+            "ColumnStone",
+            bevel=0.20,
+        )
+        for level_index, z_level in enumerate((2.65, 6.05, 9.45), start=1):
+            for bay_index, y_offset in enumerate((-10.4, -5.2, 0.0, 5.2, 10.4), start=1):
+                window_y = wing_y + y_offset
+                window_name = f"{pavilion_name}_window_l{level_index:02d}_{bay_index:02d}"
+                obj.add_box((-46.55, window_y), (0.10, 1.58), 1.78, z_level, f"{window_name}_deep_glass", "FacadeWindow")
+                add_arch_window_trim(window_name, (-46.50, window_y), z_level, "east_west", 1.58, 1.78)
+        for pilaster_index, y_offset in enumerate((-13.2, -7.8, -2.6, 2.6, 7.8, 13.2), start=1):
+            obj.add_box(
+                (-46.76, wing_y + y_offset),
+                (0.52, 0.46),
+                11.55,
+                1.62,
+                f"{pavilion_name}_engaged_pilaster_{pilaster_index:02d}",
+                "ColumnStone",
+            )
+        obj.add_box((-46.86, wing_y), (0.64, 31.4), 0.46, 13.18, f"{pavilion_name}_projecting_cornice", "ColumnStone")
+        add_facade_detail(
+            pavilion_name,
+            "west_wing_return_pavilion",
+            (-44.2, wing_y, 7.805),
+            {
+                "wing": wing_name,
+                "window_bays": 5,
+                "window_levels": 3,
+                "engaged_pilasters": 6,
+                "public_accuracy": "reference_proportioned_modern_west_front",
+            },
+        )
 
     for side, x in (("east", 67.0), ("west", -67.0)):
         front_sign = 1.0 if x > 0.0 else -1.0

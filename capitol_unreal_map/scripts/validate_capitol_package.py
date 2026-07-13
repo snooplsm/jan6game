@@ -1641,6 +1641,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "west_front_reference_lateral_stair",
     "west_front_reference_lateral_stair_balustrade",
     "west_front_reference_lower_arcade",
+    "west_wing_return_pavilion",
     "primary_facade_bay_side_return",
     "primary_facade_bay_lintel_sill",
     "facade_corner_quoin_block",
@@ -2777,6 +2778,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 130 public facade recess shadow panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "facade_arcade_shadow_bay"]) < 24:
         error(errors, "expected at least 24 public facade arcade shadow bay records")
+    coarse_arcade_profiles = [
+        detail
+        for detail in facade_details
+        if detail.get("kind") == "facade_arcade_shadow_bay"
+        and (
+            detail.get("geometry") != "continuous_extruded_arch_profile"
+            or int(detail.get("arch_segments", 0)) < 24
+        )
+    ]
+    if coarse_arcade_profiles:
+        error(errors, "public facade arcade bays must use continuous arch profiles with at least 24 segments")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_recess_depth"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay recess-depth records")
     if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lateral_stair"]) < 28:
@@ -2785,6 +2797,11 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected paired west-front lateral stair balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lower_arcade"]) < 1:
         error(errors, "expected the west-front lower terrace arcade reference record")
+    wing_return_pavilions = [detail for detail in facade_details if detail.get("kind") == "west_wing_return_pavilion"]
+    if len(wing_return_pavilions) < 2:
+        error(errors, "expected projecting west-facing return pavilions for both congressional wings")
+    if any(int(detail.get("window_bays", 0)) < 5 or int(detail.get("window_levels", 0)) < 3 for detail in wing_return_pavilions):
+        error(errors, "west-facing wing return pavilions must retain five bays across three window levels")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_side_return"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay side-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_lintel_sill"]) < 76:
