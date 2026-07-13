@@ -4597,8 +4597,21 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         )
 
     def add_grounds_hedge(name: str, center: tuple[float, float], size: tuple[float, float]) -> None:
-        roads.add_box(center, size, 0.42, 0.12, name, "TreeCanopy")
-        add_grounds_record(name, "public_hedge", (center[0], center[1], 0.33), size)
+        add_grounds_record(
+            name,
+            "public_hedge",
+            (center[0], center[1], 0.36),
+            size,
+            public_accuracy="schematic_public_grounds_placement_with_high_quality_asset_replacement",
+            extra={
+                "replacement_asset_path": "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01",
+                "instance_spacing_m": 1.45,
+                "instance_height_m": 0.72,
+                "instance_base_z_m": 0.12,
+                "blockout_geometry_omitted": True,
+                "seasonal_note": "Semi-evergreen shrub proxy; verify January retained-leaf appearance in viewport.",
+            },
+        )
 
     def add_path_edge_stone(name: str, center: tuple[float, float], size: tuple[float, float]) -> None:
         roads.add_box(center, size, 0.08, 0.16, name, "StepStone")
@@ -4623,9 +4636,23 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     def add_ornamental_planting_cluster(name: str, center: tuple[float, float]) -> None:
         x, y = center
         roads.add_cylinder((x, y), 0.62, 0.09, 0.12, f"{name}_stone_ring", "PlanterStone", segments=14)
-        for index, (dx, dy, radius) in enumerate([(-0.22, -0.12, 0.22), (0.18, -0.10, 0.18), (0.02, 0.20, 0.20)], start=1):
-            roads.add_cylinder((x + dx, y + dy), radius, 0.15, 0.34, f"{name}_shrub_{index}", "TreeCanopy", segments=10)
-        add_grounds_record(name, "ornamental_planting_cluster", (x, y, 0.32), (1.35, 1.35))
+        instance_offsets = [[-0.26, -0.14, 0.0], [0.23, -0.12, 0.0], [0.02, 0.24, 0.0]]
+        add_grounds_record(
+            name,
+            "ornamental_planting_cluster",
+            (x, y, 0.42),
+            (1.35, 1.35),
+            public_accuracy="schematic_public_grounds_placement_with_high_quality_asset_replacement",
+            extra={
+                "replacement_asset_path": "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01",
+                "instance_offsets_m": instance_offsets,
+                "instance_height_m": 0.72,
+                "instance_base_z_m": 0.15,
+                "blockout_geometry_omitted": True,
+                "stone_ring_retained": True,
+                "seasonal_note": "Semi-evergreen shrub proxy; verify January retained-leaf appearance in viewport.",
+            },
+        )
 
     def add_lawn_slope_panel(name: str, corners: list[tuple[float, float, float]]) -> None:
         roads.add_sloped_quad(corners, name, "GroundGrass")

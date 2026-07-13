@@ -2516,14 +2516,28 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, f"missing public grounds detail kinds: {', '.join(missing_grounds_kinds)}")
     if len(grounds_walk_lamps) < 18:
         error(errors, f"expected at least 18 public grounds walk lamps, got {len(grounds_walk_lamps)}")
-    if len([detail for detail in grounds_details if detail.get("kind") == "public_hedge"]) < 12:
+    public_hedges = [detail for detail in grounds_details if detail.get("kind") == "public_hedge"]
+    if len(public_hedges) < 12:
         error(errors, "expected at least 12 public hedge records")
     if len([detail for detail in grounds_details if detail.get("kind") == "path_edge_stone"]) < 16:
         error(errors, "expected at least 16 public path edge stone records")
     if len([detail for detail in grounds_details if detail.get("kind") == "grounds_bench"]) < 16:
         error(errors, "expected at least 16 public grounds bench records")
-    if len([detail for detail in grounds_details if detail.get("kind") == "ornamental_planting_cluster"]) < 24:
+    ornamental_clusters = [
+        detail for detail in grounds_details if detail.get("kind") == "ornamental_planting_cluster"
+    ]
+    if len(ornamental_clusters) < 24:
         error(errors, "expected at least 24 ornamental planting cluster records")
+    high_quality_shrub_details = public_hedges + ornamental_clusters
+    expected_shrub_asset = "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01"
+    if any(detail.get("replacement_asset_path") != expected_shrub_asset for detail in high_quality_shrub_details):
+        error(errors, "public hedge and ornamental-cluster records must use the verified Maxtree Abelia asset")
+    if any(detail.get("blockout_geometry_omitted") is not True for detail in high_quality_shrub_details):
+        error(errors, "low-poly hedge and ornamental shrub blockout geometry must remain omitted")
+    if any(float(detail.get("instance_height_m", 0.0)) < 0.6 for detail in high_quality_shrub_details):
+        error(errors, "high-quality public shrub replacements must retain plausible visible height metadata")
+    if any(not detail.get("instance_offsets_m") for detail in ornamental_clusters):
+        error(errors, "ornamental planting clusters must retain explicit high-quality shrub instance offsets")
     if len([detail for detail in grounds_details if detail.get("kind") == "public_lawn_slope_panel"]) < 10:
         error(errors, "expected at least 10 public lawn slope-panel records")
     if len([detail for detail in grounds_details if detail.get("kind") == "public_lawn_contour_band"]) < 28:

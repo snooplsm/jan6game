@@ -29,6 +29,8 @@ MATERIAL_DESTINATION_PATH = "/Game/CapitolMap/Materials"
 TEXTURE_DESTINATION_PATH = "/Game/CapitolMap/Textures"
 MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
+HIGH_QUALITY_SHRUB_ASSET_PATH = "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01"
+HIGH_QUALITY_SHRUB_FOLDER = "CapitolMap/Vegetation/HighQualityShrubs"
 TEXTURE_KINDS = ("basecolor", "normal", "roughness", "ambient_occlusion")
 TEXTURE_KIND_SETTINGS = {
     "basecolor": {
@@ -1816,6 +1818,113 @@ def configure_static_mesh_component(component: Any) -> None:
         set_property(component, "mobility", unreal.ComponentMobility.STATIC)
 
 
+def build_high_quality_shrub_specs(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """Expand source-aligned hedge/cluster metadata into modular shrub placements."""
+    specs: list[dict[str, Any]] = []
+    for detail in data.get("exterior", {}).get("grounds_details", []):
+        kind = detail.get("kind")
+        if kind not in {"public_hedge", "ornamental_planting_cluster"}:
+            continue
+        if detail.get("replacement_asset_path") != HIGH_QUALITY_SHRUB_ASSET_PATH:
+            continue
+        center = detail.get("center_m", [0.0, 0.0, 0.0])
+        base_z_m = float(detail.get("instance_base_z_m", 0.12))
+        height_m = float(detail.get("instance_height_m", 0.72))
+        if kind == "public_hedge":
+            size = detail.get("size_m", [0.0, 0.0])
+            spacing = max(0.8, float(detail.get("instance_spacing_m", 1.45)))
+            axis = 0 if float(size[0]) >= float(size[1]) else 1
+            length = float(size[axis])
+            count = max(2, int(math.ceil(length / spacing)) + 1)
+            for index in range(count):
+                offset = -length / 2.0 + length * index / max(1, count - 1)
+                location = [float(center[0]), float(center[1]), base_z_m]
+                location[axis] += offset
+                specs.append(
+                    {
+                        "name": f"{detail.get('name', 'hedge')}_hq_{index + 1:03d}",
+                        "location_m": location,
+                        "height_m": height_m * (0.92 + (index % 5) * 0.035),
+                        "yaw_deg": (90.0 if axis == 1 else 0.0) + ((index * 137.508) % 18.0 - 9.0),
+                        "source_kind": kind,
+                    }
+                )
+        else:
+            for index, offset in enumerate(detail.get("instance_offsets_m", []), start=1):
+                specs.append(
+                    {
+                        "name": f"{detail.get('name', 'planting_cluster')}_hq_{index:02d}",
+                        "location_m": [
+                            float(center[0]) + float(offset[0]),
+                            float(center[1]) + float(offset[1]),
+                            base_z_m + float(offset[2]),
+                        ],
+                        "height_m": height_m * (0.90 + (index % 3) * 0.08),
+                        "yaw_deg": (index * 137.508) % 360.0,
+                        "source_kind": kind,
+                    }
+                )
+    return specs
+
+
+def spawn_high_quality_grounds_shrubs() -> dict[str, Any]:
+    """Spawn verified Maxtree shrub assets in place of omitted low-poly plants."""
+    stats: dict[str, Any] = {
+        "asset_path": HIGH_QUALITY_SHRUB_ASSET_PATH,
+        "candidate_count": 0,
+        "spawned_actor_count": 0,
+        "asset_loaded": False,
+        "blockout_geometry_omitted": True,
+    }
+    try:
+        data = load_metadata()
+        specs = build_high_quality_shrub_specs(data)
+        stats["candidate_count"] = len(specs)
+        asset = unreal.EditorAssetLibrary.load_asset(HIGH_QUALITY_SHRUB_ASSET_PATH)
+        if not asset:
+            log(f"High-quality shrub asset is not installed: {HIGH_QUALITY_SHRUB_ASSET_PATH}")
+            return stats
+        stats["asset_loaded"] = True
+        native_height_cm = 100.0
+        native_min_z_cm = 0.0
+        try:
+            bounds = asset.get_bounding_box()
+            native_height_cm = max(1.0, float(bounds.max.z) - float(bounds.min.z))
+            native_min_z_cm = float(bounds.min.z)
+        except Exception as exc:
+            log(f"Shrub asset bounds fallback used: {exc}")
+        for spec in specs:
+            scale = float(spec["height_m"]) * 100.0 / native_height_cm
+            location_m = spec["location_m"]
+            location = unreal.Vector(
+                float(location_m[0]) * 100.0,
+                float(location_m[1]) * 100.0,
+                float(location_m[2]) * 100.0 - native_min_z_cm * scale,
+            )
+            actor = unreal.EditorLevelLibrary.spawn_actor_from_object(
+                asset,
+                location,
+                unreal.Rotator(0.0, float(spec["yaw_deg"]), 0.0),
+            )
+            if not actor:
+                continue
+            actor.set_actor_scale3d(unreal.Vector(scale, scale, scale))
+            actor.set_actor_label(f"CapitolMap_HQShrub_{spec['name']}")
+            actor.set_folder_path(HIGH_QUALITY_SHRUB_FOLDER)
+            set_actor_tags(actor, ["CapitolMap_HighQualityShrub", f"CapitolMap_{spec['source_kind']}"])
+            component = actor.get_component_by_class(unreal.StaticMeshComponent)
+            if component:
+                if hasattr(unreal, "CollisionEnabled"):
+                    set_property(component, "collision_enabled", unreal.CollisionEnabled.NO_COLLISION)
+                set_property(component, "can_ever_affect_navigation", False)
+                if hasattr(unreal, "ComponentMobility"):
+                    set_property(component, "mobility", unreal.ComponentMobility.STATIC)
+            stats["spawned_actor_count"] += 1
+    except Exception as exc:
+        log(f"High-quality shrub replacement skipped: {exc}")
+    return stats
+
+
 def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -> None:
     for asset_path in asset_paths:
         configure_static_mesh(asset_path)
@@ -1841,8 +1950,9 @@ def spawn_scene_setup() -> dict[str, Any]:
     spawn_camera_viewpoints()
     spawn_first_person_collision_proxies()
     spawn_navigation_bounds()
+    shrub_stats = spawn_high_quality_grounds_shrubs()
     light_stats = spawn_metadata_lights()
-    return {"lighting": light_stats}
+    return {"lighting": light_stats, "high_quality_shrubs": shrub_stats}
 
 
 def spawn_player_starts() -> None:
