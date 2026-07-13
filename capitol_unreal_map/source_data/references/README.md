@@ -67,6 +67,14 @@ The principal portico blocks are 17m deep in the authored reconstruction. Their
 outer facade planes therefore sit 8.5m from the block centers. The ten-column
 rows now use 9.35m center projections with 0.72m shafts, leaving 0.13m clear
 beyond the solid wall; the former 2.2m offset buried each row inside the block.
+The HABS close-up also governs the reconstructed central back-wall hierarchy:
+nine tall recessed glazed bays between the ten-column rhythm, two vertical and
+two horizontal mullions per bay, and a projecting central stone balcony. Exact
+fabrication dimensions are not published by that photograph, so the generated
+18.6m balcony span and 13-baluster subdivision remain visual approximations.
+The former 26-piece, two-level generic arched-window grid on this same west
+central wall is intentionally omitted; it conflicted with the photographed
+continuous tall rectangular bay composition. Other facade arches are retained.
 
 January 6, 2021 temporary West Front configuration references:
 

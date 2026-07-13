@@ -3042,6 +3042,24 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "principal portico column shafts must remain wholly beyond the solid portico outer face")
     if any(abs(float(detail.get("column_projection_m", 0.0)) - 9.35) > 0.001 for detail in principal_portico_columns):
         error(errors, "principal portico columns must retain the corrected 9.35m center projection")
+    west_central_glazed_bays = [
+        detail for detail in facade_details if detail.get("kind") == "west_central_portico_glazed_bay"
+    ]
+    if len(west_central_glazed_bays) != 9:
+        error(errors, "expected the nine HABS-aligned west central portico glazed bays")
+    if any(
+        int(detail.get("vertical_mullions", 0)) != 2
+        or int(detail.get("horizontal_mullions", 0)) != 2
+        for detail in west_central_glazed_bays
+    ):
+        error(errors, "west central glazed bays must retain their multi-level mullion rhythm")
+    west_central_balconies = [
+        detail for detail in facade_details if detail.get("kind") == "west_central_portico_balcony"
+    ]
+    if len(west_central_balconies) != 1:
+        error(errors, "expected one HABS-aligned west central portico balcony")
+    elif int(west_central_balconies[0].get("baluster_count", 0)) != 13:
+        error(errors, "west central portico balcony must retain 13 turned balusters")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
         error(errors, "expected at least 70 public portico soffit coffer records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_intercolumn_shadow"]) < 24:
@@ -3172,8 +3190,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     facade_arch_trims = [
         detail for detail in facade_details if detail.get("kind") == "facade_arch_window_trim"
     ]
-    if len(facade_arch_trims) < 112:
-        error(errors, "expected at least 112 public facade arched window trim records")
+    if len(facade_arch_trims) < 86:
+        error(errors, "expected the 86 retained east, north, and south public facade arched window trims")
     if any(detail.get("geometry") != "continuous_extruded_arch_band" for detail in facade_arch_trims):
         error(errors, "facade arched-window trims must use continuous curved bands rather than box chains")
     if any(int(detail.get("arch_segments", 0)) < 24 for detail in facade_arch_trims):
@@ -3181,8 +3199,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     facade_window_keystones = [
         detail for detail in facade_details if detail.get("kind") == "facade_window_keystone"
     ]
-    if len(facade_window_keystones) < 112:
-        error(errors, "expected at least 112 public facade window keystone records")
+    if len(facade_window_keystones) < 86:
+        error(errors, "expected the 86 retained east, north, and south public facade window keystones")
     if any(detail.get("geometry") != "tapered_vertical_trapezoid" for detail in facade_window_keystones):
         error(errors, "facade window keystones must use tapered wedge geometry rather than rectangular boxes")
     if any(float(detail.get("top_width_m", 0.0)) <= float(detail.get("bottom_width_m", 0.0)) for detail in facade_window_keystones):

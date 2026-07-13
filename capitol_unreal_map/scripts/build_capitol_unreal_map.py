@@ -9133,7 +9133,6 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_facade_window_grid("senate_north_wing", "north_south", 97.2, wing_x_window_positions, [3.7, 7.1, 10.5])
     add_facade_window_grid("house_south_wing", "north_south", -97.2, wing_x_window_positions, [3.7, 7.1, 10.5])
     add_arch_window_trim_grid("east_front_public", "east_west", 63.2, y_window_positions, [3.8, 7.2], 1.34, 1.28)
-    add_arch_window_trim_grid("west_front_public", "east_west", -63.2, y_window_positions, [3.8, 7.2], 1.34, 1.28)
     add_arch_window_trim_grid("senate_north_wing_public", "north_south", 97.2, wing_x_window_positions, [3.7, 7.1], 1.34, 1.28)
     add_arch_window_trim_grid("house_south_wing_public", "north_south", -97.2, wing_x_window_positions, [3.7, 7.1], 1.34, 1.28)
     add_window_grid_on_face("east_front_deep_shadow", "east_west", 67.3, [-27, -18, -9, 9, 18, 27], [5.1, 8.5, 11.9], width=1.05)
@@ -10044,15 +10043,95 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             4.0,
             9.6,
         )
-        add_arcade_shadow_bays(
-            f"{side}_front_portico",
-            "east_west",
-            portico_outer_face + front_sign * 0.03,
-            [-24.0, -18.0, -12.0, -6.0, 0.0, 6.0, 12.0, 18.0, 24.0],
-            2.15,
-            9.8,
-            4.3,
-        )
+        if side == "east":
+            add_arcade_shadow_bays(
+                f"{side}_front_portico",
+                "east_west",
+                portico_outer_face + front_sign * 0.03,
+                [-24.0, -18.0, -12.0, -6.0, 0.0, 6.0, 12.0, 18.0, 24.0],
+                2.15,
+                9.8,
+                4.3,
+            )
+        if side == "west":
+            west_bay_values = [-24.0, -18.0, -12.0, -6.0, 0.0, 6.0, 12.0, 18.0, 24.0]
+            glazing_x = portico_outer_face + front_sign * 0.54
+            for bay_index, bay_y in enumerate(west_bay_values, start=1):
+                prefix = f"west_central_portico_glazed_bay_{bay_index:02d}"
+                obj.add_box((glazing_x, bay_y), (0.06, 4.10), 6.65, 5.55, f"{prefix}_glass", "FacadeWindow")
+                for jamb_index, jamb_offset in enumerate((-2.16, 2.16), start=1):
+                    obj.add_box(
+                        (glazing_x + front_sign * 0.05, bay_y + jamb_offset),
+                        (0.12, 0.18),
+                        6.95,
+                        5.40,
+                        f"{prefix}_jamb_{jamb_index}",
+                        "ColumnStone",
+                    )
+                for mullion_index, mullion_offset in enumerate((-0.72, 0.72), start=1):
+                    obj.add_box(
+                        (glazing_x + front_sign * 0.06, bay_y + mullion_offset),
+                        (0.13, 0.11),
+                        6.65,
+                        5.55,
+                        f"{prefix}_vertical_mullion_{mullion_index}",
+                        "ColumnStone",
+                    )
+                for rail_index, rail_z in enumerate((7.80, 10.05), start=1):
+                    obj.add_box(
+                        (glazing_x + front_sign * 0.06, bay_y),
+                        (0.13, 4.22),
+                        0.16,
+                        rail_z,
+                        f"{prefix}_horizontal_mullion_{rail_index}",
+                        "ColumnStone",
+                    )
+                obj.add_box((glazing_x + front_sign * 0.05, bay_y), (0.12, 4.42), 0.20, 5.38, f"{prefix}_sill", "ColumnStone")
+                obj.add_box((glazing_x + front_sign * 0.05, bay_y), (0.12, 4.42), 0.22, 12.20, f"{prefix}_lintel", "ColumnStone")
+                add_facade_detail(
+                    prefix,
+                    "west_central_portico_glazed_bay",
+                    (glazing_x, bay_y, 8.875),
+                    {
+                        "sequence": bay_index,
+                        "vertical_mullions": 2,
+                        "horizontal_mullions": 2,
+                        "height_m": 6.65,
+                        "width_m": 4.10,
+                        "source_reference": "HABS DC-38-13",
+                        "public_accuracy": "habs_composition_aligned",
+                    },
+                )
+
+            balcony_front_x = portico_outer_face + front_sign * 1.92
+            obj.add_box(
+                ((portico_outer_face + balcony_front_x) / 2.0, 0.0),
+                (abs(balcony_front_x - portico_outer_face) + 0.42, 18.6),
+                0.34,
+                6.12,
+                "west_central_portico_balcony_slab",
+                "ColumnStone",
+            )
+            balcony_baluster_values = [-8.0 + index * (16.0 / 12.0) for index in range(13)]
+            for baluster_index, baluster_y in enumerate(balcony_baluster_values, start=1):
+                name = f"west_central_portico_balcony_baluster_{baluster_index:02d}"
+                obj.add_cylinder((balcony_front_x, baluster_y), 0.14, 6.46, 0.14, f"{name}_base", "ColumnStone", segments=16)
+                obj.add_cylinder((balcony_front_x, baluster_y), 0.09, 6.60, 0.46, f"{name}_shaft", "ColumnStone", segments=16)
+                obj.add_cylinder((balcony_front_x, baluster_y), 0.14, 7.06, 0.12, f"{name}_cap", "ColumnStone", segments=16)
+            obj.add_box((balcony_front_x, 0.0), (0.24, 17.4), 0.16, 6.42, "west_central_portico_balcony_base_rail", "ColumnStone")
+            obj.add_box((balcony_front_x, 0.0), (0.28, 17.4), 0.18, 7.16, "west_central_portico_balcony_top_rail", "ColumnStone")
+            add_facade_detail(
+                "west_central_portico_balcony",
+                "west_central_portico_balcony",
+                (balcony_front_x, 0.0, 6.87),
+                {
+                    "span_m": 18.6,
+                    "projection_m": 1.92,
+                    "baluster_count": len(balcony_baluster_values),
+                    "source_reference": "HABS DC-38-13",
+                    "public_accuracy": "habs_composition_aligned",
+                },
+            )
         add_element(f"{side.title()} front steps and colonnade", "landmark", (x, 0.0, 3.0))
         for door_index, y in enumerate([-9.0, 0.0, 9.0], start=1):
             add_revolving_door(f"{side}_front_{door_index}", (portico_outer_face + front_sign * 0.05, y), side)
