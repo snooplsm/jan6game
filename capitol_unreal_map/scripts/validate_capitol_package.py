@@ -2774,6 +2774,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 14 public plaza linear drain-slot records")
     if len([detail for detail in facade_details if detail.get("kind") == "plaza_wear_patch"]) < 30:
         error(errors, "expected at least 30 public plaza wear patch records")
+    plaza_bollards = [detail for detail in facade_details if detail.get("kind") == "plaza_bollard"]
+    if len(plaza_bollards) < 30:
+        error(errors, "expected the 30 public east/west plaza bollard records")
+    if any(detail.get("geometry") != "flanged_tapered_bollard_with_shaped_cap" for detail in plaza_bollards):
+        error(errors, "hero plaza bollards must use flanged tapered geometry rather than stacked cylinders")
+    if any(int(detail.get("radial_segments", 0)) < 32 for detail in plaza_bollards):
+        error(errors, "hero plaza bollards must retain at least 32 radial segments")
     facade_arch_trims = [
         detail for detail in facade_details if detail.get("kind") == "facade_arch_window_trim"
     ]

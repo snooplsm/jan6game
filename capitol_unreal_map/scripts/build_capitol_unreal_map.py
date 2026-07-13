@@ -5629,9 +5629,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
     def add_plaza_bollard(name: str, center: tuple[float, float]) -> None:
         x, y = center
-        obj.add_cylinder((x, y), 0.16, 0.08, 0.84, f"{name}_post", "BollardMetal", segments=12)
-        obj.add_cylinder((x, y), 0.18, 0.92, 0.12, f"{name}_cap", "BollardMetal", segments=12)
-        add_facade_detail(name, "plaza_bollard", (x, y, 0.55))
+        radial_segments = 32
+        obj.add_cylinder((x, y), 0.22, 0.04, 0.06, f"{name}_base_flange", "BollardMetal", segments=radial_segments)
+        obj.add_frustum((x, y), 0.17, 0.15, 0.10, 0.82, f"{name}_tapered_post", "BollardMetal", segments=radial_segments)
+        obj.add_frustum((x, y), 0.19, 0.10, 0.92, 0.18, f"{name}_shaped_cap", "BollardMetal", segments=radial_segments)
+        add_facade_detail(
+            name,
+            "plaza_bollard",
+            (x, y, 0.57),
+            {
+                "geometry": "flanged_tapered_bollard_with_shaped_cap",
+                "radial_segments": radial_segments,
+                "height_m": 1.10,
+            },
+        )
 
     def add_bench(name: str, center: tuple[float, float]) -> None:
         x, y = center
