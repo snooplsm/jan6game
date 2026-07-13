@@ -29,15 +29,16 @@
     },
     {
       "role": "capitol_grounds_leafless_tree",
-      "status": "accepted_and_placed",
+      "status": "accepted_for_winter_grounds_placement",
       "source_pack": "European Hornbeam",
       "asset_paths": [
         "/Game/HistoricalOSM/Vegetation/HornbeamWinter/SM_Hornbeam_Field01_Winter"
       ],
-      "use": "Leafless/retained-leaf winter field trees at the 16 authored grounds positions.",
+      "use": "Leafless/retained-leaf winter field trees at the 16 established live placements and 44 generated public grounds allee positions.",
       "constraints": [
         "Preserve the authored January material instances and four-level project-owned LOD chain.",
-        "Do not replace source-mapped context trees wholesale with a single species."
+        "Use deterministic scale and yaw variation on the schematic grounds allees.",
+        "Do not replace source-mapped context trees wholesale with a single species or claim exact species provenance for the generated allees."
       ]
     },
     {

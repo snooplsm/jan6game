@@ -4572,11 +4572,24 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     def add_grounds_tree(name: str, center: tuple[float, float]) -> None:
         x, y = center
-        roads.add_cylinder((x, y), 0.16, 0.09, 1.85, f"{name}_trunk", "TreeTrunk", segments=10)
-        roads.add_cylinder((x, y), 0.92, 1.45, 0.90, f"{name}_lower_canopy", "TreeCanopy", segments=16)
-        roads.add_cylinder((x, y), 0.70, 2.05, 0.80, f"{name}_upper_canopy", "TreeCanopy", segments=16)
-        roads.add_cylinder((x, y), 1.02, 0.07, 0.16, f"{name}_planter_ring", "PlanterStone", segments=16)
-        add_grounds_record(name, "public_tree_allee", (x, y, 1.55), (2.1, 2.1))
+        height_m = 12.4 + stable_unit_interval(name, "winter_tree_height") * 2.4
+        yaw_deg = stable_unit_interval(name, "winter_tree_yaw") * 360.0
+        add_grounds_record(
+            name,
+            "public_tree_allee",
+            (x, y, 0.0),
+            (10.4, 10.4),
+            public_accuracy="schematic_public_grounds_allee_with_seasonal_high_quality_asset",
+            extra={
+                "replacement_asset_path": "/Game/HistoricalOSM/Vegetation/HornbeamWinter/SM_Hornbeam_Field01_Winter",
+                "instance_height_m": round(height_m, 3),
+                "instance_base_z_m": 0.0,
+                "instance_yaw_deg": round(yaw_deg, 3),
+                "blockout_geometry_omitted": True,
+                "seasonal_state": "January leafless and retained-leaf winter material",
+                "historical_note": "High-quality seasonal proxy; European Hornbeam is not asserted as the exact species at every January 2021 allee position.",
+            },
+        )
 
     def add_grounds_lamp(name: str, center: tuple[float, float]) -> None:
         x, y = center

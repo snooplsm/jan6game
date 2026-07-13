@@ -2046,6 +2046,7 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     grounds_details = exterior.get("grounds_details", [])
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
     grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
+    grounds_trees = [detail for detail in grounds_details if detail.get("kind") == "public_tree_allee"]
     summary["grounds_details"] = len(grounds_details)
     summary["grounds_detail_kinds"] = len(grounds_detail_kinds)
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
@@ -2525,6 +2526,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         for detail in grounds_walk_lamps
     ):
         error(errors, "grounds lamps must use the licensed modular asset with glass-aligned lights and omitted blockouts")
+    if len(grounds_trees) != 44:
+        error(errors, f"expected exactly 44 public grounds allee trees, got {len(grounds_trees)}")
+    elif any(
+        detail.get("replacement_asset_path") != "/Game/HistoricalOSM/Vegetation/HornbeamWinter/SM_Hornbeam_Field01_Winter"
+        or detail.get("blockout_geometry_omitted") is not True
+        or not 12.4 <= float(detail.get("instance_height_m", 0.0)) <= 14.8
+        or not 0.0 <= float(detail.get("instance_yaw_deg", -1.0)) <= 360.0
+        or "January" not in detail.get("seasonal_state", "")
+        for detail in grounds_trees
+    ):
+        error(errors, "grounds allee trees must use varied, seasonal winter Hornbeam replacements with omitted blockouts")
     public_hedges = [detail for detail in grounds_details if detail.get("kind") == "public_hedge"]
     if len(public_hedges) < 12:
         error(errors, "expected at least 12 public hedge records")
