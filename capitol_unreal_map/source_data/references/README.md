@@ -80,6 +80,10 @@ rectangular windows, center mullions, projecting surrounds, six outer quoin
 blocks, and a cap cornice each. Short stone connector landings bridge those
 pavilion edges to the already modeled north/south lateral stair landings. The
 photograph supports this hierarchy, while exact dimensions remain approximate.
+The paired lateral flights now also carry four narrow dark metal handrails over
+their stone rail lines and four substantial capped terminal piers at the upper
+landings. These reproduce the strong light-stone/dark-rail hierarchy visible in
+the HABS foreground without claiming surveyed fabrication dimensions.
 
 January 6, 2021 temporary West Front configuration references:
 

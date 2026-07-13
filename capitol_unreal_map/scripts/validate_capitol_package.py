@@ -3078,6 +3078,20 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected paired west-front pavilion connector landings")
     elif any(float(detail.get("overlaps_existing_stair_landing_m", 0.0)) < 1.5 for detail in pavilion_connector_landings):
         error(errors, "west-front pavilion connector landings must overlap the existing stair landings")
+    west_lateral_iron_handrails = [
+        detail for detail in facade_details if detail.get("kind") == "west_front_lateral_stair_iron_handrail"
+    ]
+    if len(west_lateral_iron_handrails) != 4:
+        error(errors, "expected four west lateral stair iron handrails")
+    elif any(float(detail.get("slope_length_m", 0.0)) < 17.0 for detail in west_lateral_iron_handrails):
+        error(errors, "west lateral stair iron handrails must span the full sloped flights")
+    west_landing_terminal_piers = [
+        detail for detail in facade_details if detail.get("kind") == "west_front_landing_terminal_pier"
+    ]
+    if len(west_landing_terminal_piers) != 4:
+        error(errors, "expected four capped west lateral landing terminal piers")
+    elif any(not detail.get("capped") or float(detail.get("height_m", 0.0)) < 1.5 for detail in west_landing_terminal_piers):
+        error(errors, "west lateral landing terminal piers must remain substantial capped masses")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
         error(errors, "expected at least 70 public portico soffit coffer records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_intercolumn_shadow"]) < 24:

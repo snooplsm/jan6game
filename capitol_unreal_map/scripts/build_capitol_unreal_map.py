@@ -9405,6 +9405,43 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 f"west_front_{side_name}_stair_balustrade_{edge_sign:+.0f}_base_rail",
                 "ColumnStone",
             )
+            handrail_name = f"west_front_{side_name}_stair_iron_handrail_{edge_sign:+.0f}"
+            obj.add_beam_between(
+                (-90.0, edge_y, 2.58),
+                (-72.85, edge_y, 4.995),
+                0.13,
+                0.10,
+                handrail_name,
+                "DoorMetal",
+            )
+            add_facade_detail(
+                handrail_name,
+                "west_front_lateral_stair_iron_handrail",
+                (-81.425, edge_y, 3.788),
+                {
+                    "side": side_name,
+                    "edge": "outer" if edge_sign == side_sign else "inner",
+                    "slope_length_m": round(math.dist((-90.0, edge_y, 2.58), (-72.85, edge_y, 4.995)), 3),
+                    "source_reference": "HABS DC-38-13",
+                    "public_accuracy": "habs_visual_hierarchy_approximate_dimensions",
+                },
+            )
+            pier_name = f"west_front_{side_name}_landing_terminal_pier_{edge_sign:+.0f}"
+            obj.add_beveled_box((-70.65, edge_y), (0.96, 0.96), 1.66, 3.30, pier_name, "ColumnStone", bevel=0.10)
+            obj.add_beveled_box((-70.65, edge_y), (1.18, 1.18), 0.20, 4.96, f"{pier_name}_cap", "ColumnStone", bevel=0.12)
+            add_facade_detail(
+                pier_name,
+                "west_front_landing_terminal_pier",
+                (-70.65, edge_y, 4.13),
+                {
+                    "side": side_name,
+                    "edge": "outer" if edge_sign == side_sign else "inner",
+                    "height_m": 1.66,
+                    "capped": True,
+                    "source_reference": "HABS DC-38-13",
+                    "public_accuracy": "habs_visual_hierarchy_approximate_dimensions",
+                },
+            )
         add_facade_detail(
             f"west_front_{side_name}_lateral_stair_balustrade",
             "west_front_reference_lateral_stair_balustrade",
