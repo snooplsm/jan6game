@@ -9605,6 +9605,86 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             },
         )
 
+    area_closed_pixel_font = {
+        "A": ("01110", "10001", "10001", "11111", "10001", "10001", "10001"),
+        "R": ("11110", "10001", "10001", "11110", "10100", "10010", "10001"),
+        "E": ("11111", "10000", "10000", "11110", "10000", "10000", "11111"),
+        "C": ("01111", "10000", "10000", "10000", "10000", "10000", "01111"),
+        "L": ("10000", "10000", "10000", "10000", "10000", "10000", "11111"),
+        "O": ("01110", "10001", "10001", "10001", "10001", "10001", "01110"),
+        "S": ("01111", "10000", "10000", "01110", "00001", "00001", "11110"),
+        "D": ("11110", "10001", "10001", "10001", "10001", "10001", "11110"),
+    }
+
+    def add_jan6_area_closed_sign(name: str, center: tuple[float, float], line_angle: float) -> None:
+        tangent = (math.cos(line_angle), math.sin(line_angle))
+        normal = (-tangent[1], tangent[0])
+        panel_center = (center[0], center[1])
+        panel_base_z = 0.30
+        panel_width = 3.56
+        panel_height = 1.32
+        obj.add_oriented_box(panel_center, (panel_width, 0.075), panel_height, panel_base_z, line_angle, f"{name}_white_panel", "LaneMarkingWhite")
+        face_center = (panel_center[0] - normal[0] * 0.060, panel_center[1] - normal[1] * 0.060)
+        for border_index, (x_offset, z_base, width, height) in enumerate(
+            (
+                (0.0, panel_base_z + 0.045, panel_width - 0.12, 0.055),
+                (0.0, panel_base_z + panel_height - 0.10, panel_width - 0.12, 0.055),
+                (-panel_width / 2.0 + 0.075, panel_base_z + 0.07, 0.055, panel_height - 0.14),
+                (panel_width / 2.0 - 0.075, panel_base_z + 0.07, 0.055, panel_height - 0.14),
+            ),
+            start=1,
+        ):
+            border_center = (face_center[0] + tangent[0] * x_offset, face_center[1] + tangent[1] * x_offset)
+            obj.add_oriented_box(border_center, (width, 0.025), height, z_base, line_angle, f"{name}_red_border_{border_index:02d}", "TrafficSignalRed")
+
+        pixel_count = 0
+        cell = 0.082
+        pixel_width = 0.066
+        pixel_height = 0.066
+        for line_index, (text, center_z) in enumerate((("AREA", 1.24), ("CLOSED", 0.67)), start=1):
+            line_width = (len(text) * 6 - 1) * cell
+            line_start = -line_width / 2.0
+            for char_index, character in enumerate(text):
+                glyph = area_closed_pixel_font[character]
+                char_start = line_start + char_index * 6 * cell
+                for row_index, row in enumerate(glyph):
+                    for column_index, filled in enumerate(row):
+                        if filled != "1":
+                            continue
+                        x_offset = char_start + column_index * cell
+                        pixel_center = (face_center[0] + tangent[0] * x_offset, face_center[1] + tangent[1] * x_offset)
+                        pixel_z = center_z + (3 - row_index) * cell - pixel_height / 2.0
+                        pixel_count += 1
+                        obj.add_oriented_box(
+                            pixel_center,
+                            (pixel_width, 0.028),
+                            pixel_height,
+                            pixel_z,
+                            line_angle,
+                            f"{name}_red_letter_pixel_{pixel_count:03d}",
+                            "TrafficSignalRed",
+                        )
+        for strap_index, tangent_offset in enumerate((-1.36, -0.46, 0.46, 1.36), start=1):
+            strap_center = (panel_center[0] + tangent[0] * tangent_offset + normal[0] * 0.075, panel_center[1] + tangent[1] * tangent_offset + normal[1] * 0.075)
+            obj.add_oriented_box(strap_center, (0.055, 0.12), 1.48, 0.22, line_angle, f"{name}_rear_attachment_strap_{strap_index:02d}", "DoorMetal")
+        add_facade_detail(
+            name,
+            "jan6_target_date_area_closed_sign",
+            (panel_center[0], panel_center[1], panel_base_z + panel_height / 2.0),
+            {
+                "target_date": "2021-01-06",
+                "scene_time_local": "11:50",
+                "state": "pre_first_breach_intact",
+                "wording": ["AREA", "CLOSED"],
+                "panel_color": "white",
+                "lettering_color": "bold_red",
+                "letter_pixel_count": pixel_count,
+                "attachment_straps": 4,
+                "source_role": "second_peace_circle_manned_line_notice",
+                "geometry_role": "temporary_modular_overlay",
+            },
+        )
+
     first_peace_modules = add_jan6_bike_rack_line(
         "jan6_2021_peace_circle_first_outer_barricade",
         (-282.0, 72.5),
@@ -9628,6 +9708,15 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         (-278.45, 70.18),
         (-262.05, 87.88),
     )
+    peace_line_angle = math.atan2(88.2 - 70.5, -262.4 - -278.8)
+    peace_line_dx = -262.4 - -278.8
+    peace_line_dy = 88.2 - 70.5
+    for sign_index, sign_t in enumerate((0.34, 0.70), start=1):
+        add_jan6_area_closed_sign(
+            f"jan6_2021_peace_circle_area_closed_sign_{sign_index:02d}",
+            (-278.8 + peace_line_dx * sign_t, 70.5 + peace_line_dy * sign_t),
+            peace_line_angle,
+        )
     add_facade_detail(
         "jan6_2021_pre_breach_west_security_inventory",
         "jan6_target_date_pre_breach_security_inventory",

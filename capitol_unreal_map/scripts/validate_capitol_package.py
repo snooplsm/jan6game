@@ -1649,6 +1649,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "jan6_target_date_bike_rack_barricade_line",
     "jan6_target_date_snow_fence_line",
     "jan6_target_date_pre_breach_security_inventory",
+    "jan6_target_date_area_closed_sign",
     "olmsted_west_boundary_lantern",
     "olmsted_west_boundary_lantern_inventory",
     "olmsted_west_boundary_drinking_fountain",
@@ -2895,6 +2896,23 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         for detail in target_date_security_inventory
     ):
         error(errors, "January 6 pre-breach security inventory must retain three barricade lines and dark mesh fencing")
+    target_date_area_closed_signs = [
+        detail for detail in facade_details if detail.get("kind") == "jan6_target_date_area_closed_sign"
+    ]
+    if len(target_date_area_closed_signs) != 2:
+        error(errors, "expected two large AREA CLOSED notices on the second Peace Circle line")
+    if any(
+        detail.get("target_date") != "2021-01-06"
+        or detail.get("scene_time_local") != "11:50"
+        or detail.get("state") != "pre_first_breach_intact"
+        or detail.get("wording") != ["AREA", "CLOSED"]
+        or detail.get("panel_color") != "white"
+        or detail.get("lettering_color") != "bold_red"
+        or int(detail.get("letter_pixel_count", 0)) < 100
+        or int(detail.get("attachment_straps", 0)) != 4
+        for detail in target_date_area_closed_signs
+    ):
+        error(errors, "January 6 AREA CLOSED notices must retain white panels, bold red geometric lettering, and four attachment straps")
     olmsted_lanterns = [
         detail for detail in facade_details if detail.get("kind") == "olmsted_west_boundary_lantern"
     ]
