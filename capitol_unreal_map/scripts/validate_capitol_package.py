@@ -2516,6 +2516,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, f"missing public grounds detail kinds: {', '.join(missing_grounds_kinds)}")
     if len(grounds_walk_lamps) < 18:
         error(errors, f"expected at least 18 public grounds walk lamps, got {len(grounds_walk_lamps)}")
+    elif any(
+        detail.get("replacement_asset_path") != "/Game/HistoricalOSM/Props/LampPostLight/SM_LampPostLight"
+        or detail.get("blockout_geometry_omitted") is not True
+        or detail.get("source_license") != "CC BY 4.0"
+        or abs(float(detail.get("instance_height_m", 0.0)) - 3.25) > 0.001
+        or abs(float(detail.get("light_m", [0.0, 0.0, 0.0])[2]) - 3.05) > 0.001
+        for detail in grounds_walk_lamps
+    ):
+        error(errors, "grounds lamps must use the licensed modular asset with glass-aligned lights and omitted blockouts")
     public_hedges = [detail for detail in grounds_details if detail.get("kind") == "public_hedge"]
     if len(public_hedges) < 12:
         error(errors, "expected at least 12 public hedge records")

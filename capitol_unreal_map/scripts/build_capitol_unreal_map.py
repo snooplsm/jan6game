@@ -4580,19 +4580,23 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
 
     def add_grounds_lamp(name: str, center: tuple[float, float]) -> None:
         x, y = center
-        roads.add_cylinder((x, y), 0.055, 0.10, 3.25, f"{name}_pole", "StreetLightPole", segments=10)
-        roads.add_cylinder((x, y), 0.16, 3.08, 0.32, f"{name}_glass", "StreetLightGlass", segments=12)
         add_grounds_record(
             name,
             "public_walk_lamp",
-            (x, y, 1.75),
-            (0.36, 0.36),
-            public_accuracy="schematic_public_grounds_lighting",
+            (x, y, 0.0),
+            (0.58, 0.58),
+            public_accuracy="schematic_public_grounds_lighting_with_licensed_modular_asset",
             extra={
-                "light_m": [round(x, 3), round(y, 3), 3.22],
+                "replacement_asset_path": "/Game/HistoricalOSM/Props/LampPostLight/SM_LampPostLight",
+                "instance_height_m": 3.25,
+                "instance_base_z_m": 0.0,
+                "blockout_geometry_omitted": True,
+                "light_m": [round(x, 3), round(y, 3), 3.05],
                 "intensity": 360.0,
                 "attenuation_radius_m": 8.0,
                 "color": [1.0, 0.82, 0.55],
+                "source_license": "CC BY 4.0",
+                "historical_note": "Licensed detailed visual proxy; fixture design and placement remain schematic rather than January 2021 source-verified.",
             },
         )
 

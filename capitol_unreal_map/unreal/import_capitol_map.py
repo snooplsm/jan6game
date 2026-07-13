@@ -33,6 +33,8 @@ HIGH_QUALITY_SHRUB_ASSET_PATH = "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_gr
 HIGH_QUALITY_SHRUB_FOLDER = "CapitolMap/Vegetation/HighQualityShrubs"
 HIGH_QUALITY_GROUNDS_BENCH_ASSET_PATH = "/Game/HistoricalOSM/Props/BenchModelFree/SM_BenchModelFree"
 HIGH_QUALITY_GROUNDS_BENCH_FOLDER = "CapitolMap/Streetscape/HighQualityGroundsBenches"
+HIGH_QUALITY_GROUNDS_LAMP_ASSET_PATH = "/Game/HistoricalOSM/Props/LampPostLight/SM_LampPostLight"
+HIGH_QUALITY_GROUNDS_LAMP_FOLDER = "CapitolMap/Streetscape/HighQualityGroundsLamps"
 TEXTURE_KINDS = ("basecolor", "normal", "roughness", "ambient_occlusion")
 TEXTURE_KIND_SETTINGS = {
     "basecolor": {
@@ -1986,6 +1988,63 @@ def spawn_high_quality_grounds_benches() -> dict[str, Any]:
     return stats
 
 
+def spawn_high_quality_grounds_lamps() -> dict[str, Any]:
+    """Replace omitted grounds-lamp blockouts with the licensed modular mesh."""
+    stats: dict[str, Any] = {
+        "asset_path": HIGH_QUALITY_GROUNDS_LAMP_ASSET_PATH,
+        "candidate_count": 0,
+        "spawned_actor_count": 0,
+        "asset_loaded": False,
+        "blockout_geometry_omitted": True,
+    }
+    try:
+        data = load_metadata()
+        details = [
+            detail
+            for detail in data.get("exterior", {}).get("grounds_details", [])
+            if detail.get("kind") == "public_walk_lamp"
+            and detail.get("replacement_asset_path") == HIGH_QUALITY_GROUNDS_LAMP_ASSET_PATH
+        ]
+        stats["candidate_count"] = len(details)
+        asset = unreal.EditorAssetLibrary.load_asset(HIGH_QUALITY_GROUNDS_LAMP_ASSET_PATH)
+        if not asset:
+            log(f"High-quality grounds lamp asset is not installed: {HIGH_QUALITY_GROUNDS_LAMP_ASSET_PATH}")
+            return stats
+        stats["asset_loaded"] = True
+        native_height_cm = 100.0
+        native_min_z_cm = 0.0
+        try:
+            bounds = asset.get_bounding_box()
+            native_height_cm = max(1.0, float(bounds.max.z) - float(bounds.min.z))
+            native_min_z_cm = float(bounds.min.z)
+        except Exception as exc:
+            log(f"Grounds lamp asset bounds fallback used: {exc}")
+        for detail in details:
+            center = detail.get("center_m", [0.0, 0.0, 0.0])
+            scale = float(detail.get("instance_height_m", 3.25)) * 100.0 / native_height_cm
+            base_z_cm = float(detail.get("instance_base_z_m", 0.0)) * 100.0
+            actor = unreal.EditorLevelLibrary.spawn_actor_from_object(
+                asset,
+                unreal.Vector(
+                    float(center[0]) * 100.0,
+                    float(center[1]) * 100.0,
+                    base_z_cm - native_min_z_cm * scale,
+                ),
+                unreal.Rotator(0.0, 0.0, 0.0),
+            )
+            if not actor:
+                continue
+            actor.set_actor_scale3d(unreal.Vector(scale, scale, scale))
+            actor.set_actor_label(f"CapitolMap_HQGroundsLamp_{detail.get('name', 'lamp')}")
+            actor.set_folder_path(HIGH_QUALITY_GROUNDS_LAMP_FOLDER)
+            set_actor_tags(actor, ["CapitolMap_HighQualityGroundsLamp", "CapitolMap_PublicGrounds"])
+            configure_static_mesh_component(actor.get_component_by_class(unreal.StaticMeshComponent))
+            stats["spawned_actor_count"] += 1
+    except Exception as exc:
+        log(f"High-quality grounds lamp replacement skipped: {exc}")
+    return stats
+
+
 def spawn_mesh_actors(asset_paths: list[str], material_assets: dict[str, str]) -> None:
     for asset_path in asset_paths:
         configure_static_mesh(asset_path)
@@ -2013,11 +2072,13 @@ def spawn_scene_setup() -> dict[str, Any]:
     spawn_navigation_bounds()
     shrub_stats = spawn_high_quality_grounds_shrubs()
     grounds_bench_stats = spawn_high_quality_grounds_benches()
+    grounds_lamp_stats = spawn_high_quality_grounds_lamps()
     light_stats = spawn_metadata_lights()
     return {
         "lighting": light_stats,
         "high_quality_shrubs": shrub_stats,
         "high_quality_grounds_benches": grounds_bench_stats,
+        "high_quality_grounds_lamps": grounds_lamp_stats,
     }
 
 
