@@ -9560,13 +9560,47 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         )
 
     restored_lantern_specs = [
-        ("peace_circle_north", (-264.0, 91.0), 1),
-        ("peace_circle_south", (-263.0, 70.0), 2),
-        ("garfield_circle_north", (-263.0, -95.0), 3),
-        ("garfield_circle_south", (-264.0, -116.0), 4),
+        ("peace_circle_north", (-269.1, 83.9), 1),
+        ("peace_circle_south", (-264.9, 88.1), 2),
+        ("garfield_circle_north", (-267.7, -96.6), 3),
+        ("garfield_circle_south", (-265.5, -102.2), 4),
     ]
     for lantern_name, lantern_center, style_index in restored_lantern_specs:
         add_olmsted_lantern(f"olmsted_restored_2020_{lantern_name}_lantern", lantern_center, style_index, "osm_circle_anchor_plus_aoc_entry_description")
+
+    def add_olmsted_entry_wall(name: str, first_pier: tuple[float, float], second_pier: tuple[float, float]) -> None:
+        dx = second_pier[0] - first_pier[0]
+        dy = second_pier[1] - first_pier[1]
+        separation = math.hypot(dx, dy)
+        ux = dx / separation
+        uy = dy / separation
+        segments = [
+            (first_pier, (first_pier[0] - ux * 11.0, first_pier[1] - uy * 11.0)),
+            (second_pier, (second_pier[0] + ux * 11.0, second_pier[1] + uy * 11.0)),
+        ]
+        for segment_index, (inner, outer) in enumerate(segments, start=1):
+            obj.add_beam_between(inner + (0.62,), outer + (0.62,), 0.70, 1.16, f"{name}_stone_wall_{segment_index:02d}", "CapitolStone")
+            obj.add_beam_between(inner + (1.25,), outer + (1.25,), 0.88, 0.16, f"{name}_marble_coping_{segment_index:02d}", "ColumnStone")
+            for post_index in range(9):
+                t = post_index / 8.0
+                post = (inner[0] + (outer[0] - inner[0]) * t, inner[1] + (outer[1] - inner[1]) * t)
+                obj.add_cylinder(post, 0.045, 1.34, 0.68, f"{name}_iron_rail_post_{segment_index:02d}_{post_index + 1:02d}", "StatueBronze", segments=10)
+            obj.add_beam_between(inner + (2.02,), outer + (2.02,), 0.12, 0.10, f"{name}_iron_top_rail_{segment_index:02d}", "StatueBronze")
+        midpoint = ((first_pier[0] + second_pier[0]) / 2.0, (first_pier[1] + second_pier[1]) / 2.0)
+        add_facade_detail(
+            name,
+            "olmsted_diagonal_walk_entry_wall",
+            (midpoint[0], midpoint[1], 1.05),
+            {
+                "opening_width_m": round(separation, 3),
+                "flanking_wall_segments": 2,
+                "rail_posts": 18,
+                "placement_confidence": "osm_walk_connector_aligned_aoc_entry_description",
+            },
+        )
+
+    add_olmsted_entry_wall("olmsted_peace_circle_diagonal_walk_entry", (-269.1, 83.9), (-264.9, 88.1))
+    add_olmsted_entry_wall("olmsted_garfield_circle_diagonal_walk_entry", (-267.7, -96.6), (-265.5, -102.2))
     remaining_lantern_y = [-76.0, -61.0, -46.0, -31.0, -16.0, 16.0, 31.0, 46.0, 61.0, 76.0]
     for lantern_index, lantern_y in enumerate(remaining_lantern_y, start=1):
         add_olmsted_lantern(

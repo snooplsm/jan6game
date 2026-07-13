@@ -1649,6 +1649,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "olmsted_west_boundary_lantern",
     "olmsted_west_boundary_lantern_inventory",
     "olmsted_west_boundary_drinking_fountain",
+    "olmsted_diagonal_walk_entry_wall",
     "primary_facade_bay_side_return",
     "primary_facade_bay_lintel_sill",
     "facade_corner_quoin_block",
@@ -2861,6 +2862,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         for detail in olmsted_lanterns
     ):
         error(errors, "Olmsted lantern assemblies must retain 12 gas-jet-style bulbs and January 6 target-date metadata")
+    restored_olmsted_lanterns = [
+        detail
+        for detail in olmsted_lanterns
+        if detail.get("placement_confidence") == "osm_circle_anchor_plus_aoc_entry_description"
+    ]
+    if len(restored_olmsted_lanterns) != 4:
+        error(errors, "expected four OSM-circle-anchored restored Olmsted lantern placements")
     lantern_inventories = [
         detail for detail in facade_details if detail.get("kind") == "olmsted_west_boundary_lantern_inventory"
     ]
@@ -2882,6 +2890,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         for detail in olmsted_wall_fountains
     ):
         error(errors, "expected one date-stamped Olmsted west-boundary fountain with blue-heron focal carving")
+    olmsted_entry_walls = [
+        detail for detail in facade_details if detail.get("kind") == "olmsted_diagonal_walk_entry_wall"
+    ]
+    if len(olmsted_entry_walls) != 2:
+        error(errors, "expected paired Peace and Garfield Circle Olmsted diagonal-walk entry walls")
+    if any(
+        int(detail.get("flanking_wall_segments", 0)) != 2
+        or int(detail.get("rail_posts", 0)) < 18
+        or not 5.0 <= float(detail.get("opening_width_m", 0.0)) <= 7.0
+        for detail in olmsted_entry_walls
+    ):
+        error(errors, "Olmsted diagonal-walk entries must retain two coped wall segments, iron rails, and a plausible open walkway width")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_side_return"]) < 76:
         error(errors, "expected at least 76 large-component primary facade bay side-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "primary_facade_bay_lintel_sill"]) < 76:
