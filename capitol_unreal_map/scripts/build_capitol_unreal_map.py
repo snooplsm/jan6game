@@ -9354,6 +9354,28 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "StepStone",
             bevel=0.12,
         )
+        connector_y = side_sign * 39.0
+        add_beveled_massing(
+            f"west_front_{side_name}_pavilion_connector_landing",
+            (-70.4, connector_y),
+            (7.2, 14.0),
+            0.34,
+            3.30,
+            "StepStone",
+            bevel=0.12,
+        )
+        add_facade_detail(
+            f"west_front_{side_name}_pavilion_connector_landing",
+            "west_front_pavilion_connector_landing",
+            (-70.4, connector_y, 3.47),
+            {
+                "side": side_name,
+                "overlaps_existing_stair_landing_m": 2.0,
+                "reaches_corner_pavilion_edge_m": round(abs(connector_y) - 7.0, 3),
+                "source_reference": "HABS DC-38-13",
+                "public_accuracy": "habs_composition_aligned_approximate_dimensions",
+            },
+        )
         for edge_sign in (-1.0, 1.0):
             edge_y = flight_y + edge_sign * 6.65
             for post_index in range(8):
@@ -10132,6 +10154,51 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     "public_accuracy": "habs_composition_aligned",
                 },
             )
+            for pavilion_side, pavilion_sign in (("north", 1.0), ("south", -1.0)):
+                pavilion_y = pavilion_sign * 31.0
+                pavilion_x = portico_outer_face + front_sign * 0.34
+                prefix = f"west_central_{pavilion_side}_corner_pavilion"
+                obj.add_box((pavilion_x, pavilion_y), (0.34, 5.35), 9.45, 3.42, f"{prefix}_face", "CapitolStone")
+                window_levels = (5.55, 9.12)
+                for window_index, window_z in enumerate(window_levels, start=1):
+                    window_name = f"{prefix}_window_{window_index:02d}"
+                    obj.add_box((pavilion_x + front_sign * 0.20, pavilion_y), (0.08, 1.66), 2.18, window_z, f"{window_name}_glass", "FacadeWindow")
+                    for jamb_sign in (-1.0, 1.0):
+                        obj.add_box(
+                            (pavilion_x + front_sign * 0.24, pavilion_y + jamb_sign * 0.94),
+                            (0.12, 0.18),
+                            2.42,
+                            window_z - 0.12,
+                            f"{window_name}_jamb_{jamb_sign:+.0f}",
+                            "ColumnStone",
+                        )
+                    obj.add_box((pavilion_x + front_sign * 0.24, pavilion_y), (0.12, 2.04), 0.20, window_z - 0.16, f"{window_name}_sill", "ColumnStone")
+                    obj.add_box((pavilion_x + front_sign * 0.24, pavilion_y), (0.12, 2.04), 0.24, window_z + 2.18, f"{window_name}_lintel", "ColumnStone")
+                    obj.add_box((pavilion_x + front_sign * 0.25, pavilion_y), (0.13, 0.10), 2.18, window_z, f"{window_name}_center_mullion", "ColumnStone")
+                outer_quoin_y = pavilion_y + pavilion_sign * 2.52
+                for quoin_index in range(6):
+                    quoin_z = 3.66 + quoin_index * 1.48
+                    obj.add_box(
+                        (pavilion_x + front_sign * 0.26, outer_quoin_y),
+                        (0.16, 0.74),
+                        0.62,
+                        quoin_z,
+                        f"{prefix}_outer_quoin_{quoin_index+1:02d}",
+                        "ColumnStone",
+                    )
+                obj.add_box((pavilion_x + front_sign * 0.22, pavilion_y), (0.18, 5.82), 0.28, 12.58, f"{prefix}_cornice", "ColumnStone")
+                add_facade_detail(
+                    prefix,
+                    "west_central_corner_pavilion",
+                    (pavilion_x, pavilion_y, 8.145),
+                    {
+                        "side": pavilion_side,
+                        "window_count": len(window_levels),
+                        "outer_quoin_count": 6,
+                        "source_reference": "HABS DC-38-13",
+                        "public_accuracy": "habs_composition_aligned",
+                    },
+                )
         add_element(f"{side.title()} front steps and colonnade", "landmark", (x, 0.0, 3.0))
         for door_index, y in enumerate([-9.0, 0.0, 9.0], start=1):
             add_revolving_door(f"{side}_front_{door_index}", (portico_outer_face + front_sign * 0.05, y), side)

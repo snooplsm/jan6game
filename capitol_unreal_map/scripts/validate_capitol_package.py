@@ -3060,6 +3060,24 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected one HABS-aligned west central portico balcony")
     elif int(west_central_balconies[0].get("baluster_count", 0)) != 13:
         error(errors, "west central portico balcony must retain 13 turned balusters")
+    west_central_corner_pavilions = [
+        detail for detail in facade_details if detail.get("kind") == "west_central_corner_pavilion"
+    ]
+    if len(west_central_corner_pavilions) != 2:
+        error(errors, "expected the paired HABS-aligned west central corner pavilions")
+    if any(
+        int(detail.get("window_count", 0)) != 2
+        or int(detail.get("outer_quoin_count", 0)) != 6
+        for detail in west_central_corner_pavilions
+    ):
+        error(errors, "west central corner pavilions must retain two windows and six outer quoins each")
+    pavilion_connector_landings = [
+        detail for detail in facade_details if detail.get("kind") == "west_front_pavilion_connector_landing"
+    ]
+    if len(pavilion_connector_landings) != 2:
+        error(errors, "expected paired west-front pavilion connector landings")
+    elif any(float(detail.get("overlaps_existing_stair_landing_m", 0.0)) < 1.5 for detail in pavilion_connector_landings):
+        error(errors, "west-front pavilion connector landings must overlap the existing stair landings")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_soffit_coffer"]) < 70:
         error(errors, "expected at least 70 public portico soffit coffer records")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_intercolumn_shadow"]) < 24:

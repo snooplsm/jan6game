@@ -75,6 +75,11 @@ fabrication dimensions are not published by that photograph, so the generated
 The former 26-piece, two-level generic arched-window grid on this same west
 central wall is intentionally omitted; it conflicted with the photographed
 continuous tall rectangular bay composition. Other facade arches are retained.
+The two solid corner masses framing that window wall now carry paired recessed
+rectangular windows, center mullions, projecting surrounds, six outer quoin
+blocks, and a cap cornice each. Short stone connector landings bridge those
+pavilion edges to the already modeled north/south lateral stair landings. The
+photograph supports this hierarchy, while exact dimensions remain approximate.
 
 January 6, 2021 temporary West Front configuration references:
 
