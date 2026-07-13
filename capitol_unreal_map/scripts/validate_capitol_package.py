@@ -3047,10 +3047,23 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     pediment_raking_cornices = [
         detail for detail in facade_details if detail.get("kind") == "pediment_raking_cornice"
     ]
-    if len(pediment_raking_cornices) < 8:
-        error(errors, "expected the 8 continuous public pediment raking-cornice records")
+    if len(pediment_raking_cornices) < 6:
+        error(errors, "expected the 6 continuous public east, north, and south pediment raking-cornice records")
     if any(detail.get("geometry") != "continuous_sloped_prism" for detail in pediment_raking_cornices):
         error(errors, "pediment raking cornices must use continuous sloped prisms rather than stepped blocks")
+    if any(str(detail.get("name", "")).startswith("west_front_pediment") for detail in facade_details):
+        error(errors, "west front must not regain the unsupported mirrored triangular pediment assembly")
+    if any(
+        str(detail.get("name", "")).startswith("west_front")
+        and detail.get("kind") in {"pediment_relief_panel", "pediment_sculptural_relief_block"}
+        for detail in facade_details
+    ):
+        error(errors, "west front must not contain the generic East Front sculptural relief")
+    west_flat_crown = [
+        detail for detail in facade_details if detail.get("kind") == "west_front_flat_portico_crown"
+    ]
+    if len(west_flat_crown) != 3:
+        error(errors, "expected the three-band flat West Front portico crown")
     if len([detail for detail in facade_details if detail.get("kind") == "portico_side_cornice_return"]) < 8:
         error(errors, "expected at least 8 public portico side cornice-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "terrace_retaining_wall"]) < 8:
@@ -3162,12 +3175,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "facade window keystones must use tapered wedge geometry rather than rectangular boxes")
     if any(float(detail.get("top_width_m", 0.0)) <= float(detail.get("bottom_width_m", 0.0)) for detail in facade_window_keystones):
         error(errors, "facade window keystone profiles must widen toward the arch crown")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_sculptural_relief_block"]) < 32:
-        error(errors, "expected at least 32 generic public pediment relief block records")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_rosette_relief_detail"]) < 32:
-        error(errors, "expected at least 32 generic public pediment rosette relief records")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_garland_relief_detail"]) < 32:
-        error(errors, "expected at least 32 generic public pediment garland relief records")
+    if len([detail for detail in facade_details if detail.get("kind") == "pediment_sculptural_relief_block"]) < 23:
+        error(errors, "expected the 23 retained east, north, and south generic public pediment relief blocks")
+    if len([detail for detail in facade_details if detail.get("kind") == "pediment_rosette_relief_detail"]) < 23:
+        error(errors, "expected the 23 retained east, north, and south generic public pediment rosette records")
+    if len([detail for detail in facade_details if detail.get("kind") == "pediment_garland_relief_detail"]) < 23:
+        error(errors, "expected the 23 retained east, north, and south generic public pediment garland records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
         error(errors, "expected at least 6 public roof balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]) < 90:

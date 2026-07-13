@@ -8959,11 +8959,36 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             7,
         )
         add_portico_entablature_layers(f"{side}_front_portico", "east_west", (x + face_sign * 4.75, 0.0), 58.0, 13.35)
-        obj.add_pediment((x + (2.2 if x > 0 else -2.2), 0.0), 56.0, 4.4, 15.38, 4.2, f"{side}_front_triangular_pediment", "ColumnStone", "east_west")
-        add_pediment_raking_cornice(f"{side}_front_pediment", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.38, 4.2)
         add_portico_side_cornice_returns(f"{side}_front_portico", "east_west", (x, 0.0), 36.0, 18.0, 14.72)
-        obj.add_box((x + (2.7 if x > 0 else -2.7), 0.0), (0.18, 12.0), 0.42, 16.25, f"{side}_front_pediment_public_relief_panel", "ColumnStone")
-        add_pediment_relief_cluster(f"{side}_front", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.95, 9)
+        if side == "east":
+            # The named Capitol pediment sculpture is an East Front feature.
+            # Do not mirror this assembly onto the west facade: the stable West
+            # Front silhouette terminates in a flat entablature/crown beneath
+            # the central dome rather than a sculptural triangular pediment.
+            obj.add_pediment((x + 2.2, 0.0), 56.0, 4.4, 15.38, 4.2, "east_front_triangular_pediment", "ColumnStone", "east_west")
+            add_pediment_raking_cornice("east_front_pediment", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.38, 4.2)
+            obj.add_box((x + 2.7, 0.0), (0.18, 12.0), 0.42, 16.25, "east_front_pediment_public_relief_panel", "ColumnStone")
+            add_pediment_relief_cluster("east_front", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.95, 9)
+            add_facade_detail("east_front_triangular_pediment", "classical_pediment", (x, 0.0, 17.1))
+            add_facade_detail("east_front_pediment_public_relief_panel", "pediment_relief_panel", (x, 0.0, 16.46))
+        else:
+            crown_face = x + face_sign * 4.55
+            for band_index, (band_z, band_depth, band_span) in enumerate(
+                ((15.28, 0.34, 60.0), (15.72, 0.26, 58.4), (16.06, 0.20, 56.8)),
+                start=1,
+            ):
+                band_name = f"west_front_flat_crown_band_{band_index:02d}"
+                obj.add_box((crown_face, 0.0), (band_depth, band_span), 0.22, band_z, band_name, "ColumnStone")
+                add_facade_detail(
+                    band_name,
+                    "west_front_flat_portico_crown",
+                    (crown_face, 0.0, band_z + 0.11),
+                    {
+                        "sequence": band_index,
+                        "source_alignment": "stable_modern_west_front_composition",
+                        "public_accuracy": "reference_aligned_public_architecture",
+                    },
+                )
         add_roof_cap(f"{side}_front_portico_roof", (x, 0.0), (20.5, 70.0), 13.95)
         add_portico_soffit_coffers(
             f"{side}_front_portico",
@@ -8973,8 +8998,6 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             [-4.2, 0.0, 4.2],
             13.62,
         )
-        add_facade_detail(f"{side}_front_triangular_pediment", "classical_pediment", (x, 0.0, 17.1))
-        add_facade_detail(f"{side}_front_pediment_public_relief_panel", "pediment_relief_panel", (x, 0.0, 16.46))
 
     for side, y in (("north", 99.0), ("south", -99.0)):
         face_sign = 1.0 if y > 0.0 else -1.0

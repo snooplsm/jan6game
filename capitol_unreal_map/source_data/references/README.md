@@ -30,9 +30,17 @@ Modern west-front composition references:
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/
+- Architect of the Capitol, *Genius of America Pediment*, explicitly locating
+  the central sculptural pediment at the East Central Entrance:
+  https://www.aoc.gov/explore-capitol-campus/art/genius-america-pediment
 - Current public west-front photography is used only to align the stable
   architectural composition; foliage, temporary fixtures, and seasonal state
   are not copied into the January 6, 2021 scene.
+
+The central West Front is therefore not assigned a mirrored copy of the East
+Front sculptural pediment. Its generated portico now ends in a flat layered
+entablature/crown below the dome; the east, north, and south pediments retain
+their separate geometry.
 
 January 6, 2021 temporary West Front configuration references:
 
