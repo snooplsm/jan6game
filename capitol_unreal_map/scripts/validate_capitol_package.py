@@ -4553,6 +4553,13 @@ def validate_high_fidelity_asset_manifest(errors: list[str]) -> dict[str, Any]:
                 error(errors, f"duplicate high-fidelity candidate asset path: {asset_path}")
             else:
                 candidate_paths.add(asset_path)
+        if role == "ornamental_planting_and_hero_vegetation" and candidate.get("status") == "accepted_for_live_grounds_placement":
+            live_evaluation = candidate.get("live_evaluation")
+            capture = live_evaluation.get("viewport_capture") if isinstance(live_evaluation, dict) else None
+            if not isinstance(capture, str) or not capture:
+                error(errors, f"accepted high-fidelity candidate {role or index!r} lacks a viewport capture")
+            elif not (HIGH_FIDELITY_ASSET_MANIFEST_PATH.parent / capture).resolve().is_file():
+                error(errors, f"accepted high-fidelity candidate {role or index!r} viewport capture is missing: {capture}")
 
     shrub_candidate = next(
         (candidate for candidate in candidates if candidate.get("role") == "ornamental_planting_and_hero_vegetation"),

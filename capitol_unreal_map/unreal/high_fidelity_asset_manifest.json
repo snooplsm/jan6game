@@ -43,7 +43,7 @@
     },
     {
       "role": "ornamental_planting_and_hero_vegetation",
-      "status": "installed_pending_live_evaluation",
+      "status": "accepted_for_live_grounds_placement",
       "source_pack": "Maxtree Plant Models Vol. 60",
       "asset_paths": [
         "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01",
@@ -54,6 +54,12 @@
         "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_06"
       ],
       "use": "Selected high-detail planting-bed specimens where species and January appearance are defensible.",
+      "live_evaluation": {
+        "date": "2026-07-13",
+        "viewport_capture": "../../Docs/validation/shrubs_maxtree_abelia_variants_2026-07-13.png",
+        "result": "All six variants loaded and 572 actors spawned with grounded pivots, plausible maintained height, and visibly varied silhouettes.",
+        "distribution": [96, 96, 95, 95, 95, 95]
+      },
       "constraints": [
         "Do not scatter flowering, tropical, or fully leafed specimens merely because they are high polygon count.",
         "Evaluate winter material appearance, physical dimensions, Nanite/LOD behavior, and draw cost in Unreal before placement.",

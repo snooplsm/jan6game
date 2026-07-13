@@ -7,3 +7,4 @@ capitol_unreal_map/generated/textures/*.png filter=lfs diff=lfs merge=lfs -text
 capitol_unreal_map/generated/meshes/*.obj filter=lfs diff=lfs merge=lfs -text
 SourceAssets/**/*.obj filter=lfs diff=lfs merge=lfs -text
 SourceAssets/**/*.png filter=lfs diff=lfs merge=lfs -text
+Docs/validation/*.png filter=lfs diff=lfs merge=lfs -text
