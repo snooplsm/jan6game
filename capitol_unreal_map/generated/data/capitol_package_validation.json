@@ -70,8 +70,8 @@
       "generated_road_edge_props": 220,
       "generated_road_surface_patches": 140
     },
-    "grounds_details": 215,
-    "grounds_detail_kinds": 15,
+    "grounds_details": 221,
+    "grounds_detail_kinds": 18,
     "grounds_walk_lamps": 18,
     "landmark_elements": 20,
     "facade_details": 8956,
@@ -227,12 +227,12 @@
     },
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
-      "vertices": 859708,
-      "uvs": 1372764,
-      "faces": 317951,
-      "faces_with_uvs": 317951,
-      "triangles": 736862,
-      "groups": 26443,
+      "vertices": 859907,
+      "uvs": 1372963,
+      "faces": 317993,
+      "faces_with_uvs": 317993,
+      "triangles": 736977,
+      "groups": 26449,
       "materials": [
         "BenchWood",
         "BikeLaneGreen",
@@ -275,7 +275,7 @@
         "min": [
           -214016.0294,
           -948771.2577,
-          1.8
+          1.0
         ],
         "max": [
           201832.6327,

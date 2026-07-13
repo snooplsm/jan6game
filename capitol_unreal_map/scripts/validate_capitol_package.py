@@ -2049,6 +2049,15 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     grounds_detail_kinds = {detail.get("kind") for detail in grounds_details}
     grounds_walk_lamps = [detail for detail in grounds_details if detail.get("kind") == "public_walk_lamp"]
     grounds_trees = [detail for detail in grounds_details if detail.get("kind") == "public_tree_allee"]
+    green_roof_park_surfaces = [
+        detail for detail in grounds_details if detail.get("kind") == "public_green_roof_park_surface"
+    ]
+    house_garage_fountain_basins = [
+        detail for detail in grounds_details if detail.get("kind") == "public_house_garage_fountain_basin"
+    ]
+    house_garage_fountain_coping = [
+        detail for detail in grounds_details if detail.get("kind") == "public_house_garage_fountain_coping"
+    ]
     summary["grounds_details"] = len(grounds_details)
     summary["grounds_detail_kinds"] = len(grounds_detail_kinds)
     summary["grounds_walk_lamps"] = len(grounds_walk_lamps)
@@ -2557,6 +2566,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         for detail in grounds_trees
     ):
         error(errors, "grounds allee trees must use varied, seasonal winter Hornbeam replacements with omitted blockouts")
+    if {int(detail.get("source_outer_way_id", -1)) for detail in green_roof_park_surfaces} != {26628887, 26628890}:
+        error(errors, "expected both historical Spirit of Justice Park multipolygon outer surfaces")
+    expected_house_fountains = {546401273, 546401944}
+    if {int(detail.get("source_way_id", -1)) for detail in house_garage_fountain_basins} != expected_house_fountains:
+        error(errors, "expected both historical House garage fountain basins")
+    if {int(detail.get("source_way_id", -1)) for detail in house_garage_fountain_coping} != expected_house_fountains:
+        error(errors, "expected coping geometry for both historical House garage fountains")
     public_hedges = [detail for detail in grounds_details if detail.get("kind") == "public_hedge"]
     if len(public_hedges) < 12:
         error(errors, "expected at least 12 public hedge records")

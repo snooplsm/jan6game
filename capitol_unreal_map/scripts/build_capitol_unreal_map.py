@@ -68,6 +68,12 @@ CURATED_BELOW_GRADE_BUILDING_WAY_IDS = {
     888787620: "House parking garage beneath the east half of the green-roof park",
 }
 CURATED_BELOW_GRADE_SOURCE_URL = "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+SPIRIT_OF_JUSTICE_PARK_RELATION_ID = 7393962
+SPIRIT_OF_JUSTICE_PARK_OUTER_WAY_IDS = {26628887, 26628890}
+HOUSE_GARAGE_FOUNTAIN_WAY_IDS = {
+    546401273: "House East Fountain",
+    546401944: "House West Fountain",
+}
 
 
 def relative_to_package(path: Path) -> str:
@@ -4911,6 +4917,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         for idx, center in enumerate(cluster_centers, start=1):
             add_ornamental_planting_cluster(f"ornamental_public_planting_cluster_{idx:02d}", center)
 
+    processed_spirit_park_outer_ids: set[int] = set()
     for way in ways:
         tags = way.get("tags", {})
         points = way_points(way, nodes)
@@ -4920,6 +4927,63 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         name = tags.get("name") or tags.get("official_name") or f"osm_{osm_element_type}_{way['id']}"
         is_capitol = "capitol" in name.lower() and tags.get("building")
         is_us_capitol = tags.get("wikidata") == "Q54109" or name == "United States Capitol"
+
+        if (
+            int(way["id"]) in SPIRIT_OF_JUSTICE_PARK_OUTER_WAY_IDS
+            and int(way["id"]) not in processed_spirit_park_outer_ids
+            and len(points) >= 3
+        ):
+            processed_spirit_park_outer_ids.add(int(way["id"]))
+            park_name = f"spirit_of_justice_park_green_roof_{way['id']}"
+            roads.add_flat_polygon(points, 0.010, park_name, "GroundGrass")
+            park_cx = sum(point[0] for point in points) / len(points)
+            park_cy = sum(point[1] for point in points) / len(points)
+            park_size = (max(point[0] for point in points) - min(point[0] for point in points), max(point[1] for point in points) - min(point[1] for point in points))
+            add_grounds_record(
+                park_name,
+                "public_green_roof_park_surface",
+                (park_cx, park_cy, 0.010),
+                park_size,
+                public_accuracy="source_aligned_public_historical_osm_multipolygon_outer",
+                extra={
+                    "source_relation_id": SPIRIT_OF_JUSTICE_PARK_RELATION_ID,
+                    "source_outer_way_id": int(way["id"]),
+                    "public_source_url": CURATED_BELOW_GRADE_SOURCE_URL,
+                    "surface_note": "Low schematic green-roof park surface; mapped paths remain layered above it.",
+                },
+            )
+
+        fountain_name = HOUSE_GARAGE_FOUNTAIN_WAY_IDS.get(int(way["id"]))
+        if fountain_name and len(points) >= 3:
+            slug = fountain_name.lower().replace(" ", "_")
+            basin_name = f"{slug}_source_basin"
+            coping_name = f"{slug}_source_coping"
+            roads.add_flat_polygon(points, 0.090, basin_name, "MarkerBlue")
+            roads.add_polyline_strip(points, 0.24, 0.110, coping_name, "StepStone")
+            fountain_cx = sum(point[0] for point in points) / len(points)
+            fountain_cy = sum(point[1] for point in points) / len(points)
+            fountain_size = (max(point[0] for point in points) - min(point[0] for point in points), max(point[1] for point in points) - min(point[1] for point in points))
+            common = {
+                "source_way_id": int(way["id"]),
+                "source_tags": tags,
+                "public_source_url": CURATED_BELOW_GRADE_SOURCE_URL,
+            }
+            add_grounds_record(
+                basin_name,
+                "public_house_garage_fountain_basin",
+                (fountain_cx, fountain_cy, 0.090),
+                fountain_size,
+                public_accuracy="source_aligned_public_historical_osm_fountain_basin",
+                extra=common,
+            )
+            add_grounds_record(
+                coping_name,
+                "public_house_garage_fountain_coping",
+                (fountain_cx, fountain_cy, 0.110),
+                fountain_size,
+                public_accuracy="source_aligned_public_historical_osm_fountain_edge",
+                extra=common,
+            )
 
         if tags.get("building") and len(points) >= 3:
             cx = sum(p[0] for p in points) / len(points)
