@@ -7146,12 +7146,12 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         obj.add_box(center, (radius * 2.28, radius * 2.28), 0.075, z_base + height + 0.17, f"{prefix}_abacus_top_bevel", "ColumnStone")
 
         leaf_tiers = [
-            ("lower", 1.08, -0.72, 0.38, 0.0),
-            ("upper", 0.94, -0.44, 0.30, math.pi / 8.0),
+            ("lower", 1.08, -0.72, 0.38, 0.0, 12),
+            ("upper", 0.94, -0.44, 0.30, math.pi / 8.0, 8),
         ]
-        for tier_name, radius_scale, z_offset, leaf_height, angle_offset in leaf_tiers:
-            for leaf_index in range(8):
-                angle = math.tau * leaf_index / 8.0 + angle_offset
+        for tier_name, radius_scale, z_offset, leaf_height, angle_offset, leaf_count in leaf_tiers:
+            for leaf_index in range(leaf_count):
+                angle = math.tau * leaf_index / leaf_count + angle_offset
                 leaf_center = (
                     center[0] + radius * radius_scale * math.cos(angle),
                     center[1] + radius * radius_scale * math.sin(angle),
@@ -7189,6 +7189,29 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                         "profile_vertices": len(local_points),
                     },
                 )
+
+        for stem_index in range(4):
+            angle = math.pi / 4.0 + math.pi / 2.0 * stem_index
+            stem_center = (
+                center[0] + radius * 0.62 * math.cos(angle),
+                center[1] + radius * 0.62 * math.sin(angle),
+            )
+            stem_name = f"{prefix}_capital_cauliculus_detail_{stem_index + 1:02d}"
+            obj.add_cylinder(
+                stem_center,
+                radius * 0.105,
+                z_base + height - 0.76,
+                0.54,
+                stem_name,
+                "ColumnStone",
+                segments=16,
+            )
+            add_facade_detail(
+                stem_name,
+                "exterior_column_capital_cauliculus_detail",
+                (stem_center[0], stem_center[1], z_base + height - 0.49),
+                {"orientation": orientation, "angle_degrees": round(math.degrees(angle), 2), "radial_segments": 16},
+            )
 
         face_sign = 1.0 if (center[0] if orientation == "east_west" else center[1]) >= 0.0 else -1.0
         for volute_index, tangent_offset in enumerate((-radius * 0.58, radius * 0.58), start=1):
@@ -7384,13 +7407,24 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             x = fixed + (0.16 if fixed >= 0.0 else -0.16)
             for idx, value in enumerate(values, start=1):
                 post_name = f"{prefix}_balustrade_post_{idx:02d}"
-                obj.add_cylinder((x, value), 0.13, z, 0.86, post_name, "ColumnStone", segments=8)
+                obj.add_cylinder((x, value), 0.16, z, 0.12, f"{post_name}_foot", "ColumnStone", segments=16)
+                obj.add_cylinder((x, value), 0.095, z + 0.12, 0.18, f"{post_name}_lower_neck", "ColumnStone", segments=16)
+                obj.add_cylinder((x, value), 0.15, z + 0.30, 0.32, f"{post_name}_turned_bulb", "ColumnStone", segments=20)
+                obj.add_cylinder((x, value), 0.085, z + 0.62, 0.18, f"{post_name}_upper_neck", "ColumnStone", segments=16)
+                obj.add_cylinder((x, value), 0.15, z + 0.80, 0.06, f"{post_name}_cap", "ColumnStone", segments=16)
                 add_facade_detail(
                     post_name,
                     "roof_balustrade_post",
                     (x, value, z + 0.43),
-                    {"orientation": orientation, "sequence": idx, "public_accuracy": "generic_public_roofline_detail"},
+                    {
+                        "orientation": orientation,
+                        "sequence": idx,
+                        "geometry": "five_part_turned_stone_baluster",
+                        "radial_segments": 20,
+                        "public_accuracy": "classical_public_roofline_detail",
+                    },
                 )
+
             rail_center = (x, (min(values) + max(values)) / 2.0)
             rail_size = (0.22, span)
             obj.add_box(rail_center, rail_size, 0.16, z + 0.86, f"{prefix}_top_rail", "ColumnStone")
@@ -7400,12 +7434,22 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             y = fixed + (0.16 if fixed >= 0.0 else -0.16)
             for idx, value in enumerate(values, start=1):
                 post_name = f"{prefix}_balustrade_post_{idx:02d}"
-                obj.add_cylinder((value, y), 0.13, z, 0.86, post_name, "ColumnStone", segments=8)
+                obj.add_cylinder((value, y), 0.16, z, 0.12, f"{post_name}_foot", "ColumnStone", segments=16)
+                obj.add_cylinder((value, y), 0.095, z + 0.12, 0.18, f"{post_name}_lower_neck", "ColumnStone", segments=16)
+                obj.add_cylinder((value, y), 0.15, z + 0.30, 0.32, f"{post_name}_turned_bulb", "ColumnStone", segments=20)
+                obj.add_cylinder((value, y), 0.085, z + 0.62, 0.18, f"{post_name}_upper_neck", "ColumnStone", segments=16)
+                obj.add_cylinder((value, y), 0.15, z + 0.80, 0.06, f"{post_name}_cap", "ColumnStone", segments=16)
                 add_facade_detail(
                     post_name,
                     "roof_balustrade_post",
                     (value, y, z + 0.43),
-                    {"orientation": orientation, "sequence": idx, "public_accuracy": "generic_public_roofline_detail"},
+                    {
+                        "orientation": orientation,
+                        "sequence": idx,
+                        "geometry": "five_part_turned_stone_baluster",
+                        "radial_segments": 20,
+                        "public_accuracy": "classical_public_roofline_detail",
+                    },
                 )
             rail_center = ((min(values) + max(values)) / 2.0, y)
             rail_size = (span, 0.22)
@@ -9244,19 +9288,41 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             for post_index in range(8):
                 post_x = -90.0 + post_index * 2.45
                 post_z = 1.34 + post_index * 0.345
-                obj.add_box(
-                    (post_x, edge_y),
-                    (0.42, 0.42),
-                    1.10,
-                    post_z,
-                    f"west_front_{side_name}_stair_balustrade_post_{edge_sign:+.0f}_{post_index + 1:02d}",
-                    "ColumnStone",
-                )
+                post_name = f"west_front_{side_name}_stair_balustrade_post_{edge_sign:+.0f}_{post_index + 1:02d}"
+                obj.add_cylinder((post_x, edge_y), 0.25, post_z, 0.16, f"{post_name}_foot", "ColumnStone", segments=16)
+                obj.add_cylinder((post_x, edge_y), 0.14, post_z + 0.16, 0.26, f"{post_name}_lower_neck", "ColumnStone", segments=16)
+                obj.add_cylinder((post_x, edge_y), 0.23, post_z + 0.42, 0.38, f"{post_name}_turned_bulb", "ColumnStone", segments=20)
+                obj.add_cylinder((post_x, edge_y), 0.13, post_z + 0.80, 0.20, f"{post_name}_upper_neck", "ColumnStone", segments=16)
+                obj.add_cylinder((post_x, edge_y), 0.24, post_z + 1.00, 0.10, f"{post_name}_cap", "ColumnStone", segments=16)
+            rail_start = (-90.0, edge_y, 2.44)
+            rail_end = (-72.85, edge_y, 4.855)
+            obj.add_beam_between(
+                rail_start,
+                rail_end,
+                0.42,
+                0.20,
+                f"west_front_{side_name}_stair_balustrade_{edge_sign:+.0f}_top_rail",
+                "ColumnStone",
+            )
+            obj.add_beam_between(
+                (-90.0, edge_y, 1.72),
+                (-72.85, edge_y, 4.135),
+                0.30,
+                0.16,
+                f"west_front_{side_name}_stair_balustrade_{edge_sign:+.0f}_base_rail",
+                "ColumnStone",
+            )
         add_facade_detail(
             f"west_front_{side_name}_lateral_stair_balustrade",
             "west_front_reference_lateral_stair_balustrade",
             (-81.4, flight_y, 2.75),
-            {"side": side_name, "post_count": 16},
+            {
+                "side": side_name,
+                "post_count": 16,
+                "geometry": "turned_stone_balusters_with_slope_following_rails",
+                "radial_segments": 20,
+                "rail_count": 4,
+            },
         )
 
     add_arcade_shadow_bays(
@@ -9273,6 +9339,30 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         "west_front_reference_lower_arcade",
         (-76.6, 0.0, 3.55),
         {"bay_count": 13, "public_accuracy": "reference_proportioned_modern_west_front"},
+    )
+
+    retaining_pilaster_values = [-73.5 + index * 10.5 for index in range(15)]
+    for pilaster_index, pilaster_y in enumerate(retaining_pilaster_values, start=1):
+        pilaster_name = f"west_front_retaining_wall_pilaster_{pilaster_index:02d}"
+        obj.add_box((-87.57, pilaster_y), (0.42, 0.62), 0.92, 0.28, pilaster_name, "ColumnStone")
+        obj.add_box((-87.62, pilaster_y), (0.50, 0.86), 0.10, 1.20, f"{pilaster_name}_cap", "ColumnStone")
+    for panel_index in range(len(retaining_pilaster_values) - 1):
+        panel_y = (retaining_pilaster_values[panel_index] + retaining_pilaster_values[panel_index + 1]) / 2.0
+        panel_name = f"west_front_retaining_wall_recessed_panel_{panel_index + 1:02d}"
+        obj.add_box((-87.60, panel_y), (0.10, 8.85), 0.58, 0.43, f"{panel_name}_shadow", "StepStone")
+        obj.add_box((-87.66, panel_y), (0.10, 9.35), 0.10, 1.06, f"{panel_name}_lintel", "ColumnStone")
+        obj.add_box((-87.66, panel_y), (0.10, 9.35), 0.08, 0.31, f"{panel_name}_sill", "ColumnStone")
+        add_facade_detail(
+            panel_name,
+            "west_front_retaining_wall_ornamental_panel",
+            (-87.62, panel_y, 0.72),
+            {"panel_index": panel_index + 1, "public_accuracy": "reference_proportioned_classical_terrace_detail"},
+        )
+    add_facade_detail(
+        "west_front_retaining_wall_pilaster_rhythm",
+        "west_front_retaining_wall_pilaster_rhythm",
+        (-87.6, 0.0, 0.74),
+        {"pilaster_count": 15, "panel_count": 14},
     )
 
     # Projecting west-facing pavilions give the House and Senate wing returns

@@ -1658,6 +1658,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "exterior_column_base_ring_detail",
     "exterior_column_capital_abacus_detail",
     "exterior_column_capital_leaf_detail",
+    "exterior_column_capital_cauliculus_detail",
     "exterior_column_capital_volute_detail",
     "exterior_column_base_chip_detail",
     "portico_soffit_coffer",
@@ -1670,6 +1671,8 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "pediment_raking_cornice",
     "portico_side_cornice_return",
     "terrace_retaining_wall",
+    "west_front_retaining_wall_ornamental_panel",
+    "west_front_retaining_wall_pilaster_rhythm",
     "public_stair_tread",
     "public_step_edge_chip_shadow",
     "public_step_grime_seam",
@@ -2795,6 +2798,16 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected both 14-tread west-front lateral stair flights")
     if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lateral_stair_balustrade"]) < 2:
         error(errors, "expected paired west-front lateral stair balustrade records")
+    lateral_balustrades = [
+        detail for detail in facade_details if detail.get("kind") == "west_front_reference_lateral_stair_balustrade"
+    ]
+    if any(
+        detail.get("geometry") != "turned_stone_balusters_with_slope_following_rails"
+        or int(detail.get("radial_segments", 0)) < 20
+        or int(detail.get("rail_count", 0)) < 4
+        for detail in lateral_balustrades
+    ):
+        error(errors, "west-front lateral stairs must retain turned balusters and four slope-following rails")
     if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lower_arcade"]) < 1:
         error(errors, "expected the west-front lower terrace arcade reference record")
     wing_return_pavilions = [detail for detail in facade_details if detail.get("kind") == "west_wing_return_pavilion"]
@@ -2835,12 +2848,19 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     capital_leaves = [
         detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_leaf_detail"
     ]
-    if len(capital_leaves) < 448:
-        error(errors, "expected the 448 two-tier exterior column capital leaf detail records")
+    if len(capital_leaves) < 560:
+        error(errors, "expected the 560 expanded two-tier exterior column capital leaf detail records")
     if {detail.get("tier") for detail in capital_leaves} != {"lower", "upper"}:
         error(errors, "hero exterior column capitals must retain staggered lower and upper leaf tiers")
     if any(detail.get("geometry") != "tapered_pointed_acanthus_proxy" for detail in capital_leaves):
         error(errors, "hero exterior column capital leaves must use tapered profiles rather than rectangular blocks")
+    capital_cauliculi = [
+        detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_cauliculus_detail"
+    ]
+    if len(capital_cauliculi) < 112:
+        error(errors, "expected four cauliculus stem details on each hero exterior column capital")
+    if any(int(detail.get("radial_segments", 0)) < 16 for detail in capital_cauliculi):
+        error(errors, "hero exterior column capital stems must retain at least 16 radial segments")
     if len([detail for detail in facade_details if detail.get("kind") == "exterior_column_capital_volute_detail"]) < 56:
         error(errors, "expected at least 56 public exterior column capital volute detail records")
     capital_volutes = [
@@ -2884,6 +2904,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public portico side cornice-return records")
     if len([detail for detail in facade_details if detail.get("kind") == "terrace_retaining_wall"]) < 8:
         error(errors, "expected at least 8 public terrace retaining wall records")
+    if len([detail for detail in facade_details if detail.get("kind") == "west_front_retaining_wall_ornamental_panel"]) < 14:
+        error(errors, "expected the 14 recessed west-front retaining-wall ornamental panels")
+    retaining_rhythms = [
+        detail for detail in facade_details if detail.get("kind") == "west_front_retaining_wall_pilaster_rhythm"
+    ]
+    if not retaining_rhythms or int(retaining_rhythms[0].get("pilaster_count", 0)) < 15:
+        error(errors, "expected the 15-pilaster west-front retaining-wall rhythm")
     if len([detail for detail in facade_details if detail.get("kind") == "public_stair_tread"]) < 18:
         error(errors, "expected at least 18 public stair tread records")
     if len([detail for detail in facade_details if detail.get("kind") == "public_step_edge_chip_shadow"]) < 36:
@@ -2994,6 +3021,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 6 public roof balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]) < 90:
         error(errors, "expected at least 90 public roof balustrade post records")
+    roof_balusters = [detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]
+    if any(
+        detail.get("geometry") != "five_part_turned_stone_baluster"
+        or int(detail.get("radial_segments", 0)) < 20
+        for detail in roof_balusters
+    ):
+        error(errors, "public roof balustrades must use five-part turned stone geometry with at least 20 radial segments")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_top_rail"]) < 6:
         error(errors, "expected at least 6 public roof balustrade top-rail records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_base_rail"]) < 6:
