@@ -119,14 +119,14 @@
     "viewpoints": 19
   },
   "materials": {
-    "manifest_materials": 76,
+    "manifest_materials": 75,
     "missing_manifest_materials": 0,
     "extra_manifest_materials": 0,
-    "clear_coat_materials": 21
+    "clear_coat_materials": 20
   },
   "textures": {
     "texture_sets": 43,
-    "texture_material_bindings": 76,
+    "texture_material_bindings": 75,
     "texture_files": 172,
     "texture_styles": 19,
     "photoreal_texture_features": 10,
@@ -249,7 +249,6 @@
         "DoorGlass",
         "DoorMetal",
         "FloorWear",
-        "FountainWater",
         "GroundGrass",
         "LaneMarkingWhite",
         "LaneMarkingYellow",

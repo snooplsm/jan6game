@@ -114,7 +114,6 @@ MATERIAL_TEXTURE_BINDINGS = {
     "PublicGallery": "gallery_dark",
     "OfficeZone": "office_floor",
     "MarkerBlue": "blue_marker",
-    "FountainWater": "glass_blue",
     "StreetSignGreen": "street_sign_green",
     "DoorGlass": "glass_blue",
     "DoorMetal": "black_metal",

@@ -58,7 +58,14 @@ def main() -> None:
     hardscape = [compact_record(item) for item in grounds if item.get("kind") in HARDSCAPE_KINDS]
     pools = [item for item in hardscape if item.get("kind") == "reflecting_pool"]
     public_fountains = [
-        item for item in hardscape if item.get("kind") == "public_house_garage_fountain_basin"
+        {
+            **item,
+            "target_operating_state": "winter_inactive_conservative",
+            "water_surface_enabled": False,
+            "active_jets": False,
+        }
+        for item in hardscape
+        if item.get("kind") == "public_house_garage_fountain_basin"
     ]
 
     manifest = {

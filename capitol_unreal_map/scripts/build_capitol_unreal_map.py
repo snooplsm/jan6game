@@ -186,7 +186,6 @@ MATERIALS = {
     "PublicGallery": (0.24, 0.28, 0.30, 1.0),
     "OfficeZone": (0.46, 0.53, 0.62, 1.0),
     "MarkerBlue": (0.10, 0.35, 0.95, 1.0),
-    "FountainWater": (0.055, 0.095, 0.105, 0.82),
     "StreetSignGreen": (0.03, 0.24, 0.10, 1.0),
     "DoorGlass": (0.48, 0.72, 0.88, 0.55),
     "DoorMetal": (0.18, 0.20, 0.21, 1.0),
@@ -4959,7 +4958,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             slug = fountain_name.lower().replace(" ", "_")
             basin_name = f"{slug}_source_basin"
             coping_name = f"{slug}_source_coping"
-            roads.add_flat_polygon(points, 0.090, basin_name, "FountainWater")
+            roads.add_flat_polygon(points, 0.090, basin_name, "StepStone")
             roads.add_polyline_strip(points, 0.24, 0.110, coping_name, "StepStone")
             fountain_cx = sum(point[0] for point in points) / len(points)
             fountain_cy = sum(point[1] for point in points) / len(points)
@@ -4968,6 +4967,10 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 "source_way_id": int(way["id"]),
                 "source_tags": tags,
                 "public_source_url": CURATED_BELOW_GRADE_SOURCE_URL,
+                "target_operating_state": "winter_inactive_conservative",
+                "active_jets": False,
+                "water_surface_enabled": False,
+                "seasonal_evidence_url": "https://www.aoc.gov/explore-capitol-campus/blog/falling-spring",
             }
             add_grounds_record(
                 basin_name,

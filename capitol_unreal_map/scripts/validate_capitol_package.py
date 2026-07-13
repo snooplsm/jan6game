@@ -2572,6 +2572,13 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     expected_house_fountains = {546401273, 546401944}
     if {int(detail.get("source_way_id", -1)) for detail in house_garage_fountain_basins} != expected_house_fountains:
         error(errors, "expected both historical House garage fountain basins")
+    elif any(
+        detail.get("target_operating_state") != "winter_inactive_conservative"
+        or detail.get("water_surface_enabled") is not False
+        or detail.get("active_jets") is not False
+        for detail in house_garage_fountain_basins
+    ):
+        error(errors, "historical House fountain basins must retain the conservative inactive January state")
     if {int(detail.get("source_way_id", -1)) for detail in house_garage_fountain_coping} != expected_house_fountains:
         error(errors, "expected coping geometry for both historical House garage fountains")
     public_hedges = [detail for detail in grounds_details if detail.get("kind") == "public_hedge"]
@@ -4553,6 +4560,13 @@ def validate_pcg_landscape_manifest(errors: list[str]) -> dict[str, Any]:
     }
     if public_fountain_ids != expected_fountain_ids:
         error(errors, "PCG Water handoff must retain both historical House garage fountain records")
+    if any(
+        item.get("target_operating_state") != "winter_inactive_conservative"
+        or item.get("water_surface_enabled") is not False
+        or item.get("active_jets") is not False
+        for item in water.get("public_fountain_records", [])
+    ):
+        error(errors, "January House fountain handoff must default to inactive water and jets")
     if "CapitolFountain" not in pcg.get("exclusion_tags", []):
         error(errors, "PCG exclusion tags must include CapitolFountain")
     if validation.get("grass_surface_count") != len(grass_surfaces):

@@ -9466,7 +9466,10 @@
         ],
         "public_accuracy": "source_aligned_public_historical_osm_fountain_basin",
         "source_way_id": 546401273,
-        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere",
+        "target_operating_state": "winter_inactive_conservative",
+        "water_surface_enabled": false,
+        "active_jets": false
       },
       {
         "name": "house_west_fountain_source_basin",
@@ -9482,7 +9485,10 @@
         ],
         "public_accuracy": "source_aligned_public_historical_osm_fountain_basin",
         "source_way_id": 546401944,
-        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere",
+        "target_operating_state": "winter_inactive_conservative",
+        "water_surface_enabled": false,
+        "active_jets": false
       }
     ],
     "security_note": "Public landscape feature only; no restricted infrastructure detail."
