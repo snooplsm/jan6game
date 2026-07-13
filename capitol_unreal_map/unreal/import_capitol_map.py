@@ -2082,8 +2082,22 @@ def spawn_high_quality_grounds_trees() -> dict[str, Any]:
         "spawned_actor_count": 0,
         "asset_loaded": False,
         "blockout_geometry_omitted": True,
+        "removed_previous_actor_count": 0,
     }
     try:
+        asset = unreal.EditorAssetLibrary.load_asset(HIGH_QUALITY_GROUNDS_TREE_ASSET_PATH)
+        if not asset:
+            log(f"High-quality winter grounds tree asset is not installed: {HIGH_QUALITY_GROUNDS_TREE_ASSET_PATH}")
+            return stats
+        stats["asset_loaded"] = True
+
+        # Verify the Fab-derived dependency before removing an earlier pass, then
+        # rebuild only this focused actor set when run outside the full importer.
+        for existing_actor in unreal.EditorLevelLibrary.get_all_level_actors():
+            label = existing_actor.get_actor_label()
+            if label.startswith("CapitolMap_HQWinterTree_") or actor_folder(existing_actor) == HIGH_QUALITY_GROUNDS_TREE_FOLDER:
+                unreal.EditorLevelLibrary.destroy_actor(existing_actor)
+                stats["removed_previous_actor_count"] += 1
         data = load_metadata()
         details = [
             detail
@@ -2092,11 +2106,6 @@ def spawn_high_quality_grounds_trees() -> dict[str, Any]:
             and detail.get("replacement_asset_path") == HIGH_QUALITY_GROUNDS_TREE_ASSET_PATH
         ]
         stats["candidate_count"] = len(details)
-        asset = unreal.EditorAssetLibrary.load_asset(HIGH_QUALITY_GROUNDS_TREE_ASSET_PATH)
-        if not asset:
-            log(f"High-quality winter grounds tree asset is not installed: {HIGH_QUALITY_GROUNDS_TREE_ASSET_PATH}")
-            return stats
-        stats["asset_loaded"] = True
         native_height_cm = 100.0
         native_min_z_cm = 0.0
         try:
