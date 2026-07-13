@@ -36,6 +36,9 @@ Modern west-front composition references:
   peristyle, second story, and cupola, with 36 openings in each tier and 108
   total. The cupola tier sits at the outer-shell spring between the documented
   36 ribs rather than being added as an unsupported extra drum storey.
+  The same AOC inventory specifies 12 windows and 12 columns in the Tholos;
+  these now drive a 30-degree lantern rhythm, replacing the former unsupported
+  16-column/eight-window simplification.
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/

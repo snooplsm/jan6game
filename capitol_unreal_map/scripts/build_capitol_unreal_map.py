@@ -10252,8 +10252,9 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     )
     add_dome_shell_weathering_details()
     add_dome_cylinder((0.0, 0.0), 3.25, 55.5, 5.2, "dome_lantern_cylinder", "ColumnStone", segments=32)
-    for idx in range(16):
-        angle = math.tau * idx / 16.0
+    documented_tholos_bay_count = 12
+    for idx in range(documented_tholos_bay_count):
+        angle = math.tau * idx / documented_tholos_bay_count
         add_dome_cylinder((3.48 * math.cos(angle), 3.48 * math.sin(angle)), 0.10, 55.55, 4.48, f"dome_lantern_column_{idx+1:02d}", "ColumnStone", segments=10)
         add_dome_cylinder((3.62 * math.cos(angle), 3.62 * math.sin(angle)), 0.055, 59.88, 0.70, f"dome_lantern_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
         add_facade_detail(
@@ -10263,12 +10264,23 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             {"radial_index": idx + 1},
         )
     add_dome_ring((0.0, 0.0), 3.76, 3.48, 60.45, 0.16, "dome_lantern_balustrade_ring", "ColumnStone", segments=64)
-    add_facade_detail("dome_lantern_balustrade", "lantern_balustrade", (0.0, 0.0, dome_z(60.28)), {"count": 16})
-    for idx in range(8):
-        angle = math.tau * idx / 8.0
+    add_facade_detail("dome_lantern_balustrade", "lantern_balustrade", (0.0, 0.0, dome_z(60.28)), {"count": documented_tholos_bay_count})
+    for idx in range(documented_tholos_bay_count):
+        angle = math.tau * (idx + 0.5) / documented_tholos_bay_count
         add_dome_cylinder((3.34 * math.cos(angle), 3.34 * math.sin(angle)), 0.16, 56.25, 1.7, f"dome_lantern_dark_window_{idx+1:02d}", "FacadeWindow", segments=8)
         add_lantern_window_trim(idx + 1, angle)
-    add_facade_detail("dome_lantern_dark_window_ring", "lantern_window", (0.0, 0.0, dome_z(57.1)), {"count": 8})
+    add_facade_detail(
+        "dome_lantern_dark_window_ring",
+        "lantern_window",
+        (0.0, 0.0, dome_z(57.1)),
+        {
+            "count": documented_tholos_bay_count,
+            "column_count": documented_tholos_bay_count,
+            "spacing_degrees": 30.0,
+            "source_reference": "Architect of the Capitol Dome By-The-Numbers",
+            "public_accuracy": "aoc_count_aligned",
+        },
+    )
     lantern_cap_segments = 96
     lantern_cap_rings = 16
     add_dome_shell(

@@ -3313,12 +3313,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected 72 public dome shell panel-shadow seams across the documented 36 bays")
     if any(int(detail.get("bay_count", 0)) != 36 for detail in dome_panel_shadow_seams):
         error(errors, "dome shell panel-shadow seams must declare the documented 36-bay rhythm")
-    if len([detail for detail in facade_details if detail.get("kind") == "lantern_column"]) < 16:
-        error(errors, "expected at least 16 lantern column records")
-    if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_trim"]) < 8:
-        error(errors, "expected at least 8 lantern window trim records")
-    if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_glass_pane"]) < 8:
-        error(errors, "expected at least 8 lantern window glass pane records")
+    if len([detail for detail in facade_details if detail.get("kind") == "lantern_column"]) != 12:
+        error(errors, "expected the AOC-documented 12 Tholos column records")
+    if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_trim"]) != 12:
+        error(errors, "expected the AOC-documented 12 Tholos window trim records")
+    if len([detail for detail in facade_details if detail.get("kind") == "lantern_window_glass_pane"]) != 12:
+        error(errors, "expected the AOC-documented 12 Tholos window glass-pane records")
+    lantern_window_inventory = [
+        detail for detail in facade_details if detail.get("kind") == "lantern_window"
+    ]
+    if (
+        not lantern_window_inventory
+        or int(lantern_window_inventory[0].get("count", 0)) != 12
+        or int(lantern_window_inventory[0].get("column_count", 0)) != 12
+        or float(lantern_window_inventory[0].get("spacing_degrees", 0.0)) != 30.0
+    ):
+        error(errors, "Tholos inventory must retain 12 columns and 12 windows at 30-degree spacing")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_balustrade"]) < 1:
         error(errors, "expected public lantern balustrade record")
     statue_silhouettes = [
