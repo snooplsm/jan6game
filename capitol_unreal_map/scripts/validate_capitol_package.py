@@ -1980,6 +1980,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["replaced_buildings"] = len(replaced_buildings)
     excluded_underground_structures = exterior.get("excluded_underground_structures", [])
     summary["excluded_underground_structures"] = len(excluded_underground_structures)
+    excluded_duplicate_buildings = exterior.get("excluded_duplicate_buildings", [])
+    summary["excluded_duplicate_buildings"] = len(excluded_duplicate_buildings)
     construction_states = exterior.get("target_era_construction_states", [])
     summary["target_era_construction_states"] = len(construction_states)
     target_weather = exterior.get("target_era_weather", {})
@@ -2230,6 +2232,19 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, "One Independence Square main structural stack must remain 27.38m")
         if not one_independence_square.get("identity_provenance") or not one_independence_square.get("height_provenance"):
             error(errors, "One Independence Square must retain identity and height provenance")
+    duplicate_independence_square = next(
+        (building for building in excluded_duplicate_buildings if building.get("id") == 535720702),
+        None,
+    )
+    if duplicate_independence_square is None:
+        error(errors, "expected overlapping historical One Independence Square redraw 535720702 to be excluded")
+    else:
+        if duplicate_independence_square.get("retained_way_id") != 48037411:
+            error(errors, "duplicate One Independence Square redraw must point to retained detailed way 48037411")
+        if duplicate_independence_square.get("shared_node_count") != 37:
+            error(errors, "duplicate One Independence Square audit must retain its 37 shared-node evidence")
+    if any(building.get("id") == 535720702 for building in buildings):
+        error(errors, "duplicate tenant-labeled One Independence Square footprint must not remain visibly extruded")
     if summary["roads"] < 1400:
         error(errors, "expected at least 1400 historical-source roads/paths")
     if summary["bike_lanes"] < 240:
@@ -4653,6 +4668,7 @@ def main() -> int:
     print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
     print(f"Replaced OSM building footprints: {metadata_summary.get('replaced_buildings', 0):,}")
     print(f"Excluded underground structures: {metadata_summary.get('excluded_underground_structures', 0):,}")
+    print(f"Excluded duplicate building footprints: {metadata_summary.get('excluded_duplicate_buildings', 0):,}")
     print(f"Surrounding building details: {metadata_summary.get('building_details', 0):,}")
     print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
     print(f"Grounds details: {metadata_summary.get('grounds_details', 0):,}")

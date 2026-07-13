@@ -95,6 +95,18 @@ CURATED_PUBLIC_STRUCTURAL_HEIGHTS_M = {
     48037411: 27.3812,
 }
 
+# The historical extract contains a second nearly coincident redraw of One
+# Independence Square. It shares 37 nodes, the full bounding box, and the same
+# 250 E Street SW address with the more detailed DCGIS outline above, but names
+# a tenant (DC DDS) rather than the property. Extruding both creates z-fighting
+# and a false double mass, so retain the detailed envelope and audit the redraw.
+CURATED_DUPLICATE_BUILDING_WAY_IDS = {
+    535720702: {
+        "retained_way_id": 48037411,
+        "reason": "Overlapping tenant-labeled redraw of One Independence Square at the identical address and bounding box.",
+    },
+}
+
 
 def relative_to_package(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
@@ -1977,6 +1989,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "grounds_details": [],
         "replaced_buildings": [],
         "excluded_underground_structures": [],
+        "excluded_duplicate_buildings": [],
         "target_era_construction_states": [
             {
                 "building_id": 286503,
@@ -5027,6 +5040,25 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             cy = sum(p[1] for p in points) / len(points)
             footprint_area = polygon_area_m2(points)
             footprint_span = footprint_span_m(points)
+            duplicate_record = CURATED_DUPLICATE_BUILDING_WAY_IDS.get(int(way["id"]))
+            if duplicate_record:
+                metadata["excluded_duplicate_buildings"].append(
+                    {
+                        "id": int(way["id"]),
+                        "osm_element_type": osm_element_type,
+                        "name": name,
+                        "retained_way_id": duplicate_record["retained_way_id"],
+                        "center_m": [round(cx, 3), round(cy, 3), 0.0],
+                        "footprint_area_m2": round(footprint_area, 2),
+                        "footprint_span_m": round(footprint_span, 2),
+                        "reason": duplicate_record["reason"],
+                        "shared_node_count": 37,
+                        "same_historical_address": True,
+                        "same_bounding_box": True,
+                        "tags": tags,
+                    }
+                )
+                continue
             curated_below_grade_reason = CURATED_BELOW_GRADE_BUILDING_WAY_IDS.get(int(way["id"]))
             if tags.get("location", "").lower() == "underground" or curated_below_grade_reason:
                 reason = (

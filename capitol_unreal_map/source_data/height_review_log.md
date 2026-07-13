@@ -157,7 +157,12 @@ defensible roof-to-ground measurement.
 - Decision: rename the footprint `One Independence Square` and replace the
   heuristic extrusion with the summed 89 ft 10 in (27.3812 m) structural stack.
   This is source-derived main-mass height, not a surveyed roof elevation;
-  unmeasured parapets and rooftop equipment remain separate visual details.
+  unmeasured parapets and rooftop equipment remain separate visual details. The
+  historical extract also contains tenant-labeled way `535720702`, which shares
+  37 nodes, the same address, and the same bounding box with this envelope.
+  Exclude that redraw from visible massing and retain an audit record pointing
+  back to the more articulated DCGIS footprint, avoiding a false double tower
+  and coincident-surface flicker.
 
 ## Review rule
 
