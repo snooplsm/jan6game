@@ -46,12 +46,18 @@
       "status": "installed_pending_live_evaluation",
       "source_pack": "Maxtree Plant Models Vol. 60",
       "asset_paths": [
-        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01"
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_02",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_03",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_04",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_05",
+        "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_06"
       ],
       "use": "Selected high-detail planting-bed specimens where species and January appearance are defensible.",
       "constraints": [
         "Do not scatter flowering, tropical, or fully leafed specimens merely because they are high polygon count.",
         "Evaluate winter material appearance, physical dimensions, Nanite/LOD behavior, and draw cost in Unreal before placement.",
+        "Cycle deterministically through all six authored variants and scale each from its own mesh bounds to avoid obvious repetition.",
         "Keep planting-bed species separate from the turf asset set and do not infer an exact 2021 planting plan from pack availability."
       ]
     },

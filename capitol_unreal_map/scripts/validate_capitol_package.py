@@ -59,6 +59,10 @@ REQUIRED_HIGH_FIDELITY_ROLES = {
     "public_capitol_interior",
     "surrounding_building_facades",
 }
+EXPECTED_ABELIA_VARIANT_PATHS = {
+    f"/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_{variant:02d}"
+    for variant in range(1, 7)
+}
 
 EXPECTED_BUILDING_MULTIPOLYGON_RELATIONS = {
     286501: "Supreme Court of the United States",
@@ -4549,6 +4553,14 @@ def validate_high_fidelity_asset_manifest(errors: list[str]) -> dict[str, Any]:
                 error(errors, f"duplicate high-fidelity candidate asset path: {asset_path}")
             else:
                 candidate_paths.add(asset_path)
+
+    shrub_candidate = next(
+        (candidate for candidate in candidates if candidate.get("role") == "ornamental_planting_and_hero_vegetation"),
+        None,
+    )
+    shrub_paths = set(shrub_candidate.get("asset_paths", [])) if isinstance(shrub_candidate, dict) else set()
+    if shrub_paths != EXPECTED_ABELIA_VARIANT_PATHS:
+        error(errors, "high-fidelity shrub candidate must retain all six installed Maxtree Abelia variants")
 
     replacements = manifest.get("required_replacements")
     if not isinstance(replacements, list):

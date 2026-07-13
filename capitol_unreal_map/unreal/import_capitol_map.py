@@ -30,6 +30,10 @@ TEXTURE_DESTINATION_PATH = "/Game/CapitolMap/Textures"
 MAP_DESTINATION_PATH = "/Game/CapitolMap/Maps"
 MAP_ASSET_PATH = f"{MAP_DESTINATION_PATH}/CapitolMap_Level"
 HIGH_QUALITY_SHRUB_ASSET_PATH = "/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_01"
+HIGH_QUALITY_SHRUB_ASSET_PATHS = tuple(
+    f"/Game/Maxtree/MT_PM_V060/SM_MT_PM_V60_Abelia_grandiflora_01_{variant:02d}"
+    for variant in range(1, 7)
+)
 HIGH_QUALITY_SHRUB_FOLDER = "CapitolMap/Vegetation/HighQualityShrubs"
 HIGH_QUALITY_GROUNDS_BENCH_ASSET_PATH = "/Game/HistoricalOSM/Props/BenchModelFree/SM_BenchModelFree"
 HIGH_QUALITY_GROUNDS_BENCH_FOLDER = "CapitolMap/Streetscape/HighQualityGroundsBenches"
@@ -1874,18 +1878,43 @@ def build_high_quality_shrub_specs(data: dict[str, Any]) -> list[dict[str, Any]]
 
 
 def spawn_high_quality_grounds_shrubs() -> dict[str, Any]:
-    """Spawn verified Maxtree shrub assets in place of omitted low-poly plants."""
+    """Spawn varied Maxtree shrub assets in place of omitted low-poly plants."""
     stats: dict[str, Any] = {
         "asset_path": HIGH_QUALITY_SHRUB_ASSET_PATH,
+        "asset_paths": list(HIGH_QUALITY_SHRUB_ASSET_PATHS),
         "candidate_count": 0,
         "spawned_actor_count": 0,
         "asset_loaded": False,
+        "loaded_asset_count": 0,
+        "variant_spawn_counts": {},
         "blockout_geometry_omitted": True,
         "removed_previous_actor_count": 0,
     }
     try:
+        loaded_assets: list[tuple[str, Any, float, float]] = []
+        for asset_path in HIGH_QUALITY_SHRUB_ASSET_PATHS:
+            asset = unreal.EditorAssetLibrary.load_asset(asset_path)
+            if not asset:
+                log(f"High-quality shrub variant is not installed: {asset_path}")
+                continue
+            native_height_cm = 100.0
+            native_min_z_cm = 0.0
+            try:
+                bounds = asset.get_bounding_box()
+                native_height_cm = max(1.0, float(bounds.max.z) - float(bounds.min.z))
+                native_min_z_cm = float(bounds.min.z)
+            except Exception as exc:
+                log(f"Shrub asset bounds fallback used for {asset_path}: {exc}")
+            loaded_assets.append((asset_path, asset, native_height_cm, native_min_z_cm))
+        stats["loaded_asset_count"] = len(loaded_assets)
+        stats["asset_loaded"] = bool(loaded_assets)
+        if not loaded_assets:
+            log("No high-quality Maxtree shrub variants are installed; existing shrubs were preserved")
+            return stats
+
         # Keep the focused shrub pass idempotent even when it is run without the
-        # full importer-level CapitolMap cleanup.
+        # full importer-level CapitolMap cleanup. Assets are verified first so a
+        # missing Fab dependency cannot erase the currently placed shrubs.
         for existing_actor in unreal.EditorLevelLibrary.get_all_level_actors():
             label = existing_actor.get_actor_label()
             if label.startswith("CapitolMap_HQShrub_") or actor_folder(existing_actor) == HIGH_QUALITY_SHRUB_FOLDER:
@@ -1894,20 +1923,8 @@ def spawn_high_quality_grounds_shrubs() -> dict[str, Any]:
         data = load_metadata()
         specs = build_high_quality_shrub_specs(data)
         stats["candidate_count"] = len(specs)
-        asset = unreal.EditorAssetLibrary.load_asset(HIGH_QUALITY_SHRUB_ASSET_PATH)
-        if not asset:
-            log(f"High-quality shrub asset is not installed: {HIGH_QUALITY_SHRUB_ASSET_PATH}")
-            return stats
-        stats["asset_loaded"] = True
-        native_height_cm = 100.0
-        native_min_z_cm = 0.0
-        try:
-            bounds = asset.get_bounding_box()
-            native_height_cm = max(1.0, float(bounds.max.z) - float(bounds.min.z))
-            native_min_z_cm = float(bounds.min.z)
-        except Exception as exc:
-            log(f"Shrub asset bounds fallback used: {exc}")
-        for spec in specs:
+        for spec_index, spec in enumerate(specs):
+            asset_path, asset, native_height_cm, native_min_z_cm = loaded_assets[spec_index % len(loaded_assets)]
             scale = float(spec["height_m"]) * 100.0 / native_height_cm
             location_m = spec["location_m"]
             location = unreal.Vector(
@@ -1934,6 +1951,8 @@ def spawn_high_quality_grounds_shrubs() -> dict[str, Any]:
                 if hasattr(unreal, "ComponentMobility"):
                     set_property(component, "mobility", unreal.ComponentMobility.STATIC)
             stats["spawned_actor_count"] += 1
+            variant_name = asset_path.rsplit("_", 1)[-1]
+            stats["variant_spawn_counts"][variant_name] = stats["variant_spawn_counts"].get(variant_name, 0) + 1
     except Exception as exc:
         log(f"High-quality shrub replacement skipped: {exc}")
     return stats
