@@ -10140,11 +10140,35 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_dome_cylinder((14.55 * math.cos(angle), 14.55 * math.sin(angle)), 0.09, 30.92, 0.64, f"dome_upper_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
     add_facade_detail("dome_lower_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(21.1)), {"count": 48})
     add_facade_detail("dome_upper_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(31.24)), {"count": 48})
+    dome_drum_backdrop_radius = 15.4
+    dome_peristyle_column_radius = 15.88
+    dome_peristyle_shaft_radius = 0.22
     for idx in range(36):
         angle = math.tau * idx / 36.0
-        px = 15.15 * math.cos(angle)
-        py = 15.15 * math.sin(angle)
-        add_dome_cylinder((px, py), 0.21, 19.0, 14.35, f"dome_drum_pilaster_{idx+1:02d}", "ColumnStone", segments=12)
+        px = dome_peristyle_column_radius * math.cos(angle)
+        py = dome_peristyle_column_radius * math.sin(angle)
+        prefix = f"dome_peristyle_column_{idx+1:02d}"
+        # AOC documents 36 cast-iron columns at ten-degree spacing. Their
+        # centers must remain outside the solid drum backdrop so the peristyle
+        # reads as a colonnade rather than embossed seams.
+        add_dome_cylinder((px, py), 0.31, 20.82, 0.46, f"{prefix}_base", "ColumnStone", segments=16)
+        add_dome_cylinder((px, py), dome_peristyle_shaft_radius, 21.20, 9.16, f"{prefix}_shaft", "ColumnStone", segments=20)
+        add_dome_cylinder((px, py), 0.36, 30.28, 0.48, f"{prefix}_capital", "ColumnStone", segments=16)
+        add_facade_detail(
+            prefix,
+            "dome_peristyle_column",
+            (px, py, dome_z(25.78)),
+            {
+                "radial_index": idx + 1,
+                "angle_degrees": round(math.degrees(angle), 2),
+                "center_radius_m": dome_peristyle_column_radius,
+                "shaft_radius_m": dome_peristyle_shaft_radius,
+                "drum_backdrop_radius_m": dome_drum_backdrop_radius,
+                "spacing_degrees": 10.0,
+                "source_reference": "Architect of the Capitol Dome By-The-Numbers",
+                "public_accuracy": "aoc_count_and_spacing_aligned",
+            },
+        )
         add_dome_drum_arcade_bay(idx + 1, angle)
         lower_window_angle = angle + math.pi / 36.0
         add_dome_drum_tier_window(idx + 1, "lower", lower_window_angle, 15.46, 21.15, 3.55, 1.05)

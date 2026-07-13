@@ -27,6 +27,11 @@ Modern west-front composition references:
   https://www.aoc.gov/explore-capitol-campus/buildings-grounds/capitol-building
 - Architect of the Capitol, *Dome By-The-Numbers*:
   https://www.aoc.gov/what-we-do/projects/dome-restoration-project/by-the-numbers
+  This establishes 36 hollow cast-iron peristyle columns at 10-degree spacing,
+  in addition to the 135-foot exterior diameter, 199-foot skirt-to-Freedom-base
+  height, and three 36-window exterior tiers. Generated peristyle shafts are
+  therefore kept physically outside the solid drum backdrop rather than being
+  embedded as surface seams.
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/

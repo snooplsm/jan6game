@@ -1751,6 +1751,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "dome_transition_skirt_panel",
     "dome_transition_step_ring",
     "dome_transition_radial_buttress",
+    "dome_peristyle_column",
     "dome_drum_arcade_bay",
     "dome_shell_panel_frame",
     "dome_drum_window_trim",
@@ -3254,6 +3255,19 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 3 public dome transition step-ring records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_transition_radial_buttress"]) < 16:
         error(errors, "expected at least 16 public dome transition radial-buttress records")
+    dome_peristyle_columns = [
+        detail for detail in facade_details if detail.get("kind") == "dome_peristyle_column"
+    ]
+    if len(dome_peristyle_columns) != 36:
+        error(errors, "expected the AOC-documented 36 dome peristyle columns")
+    if any(float(detail.get("spacing_degrees", 0.0)) != 10.0 for detail in dome_peristyle_columns):
+        error(errors, "dome peristyle columns must retain the documented ten-degree spacing")
+    if any(
+        float(detail.get("center_radius_m", 0.0)) - float(detail.get("shaft_radius_m", 0.0))
+        <= float(detail.get("drum_backdrop_radius_m", 0.0))
+        for detail in dome_peristyle_columns
+    ):
+        error(errors, "dome peristyle column shafts must remain outside the solid drum backdrop")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_arcade_bay"]) < 32:
         error(errors, "expected at least 32 dome drum arcade bay records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_frame"]) < 96:
