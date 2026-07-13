@@ -10173,6 +10173,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         lower_window_angle = angle + math.pi / 36.0
         add_dome_drum_tier_window(idx + 1, "lower", lower_window_angle, 15.46, 21.15, 3.55, 1.05)
         add_dome_drum_tier_window(idx + 1, "upper", lower_window_angle, 15.46, 29.35, 3.15, 0.92)
+        add_dome_drum_tier_window(idx + 1, "cupola", lower_window_angle, 15.50, 34.48, 2.30, 0.74)
         add_dome_drum_spandrel_panel(f"dome_drum_spandrel_panel_{idx+1:02d}", angle, 27.15)
     add_facade_detail(
         "dome_drum_two_tier_window_rhythm",
@@ -10180,7 +10181,10 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         (0.0, 0.0, dome_z(27.2)),
         {
             "bay_count": 36,
-            "tiers": 2,
+            "tiers": 3,
+            "tier_names": ["peristyle", "second_story", "cupola"],
+            "windows_per_tier": 36,
+            "total_window_count": 108,
             "public_accuracy": "aoc_dimension_and_public_reference_aligned",
         },
     )

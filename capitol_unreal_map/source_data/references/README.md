@@ -32,6 +32,10 @@ Modern west-front composition references:
   height, and three 36-window exterior tiers. Generated peristyle shafts are
   therefore kept physically outside the solid drum backdrop rather than being
   embedded as surface seams.
+  The generated glazed-opening inventory maps these tiers explicitly as
+  peristyle, second story, and cupola, with 36 openings in each tier and 108
+  total. The cupola tier sits at the outer-shell spring between the documented
+  36 ribs rather than being added as an unsupported extra drum storey.
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/

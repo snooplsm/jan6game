@@ -3272,10 +3272,23 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 32 dome drum arcade bay records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_shell_panel_frame"]) < 96:
         error(errors, "expected at least 96 dome shell panel frame records")
-    if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_window_trim"]) < 16:
-        error(errors, "expected at least 16 dome drum window trim records")
-    if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_window_glass_pane"]) < 16:
-        error(errors, "expected at least 16 dome drum window glass pane records")
+    dome_window_trims = [detail for detail in facade_details if detail.get("kind") == "dome_drum_window_trim"]
+    dome_window_glass = [detail for detail in facade_details if detail.get("kind") == "dome_drum_window_glass_pane"]
+    if len(dome_window_trims) != 108:
+        error(errors, "expected the AOC-documented 108 dome window trim records")
+    if len(dome_window_glass) != 108:
+        error(errors, "expected the AOC-documented 108 dome window glass-pane records")
+    expected_dome_window_tiers = {"lower": 36, "upper": 36, "cupola": 36}
+    for tier, expected_count in expected_dome_window_tiers.items():
+        trim_count = len([detail for detail in dome_window_trims if detail.get("tier") == tier])
+        glass_count = len([detail for detail in dome_window_glass if detail.get("tier") == tier])
+        if trim_count != expected_count or glass_count != expected_count:
+            error(errors, f"expected 36 trim and glass records in the {tier} dome window tier")
+    dome_window_rhythm = [
+        detail for detail in facade_details if detail.get("kind") == "dome_drum_reference_window_rhythm"
+    ]
+    if not dome_window_rhythm or int(dome_window_rhythm[0].get("total_window_count", 0)) != 108:
+        error(errors, "dome window rhythm must declare the documented 108-window total")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_drum_spandrel_panel"]) < 16:
         error(errors, "expected at least 16 dome drum spandrel panel records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_lateral_band"]) < 4:
