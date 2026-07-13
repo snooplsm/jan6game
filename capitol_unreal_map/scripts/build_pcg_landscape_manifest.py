@@ -11,7 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 METADATA_PATH = ROOT / "generated" / "data" / "capitol_scene_metadata.json"
 OUTPUT_PATH = ROOT / "generated" / "data" / "pcg_landscape_manifest.json"
 
-GRASS_KINDS = {"lawn_panel", "public_lawn_slope_panel", "formal_planting_bed"}
+GRASS_KINDS = {
+    "lawn_panel",
+    "public_lawn_slope_panel",
+    "formal_planting_bed",
+    "public_green_roof_park_surface",
+}
 HARDSCAPE_KINDS = {
     "public_walk",
     "plaza",
@@ -19,6 +24,8 @@ HARDSCAPE_KINDS = {
     "reflecting_pool_edge",
     "low_plaza_wall",
     "path_edge_stone",
+    "public_house_garage_fountain_basin",
+    "public_house_garage_fountain_coping",
 }
 
 
@@ -33,6 +40,10 @@ def compact_record(record: dict) -> dict:
             "min_z_m",
             "max_z_m",
             "public_accuracy",
+            "source_relation_id",
+            "source_outer_way_id",
+            "source_way_id",
+            "public_source_url",
         )
         if key in record
     }
@@ -46,6 +57,9 @@ def main() -> None:
     grass_surfaces = [compact_record(item) for item in grounds if item.get("kind") in GRASS_KINDS]
     hardscape = [compact_record(item) for item in grounds if item.get("kind") in HARDSCAPE_KINDS]
     pools = [item for item in hardscape if item.get("kind") == "reflecting_pool"]
+    public_fountains = [
+        item for item in hardscape if item.get("kind") == "public_house_garage_fountain_basin"
+    ]
 
     manifest = {
         "schema_version": 1,
@@ -58,7 +72,7 @@ def main() -> None:
         "source_provenance": {
             "map_snapshot": "OpenStreetMap/Overpass 2021-01-06T17:00:00Z",
             "ground_surfaces": "DC GIS Planimetrics 1999 source where available; otherwise documented public schematic grounds geometry",
-            "metadata": str(METADATA_PATH.relative_to(ROOT)),
+            "metadata": METADATA_PATH.relative_to(ROOT).as_posix(),
         },
         "unreal_dependencies": {
             "plugins": ["PCG", "Water"],
@@ -91,6 +105,7 @@ def main() -> None:
                 "HistoricalOSM_Sidewalk",
                 "CapitolHardscape",
                 "CapitolReflectingPool",
+                "CapitolFountain",
             ],
             "grass_surfaces": grass_surfaces,
             "sampling": {
@@ -124,6 +139,7 @@ def main() -> None:
             "opacity": 0.72,
             "reflection_method": "Lumen plus planar reflection for hero views",
             "pool_records": pools,
+            "public_fountain_records": public_fountains,
             "security_note": "Public landscape feature only; no restricted infrastructure detail.",
         },
         "validation": {
@@ -132,6 +148,7 @@ def main() -> None:
             "road_exclusion_count": len(exterior.get("roads", [])),
             "bike_lane_exclusion_count": len(exterior.get("bike_lanes", [])),
             "reflecting_pool_count": len(pools),
+            "public_fountain_count": len(public_fountains),
         },
     }
 

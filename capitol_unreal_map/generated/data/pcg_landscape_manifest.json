@@ -9,7 +9,7 @@
   "source_provenance": {
     "map_snapshot": "OpenStreetMap/Overpass 2021-01-06T17:00:00Z",
     "ground_surfaces": "DC GIS Planimetrics 1999 source where available; otherwise documented public schematic grounds geometry",
-    "metadata": "generated\\data\\capitol_scene_metadata.json"
+    "metadata": "generated/data/capitol_scene_metadata.json"
   },
   "unreal_dependencies": {
     "plugins": [
@@ -55,9 +55,44 @@
       "HistoricalOSM_BikeLane",
       "HistoricalOSM_Sidewalk",
       "CapitolHardscape",
-      "CapitolReflectingPool"
+      "CapitolReflectingPool",
+      "CapitolFountain"
     ],
     "grass_surfaces": [
+      {
+        "name": "spirit_of_justice_park_green_roof_26628887",
+        "kind": "public_green_roof_park_surface",
+        "center_m": [
+          -71.59,
+          -485.916,
+          0.01
+        ],
+        "size_m": [
+          134.18,
+          96.236
+        ],
+        "public_accuracy": "source_aligned_public_historical_osm_multipolygon_outer",
+        "source_relation_id": 7393962,
+        "source_outer_way_id": 26628887,
+        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+      },
+      {
+        "name": "spirit_of_justice_park_green_roof_26628890",
+        "kind": "public_green_roof_park_surface",
+        "center_m": [
+          55.92,
+          -476.556,
+          0.01
+        ],
+        "size_m": [
+          132.612,
+          91.761
+        ],
+        "public_accuracy": "source_aligned_public_historical_osm_multipolygon_outer",
+        "source_relation_id": 7393962,
+        "source_outer_way_id": 26628890,
+        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+      },
       {
         "name": "west_north_lawn_panel",
         "kind": "lawn_panel",
@@ -541,6 +576,70 @@
     }
   },
   "hardscape_exclusions": [
+    {
+      "name": "house_east_fountain_source_basin",
+      "kind": "public_house_garage_fountain_basin",
+      "center_m": [
+        68.016,
+        -486.411,
+        0.09
+      ],
+      "size_m": [
+        11.879,
+        11.844
+      ],
+      "public_accuracy": "source_aligned_public_historical_osm_fountain_basin",
+      "source_way_id": 546401273,
+      "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+    },
+    {
+      "name": "house_east_fountain_source_coping",
+      "kind": "public_house_garage_fountain_coping",
+      "center_m": [
+        68.016,
+        -486.411,
+        0.11
+      ],
+      "size_m": [
+        11.879,
+        11.844
+      ],
+      "public_accuracy": "source_aligned_public_historical_osm_fountain_edge",
+      "source_way_id": 546401273,
+      "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+    },
+    {
+      "name": "house_west_fountain_source_basin",
+      "kind": "public_house_garage_fountain_basin",
+      "center_m": [
+        -70.245,
+        -486.663,
+        0.09
+      ],
+      "size_m": [
+        12.321,
+        12.279
+      ],
+      "public_accuracy": "source_aligned_public_historical_osm_fountain_basin",
+      "source_way_id": 546401944,
+      "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+    },
+    {
+      "name": "house_west_fountain_source_coping",
+      "kind": "public_house_garage_fountain_coping",
+      "center_m": [
+        -70.245,
+        -486.663,
+        0.11
+      ],
+      "size_m": [
+        12.321,
+        12.279
+      ],
+      "public_accuracy": "source_aligned_public_historical_osm_fountain_edge",
+      "source_way_id": 546401944,
+      "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+    },
     {
       "name": "west_axial_public_walk",
       "kind": "public_walk",
@@ -9323,7 +9422,7 @@
         "type": "footway"
       }
     ],
-    "building_count": 3643
+    "building_count": 3640
   },
   "water": {
     "plugin": "Water",
@@ -9352,13 +9451,48 @@
         "public_accuracy": "approximate_public_grounds_visual"
       }
     ],
+    "public_fountain_records": [
+      {
+        "name": "house_east_fountain_source_basin",
+        "kind": "public_house_garage_fountain_basin",
+        "center_m": [
+          68.016,
+          -486.411,
+          0.09
+        ],
+        "size_m": [
+          11.879,
+          11.844
+        ],
+        "public_accuracy": "source_aligned_public_historical_osm_fountain_basin",
+        "source_way_id": 546401273,
+        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+      },
+      {
+        "name": "house_west_fountain_source_basin",
+        "kind": "public_house_garage_fountain_basin",
+        "center_m": [
+          -70.245,
+          -486.663,
+          0.09
+        ],
+        "size_m": [
+          12.321,
+          12.279
+        ],
+        "public_accuracy": "source_aligned_public_historical_osm_fountain_basin",
+        "source_way_id": 546401944,
+        "public_source_url": "https://www.aoc.gov/explore-capitol-campus/blog/water-features-everywhere"
+      }
+    ],
     "security_note": "Public landscape feature only; no restricted infrastructure detail."
   },
   "validation": {
-    "grass_surface_count": 32,
-    "hardscape_exclusion_count": 29,
+    "grass_surface_count": 34,
+    "hardscape_exclusion_count": 33,
     "road_exclusion_count": 1432,
     "bike_lane_exclusion_count": 242,
-    "reflecting_pool_count": 1
+    "reflecting_pool_count": 1,
+    "public_fountain_count": 2
   }
 }

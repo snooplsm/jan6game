@@ -30,6 +30,7 @@ MTL_PATH = MESH_DIR / "capitol_materials.mtl"
 REPORT_PATH = DATA_DIR / "capitol_package_validation.json"
 MATERIAL_MANIFEST_PATH = ROOT / "unreal" / "material_realism_manifest.json"
 HIGH_FIDELITY_ASSET_MANIFEST_PATH = ROOT / "unreal" / "high_fidelity_asset_manifest.json"
+PCG_LANDSCAPE_MANIFEST_PATH = DATA_DIR / "pcg_landscape_manifest.json"
 TEXTURE_MANIFEST_PATH = DATA_DIR / "material_texture_manifest.json"
 UNREAL_IMPORTER_PATH = ROOT / "unreal" / "import_capitol_map.py"
 UPROJECT_PATH = ROOT / "CapitolMap.uproject"
@@ -4521,6 +4522,48 @@ def validate_high_fidelity_asset_manifest(errors: list[str]) -> dict[str, Any]:
     return summary
 
 
+def validate_pcg_landscape_manifest(errors: list[str]) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
+    if not PCG_LANDSCAPE_MANIFEST_PATH.exists():
+        error(errors, f"missing PCG landscape manifest: {PCG_LANDSCAPE_MANIFEST_PATH}")
+        return summary
+    manifest = json.loads(PCG_LANDSCAPE_MANIFEST_PATH.read_text(encoding="utf-8"))
+    pcg = manifest.get("pcg", {})
+    grass_surfaces = pcg.get("grass_surfaces", [])
+    hardscape = manifest.get("hardscape_exclusions", [])
+    water = manifest.get("water", {})
+    validation = manifest.get("validation", {})
+    summary["grass_surfaces"] = len(grass_surfaces)
+    summary["hardscape_exclusions"] = len(hardscape)
+    summary["public_fountains"] = len(water.get("public_fountain_records", []))
+    if manifest.get("target_date_local") != "2021-01-06T11:50:00-05:00":
+        error(errors, "PCG landscape manifest must retain the January 6 target date and time")
+    if {int(item.get("source_outer_way_id", -1)) for item in grass_surfaces if item.get("kind") == "public_green_roof_park_surface"} != {26628887, 26628890}:
+        error(errors, "PCG manifest must grass both historical Spirit of Justice Park outer surfaces")
+    expected_fountain_ids = {546401273, 546401944}
+    fountain_hardscape_ids = {
+        int(item.get("source_way_id", -1))
+        for item in hardscape
+        if item.get("kind") in {"public_house_garage_fountain_basin", "public_house_garage_fountain_coping"}
+    }
+    if fountain_hardscape_ids != expected_fountain_ids:
+        error(errors, "PCG hardscape must exclude both historical House garage fountains")
+    public_fountain_ids = {
+        int(item.get("source_way_id", -1)) for item in water.get("public_fountain_records", [])
+    }
+    if public_fountain_ids != expected_fountain_ids:
+        error(errors, "PCG Water handoff must retain both historical House garage fountain records")
+    if "CapitolFountain" not in pcg.get("exclusion_tags", []):
+        error(errors, "PCG exclusion tags must include CapitolFountain")
+    if validation.get("grass_surface_count") != len(grass_surfaces):
+        error(errors, "PCG grass surface validation count is stale")
+    if validation.get("hardscape_exclusion_count") != len(hardscape):
+        error(errors, "PCG hardscape validation count is stale")
+    if validation.get("public_fountain_count") != len(water.get("public_fountain_records", [])):
+        error(errors, "PCG public fountain validation count is stale")
+    return summary
+
+
 def main() -> int:
     errors: list[str] = []
     if not METADATA_PATH.exists():
@@ -4539,6 +4582,7 @@ def main() -> int:
     mesh_stats = [parse_obj(ROOT / rel, materials, errors) for rel in metadata.get("meshes", [])]
     landmark_height_summary = validate_landmark_height_contract(metadata, mesh_stats, errors)
     high_fidelity_asset_summary = validate_high_fidelity_asset_manifest(errors)
+    pcg_landscape_summary = validate_pcg_landscape_manifest(errors)
 
     report = {
         "ok": not errors,
@@ -4551,6 +4595,7 @@ def main() -> int:
         "viewer": viewer_summary,
         "landmark_height": landmark_height_summary,
         "high_fidelity_assets": high_fidelity_asset_summary,
+        "pcg_landscape": pcg_landscape_summary,
         "meshes": mesh_stats,
         "errors": errors,
     }
@@ -4622,6 +4667,9 @@ def main() -> int:
     print(f"High-fidelity gates: {high_fidelity_asset_summary.get('acceptance_gates', 0):,}")
     print(f"High-fidelity candidates: {high_fidelity_asset_summary.get('installed_candidates', 0):,}")
     print(f"Required high-fidelity replacements: {high_fidelity_asset_summary.get('required_replacements', 0):,}")
+    print(f"PCG grass surfaces: {pcg_landscape_summary.get('grass_surfaces', 0):,}")
+    print(f"PCG hardscape exclusions: {pcg_landscape_summary.get('hardscape_exclusions', 0):,}")
+    print(f"PCG public fountains: {pcg_landscape_summary.get('public_fountains', 0):,}")
     print(f"Wrote report: {REPORT_PATH}")
     return 0
 

@@ -643,7 +643,9 @@ retaining high roughness and low specular response. A secondary fine-scale
 world-space mask now varies roughness only from 0.86 to 0.96, breaking up broad
 flat highlights without changing seasonal color, grass density, or exclusions.
 It identifies the local
-Fab grass dependencies, 32 grassable grounds surfaces, hardscape exclusions,
+Fab grass dependencies, 34 grassable grounds surfaces including both historical
+Spirit of Justice Park green-roof halves, hardscape exclusions including both
+House fountain basins and coping outlines,
 historical road and bike-lane exclusions, and the public reflecting-pool record.
 The Water handoff specifies a shallow, nearly still pool suitable for Lumen and
 optional planar reflections. It does not describe restricted infrastructure.

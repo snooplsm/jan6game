@@ -185,6 +185,11 @@
     "required_replacements": 5,
     "explicit_rejections": 2
   },
+  "pcg_landscape": {
+    "grass_surfaces": 34,
+    "hardscape_exclusions": 33,
+    "public_fountains": 2
+  },
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
