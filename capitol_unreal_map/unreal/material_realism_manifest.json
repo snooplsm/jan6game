@@ -427,6 +427,20 @@
     "specular": 0.35,
     "note": "Blue public marker"
   },
+  "FountainWater": {
+    "base_color": [
+      0.035,
+      0.075,
+      0.085
+    ],
+    "roughness": 0.075,
+    "metallic": 0.0,
+    "specular": 0.5,
+    "opacity": 0.82,
+    "clear_coat": 1.0,
+    "clear_coat_roughness": 0.04,
+    "note": "Shallow nearly still winter fountain water fallback; dark neutral response avoids saturated blue marker appearance"
+  },
   "StreetSignGreen": {
     "base_color": [
       0.02,
