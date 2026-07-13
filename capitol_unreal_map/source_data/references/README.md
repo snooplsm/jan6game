@@ -39,6 +39,10 @@ Modern west-front composition references:
   The same AOC inventory specifies 12 windows and 12 columns in the Tholos;
   these now drive a 30-degree lantern rhythm, replacing the former unsupported
   16-column/eight-window simplification.
+  It also separates the 19.5-foot Statue of Freedom from its 18.5-foot
+  pedestal and documents 12 wreaths with 12 fasces on that base. The generated
+  stack preserves those component heights beneath the fixed 288-foot building
+  apex; its simplified ornament is a count-aligned silhouette proxy.
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/

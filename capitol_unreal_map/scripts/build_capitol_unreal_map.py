@@ -7809,7 +7809,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         base_z = statue_base_z
         statue_radial_segments = 32
         obj.add_cylinder((0.0, 0.0), 0.56, base_z - 0.28, 0.28, "statue_of_freedom_round_base", "StatueBronze", segments=statue_radial_segments)
-        obj.add_frustum((0.0, 0.0), 0.40, 0.34, base_z, 0.42, "statue_of_freedom_pedestal_silhouette", "StatueBronze", segments=statue_radial_segments)
+        obj.add_frustum((0.0, 0.0), 0.40, 0.34, base_z, 0.42, "statue_of_freedom_lower_plinth_silhouette", "StatueBronze", segments=statue_radial_segments)
         obj.add_frustum((0.0, 0.0), 0.54, 0.27, base_z + 0.36, 3.90, "statue_of_freedom_draped_body_silhouette", "StatueBronze", segments=statue_radial_segments)
         obj.add_cylinder((0.0, 0.0), 0.20, base_z + 4.23, 0.48, "statue_of_freedom_head_silhouette", "StatueBronze", segments=24)
         obj.add_beam_between(
@@ -7856,8 +7856,57 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 "public_height_target_m": round(capitol_public_height_m, 2),
                 "radial_segments": statue_radial_segments,
                 "geometry": "tapered_draped_public_proxy",
-                "silhouette_components": ["base", "pedestal", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"],
+                "silhouette_components": ["base", "lower_plinth", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"],
+                "statue_height_without_pedestal_m": round(statue_of_freedom_height_m, 2),
                 "public_accuracy": "schematic_public_landmark_silhouette_not_sculptural_replica",
+            },
+        )
+
+    def add_statue_of_freedom_pedestal() -> None:
+        pedestal_height_m = 18.5 * 0.3048
+        pedestal_base_z = statue_base_z - pedestal_height_m
+        obj.add_cylinder((0.0, 0.0), 1.05, pedestal_base_z, 0.52, "statue_of_freedom_pedestal_base", "StatueBronze", segments=48)
+        obj.add_frustum((0.0, 0.0), 0.92, 0.72, pedestal_base_z + 0.52, 1.36, "statue_of_freedom_pedestal_lower_taper", "StatueBronze", segments=48)
+        obj.add_cylinder((0.0, 0.0), 0.69, pedestal_base_z + 1.88, 2.72, "statue_of_freedom_pedestal_shaft", "StatueBronze", segments=48)
+        obj.add_frustum((0.0, 0.0), 0.72, 0.52, pedestal_base_z + 4.60, pedestal_height_m - 4.60, "statue_of_freedom_pedestal_upper_taper", "StatueBronze", segments=48)
+        ornament_count = 12
+        for ornament_index in range(ornament_count):
+            angle = math.tau * ornament_index / ornament_count
+            wreath_radius = 0.77
+            wreath_center = (wreath_radius * math.cos(angle), wreath_radius * math.sin(angle))
+            obj.add_cylinder(
+                wreath_center,
+                0.13,
+                pedestal_base_z + 1.02,
+                0.16,
+                f"statue_of_freedom_pedestal_wreath_{ornament_index+1:02d}",
+                "StatueBronze",
+                segments=16,
+            )
+            fasces_radius = 0.73
+            fasces_center = (fasces_radius * math.cos(angle), fasces_radius * math.sin(angle))
+            obj.add_cylinder(
+                fasces_center,
+                0.075,
+                pedestal_base_z + 3.03,
+                1.18,
+                f"statue_of_freedom_pedestal_fasces_{ornament_index+1:02d}",
+                "StatueBronze",
+                segments=12,
+            )
+        add_facade_detail(
+            "statue_of_freedom_pedestal",
+            "statue_of_freedom_pedestal",
+            (0.0, 0.0, pedestal_base_z + pedestal_height_m / 2.0),
+            {
+                "height_m": round(pedestal_height_m, 4),
+                "base_z_m": round(pedestal_base_z, 4),
+                "top_z_m": round(statue_base_z, 4),
+                "wreath_count": ornament_count,
+                "fasces_count": ornament_count,
+                "radial_segments": 48,
+                "source_reference": "Architect of the Capitol Dome By-The-Numbers",
+                "public_accuracy": "aoc_dimension_and_ornament_count_aligned",
             },
         )
 
@@ -10303,9 +10352,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "purpose": "hero_lantern_silhouette_tessellation",
         },
     )
-    add_dome_cylinder((0.0, 0.0), 0.18, 64.0, 2.1, "dome_lantern_finial", "ColumnStone", segments=12)
+    add_statue_of_freedom_pedestal()
     add_statue_of_freedom_silhouette()
-    add_facade_detail("dome_lantern_finial", "dome_finial", (0.0, 0.0, dome_z(65.05)))
     add_element("Capitol Dome / lantern visual massing", "landmark", (0.0, 0.0, dome_z(49.0)))
 
     obj.write(MESH_DIR / "capitol_landmark_visual_details.obj", "capitol_materials.mtl")

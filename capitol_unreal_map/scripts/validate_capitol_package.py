@@ -1761,7 +1761,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "lantern_window_trim",
     "lantern_column",
     "lantern_balustrade",
-    "dome_finial",
+    "statue_of_freedom_pedestal",
     "statue_of_freedom_silhouette",
     "pediment_relief_panel",
 }
@@ -3342,9 +3342,24 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, "public Statue of Freedom proxy must retain at least 32 radial body segments")
         if statue_silhouette.get("geometry") != "tapered_draped_public_proxy":
             error(errors, "public Statue of Freedom proxy must retain tapered silhouette geometry")
-        required_statue_components = {"base", "pedestal", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"}
+        required_statue_components = {"base", "lower_plinth", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"}
         if not required_statue_components.issubset(set(statue_silhouette.get("silhouette_components", []))):
             error(errors, "public Statue of Freedom proxy must retain its visible shield, sword, drapery, and helmet components")
+        if abs(float(statue_silhouette.get("statue_height_without_pedestal_m", 0.0)) - 5.94) > 0.01:
+            error(errors, "Statue of Freedom proxy must retain the AOC 19.5-foot statue height")
+    statue_pedestals = [
+        detail for detail in facade_details if detail.get("kind") == "statue_of_freedom_pedestal"
+    ]
+    if len(statue_pedestals) != 1:
+        error(errors, "expected one explicit Statue of Freedom pedestal record")
+    else:
+        pedestal = statue_pedestals[0]
+        if abs(float(pedestal.get("height_m", 0.0)) - 5.6388) > 0.001:
+            error(errors, "Statue of Freedom pedestal must retain the AOC 18.5-foot height")
+        if int(pedestal.get("wreath_count", 0)) != 12 or int(pedestal.get("fasces_count", 0)) != 12:
+            error(errors, "Statue of Freedom pedestal must retain 12 wreaths and 12 fasces")
+        if abs(float(pedestal.get("top_z_m", 0.0)) - float(statue_silhouettes[0].get("center_m", [0, 0, 0])[2] - 5.94 / 2.0 if statue_silhouettes else 0.0)) > 0.02:
+            error(errors, "Statue of Freedom pedestal top must align with the statue base")
     for detail in [item for item in facade_details if item.get("kind") in {"public_entry_lamp", "public_facade_sconce", "facade_uplight"}]:
         if not is_vec3(detail.get("light_m")):
             error(errors, f"facade light {detail.get('name', '<unknown>')} has invalid light_m")
