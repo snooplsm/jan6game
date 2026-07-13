@@ -1881,8 +1881,16 @@ def spawn_high_quality_grounds_shrubs() -> dict[str, Any]:
         "spawned_actor_count": 0,
         "asset_loaded": False,
         "blockout_geometry_omitted": True,
+        "removed_previous_actor_count": 0,
     }
     try:
+        # Keep the focused shrub pass idempotent even when it is run without the
+        # full importer-level CapitolMap cleanup.
+        for existing_actor in unreal.EditorLevelLibrary.get_all_level_actors():
+            label = existing_actor.get_actor_label()
+            if label.startswith("CapitolMap_HQShrub_") or actor_folder(existing_actor) == HIGH_QUALITY_SHRUB_FOLDER:
+                unreal.EditorLevelLibrary.destroy_actor(existing_actor)
+                stats["removed_previous_actor_count"] += 1
         data = load_metadata()
         specs = build_high_quality_shrub_specs(data)
         stats["candidate_count"] = len(specs)
