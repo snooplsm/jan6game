@@ -2260,6 +2260,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, "YOTEL transition height must remain explicitly heuristic pending reliable roof-height evidence")
         if abs(float(yotel_transition.get("height_m", 0.0)) - 32.98) > 0.01:
             error(errors, "curated YOTEL identity must not perturb the pre-existing 32.98m deterministic height seed")
+    hotung = next((building for building in buildings if building.get("id") == 48040818), None)
+    if hotung is None:
+        error(errors, "expected Eric E. Hotung International Law Building footprint 48040818")
+    else:
+        if hotung.get("height_source") != "curated_public_level_count_estimate":
+            error(errors, "Hotung must use Georgetown Law's public six-story description")
+        if abs(float(hotung.get("height_m", 0.0)) - 20.40) > 0.01:
+            error(errors, "Hotung six-level visual estimate must remain 20.40m")
     if summary["roads"] < 1400:
         error(errors, "expected at least 1400 historical-source roads/paths")
     if summary["bike_lanes"] < 240:

@@ -1666,6 +1666,10 @@ def parse_height(
         # AOC describes Dirksen's design as a seven-story building; the
         # historical relation's four-level tag is incomplete.
         1047027: 7.0,
+        # Georgetown Law's official virtual tour describes Hotung as a
+        # six-story building completed in August 2004. This supports a public
+        # level-count estimate, not an exact parapet or roof elevation.
+        48040818: 6.0,
     }
     if way_id in curated_public_levels:
         return min(max(curated_public_levels[way_id] * 3.4, 3.0), 70.0), "curated_public_level_count_estimate"

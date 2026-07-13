@@ -18,11 +18,11 @@
     "target_era_weather_observation": "2021-01-06T16:52:00Z",
     "building_height_sources": {
       "building_levels_estimate": 76,
-      "curated_public_level_count_estimate": 4,
+      "curated_public_level_count_estimate": 5,
       "curated_public_structural_stack_height": 1,
       "dcgis_rooftop_ground_delta_estimate": 1327,
       "explicit_height_tag": 27,
-      "footprint_type_area_estimate": 2204
+      "footprint_type_area_estimate": 2203
     },
     "height_model": {
       "dcgis_rooftop_points": 2360,
@@ -30,12 +30,12 @@
       "dcgis_matched_buildings": 1327,
       "source_backed_buildings": 1355,
       "level_count_estimated_buildings": 76,
-      "heuristic_estimated_buildings": 2204,
+      "heuristic_estimated_buildings": 2203,
       "height_accuracy_tiers": {
-        "heuristic_visual_estimate": 2204,
+        "heuristic_visual_estimate": 2203,
         "level_count_estimate": 76,
         "public_elevation_delta": 1327,
-        "public_level_count_estimate": 4,
+        "public_level_count_estimate": 5,
         "public_structural_dimension": 1,
         "source_tag": 27
       },

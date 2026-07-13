@@ -164,6 +164,19 @@ defensible roof-to-ground measurement.
   back to the more articulated DCGIS footprint, avoiding a false double tower
   and coincident-surface flicker.
 
+## Eric E. Hotung International Law Building (OSM way 48040818)
+
+- Previous model height: 30.24 m from the deterministic footprint/type/area
+  heuristic.
+- Reviewed public source: [Georgetown Law, Eric E. Hotung International Law
+  Center Building virtual tour](https://www.law.georgetown.edu/admissions-aid/connect-with-georgetown-law/virtual-tour/the-eric-e-hotung-international-law-center-building/).
+- Confirmed facts: Georgetown Law describes Hotung as a six-story academic
+  building completed in August 2004, well before the January 2021 target date.
+- Decision: replace the heuristic with a clearly labeled six-level, 20.40 m
+  visual estimate using the package's conservative 3.4 m per above-ground story
+  rule. Do not treat the story count as an exact parapet, penthouse, or surveyed
+  exterior roof height.
+
 ## YOTEL Washington DC transition site (OSM way 74035728)
 
 - Current model height: 32.98 m from the deterministic footprint/type/area
