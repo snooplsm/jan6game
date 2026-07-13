@@ -2191,9 +2191,10 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     expected_source_backed = (
         building_height_sources.get("explicit_height_tag", 0)
         + building_height_sources.get("dcgis_rooftop_ground_delta_estimate", 0)
+        + building_height_sources.get("curated_public_structural_stack_height", 0)
     )
     if (height_model.get("source_backed_buildings") or 0) != expected_source_backed:
-        error(errors, "height_model.source_backed_buildings must match explicit plus DCGIS height-source count")
+        error(errors, "height_model.source_backed_buildings must match explicit, DCGIS, and curated structural height-source counts")
     if (height_model.get("level_count_estimated_buildings") or 0) != building_height_sources.get("building_levels_estimate", 0):
         error(errors, "height_model.level_count_estimated_buildings must match building-level height-source count")
     if (height_model.get("heuristic_estimated_buildings") or 0) != building_height_sources.get("footprint_type_area_estimate", 0):
@@ -2217,6 +2218,18 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     for building in buildings:
         if building.get("height_source") == "dcgis_rooftop_ground_delta_estimate" and not building.get("height_provenance"):
             error(errors, f"DCGIS height-matched building {building.get('name', '<unknown>')} missing height_provenance")
+    one_independence_square = next((building for building in buildings if building.get("id") == 48037411), None)
+    if one_independence_square is None:
+        error(errors, "expected historical footprint 48037411 for One Independence Square")
+    else:
+        if one_independence_square.get("name") != "One Independence Square":
+            error(errors, "historical footprint 48037411 must retain its curated One Independence Square identity")
+        if one_independence_square.get("height_source") != "curated_public_structural_stack_height":
+            error(errors, "One Independence Square must use its public slab-dimension structural height")
+        if abs(float(one_independence_square.get("height_m", 0.0)) - 27.38) > 0.01:
+            error(errors, "One Independence Square main structural stack must remain 27.38m")
+        if not one_independence_square.get("identity_provenance") or not one_independence_square.get("height_provenance"):
+            error(errors, "One Independence Square must retain identity and height provenance")
     if summary["roads"] < 1400:
         error(errors, "expected at least 1400 historical-source roads/paths")
     if summary["bike_lanes"] < 240:

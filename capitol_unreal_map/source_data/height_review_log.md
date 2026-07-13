@@ -141,6 +141,24 @@ defensible roof-to-ground measurement.
   three-to-five-story exposure and courtyard explicitly rather than applying a
   uniform taller extrusion.
 
+## One Independence Square (OSM way 48037411)
+
+- Previous model state: anonymous `osm_way_48037411` footprint with a 32.83 m
+  deterministic footprint/type/area estimate.
+- Historical address evidence: the checked-in January 2021 OSM/DCGIS footprint
+  is 250 E Street SW, Washington, DC 20024.
+- Reviewed public sources: the [One Independence Square property
+  sheet](https://images4.loopnet.com/d2/4_nGZbPwun-iQYyXK4QgELjNUZlR5IQt48whGZArEWg/document.pdf)
+  and [GSA lease record](https://www.gsa.gov/system/files/Real_Estate_Acquisitions/LDC12661-SLA-2-_Z.pdf).
+- Confirmed facts: the property has nine above-grade floors; its first-floor
+  slab-to-slab height is 12 ft 6 in and floors 2-9 are each 9 ft 8 in. GSA's
+  lease identifies the premises as 250 E Street SW and the lessor as Piedmont -
+  Independence Square, LLC.
+- Decision: rename the footprint `One Independence Square` and replace the
+  heuristic extrusion with the summed 89 ft 10 in (27.3812 m) structural stack.
+  This is source-derived main-mass height, not a surveyed roof elevation;
+  unmeasured parapets and rooftop equipment remain separate visual details.
+
 ## Review rule
 
 Do not promote these targets to `source_backed_height` based on these sources.

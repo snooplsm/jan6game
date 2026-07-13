@@ -75,6 +75,26 @@ HOUSE_GARAGE_FOUNTAIN_WAY_IDS = {
     546401944: "House West Fountain",
 }
 
+# Address-only DCGIS footprints in the historical OSM extract can still be
+# identified from authoritative/public property records. Keep these decisions
+# ID-specific so a present-day tenant or similarly numbered address cannot
+# accidentally rename another footprint.
+CURATED_SURROUNDING_BUILDING_IDENTITIES = {
+    48037411: {
+        "name": "One Independence Square",
+        "public_source_url": "https://images4.loopnet.com/d2/4_nGZbPwun-iQYyXK4QgELjNUZlR5IQt48whGZArEWg/document.pdf",
+        "identity_note": "Property sheet identifies 250 E Street SW as a nine-floor office building; GSA lease records corroborate the address and Independence Square ownership entity.",
+    },
+}
+
+# One Independence Square's property sheet supplies actual slab-to-slab
+# dimensions: 12 ft 6 in at level 1 and 9 ft 8 in at levels 2-9. Their sum is
+# 89 ft 10 in (27.3812 m). This is a defensible main structural-stack height,
+# not a surveyed parapet or rooftop-equipment elevation.
+CURATED_PUBLIC_STRUCTURAL_HEIGHTS_M = {
+    48037411: 27.3812,
+}
+
 
 def relative_to_package(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
@@ -1607,6 +1627,8 @@ def parse_height(
                 value *= 0.3048
             max_height = 120.0 if is_capitol else 70.0
             return min(max(value, 3.0), max_height), "explicit_height_tag"
+    if way_id in CURATED_PUBLIC_STRUCTURAL_HEIGHTS_M:
+        return CURATED_PUBLIC_STRUCTURAL_HEIGHTS_M[way_id], "curated_public_structural_stack_height"
     curated_public_levels = {
         # The U.S. Senate describes Hart as a nine-story structure and its
         # central atrium as 90 feet high. This supports a level-count estimate,
@@ -1665,6 +1687,14 @@ def building_height_accuracy_record(
             "height_accuracy_note": (
                 "An authoritative public source states the building's story count; converted with the same "
                 "conservative 3.4m-per-level visual estimate and not treated as an exact roof height."
+            ),
+        },
+        "curated_public_structural_stack_height": {
+            "height_accuracy_tier": "public_structural_dimension",
+            "height_confidence": 0.88,
+            "height_accuracy_note": (
+                "A public property record supplies the above-grade floor count and slab-to-slab dimensions; "
+                "their summed structural stack is used for the main extrusion, excluding unmeasured parapets and equipment."
             ),
         },
         "footprint_type_area_estimate": {
@@ -4925,6 +4955,9 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             continue
         osm_element_type = way.get("osm_element_type", "way")
         name = tags.get("name") or tags.get("official_name") or f"osm_{osm_element_type}_{way['id']}"
+        curated_identity = CURATED_SURROUNDING_BUILDING_IDENTITIES.get(int(way["id"]))
+        if curated_identity:
+            name = str(curated_identity["name"])
         is_capitol = "capitol" in name.lower() and tags.get("building")
         is_us_capitol = tags.get("wikidata") == "Q54109" or name == "United States Capitol"
 
@@ -5119,6 +5152,20 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                 building_record.update(height_accuracy)
                 if height_provenance:
                     building_record["height_provenance"] = height_provenance
+                if curated_identity:
+                    building_record["identity_provenance"] = {
+                        "public_source_url": curated_identity["public_source_url"],
+                        "note": curated_identity["identity_note"],
+                    }
+                if height_source == "curated_public_structural_stack_height":
+                    building_record["height_provenance"] = {
+                        "source": "One Independence Square property sheet",
+                        "public_source_url": curated_identity["public_source_url"] if curated_identity else None,
+                        "method": "12 ft 6 in first-floor slab plus eight 9 ft 8 in upper-floor slabs",
+                        "above_grade_floors": 9,
+                        "structural_stack_height_ft": 89.833333,
+                        "scope_note": "Main structural stack only; parapet and rooftop equipment heights are not stated.",
+                    }
                 metadata["buildings"].append(building_record)
 
         if tags.get("highway"):
@@ -5414,6 +5461,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     metadata["height_model"]["source_backed_buildings"] = (
         height_source_counts.get("explicit_height_tag", 0)
         + height_source_counts.get("dcgis_rooftop_ground_delta_estimate", 0)
+        + height_source_counts.get("curated_public_structural_stack_height", 0)
     )
     metadata["height_model"]["level_count_estimated_buildings"] = height_source_counts.get("building_levels_estimate", 0)
     metadata["height_model"]["curated_public_level_count_estimated_buildings"] = height_source_counts.get(
