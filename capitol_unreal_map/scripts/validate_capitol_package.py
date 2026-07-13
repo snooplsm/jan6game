@@ -2521,8 +2521,17 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 12 public hedge records")
     if len([detail for detail in grounds_details if detail.get("kind") == "path_edge_stone"]) < 16:
         error(errors, "expected at least 16 public path edge stone records")
-    if len([detail for detail in grounds_details if detail.get("kind") == "grounds_bench"]) < 16:
+    grounds_benches = [detail for detail in grounds_details if detail.get("kind") == "grounds_bench"]
+    if len(grounds_benches) < 16:
         error(errors, "expected at least 16 public grounds bench records")
+    elif any(
+        detail.get("replacement_asset_path") != "/Game/HistoricalOSM/Props/BenchModelFree/SM_BenchModelFree"
+        or detail.get("blockout_geometry_omitted") is not True
+        or detail.get("orientation") not in {"north_south", "east_west"}
+        or abs(float(detail.get("instance_length_m", 0.0)) - 2.15) > 0.001
+        for detail in grounds_benches
+    ):
+        error(errors, "grounds benches must use the modular high-quality asset with omitted blockout geometry")
     ornamental_clusters = [
         detail for detail in grounds_details if detail.get("kind") == "ornamental_planting_cluster"
     ]

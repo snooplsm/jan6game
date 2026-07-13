@@ -4620,18 +4620,24 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     def add_grounds_bench(name: str, center: tuple[float, float], orientation: str) -> None:
         x, y = center
         if orientation == "north_south":
-            roads.add_box((x, y), (0.42, 2.15), 0.16, 0.46, f"{name}_seat", "BenchWood")
-            roads.add_box((x + 0.24, y), (0.12, 2.15), 0.62, 0.54, f"{name}_back", "BenchWood")
-            for leg_index, ly in enumerate([-0.78, 0.78], start=1):
-                roads.add_box((x, y + ly), (0.32, 0.12), 0.42, 0.08, f"{name}_leg_{leg_index}", "BollardMetal")
             size = (0.62, 2.15)
         else:
-            roads.add_box((x, y), (2.15, 0.42), 0.16, 0.46, f"{name}_seat", "BenchWood")
-            roads.add_box((x, y + 0.24), (2.15, 0.12), 0.62, 0.54, f"{name}_back", "BenchWood")
-            for leg_index, lx in enumerate([-0.78, 0.78], start=1):
-                roads.add_box((x + lx, y), (0.12, 0.32), 0.42, 0.08, f"{name}_leg_{leg_index}", "BollardMetal")
             size = (2.15, 0.62)
-        add_grounds_record(name, "grounds_bench", (x, y, 0.72), size)
+        add_grounds_record(
+            name,
+            "grounds_bench",
+            (x, y, 0.0),
+            size,
+            public_accuracy="schematic_public_grounds_placement_with_high_quality_asset_replacement",
+            extra={
+                "orientation": orientation,
+                "replacement_asset_path": "/Game/HistoricalOSM/Props/BenchModelFree/SM_BenchModelFree",
+                "instance_length_m": 2.15,
+                "instance_base_z_m": 0.0,
+                "blockout_geometry_omitted": True,
+                "provenance_note": "User-provided high-detail bench; license evidence remains required before distribution acceptance.",
+            },
+        )
 
     def add_ornamental_planting_cluster(name: str, center: tuple[float, float]) -> None:
         x, y = center

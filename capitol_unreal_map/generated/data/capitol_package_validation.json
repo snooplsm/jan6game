@@ -226,12 +226,12 @@
     },
     {
       "path": "generated/meshes/capitol_exterior_roads_bike_lanes_markers.obj",
-      "vertices": 866116,
-      "uvs": 1391988,
-      "faces": 321707,
-      "faces_with_uvs": 321707,
-      "triangles": 748574,
-      "groups": 26719,
+      "vertices": 865604,
+      "uvs": 1390452,
+      "faces": 321323,
+      "faces_with_uvs": 321323,
+      "triangles": 747806,
+      "groups": 26655,
       "materials": [
         "BenchWood",
         "BikeLaneGreen",
