@@ -3,7 +3,7 @@
   "root": "C:\\Users\\ryan\\Documents\\Unreal\\Ryan\\capitol_unreal_map",
   "metadata": {
     "mesh_count": 5,
-    "buildings": 3643,
+    "buildings": 3642,
     "building_multipolygon_relations": 12,
     "roads": 1432,
     "bike_lanes": 242,
@@ -12,6 +12,7 @@
     "lane_edge_markings": 571,
     "street_markers": 396,
     "replaced_buildings": 1,
+    "excluded_underground_structures": 1,
     "target_era_construction_states": 1,
     "target_era_weather_observation": "2021-01-06T16:52:00Z",
     "building_height_sources": {
@@ -19,7 +20,7 @@
       "curated_public_level_count_estimate": 4,
       "dcgis_rooftop_ground_delta_estimate": 1327,
       "explicit_height_tag": 27,
-      "footprint_type_area_estimate": 2208
+      "footprint_type_area_estimate": 2207
     },
     "height_model": {
       "dcgis_rooftop_points": 2360,
@@ -27,9 +28,9 @@
       "dcgis_matched_buildings": 1327,
       "source_backed_buildings": 1354,
       "level_count_estimated_buildings": 77,
-      "heuristic_estimated_buildings": 2208,
+      "heuristic_estimated_buildings": 2207,
       "height_accuracy_tiers": {
-        "heuristic_visual_estimate": 2208,
+        "heuristic_visual_estimate": 2207,
         "level_count_estimate": 77,
         "public_elevation_delta": 1327,
         "public_level_count_estimate": 4,
@@ -187,12 +188,12 @@
   "meshes": [
     {
       "path": "generated/meshes/capitol_exterior_buildings.obj",
-      "vertices": 271166,
-      "uvs": 813122,
-      "faces": 191198,
-      "faces_with_uvs": 191198,
-      "triangles": 430726,
-      "groups": 27864,
+      "vertices": 271112,
+      "uvs": 812960,
+      "faces": 191169,
+      "faces_with_uvs": 191169,
+      "triangles": 430622,
+      "groups": 27863,
       "materials": [
         "BrassRail",
         "BuildingCapitol",

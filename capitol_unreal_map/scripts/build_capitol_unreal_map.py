@@ -1930,6 +1930,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
         "building_details": [],
         "grounds_details": [],
         "replaced_buildings": [],
+        "excluded_underground_structures": [],
         "target_era_construction_states": [
             {
                 "building_id": 286503,
@@ -4915,6 +4916,20 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
             cy = sum(p[1] for p in points) / len(points)
             footprint_area = polygon_area_m2(points)
             footprint_span = footprint_span_m(points)
+            if tags.get("location", "").lower() == "underground":
+                metadata["excluded_underground_structures"].append(
+                    {
+                        "id": int(way["id"]),
+                        "osm_element_type": osm_element_type,
+                        "name": name,
+                        "center_m": [round(cx, 3), round(cy, 3), 0.0],
+                        "footprint_area_m2": round(footprint_area, 2),
+                        "footprint_span_m": round(footprint_span, 2),
+                        "reason": "Historical OSM location=underground; excluded from visible above-ground massing.",
+                        "tags": tags,
+                    }
+                )
+                continue
             height, height_source = parse_height(
                 tags,
                 is_us_capitol,

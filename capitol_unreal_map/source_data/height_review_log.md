@@ -42,6 +42,17 @@ defensible roof-to-ground measurement.
   20.4 m and is not defensible for this large institutional building without a
   measured elevation or a building-specific floor-to-floor source.
 
+## Underground Capitol-area structure (OSM way 888787630)
+
+- Previous model height: 42.65 m from a deterministic footprint/type/area
+  estimate, making it the highest-priority unresolved height-review target.
+- Historical source evidence: the checked-in January 6, 2021 OSM element is
+  explicitly tagged `building=yes` and `location=underground`.
+- Decision: exclude the footprint from visible above-ground building massing
+  rather than estimate a skyline height. Retain an exclusion record with the
+  original tags in scene metadata. This corrects a source-interpretation error;
+  it does not expose or model subsurface layout.
+
 ## Hart Senate Office Building (OSM way 66733226)
 
 - Previous model height: 13.60 m.

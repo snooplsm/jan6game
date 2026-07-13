@@ -1977,6 +1977,8 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     summary["street_markers"] = len(exterior.get("street_markers", []))
     replaced_buildings = exterior.get("replaced_buildings", [])
     summary["replaced_buildings"] = len(replaced_buildings)
+    excluded_underground_structures = exterior.get("excluded_underground_structures", [])
+    summary["excluded_underground_structures"] = len(excluded_underground_structures)
     construction_states = exterior.get("target_era_construction_states", [])
     summary["target_era_construction_states"] = len(construction_states)
     target_weather = exterior.get("target_era_weather", {})
@@ -2223,6 +2225,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected OSM United States Capitol footprint to be replaced by authored landmark mesh")
     if any(item.get("name") == "United States Capitol" for item in exterior.get("buildings", [])):
         error(errors, "OSM United States Capitol footprint should not be extruded in exterior buildings mesh")
+    if not any(
+        int(item.get("id", -1)) == 888787630
+        and item.get("tags", {}).get("location") == "underground"
+        for item in excluded_underground_structures
+    ):
+        error(errors, "expected OSM way 888787630 to be recorded as an excluded underground structure")
+    if any(int(item.get("id", -1)) == 888787630 for item in exterior.get("buildings", [])):
+        error(errors, "OSM way 888787630 is underground and must not appear in visible building massing")
     if len(building_details) < 7800:
         error(errors, f"expected at least 7800 surrounding building visual detail records, got {len(building_details)}")
     missing_building_detail_kinds = sorted(REQUIRED_BUILDING_DETAIL_KINDS - building_detail_kinds)
@@ -4544,6 +4554,7 @@ def main() -> int:
     print(f"Lane edge markings: {metadata_summary.get('lane_edge_markings', 0):,}")
     print(f"Street markers: {metadata_summary.get('street_markers', 0):,}")
     print(f"Replaced OSM building footprints: {metadata_summary.get('replaced_buildings', 0):,}")
+    print(f"Excluded underground structures: {metadata_summary.get('excluded_underground_structures', 0):,}")
     print(f"Surrounding building details: {metadata_summary.get('building_details', 0):,}")
     print(f"Streetscape props: {metadata_summary.get('streetscape_props', 0):,}")
     print(f"Grounds details: {metadata_summary.get('grounds_details', 0):,}")
