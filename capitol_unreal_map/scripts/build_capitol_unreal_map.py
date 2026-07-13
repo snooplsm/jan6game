@@ -2173,6 +2173,109 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
     def building_detail_building_count(kind: str) -> int:
         return len({detail.get("building_id") for detail in metadata["building_details"] if detail.get("kind") == kind})
 
+    def add_curated_historic_building_features(
+        way_id: int,
+        name: str,
+        points: list[tuple[float, float]],
+    ) -> None:
+        """Add source-dimensioned details that sit outside the generic facade budget."""
+        if way_id != 66732540 or len(points) < 3:
+            return
+
+        # DC HPRB case 15-502 documents a 52-foot-long, 1:12 accessible ramp
+        # reaching an A Street entrance six feet above the sidewalk, with a
+        # matching brick base and black iron rail. The public report does not
+        # publish fabrication drawings, so this is an explicitly approximate
+        # switchback fitted to the source footprint's southwest A Street edge.
+        min_x = min(point[0] for point in points)
+        min_y = min(point[1] for point in points)
+        rise_m = 6.0 * 0.3048
+        envelope_length_m = 52.0 * 0.3048
+        start = (min_x + 1.0, min_y - 1.60, 0.15)
+        turn_a = (start[0] + envelope_length_m, start[1], start[2] + envelope_length_m / 12.0)
+        turn_b = (turn_a[0], turn_a[1] + 3.80, turn_a[2] + 3.80 / 12.0)
+        remaining_rise = rise_m - (turn_b[2] - start[2])
+        end = (turn_b[0] - remaining_rise * 12.0, turn_b[1], start[2] + rise_m)
+        runs = [(start, turn_a), (turn_a, turn_b), (turn_b, end)]
+        prefix = "capitol_hill_baptist_2015_accessible_ramp"
+
+        for run_index, (run_start, run_end) in enumerate(runs, start=1):
+            buildings.add_beam_between(
+                run_start,
+                run_end,
+                1.38,
+                0.12,
+                f"{prefix}_concrete_run_{run_index:02d}",
+                "SidewalkConcrete",
+            )
+            dx = run_end[0] - run_start[0]
+            dy = run_end[1] - run_start[1]
+            horizontal = math.hypot(dx, dy)
+            nx, ny = -dy / horizontal, dx / horizontal
+            for side_index, side in enumerate((-1.0, 1.0), start=1):
+                lateral = 0.76 * side
+                rail_start = (run_start[0] + nx * lateral, run_start[1] + ny * lateral, run_start[2] + 0.92)
+                rail_end = (run_end[0] + nx * lateral, run_end[1] + ny * lateral, run_end[2] + 0.92)
+                buildings.add_beam_between(
+                    rail_start,
+                    rail_end,
+                    0.055,
+                    0.055,
+                    f"{prefix}_black_iron_rail_{run_index:02d}_{side_index:02d}",
+                    "StreetLightPole",
+                )
+                for post_index, point in enumerate((run_start, run_end), start=1):
+                    buildings.add_cylinder(
+                        (point[0] + nx * lateral, point[1] + ny * lateral),
+                        0.035,
+                        point[2],
+                        0.92,
+                        f"{prefix}_rail_post_{run_index:02d}_{side_index:02d}_{post_index:02d}",
+                        "StreetLightPole",
+                        segments=10,
+                    )
+
+        for landing_index, point in enumerate((turn_a, turn_b, end), start=1):
+            buildings.add_box(
+                (point[0], point[1]),
+                (1.65, 1.65),
+                0.14,
+                point[2] - 0.07,
+                f"{prefix}_landing_{landing_index:02d}",
+                "SidewalkConcrete",
+            )
+        # Low brick-colored side-base markers preserve the reviewed material
+        # distinction without pretending the unpublished wall profile is known.
+        buildings.add_box(
+            ((start[0] + turn_a[0]) / 2.0, start[1] + 0.74),
+            (envelope_length_m, 0.16),
+            0.46,
+            0.02,
+            f"{prefix}_brick_base_marker",
+            "BuildingGeneric",
+        )
+        add_building_detail_record(
+            prefix,
+            "source_dimensioned_accessible_ramp_assembly",
+            way_id,
+            name,
+            ((start[0] + turn_a[0]) / 2.0, (start[1] + turn_b[1]) / 2.0, start[2] + rise_m / 2.0),
+            {
+                "public_accuracy": "source_dimensioned_approximate_switchback_layout",
+                "public_source_url": "https://planning.dc.gov/sites/default/files/dc/sites/op/publication/attachments/Capitol%20Hill%20HD%20525%20A%20Street%20NE%20HPA%2015%20502.pdf",
+                "corroborating_source_url": "https://www.capitolhillbaptist.org/visit-us/accessibility/",
+                "hprb_case": "15-502",
+                "approved_year": 2015,
+                "target_date": "2021-01-06",
+                "envelope_length_ft": 52.0,
+                "entrance_rise_ft": 6.0,
+                "slope": "1:12",
+                "reviewed_materials": ["matching brick base", "black iron railing"],
+                "layout_note": "Switchback path is fitted to the historical footprint because public fabrication drawings were not available.",
+                "component_counts": {"sloped_runs": 3, "landings": 3, "handrails": 6, "rail_posts": 12},
+            },
+        )
+
     def add_surrounding_building_visuals(
         way_id: int,
         name: str,
@@ -5173,6 +5276,7 @@ def build_exterior(nodes: dict[int, tuple[float, float]], ways: list[dict[str, A
                         )
                 add_surrounding_building_visuals(way["id"], name, points, height, (cx, cy))
                 add_surrounding_building_rooftop_equipment_layer(way["id"], name, points, height, (cx, cy))
+                add_curated_historic_building_features(int(way["id"]), name, points)
                 height_accuracy = building_height_accuracy_record(
                     height_source,
                     height,

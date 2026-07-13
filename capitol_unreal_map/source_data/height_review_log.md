@@ -26,6 +26,26 @@ defensible roof-to-ground measurement.
 - Decision: retain the 27.67 m height estimate. The published dimensions support
   footprint-scale review but do not state exterior height.
 
+## Capitol Hill Baptist Church (OSM way 66732540)
+
+- Current model height: 24.58 m from the deterministic footprint/type/area
+  heuristic; no reliable total sanctuary or tower height was found.
+- Reviewed public sources: [DC Historic Preservation Review Board case
+  15-502](https://planning.dc.gov/sites/default/files/dc/sites/op/publication/attachments/Capitol%20Hill%20HD%20525%20A%20Street%20NE%20HPA%2015%20502.pdf)
+  and the church's [accessibility page](https://www.capitolhillbaptist.org/visit-us/accessibility/).
+- Confirmed facts: the large brick church was designed by Appleton P. Clark,
+  Jr. and built around 1911; its rear brick school addition dates to 1927. The
+  approved 2015 A Street accessible ramp reaches an entrance six feet above
+  sidewalk at a 1:12 slope, occupies a 52-foot-long footprint including flat
+  areas, and uses a matching brick base with black iron railing. The church
+  confirms an accessible ramp from the smaller A Street parking lot into the
+  first floor.
+- Decision: retain the unresolved 24.58 m building-height heuristic, but add a
+  source-dimensioned ramp assembly with three sloped runs, three landings, six
+  rails, and twelve posts. Its switchback fit is explicitly approximate because
+  the public staff report does not include fabrication drawings; do not treat it
+  as a surveyed layout or infer unsupported sanctuary/tower dimensions.
+
 ## Eric E. Hotung International Law Building (OSM way 48040818)
 
 - Current model height: 30.24 m.

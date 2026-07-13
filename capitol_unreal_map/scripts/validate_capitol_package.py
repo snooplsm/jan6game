@@ -2268,6 +2268,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, "Hotung must use Georgetown Law's public six-story description")
         if abs(float(hotung.get("height_m", 0.0)) - 20.40) > 0.01:
             error(errors, "Hotung six-level visual estimate must remain 20.40m")
+    church_ramp = next(
+        (detail for detail in building_details if detail.get("kind") == "source_dimensioned_accessible_ramp_assembly"),
+        None,
+    )
+    if church_ramp is None:
+        error(errors, "expected source-dimensioned Capitol Hill Baptist accessible ramp assembly")
+    else:
+        if church_ramp.get("building_id") != 66732540 or church_ramp.get("hprb_case") != "15-502":
+            error(errors, "Capitol Hill Baptist ramp must retain its historical footprint and HPRB case provenance")
+        if church_ramp.get("target_date") != "2021-01-06" or church_ramp.get("slope") != "1:12":
+            error(errors, "Capitol Hill Baptist ramp must retain target-date and reviewed slope evidence")
+        if church_ramp.get("envelope_length_ft") != 52.0 or church_ramp.get("entrance_rise_ft") != 6.0:
+            error(errors, "Capitol Hill Baptist ramp must retain its reviewed 52-foot envelope and six-foot rise")
+        counts = church_ramp.get("component_counts", {})
+        if counts != {"sloped_runs": 3, "landings": 3, "handrails": 6, "rail_posts": 12}:
+            error(errors, "Capitol Hill Baptist ramp must retain complete modeled component counts")
     if summary["roads"] < 1400:
         error(errors, "expected at least 1400 historical-source roads/paths")
     if summary["bike_lanes"] < 240:
