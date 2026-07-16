@@ -3468,6 +3468,36 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "Tholos inventory must retain 12 columns and 12 windows at 30-degree spacing")
     if len([detail for detail in facade_details if detail.get("kind") == "lantern_balustrade"]) < 1:
         error(errors, "expected public lantern balustrade record")
+    tholos_session_fixtures = [
+        detail for detail in facade_details if detail.get("kind") == "tholos_in_session_bulb_fixture"
+    ]
+    if len(tholos_session_fixtures) != 4:
+        error(errors, "expected the AOC-documented four Tholos in-session bulb fixtures")
+    elif any(
+        int(detail.get("nominal_wattage", 0)) != 300
+        or detail.get("target_date") != "2021-01-06"
+        or detail.get("target_time_local") != "11:50"
+        or detail.get("target_state") != "off"
+        or detail.get("emissive") is not False
+        for detail in tholos_session_fixtures
+    ):
+        error(errors, "Tholos session bulbs must remain 300W fixtures off at the 11:50 target time")
+    tholos_session_inventories = [
+        detail for detail in facade_details if detail.get("kind") == "tholos_in_session_bulb_inventory"
+    ]
+    if len(tholos_session_inventories) != 1:
+        error(errors, "expected one Tholos in-session bulb inventory")
+    else:
+        session_inventory = tholos_session_inventories[0]
+        if (
+            int(session_inventory.get("fixture_count", 0)) != 4
+            or int(session_inventory.get("nominal_wattage_each", 0)) != 300
+            or session_inventory.get("target_state") != "off"
+            or session_inventory.get("house_convened_local") != "12:00"
+            or session_inventory.get("senate_convened_local") != "12:30"
+            or session_inventory.get("joint_session_local") != "13:00"
+        ):
+            error(errors, "Tholos bulb inventory must retain official count, wattage, and January 6 schedule state")
     statue_silhouettes = [
         detail for detail in facade_details if detail.get("kind") == "statue_of_freedom_silhouette"
     ]

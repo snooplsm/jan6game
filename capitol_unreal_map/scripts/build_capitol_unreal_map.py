@@ -10808,6 +10808,45 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "public_accuracy": "aoc_count_aligned",
         },
     )
+    tholos_in_session_bulb_count = 4
+    for bulb_index in range(tholos_in_session_bulb_count):
+        angle = math.radians(45.0 + bulb_index * 90.0)
+        bulb_center = (2.72 * math.cos(angle), 2.72 * math.sin(angle))
+        fixture_name = f"tholos_in_session_bulb_fixture_{bulb_index+1:02d}"
+        add_dome_cylinder(bulb_center, 0.12, 58.48, 0.14, f"{fixture_name}_socket", "DoorMetal", segments=12)
+        add_dome_cylinder(bulb_center, 0.17, 58.62, 0.34, f"{fixture_name}_glass", "DoorGlass", segments=16)
+        add_facade_detail(
+            fixture_name,
+            "tholos_in_session_bulb_fixture",
+            (bulb_center[0], bulb_center[1], dome_z(58.79)),
+            {
+                "sequence": bulb_index + 1,
+                "nominal_wattage": 300,
+                "target_date": "2021-01-06",
+                "target_time_local": "11:50",
+                "target_state": "off",
+                "emissive": False,
+                "state_basis": "before_house_noon_senate_1230_and_joint_session_1300",
+                "source_reference": "AOC Dome By-The-Numbers and official Congressional Record",
+                "public_accuracy": "aoc_inventory_and_official_schedule_aligned",
+            },
+        )
+    add_facade_detail(
+        "tholos_in_session_bulb_inventory",
+        "tholos_in_session_bulb_inventory",
+        (0.0, 0.0, dome_z(58.79)),
+        {
+            "fixture_count": tholos_in_session_bulb_count,
+            "nominal_wattage_each": 300,
+            "target_date": "2021-01-06",
+            "target_time_local": "11:50",
+            "target_state": "off",
+            "house_convened_local": "12:00",
+            "senate_convened_local": "12:30",
+            "joint_session_local": "13:00",
+            "source_reference": "AOC Dome By-The-Numbers; Congressional Record January 6 2021",
+        },
+    )
     lantern_cap_segments = 96
     lantern_cap_rings = 16
     add_dome_shell(

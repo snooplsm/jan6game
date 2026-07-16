@@ -56,6 +56,17 @@ Modern west-front composition references:
   discrete tapered bronze points now surround the schematic helmet mass at
   36-degree spacing, all remaining below the validated 87.48m building apex;
   this is a count-aligned ground-view silhouette rather than sculptural detail.
+  Finally, AOC lists four 300-watt in-session bulbs in the Tholos. The four
+  socket/glass fixtures are present, but remain non-emissive at the requested
+  11:50 a.m. January 6 state: the Congressional Record shows the House met at
+  noon, the Senate at 12:30 p.m., and S.Con.Res.1 scheduled the joint session
+  for 1:00 p.m.
+- Congressional Record, House proceedings for January 6, 2021 (House met at
+  noon): https://www.congress.gov/117/crec/2021/01/06/167/4/CREC-2021-01-06-pt1-PgH75.pdf
+- U.S. Senate floor activity for January 6, 2021 (Senate convened at 12:30):
+  https://www.senate.gov/legislative/LIS/floor_activity/2021/01_06_2021_Senate_Floor.htm
+- S.Con.Res.1, scheduling the joint session at 1:00 p.m.:
+  https://www.congress.gov/bill/117th-congress/senate-concurrent-resolution/1/text/ats
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/
