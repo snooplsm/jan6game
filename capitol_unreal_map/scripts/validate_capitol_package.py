@@ -1720,9 +1720,12 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "plaza_wear_patch",
     "facade_arch_window_trim",
     "facade_window_keystone",
-    "pediment_sculptural_relief_block",
-    "pediment_rosette_relief_detail",
-    "pediment_garland_relief_detail",
+    "genius_of_america_figure",
+    "genius_of_america_pediment_inventory",
+    "progress_of_civilization_figure_group",
+    "progress_of_civilization_pediment_inventory",
+    "apotheosis_of_democracy_figure_group",
+    "apotheosis_of_democracy_pediment_inventory",
     "roof_balustrade",
     "roof_balustrade_post",
     "roof_balustrade_top_rail",
@@ -3319,10 +3322,51 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     generic_pediment_garlands = [
         detail for detail in facade_details if detail.get("kind") == "pediment_garland_relief_detail"
     ]
-    if len(generic_pediment_reliefs) != 14 or len(generic_pediment_rosettes) != 14 or len(generic_pediment_garlands) != 14:
-        error(errors, "expected only the 14 retained north/south wing generic pediment relief groups")
-    if any(str(detail.get("name", "")).startswith("east_front") for detail in generic_pediment_reliefs):
-        error(errors, "East Central Entrance must not regress to anonymous generic relief blocks")
+    if generic_pediment_reliefs or generic_pediment_rosettes or generic_pediment_garlands:
+        error(errors, "named East Front pediments must not regress to anonymous generic relief blocks")
+    progress_inventories = [
+        detail for detail in facade_details if detail.get("kind") == "progress_of_civilization_pediment_inventory"
+    ]
+    apotheosis_inventories = [
+        detail for detail in facade_details if detail.get("kind") == "apotheosis_of_democracy_pediment_inventory"
+    ]
+    if len(progress_inventories) != 1 or len(apotheosis_inventories) != 1:
+        error(errors, "expected one named AOC inventory for each congressional-wing East Front pediment")
+    wing_figure_groups = [
+        detail for detail in facade_details
+        if detail.get("kind") in {"progress_of_civilization_figure_group", "apotheosis_of_democracy_figure_group"}
+    ]
+    if len(wing_figure_groups) != 20 or any(
+        detail.get("geometry") != "authored_vertical_relief_profile"
+        or int(detail.get("profile_vertices", 0)) < 20
+        for detail in wing_figure_groups
+    ):
+        error(errors, "wing pediment figures must retain articulated authored relief profiles rather than cones or boxes")
+    for inventory, location in (
+        (progress_inventories[0] if progress_inventories else {}, "East Senate Entrance"),
+        (apotheosis_inventories[0] if apotheosis_inventories else {}, "East House Entrance"),
+    ):
+        if (
+            inventory.get("location") != location
+            or abs(float(inventory.get("official_pediment_length_m", 0.0)) - 24.384) > 0.0001
+            or abs(float(inventory.get("official_center_height_m", 0.0)) - 3.6576) > 0.0001
+            or abs(float(inventory.get("official_sculpture_length_m", 0.0)) - 18.288) > 0.0001
+            or len(inventory.get("figures", [])) < 10
+        ):
+            error(errors, f"{location} pediment must retain AOC dimensions and named iconographic groups")
+    wing_pediments = [
+        detail for detail in facade_details if detail.get("name") in {"north_wing_triangular_pediment", "south_wing_triangular_pediment"}
+    ]
+    if len(wing_pediments) != 2:
+        error(errors, "expected both congressional-wing East Front pediment envelopes")
+    elif any(
+        abs(float(detail.get("official_length_m", 0.0)) - 24.384) > 0.0001
+        or abs(float(detail.get("official_center_height_m", 0.0)) - 3.6576) > 0.0001
+        or float(detail.get("front_clearance_m", 0.0)) < 0.50
+        or abs(float(detail.get("center_m", [0.0, 0.0])[1])) <= abs(float(detail.get("portico_outer_wall_y_m", 999.0)))
+        for detail in wing_pediments
+    ):
+        error(errors, "congressional-wing pediments must retain official scale and visible outer-wall projection")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
         error(errors, "expected at least 6 public roof balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]) < 90:

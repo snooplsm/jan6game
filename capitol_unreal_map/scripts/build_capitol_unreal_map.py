@@ -605,6 +605,32 @@ class ObjWriter:
         verts = [self.add_vertex(x, y, z) for x, y, z in points]
         self.add_face(verts)
 
+    def add_vertical_relief_polygon(
+        self,
+        points: list[tuple[float, float]],
+        fixed: float,
+        depth: float,
+        orientation: str,
+        name: str,
+        material: str,
+    ) -> None:
+        """Extrude an authored profile on a vertical facade plane."""
+        if len(points) < 3:
+            return
+        self.add_group(name, material)
+        half = depth / 2.0
+        if orientation == "north_south":
+            front = [self.add_vertex(x, fixed + half, z) for x, z in points]
+            back = [self.add_vertex(x, fixed - half, z) for x, z in points]
+        else:
+            front = [self.add_vertex(fixed + half, y, z) for y, z in points]
+            back = [self.add_vertex(fixed - half, y, z) for y, z in points]
+        self.add_face(front)
+        self.add_face(list(reversed(back)))
+        for index in range(len(points)):
+            nxt = (index + 1) % len(points)
+            self.add_face([back[index], back[nxt], front[nxt], front[index]])
+
     def add_polyline_strip(
         self,
         points: list[tuple[float, float]],
@@ -9061,6 +9087,89 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             },
         )
 
+    def add_named_wing_pediment(side: str, face_y: float) -> None:
+        """Add public AOC-aligned iconographic groups to an East wing pediment."""
+        is_senate = side == "north"
+        base_z = 13.90
+        figures = (
+            ["soldier", "merchant", "two_youths", "schoolmaster_and_child", "mechanic", "America", "woodsman", "hunter", "Indian_chief", "Indian_mother_and_child"]
+            if is_senate
+            else ["fish_boy", "textile_spinner", "foundry_workers", "ironworker", "printer", "Peace", "Genius", "reaper", "husbandman", "harvest_family"]
+        )
+        kind = "progress_of_civilization" if is_senate else "apotheosis_of_democracy"
+        for index, figure_name in enumerate(figures):
+            normalized = (index - (len(figures) - 1) / 2.0) / ((len(figures) - 1) / 2.0)
+            height = 1.18 + (1.0 - abs(normalized)) * (1.95 if figure_name in {"America", "Peace"} else 1.25)
+            x = normalized * 8.15
+            body_top = base_z + height * 0.76
+            half_width = 0.30 + height * 0.055
+            body_profile = [
+                (x - half_width * 0.92, base_z),
+                (x + half_width * 0.92, base_z),
+                (x + half_width * 0.58, base_z + height * 0.42),
+                (x + half_width * 1.18, base_z + height * 0.58),
+                (x + half_width * 0.76, base_z + height * 0.72),
+                (x + half_width * 0.30, body_top),
+                (x - half_width * 0.30, body_top),
+                (x - half_width * 0.76, base_z + height * 0.72),
+                (x - half_width * 1.18, base_z + height * 0.58),
+                (x - half_width * 0.58, base_z + height * 0.42),
+            ]
+            obj.add_vertical_relief_polygon(body_profile, face_y, 0.18, "north_south", f"east_{side}_{kind}_{figure_name}_draped_body", "ColumnStone")
+            head_radius = min(0.24, height * 0.105)
+            head_center_z = body_top + head_radius * 1.18
+            head_profile = [
+                (
+                    x + head_radius * math.cos(math.tau * head_index / 12.0),
+                    head_center_z + head_radius * math.sin(math.tau * head_index / 12.0),
+                )
+                for head_index in range(12)
+            ]
+            obj.add_vertical_relief_polygon(head_profile, face_y, 0.20, "north_south", f"east_{side}_{kind}_{figure_name}_head", "ColumnStone")
+            add_facade_detail(
+                f"east_{side}_{kind}_{figure_name}",
+                f"{kind}_figure_group",
+                (x, face_y, base_z + height / 2.0),
+                {
+                    "figure_or_group": figure_name,
+                    "geometry": "authored_vertical_relief_profile",
+                    "profile_vertices": 22,
+                    "public_accuracy": "aoc_iconography_aligned_silhouette_not_sculpture_scan",
+                },
+            )
+
+        attributes = (
+            ["eagle", "sun", "sheaves of wheat", "anchor", "Indian grave"]
+            if is_senate
+            else ["buckler", "altar", "olive tree", "torch", "printer press", "ox", "ram", "lamb", "Atlantic waves", "Pacific waves"]
+        )
+        for index, attribute in enumerate(attributes):
+            x = -9.0 + index * (18.0 / max(1, len(attributes) - 1))
+            obj.add_beveled_box((x, face_y), (0.70, 0.16), 0.32 + 0.08 * (index % 3), base_z + 0.08, f"east_{side}_{kind}_{attribute.replace(' ', '_')}", "ColumnStone", 0.06)
+
+        add_facade_detail(
+            f"east_{side}_{kind}_inventory",
+            f"{kind}_pediment_inventory",
+            (0.0, face_y, 15.55),
+            {
+                "location": "East Senate Entrance" if is_senate else "East House Entrance",
+                "artist": "Thomas Crawford" if is_senate else "Paul Wayland Bartlett",
+                "material": "Lee Massachusetts marble" if is_senate else "Georgia White marble",
+                "year": 1863 if is_senate else 1916,
+                "official_pediment_length_m": 24.384,
+                "official_center_height_m": 3.6576,
+                "official_sculpture_length_m": 18.288,
+                "figures": figures,
+                "attributes": attributes,
+                "source": (
+                    "https://www.aoc.gov/explore-capitol-campus/art/progress-civilization-pediment"
+                    if is_senate
+                    else "https://www.aoc.gov/explore-capitol-campus/art/apotheosis-democracy-pediment"
+                ),
+                "public_accuracy": "aoc_iconography_and_dimensions_aligned_schematic_relief",
+            },
+        )
+
     roof_monitor_specs = [
         ("central_north_roof_monitor_ridge", (0.0, 24.4), (32.0, 2.1), 18.98, "east_west"),
         ("central_south_roof_monitor_ridge", (0.0, -24.4), (32.0, 2.1), 18.98, "east_west"),
@@ -9170,11 +9279,16 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             6,
         )
         add_portico_entablature_layers(f"{side}_wing_portico", "north_south", (0.0, y + face_sign * 4.05), 46.0, 12.60)
-        obj.add_pediment((0.0, y + (2.0 if y > 0 else -2.0)), 44.0, 4.0, 13.63, 3.3, f"{side}_wing_triangular_pediment", "ColumnStone", "north_south")
-        add_pediment_raking_cornice(f"{side}_wing_pediment", "north_south", (0.0, y + face_sign * 4.15), 44.0, 13.63, 3.3)
+        wing_pediment_length_m = 24.384  # AOC: 80 ft.
+        wing_pediment_height_m = 3.6576  # AOC: approximately 12 ft.
+        portico_outer_wall_y = y + face_sign * 6.5
+        pediment_center_y = portico_outer_wall_y + face_sign * 0.32
+        pediment_front_y = pediment_center_y + face_sign * 0.30
+        obj.add_pediment((0.0, pediment_center_y), wing_pediment_length_m, 0.60, 13.63, wing_pediment_height_m, f"{side}_wing_triangular_pediment", "ColumnStone", "north_south")
+        add_pediment_raking_cornice(f"{side}_wing_pediment", "north_south", (0.0, pediment_front_y + face_sign * 0.05), wing_pediment_length_m, 13.63, wing_pediment_height_m)
         add_portico_side_cornice_returns(f"{side}_wing_portico", "north_south", (0.0, y), 27.0, 13.5, 13.08)
-        obj.add_box((0.0, y + (2.4 if y > 0 else -2.4)), (10.0, 0.18), 0.38, 14.52, f"{side}_wing_pediment_public_relief_panel", "ColumnStone")
-        add_pediment_relief_cluster(f"{side}_wing", "north_south", (0.0, y + face_sign * 4.15), 44.0, 14.10, 7)
+        obj.add_box((0.0, pediment_front_y + face_sign * 0.04), (10.0, 0.12), 0.38, 14.52, f"{side}_wing_pediment_public_relief_panel", "ColumnStone")
+        add_named_wing_pediment(side, pediment_front_y + face_sign * 0.11)
         add_portico_soffit_coffers(
             f"{side}_wing_portico",
             "north_south",
@@ -9183,8 +9297,18 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             [-3.0, 0.0, 3.0],
             12.92,
         )
-        add_facade_detail(f"{side}_wing_triangular_pediment", "classical_pediment", (0.0, y, 15.1))
-        add_facade_detail(f"{side}_wing_pediment_public_relief_panel", "pediment_relief_panel", (0.0, y, 14.71))
+        add_facade_detail(
+            f"{side}_wing_triangular_pediment",
+            "classical_pediment",
+            (0.0, pediment_center_y, 15.1),
+            {
+                "official_length_m": wing_pediment_length_m,
+                "official_center_height_m": wing_pediment_height_m,
+                "portico_outer_wall_y_m": portico_outer_wall_y,
+                "front_clearance_m": 0.62,
+            },
+        )
+        add_facade_detail(f"{side}_wing_pediment_public_relief_panel", "pediment_relief_panel", (0.0, pediment_front_y, 14.71))
 
     roof_joint_specs = [
         ("central_body", (0.0, 0.0), (75.0, 55.0), 18.47, 5, 4),
