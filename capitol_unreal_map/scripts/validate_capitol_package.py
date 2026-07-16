@@ -3467,6 +3467,25 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
             error(errors, "public Statue of Freedom proxy must retain its visible shield, sword, drapery, and helmet components")
         if abs(float(statue_silhouette.get("statue_height_without_pedestal_m", 0.0)) - 5.94) > 0.01:
             error(errors, "Statue of Freedom proxy must retain the AOC 19.5-foot statue height")
+        if int(statue_silhouette.get("headdress_lightning_rod_point_count", 0)) != 10:
+            error(errors, "Statue of Freedom silhouette must declare the AOC-documented ten headdress points")
+    headdress_point_inventories = [
+        detail
+        for detail in facade_details
+        if detail.get("kind") == "statue_of_freedom_headdress_lightning_rod_inventory"
+    ]
+    if len(headdress_point_inventories) != 1:
+        error(errors, "expected one Statue of Freedom headdress-point inventory")
+    else:
+        headdress_inventory = headdress_point_inventories[0]
+        if (
+            int(headdress_inventory.get("point_count", 0)) != 10
+            or abs(float(headdress_inventory.get("radial_spacing_degrees", 0.0)) - 36.0) > 0.001
+            or headdress_inventory.get("material_interpretation") != "statue_bronze"
+            or float(headdress_inventory.get("maximum_point_top_m", 999.0))
+            > float(headdress_inventory.get("building_apex_m", 0.0))
+        ):
+            error(errors, "Statue of Freedom headdress must retain ten bronze points below the fixed building apex")
     statue_pedestals = [
         detail for detail in facade_details if detail.get("kind") == "statue_of_freedom_pedestal"
     ]

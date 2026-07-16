@@ -48,6 +48,10 @@ Modern west-front composition references:
   one simplified painted-cast-iron silhouette of each type per 10-degree bay;
   five small berry forms make each cluster readable without claiming a carved
   or foundry-accurate replica.
+  It further documents ten lightning-rod points atop Freedom's headdress. Ten
+  discrete tapered bronze points now surround the schematic helmet mass at
+  36-degree spacing, all remaining below the validated 87.48m building apex;
+  this is a count-aligned ground-view silhouette rather than sculptural detail.
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/

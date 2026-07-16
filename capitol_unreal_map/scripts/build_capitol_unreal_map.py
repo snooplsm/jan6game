@@ -7848,6 +7848,38 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "statue_of_freedom_helmet_crest_silhouette",
             "StatueBronze",
         )
+        headdress_point_count = 10
+        headdress_point_tops: list[float] = []
+        for point_index in range(headdress_point_count):
+            angle = math.tau * point_index / headdress_point_count
+            point_center = (0.23 * math.cos(angle), 0.23 * math.sin(angle))
+            point_height = 0.58 + 0.05 * (point_index % 4)
+            point_z = base_z + 4.98
+            obj.add_frustum(
+                point_center,
+                0.040,
+                0.010,
+                point_z,
+                point_height,
+                f"statue_of_freedom_headdress_lightning_rod_{point_index+1:02d}",
+                "StatueBronze",
+                segments=12,
+            )
+            headdress_point_tops.append(point_z + point_height)
+        add_facade_detail(
+            "statue_of_freedom_headdress_lightning_rod_inventory",
+            "statue_of_freedom_headdress_lightning_rod_inventory",
+            (0.0, 0.0, base_z + 5.33),
+            {
+                "point_count": headdress_point_count,
+                "radial_spacing_degrees": 36.0,
+                "maximum_point_top_m": round(max(headdress_point_tops), 4),
+                "building_apex_m": round(capitol_public_height_m, 2),
+                "material_interpretation": "statue_bronze",
+                "source_reference": "Architect of the Capitol Dome By-The-Numbers",
+                "public_accuracy": "aoc_count_aligned_silhouette_proxy",
+            },
+        )
         add_facade_detail(
             "statue_of_freedom_silhouette",
             "statue_of_freedom_silhouette",
@@ -7858,6 +7890,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 "geometry": "tapered_draped_public_proxy",
                 "silhouette_components": ["base", "lower_plinth", "draped_body", "head", "arm", "shield", "sword", "helmet_crest"],
                 "statue_height_without_pedestal_m": round(statue_of_freedom_height_m, 2),
+                "headdress_lightning_rod_point_count": headdress_point_count,
                 "public_accuracy": "schematic_public_landmark_silhouette_not_sculptural_replica",
             },
         )
