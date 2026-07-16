@@ -623,6 +623,8 @@ The current direction is Unreal 5.8, first-person scale, most-compatible static 
 - curated real PBR texture source replacement where licensing permits
 - higher-fidelity sculpted modular meshes for stone ornament, gallery surfaces, labels, and worn floor/furniture surfaces
 
+The East Central Entrance no longer uses the former nine anonymous relief blocks across an oversized, wall-buried generic pediment. Its `Genius of America` assembly is projected beyond the solid portico wall and now uses the Architect of the Capitol's documented 81 ft 6 in pediment length and 9 ft figure scale, with separately modeled public silhouettes for America, Justice, and Hope plus the USA shield, July 4 1776 altar, scales, Constitution scroll, eagle, and anchor. This remains an iconography-aligned modular silhouette rather than a claimed scan of the Persico/Mankowski marble carving; a licensed sculpted replacement is still required for first-person acceptance.
+
 The procedural meshes are now explicitly treated as GIS-aligned blockout,
 collision, or distant context rather than final first-person art. Replacement
 work is governed by `unreal/high_fidelity_asset_manifest.json`: close-view

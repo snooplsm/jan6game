@@ -8998,6 +8998,69 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     for name, center, size, z in skylight_specs:
         add_roof_skylight_strip(name, center, size, z)
 
+    def add_genius_of_america_pediment(center_x: float) -> None:
+        """Add a source-dimensioned, iconographic East Front relief silhouette."""
+        face_x = center_x
+        base_z = 15.78
+        relief_depth = 0.22
+
+        def slab(name: str, y: float, z: float, width: float, height: float, angle: float = 0.0) -> None:
+            obj.add_oriented_box((face_x, y), (relief_depth, width), height, z, angle, name, "ColumnStone")
+
+        def figure(name: str, y: float, standing: bool) -> None:
+            total_height = 2.7432 if standing else 2.18
+            torso_z = base_z + (0.82 if standing else 0.52)
+            obj.add_frustum((face_x, y), 0.46, 0.28, torso_z, total_height * 0.48, f"{name}_draped_torso", "ColumnStone", 32)
+            obj.add_cylinder((face_x, y), 0.25, torso_z + total_height * 0.48, 0.50, f"{name}_head", "ColumnStone", 32)
+            slab(f"{name}_shoulder_drape", y, torso_z + total_height * 0.35, 1.22, 0.24)
+            if standing:
+                slab(f"{name}_lower_drapery", y - 0.20, base_z + 0.08, 0.52, 1.02, -0.10)
+                slab(f"{name}_lower_drapery_02", y + 0.20, base_z + 0.08, 0.52, 1.02, 0.10)
+            add_facade_detail(
+                name,
+                "genius_of_america_figure",
+                (face_x, y, base_z + total_height / 2.0),
+                {
+                    "figure": name.rsplit("_", 1)[-1].title(),
+                    "pose": "standing" if standing else "seated",
+                    "official_figure_height_m": 2.7432,
+                    "public_accuracy": "aoc_iconography_aligned_silhouette_not_sculpture_scan",
+                },
+            )
+
+        figure("east_front_genius_america", 0.0, True)
+        figure("east_front_genius_justice", -3.30, False)
+        figure("east_front_genius_hope", 3.30, False)
+        slab("east_front_genius_usa_shield", -1.22, base_z + 0.36, 0.92, 1.32, -0.08)
+        slab("east_front_genius_july_4_1776_altar", -0.55, base_z + 0.04, 1.10, 0.72)
+        slab("east_front_genius_justice_scale_beam", -4.15, base_z + 1.70, 1.42, 0.10, -0.05)
+        for idx, pan_y in enumerate((-4.72, -3.58), start=1):
+            slab(f"east_front_genius_justice_scale_pan_{idx}", pan_y, base_z + 1.30, 0.46, 0.09)
+        slab("east_front_genius_constitution_scroll", -2.46, base_z + 0.76, 0.46, 1.02, 0.16)
+        slab("east_front_genius_hope_anchor_shank", 4.12, base_z + 0.22, 0.16, 1.34, -0.10)
+        slab("east_front_genius_hope_anchor_crossbar", 4.03, base_z + 1.20, 0.90, 0.11)
+        slab("east_front_genius_eagle_body", 1.72, base_z + 0.46, 0.62, 0.72)
+        slab("east_front_genius_eagle_left_wing", 1.30, base_z + 0.78, 0.92, 0.20, -0.18)
+        slab("east_front_genius_eagle_right_wing", 2.13, base_z + 0.78, 0.92, 0.20, 0.18)
+
+        add_facade_detail(
+            "east_front_genius_of_america_inventory",
+            "genius_of_america_pediment_inventory",
+            (face_x, 0.0, 17.15),
+            {
+                "location": "East Central Entrance",
+                "artist": "Luigi Persico",
+                "copied_by": "Bruno Mankowski",
+                "material": "Georgia White marble",
+                "official_pediment_length_m": 24.8412,
+                "official_figure_height_m": 2.7432,
+                "figures": ["America", "Justice", "Hope"],
+                "attributes": ["USA shield", "July 4 1776 altar", "scales", "Constitution scroll", "eagle", "anchor"],
+                "source": "https://www.aoc.gov/explore-capitol-campus/art/genius-america-pediment",
+                "public_accuracy": "aoc_iconography_and_dimensions_aligned_schematic_relief",
+            },
+        )
+
     roof_monitor_specs = [
         ("central_north_roof_monitor_ridge", (0.0, 24.4), (32.0, 2.1), 18.98, "east_west"),
         ("central_south_roof_monitor_ridge", (0.0, -24.4), (32.0, 2.1), 18.98, "east_west"),
@@ -9047,12 +9110,25 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             # Do not mirror this assembly onto the west facade: the stable West
             # Front silhouette terminates in a flat entablature/crown beneath
             # the central dome rather than a sculptural triangular pediment.
-            obj.add_pediment((x + 2.2, 0.0), 56.0, 4.4, 15.38, 4.2, "east_front_triangular_pediment", "ColumnStone", "east_west")
-            add_pediment_raking_cornice("east_front_pediment", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.38, 4.2)
-            obj.add_box((x + 2.7, 0.0), (0.18, 12.0), 0.42, 16.25, "east_front_pediment_public_relief_panel", "ColumnStone")
-            add_pediment_relief_cluster("east_front", "east_west", (x + face_sign * 4.55, 0.0), 56.0, 15.95, 9)
-            add_facade_detail("east_front_triangular_pediment", "classical_pediment", (x, 0.0, 17.1))
-            add_facade_detail("east_front_pediment_public_relief_panel", "pediment_relief_panel", (x, 0.0, 16.46))
+            genius_pediment_length_m = 24.8412  # AOC: 81 ft 6 in.
+            portico_outer_wall_x = x + face_sign * 8.5
+            pediment_center_x = portico_outer_wall_x + face_sign * 0.32
+            pediment_front_x = pediment_center_x + face_sign * 0.30
+            obj.add_pediment((pediment_center_x, 0.0), genius_pediment_length_m, 0.60, 15.38, 4.2, "east_front_triangular_pediment", "ColumnStone", "east_west")
+            add_pediment_raking_cornice("east_front_pediment", "east_west", (pediment_front_x + face_sign * 0.05, 0.0), genius_pediment_length_m, 15.38, 4.2)
+            obj.add_box((pediment_front_x + face_sign * 0.04, 0.0), (0.12, 12.0), 0.42, 16.25, "east_front_pediment_public_relief_panel", "ColumnStone")
+            add_genius_of_america_pediment(pediment_front_x + face_sign * 0.11)
+            add_facade_detail(
+                "east_front_triangular_pediment",
+                "classical_pediment",
+                (pediment_center_x, 0.0, 17.1),
+                {
+                    "official_length_m": genius_pediment_length_m,
+                    "portico_outer_wall_x_m": portico_outer_wall_x,
+                    "front_clearance_m": 0.62,
+                },
+            )
+            add_facade_detail("east_front_pediment_public_relief_panel", "pediment_relief_panel", (pediment_front_x, 0.0, 16.46))
         else:
             crown_face = x + face_sign * 4.55
             for band_index, (band_z, band_depth, band_span) in enumerate(

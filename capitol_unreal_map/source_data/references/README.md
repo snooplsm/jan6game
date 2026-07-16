@@ -184,3 +184,6 @@ Because the configured scene time is 11:50 a.m., both Peace Circle lines, the
 dark mesh backing, and the West Front north-to-south rack line are represented
 in their intact pre-breach state. Their broad corridors and typology are
 source-backed; exact module transforms remain a clearly labeled reconstruction.
+# East Central Entrance pediment
+
+- [Architect of the Capitol — Genius of America Pediment](https://www.aoc.gov/explore-capitol-campus/art/genius-america-pediment) — authoritative location, authorship, Georgia White marble reproduction, 81 ft 6 in pediment length, 9 ft figure height, and the America/Justice/Hope, shield, altar, scales, Constitution scroll, eagle, and anchor iconography used by the public-facing schematic relief.

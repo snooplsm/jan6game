@@ -3164,6 +3164,36 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         for detail in facade_details
     ):
         error(errors, "west front must not contain the generic East Front sculptural relief")
+    genius_figures = [
+        detail for detail in facade_details if detail.get("kind") == "genius_of_america_figure"
+    ]
+    if len(genius_figures) != 3 or {detail.get("figure") for detail in genius_figures} != {"America", "Justice", "Hope"}:
+        error(errors, "East Front Genius of America must retain the three documented named figures")
+    genius_inventories = [
+        detail for detail in facade_details if detail.get("kind") == "genius_of_america_pediment_inventory"
+    ]
+    required_genius_attributes = {
+        "USA shield", "July 4 1776 altar", "scales", "Constitution scroll", "eagle", "anchor"
+    }
+    if len(genius_inventories) != 1:
+        error(errors, "expected one AOC-aligned Genius of America inventory")
+    elif (
+        abs(float(genius_inventories[0].get("official_pediment_length_m", 0.0)) - 24.8412) > 0.0001
+        or abs(float(genius_inventories[0].get("official_figure_height_m", 0.0)) - 2.7432) > 0.0001
+        or set(genius_inventories[0].get("attributes", [])) != required_genius_attributes
+        or genius_inventories[0].get("location") != "East Central Entrance"
+    ):
+        error(errors, "Genius of America must retain AOC dimensions, location, and iconographic attributes")
+    east_pediments = [
+        detail for detail in facade_details if detail.get("name") == "east_front_triangular_pediment"
+    ]
+    if len(east_pediments) != 1 or abs(float(east_pediments[0].get("official_length_m", 0.0)) - 24.8412) > 0.0001:
+        error(errors, "East Central Entrance pediment must retain the official 81 ft 6 in length")
+    elif (
+        float(east_pediments[0].get("center_m", [0.0])[0]) <= float(east_pediments[0].get("portico_outer_wall_x_m", 999.0))
+        or float(east_pediments[0].get("front_clearance_m", 0.0)) < 0.50
+    ):
+        error(errors, "East Central Entrance pediment must remain visibly projected beyond the solid portico wall")
     west_flat_crown = [
         detail for detail in facade_details if detail.get("kind") == "west_front_flat_portico_crown"
     ]
@@ -3280,12 +3310,19 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "facade window keystones must use tapered wedge geometry rather than rectangular boxes")
     if any(float(detail.get("top_width_m", 0.0)) <= float(detail.get("bottom_width_m", 0.0)) for detail in facade_window_keystones):
         error(errors, "facade window keystone profiles must widen toward the arch crown")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_sculptural_relief_block"]) < 23:
-        error(errors, "expected the 23 retained east, north, and south generic public pediment relief blocks")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_rosette_relief_detail"]) < 23:
-        error(errors, "expected the 23 retained east, north, and south generic public pediment rosette records")
-    if len([detail for detail in facade_details if detail.get("kind") == "pediment_garland_relief_detail"]) < 23:
-        error(errors, "expected the 23 retained east, north, and south generic public pediment garland records")
+    generic_pediment_reliefs = [
+        detail for detail in facade_details if detail.get("kind") == "pediment_sculptural_relief_block"
+    ]
+    generic_pediment_rosettes = [
+        detail for detail in facade_details if detail.get("kind") == "pediment_rosette_relief_detail"
+    ]
+    generic_pediment_garlands = [
+        detail for detail in facade_details if detail.get("kind") == "pediment_garland_relief_detail"
+    ]
+    if len(generic_pediment_reliefs) != 14 or len(generic_pediment_rosettes) != 14 or len(generic_pediment_garlands) != 14:
+        error(errors, "expected only the 14 retained north/south wing generic pediment relief groups")
+    if any(str(detail.get("name", "")).startswith("east_front") for detail in generic_pediment_reliefs):
+        error(errors, "East Central Entrance must not regress to anonymous generic relief blocks")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
         error(errors, "expected at least 6 public roof balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]) < 90:
