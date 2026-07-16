@@ -9715,6 +9715,48 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         outer_y = scaffold_y + side_sign * 8.25
         obj.add_box((-82.5, outer_y), (27.5, 0.16), 6.55, 0.55, f"jan6_2021_{side_name}_scaffold_white_sheet_outer", "LaneMarkingWhite")
         obj.add_box((-96.2, scaffold_y), (0.16, 16.6), 6.55, 0.55, f"jan6_2021_{side_name}_scaffold_white_sheet_west", "LaneMarkingWhite")
+        deck_strip_count = 3
+        for deck_index, deck_offset in enumerate((-5.2, 0.0, 5.2), start=1):
+            obj.add_box(
+                (-82.5, scaffold_y + deck_offset),
+                (27.1, 1.38),
+                0.14,
+                6.58,
+                f"jan6_2021_{side_name}_scaffold_deck_strip_{deck_index:02d}",
+                "PublicGallery",
+            )
+        ledger_levels = (2.05, 4.15, 6.28)
+        for ledger_index, ledger_z in enumerate(ledger_levels, start=1):
+            obj.add_box(
+                (-82.5, outer_y - side_sign * 0.10),
+                (27.3, 0.10),
+                0.12,
+                ledger_z,
+                f"jan6_2021_{side_name}_scaffold_outer_ledger_{ledger_index:02d}",
+                "DoorMetal",
+            )
+        guardrail_count = 2
+        for rail_index, rail_offset in enumerate((-7.75, 7.75), start=1):
+            obj.add_box(
+                (-82.5, scaffold_y + rail_offset),
+                (27.3, 0.10),
+                0.12,
+                6.98,
+                f"jan6_2021_{side_name}_scaffold_upper_guardrail_{rail_index:02d}",
+                "DoorMetal",
+            )
+        sheet_attachment_count = 0
+        for attachment_z in (1.35, 3.35, 5.35):
+            for attachment_x in (-94.0, -88.0, -82.0, -76.0):
+                sheet_attachment_count += 1
+                obj.add_box(
+                    (attachment_x, outer_y + side_sign * 0.10),
+                    (0.18, 0.08),
+                    0.18,
+                    attachment_z,
+                    f"jan6_2021_{side_name}_white_sheet_attachment_{sheet_attachment_count:02d}",
+                    "DoorMetal",
+                )
         for tier_index in range(8):
             tier_y = side_sign * (17.3 + tier_index * 2.05)
             tier_z = 3.54 + tier_index * 0.42
@@ -9735,6 +9777,11 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                 "side": side_name,
                 "covered_stair": side_name,
                 "geometry_role": "temporary_modular_overlay",
+                "deck_strip_count": deck_strip_count,
+                "ledger_count": len(ledger_levels),
+                "guardrail_count": guardrail_count,
+                "sheet_attachment_count": sheet_attachment_count,
+                "construction_detail_accuracy": "aoc_image_aligned_approximate_fabrication",
             },
         )
         add_facade_detail(

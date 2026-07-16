@@ -2884,6 +2884,14 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ]
     if len(target_date_scaffolds) != 2 or {detail.get("side") for detail in target_date_scaffolds} != {"northwest", "southwest"}:
         error(errors, "expected paired northwest and southwest white-sheeted January 6 stair scaffolds")
+    elif any(
+        int(detail.get("deck_strip_count", 0)) != 3
+        or int(detail.get("ledger_count", 0)) != 3
+        or int(detail.get("guardrail_count", 0)) != 2
+        or int(detail.get("sheet_attachment_count", 0)) != 12
+        for detail in target_date_scaffolds
+    ):
+        error(errors, "January 6 stair scaffolds must retain decks, ledgers, guardrails, and white-sheet attachments")
     target_date_seating = [
         detail for detail in facade_details if detail.get("kind") == "jan6_target_date_inaugural_seating_tiers"
     ]

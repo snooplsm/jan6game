@@ -118,6 +118,11 @@ temporary construction read in front without deleting the source-modeled stone
 openings. The 4.72m-clear tunnel includes a continuous 26.6m ceiling/floor,
 seven cross frames, paired portal jambs, and paired wall-base rails. Exact
 fabrication remains a clearly labeled visual reconstruction.
+Each paired white-sheeted stair scaffold now includes three upper deck strips,
+three exterior ledger rails, two upper guardrails, and twelve deterministic
+sheet-attachment markers. These additions follow the construction hierarchy
+visible in AOC imagery but remain approximate rather than a scaffold-engineering
+or attachment-layout claim.
 
 Permanent Olmsted West Front grounds fixtures:
 
