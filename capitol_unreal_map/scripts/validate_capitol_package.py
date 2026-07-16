@@ -3347,6 +3347,23 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     dome_balustrade_ornaments = [
         detail for detail in facade_details if detail.get("kind") == "dome_balustrade_ornament_inventory"
     ]
+    boiler_plate_balusters = [
+        detail
+        for detail in facade_details
+        if detail.get("kind") == "dome_balustrade_posts"
+        and detail.get("name") == "dome_lower_boiler_plate_balusters"
+    ]
+    if len(boiler_plate_balusters) != 1:
+        error(errors, "expected one lower boiler-plate balustrade inventory")
+    else:
+        baluster_inventory = boiler_plate_balusters[0]
+        if (
+            int(baluster_inventory.get("count", 0)) != 288
+            or int(baluster_inventory.get("ornament_bay_count", 0)) != 36
+            or int(baluster_inventory.get("balusters_per_ornament_bay", 0)) != 8
+            or baluster_inventory.get("material_interpretation") != "painted_cast_iron"
+        ):
+            error(errors, "lower dome balustrade must retain 288 painted-iron balusters at eight per ornament bay")
     if len(dome_balustrade_ornaments) != 1:
         error(errors, "expected one documented dome balustrade ornament inventory")
     else:

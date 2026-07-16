@@ -48,6 +48,10 @@ Modern west-front composition references:
   one simplified painted-cast-iron silhouette of each type per 10-degree bay;
   five small berry forms make each cluster readable without claiming a carved
   or foundry-accurate replica.
+  The inventory also specifies 288 balusters in that boiler-plate balustrade.
+  The former 48-post simplification is replaced by 288 slender painted-iron
+  balusters, exactly eight per each of the 36 ornament bays. The separate upper
+  schematic ring remains outside this documented count.
   It further documents ten lightning-rod points atop Freedom's headdress. Ten
   discrete tapered bronze points now surround the schematic helmet mass at
   36-degree spacing, all remaining below the validated 87.48m building apex;

@@ -10557,11 +10557,34 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     add_dome_cylinder((0.0, 0.0), 15.4, 18.0, 16.0, "dome_drum_cylinder", "CapitolDome", segments=96)
     add_dome_ring((0.0, 0.0), 16.1, 15.5, 20.6, 0.55, "dome_lower_balustrade_ring", "ColumnStone", segments=96)
     add_dome_ring((0.0, 0.0), 14.8, 14.3, 30.8, 0.45, "dome_upper_balustrade_ring", "ColumnStone", segments=96)
+    documented_boiler_plate_baluster_count = 288
+    for idx in range(documented_boiler_plate_baluster_count):
+        angle = math.tau * idx / documented_boiler_plate_baluster_count
+        add_dome_cylinder(
+            (15.8 * math.cos(angle), 15.8 * math.sin(angle)),
+            0.045,
+            20.72,
+            0.78,
+            f"dome_lower_boiler_plate_baluster_{idx+1:03d}",
+            "CapitolDome",
+            segments=8,
+        )
     for idx in range(48):
         angle = math.tau * idx / 48.0
-        add_dome_cylinder((15.8 * math.cos(angle), 15.8 * math.sin(angle)), 0.11, 20.72, 0.78, f"dome_lower_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
         add_dome_cylinder((14.55 * math.cos(angle), 14.55 * math.sin(angle)), 0.09, 30.92, 0.64, f"dome_upper_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
-    add_facade_detail("dome_lower_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(21.1)), {"count": 48})
+    add_facade_detail(
+        "dome_lower_boiler_plate_balusters",
+        "dome_balustrade_posts",
+        (0.0, 0.0, dome_z(21.1)),
+        {
+            "count": documented_boiler_plate_baluster_count,
+            "ornament_bay_count": 36,
+            "balusters_per_ornament_bay": 8,
+            "material_interpretation": "painted_cast_iron",
+            "source_reference": "Architect of the Capitol Dome By-The-Numbers",
+            "public_accuracy": "aoc_count_aligned",
+        },
+    )
     add_facade_detail("dome_upper_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(31.24)), {"count": 48})
     documented_balustrade_ornament_count = 36
     for ornament_index in range(documented_balustrade_ornament_count):
