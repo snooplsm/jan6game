@@ -9035,13 +9035,31 @@ def build_capitol_landmark_details() -> dict[str, Any]:
 
         def figure(name: str, y: float, standing: bool) -> None:
             total_height = 2.7432 if standing else 2.18
-            torso_z = base_z + (0.82 if standing else 0.52)
-            obj.add_frustum((face_x, y), 0.46, 0.28, torso_z, total_height * 0.48, f"{name}_draped_torso", "ColumnStone", 32)
-            obj.add_cylinder((face_x, y), 0.25, torso_z + total_height * 0.48, 0.50, f"{name}_head", "ColumnStone", 32)
-            slab(f"{name}_shoulder_drape", y, torso_z + total_height * 0.35, 1.22, 0.24)
-            if standing:
-                slab(f"{name}_lower_drapery", y - 0.20, base_z + 0.08, 0.52, 1.02, -0.10)
-                slab(f"{name}_lower_drapery_02", y + 0.20, base_z + 0.08, 0.52, 1.02, 0.10)
+            body_top = base_z + total_height * (0.76 if standing else 0.66)
+            half_width = 0.42 if standing else 0.56
+            body_profile = [
+                (y - half_width * 0.90, base_z),
+                (y + half_width * 0.90, base_z),
+                (y + half_width * 0.64, base_z + total_height * 0.34),
+                (y + half_width * 1.24, base_z + total_height * 0.52),
+                (y + half_width * 0.76, base_z + total_height * 0.66),
+                (y + half_width * 0.28, body_top),
+                (y - half_width * 0.28, body_top),
+                (y - half_width * 0.76, base_z + total_height * 0.66),
+                (y - half_width * 1.24, base_z + total_height * 0.52),
+                (y - half_width * 0.64, base_z + total_height * 0.34),
+            ]
+            obj.add_vertical_relief_polygon(body_profile, face_x, relief_depth, "east_west", f"{name}_draped_body", "ColumnStone")
+            head_radius = 0.245
+            head_center_z = body_top + head_radius * 1.20
+            head_profile = [
+                (
+                    y + head_radius * math.cos(math.tau * index / 16.0),
+                    head_center_z + head_radius * math.sin(math.tau * index / 16.0),
+                )
+                for index in range(16)
+            ]
+            obj.add_vertical_relief_polygon(head_profile, face_x, relief_depth + 0.02, "east_west", f"{name}_head", "ColumnStone")
             add_facade_detail(
                 name,
                 "genius_of_america_figure",
@@ -9050,6 +9068,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
                     "figure": name.rsplit("_", 1)[-1].title(),
                     "pose": "standing" if standing else "seated",
                     "official_figure_height_m": 2.7432,
+                    "geometry": "authored_vertical_relief_profile",
+                    "profile_vertices": 26,
                     "public_accuracy": "aoc_iconography_aligned_silhouette_not_sculpture_scan",
                 },
             )
@@ -9057,17 +9077,41 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         figure("east_front_genius_america", 0.0, True)
         figure("east_front_genius_justice", -3.30, False)
         figure("east_front_genius_hope", 3.30, False)
-        slab("east_front_genius_usa_shield", -1.22, base_z + 0.36, 0.92, 1.32, -0.08)
-        slab("east_front_genius_july_4_1776_altar", -0.55, base_z + 0.04, 1.10, 0.72)
+        shield_profile = [
+            (-1.72, base_z + 1.52), (-0.78, base_z + 1.52), (-0.72, base_z + 0.72),
+            (-1.24, base_z + 0.20), (-1.78, base_z + 0.72),
+        ]
+        obj.add_vertical_relief_polygon(shield_profile, face_x, 0.25, "east_west", "east_front_genius_usa_shield", "ColumnStone")
+        altar_profile = [
+            (-1.12, base_z + 0.04), (0.02, base_z + 0.04), (0.02, base_z + 0.68),
+            (-0.12, base_z + 0.82), (-0.98, base_z + 0.82), (-1.12, base_z + 0.68),
+        ]
+        obj.add_vertical_relief_polygon(altar_profile, face_x, 0.24, "east_west", "east_front_genius_july_4_1776_altar", "ColumnStone")
         slab("east_front_genius_justice_scale_beam", -4.15, base_z + 1.70, 1.42, 0.10, -0.05)
         for idx, pan_y in enumerate((-4.72, -3.58), start=1):
             slab(f"east_front_genius_justice_scale_pan_{idx}", pan_y, base_z + 1.30, 0.46, 0.09)
-        slab("east_front_genius_constitution_scroll", -2.46, base_z + 0.76, 0.46, 1.02, 0.16)
+        scroll_profile = [
+            (-2.78, base_z + 0.68), (-2.22, base_z + 0.80), (-2.14, base_z + 1.78),
+            (-2.66, base_z + 1.66),
+        ]
+        obj.add_vertical_relief_polygon(scroll_profile, face_x, 0.23, "east_west", "east_front_genius_constitution_scroll", "ColumnStone")
         slab("east_front_genius_hope_anchor_shank", 4.12, base_z + 0.22, 0.16, 1.34, -0.10)
         slab("east_front_genius_hope_anchor_crossbar", 4.03, base_z + 1.20, 0.90, 0.11)
-        slab("east_front_genius_eagle_body", 1.72, base_z + 0.46, 0.62, 0.72)
-        slab("east_front_genius_eagle_left_wing", 1.30, base_z + 0.78, 0.92, 0.20, -0.18)
-        slab("east_front_genius_eagle_right_wing", 2.13, base_z + 0.78, 0.92, 0.20, 0.18)
+        eagle_profile = [
+            (1.58, base_z + 0.36),
+            (1.88, base_z + 0.40),
+            (2.10, base_z + 0.72),
+            (2.62, base_z + 1.30),
+            (2.12, base_z + 1.02),
+            (1.86, base_z + 1.16),
+            (1.76, base_z + 1.43),
+            (1.60, base_z + 1.20),
+            (1.34, base_z + 1.04),
+            (0.82, base_z + 1.30),
+            (1.30, base_z + 0.72),
+            (1.48, base_z + 0.42),
+        ]
+        obj.add_vertical_relief_polygon(eagle_profile, face_x, 0.24, "east_west", "east_front_genius_eagle", "ColumnStone")
 
         add_facade_detail(
             "east_front_genius_of_america_inventory",

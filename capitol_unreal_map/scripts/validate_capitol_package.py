@@ -3172,6 +3172,12 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
     ]
     if len(genius_figures) != 3 or {detail.get("figure") for detail in genius_figures} != {"America", "Justice", "Hope"}:
         error(errors, "East Front Genius of America must retain the three documented named figures")
+    elif any(
+        detail.get("geometry") != "authored_vertical_relief_profile"
+        or int(detail.get("profile_vertices", 0)) < 24
+        for detail in genius_figures
+    ):
+        error(errors, "Genius of America figures must retain articulated authored relief profiles rather than frustums")
     genius_inventories = [
         detail for detail in facade_details if detail.get("kind") == "genius_of_america_pediment_inventory"
     ]
