@@ -10530,6 +10530,87 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         add_dome_cylinder((14.55 * math.cos(angle), 14.55 * math.sin(angle)), 0.09, 30.92, 0.64, f"dome_upper_balustrade_post_{idx+1:02d}", "ColumnStone", segments=8)
     add_facade_detail("dome_lower_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(21.1)), {"count": 48})
     add_facade_detail("dome_upper_balustrade_posts", "dome_balustrade_posts", (0.0, 0.0, dome_z(31.24)), {"count": 48})
+    documented_balustrade_ornament_count = 36
+    for ornament_index in range(documented_balustrade_ornament_count):
+        angle = math.tau * ornament_index / documented_balustrade_ornament_count
+        up_center = (15.98 * math.cos(angle), 15.98 * math.sin(angle))
+        obj.add_frustum(
+            up_center,
+            0.18,
+            0.16,
+            dome_z(21.28),
+            dome_height(0.28),
+            f"dome_balustrade_up_acorn_{ornament_index+1:02d}_body",
+            "CapitolDome",
+            segments=16,
+        )
+        obj.add_frustum(
+            up_center,
+            0.16,
+            0.035,
+            dome_z(21.56),
+            dome_height(0.24),
+            f"dome_balustrade_up_acorn_{ornament_index+1:02d}_cap",
+            "CapitolDome",
+            segments=16,
+        )
+        down_center = (15.98 * math.cos(angle), 15.98 * math.sin(angle))
+        obj.add_frustum(
+            down_center,
+            0.035,
+            0.16,
+            dome_z(20.08),
+            dome_height(0.24),
+            f"dome_balustrade_down_acorn_{ornament_index+1:02d}_point",
+            "CapitolDome",
+            segments=16,
+        )
+        obj.add_frustum(
+            down_center,
+            0.16,
+            0.18,
+            dome_z(20.32),
+            dome_height(0.28),
+            f"dome_balustrade_down_acorn_{ornament_index+1:02d}_body",
+            "CapitolDome",
+            segments=16,
+        )
+        grape_angle = angle + math.pi / documented_balustrade_ornament_count
+        grape_radius = 15.90
+        for berry_index, (tangent_offset, berry_z, berry_size) in enumerate(
+            ((-0.12, 20.18, 0.10), (0.12, 20.18, 0.10), (0.0, 20.35, 0.12), (-0.08, 20.50, 0.09), (0.08, 20.50, 0.09)),
+            start=1,
+        ):
+            tangent_x = -math.sin(grape_angle) * tangent_offset
+            tangent_y = math.cos(grape_angle) * tangent_offset
+            berry_center = (
+                grape_radius * math.cos(grape_angle) + tangent_x,
+                grape_radius * math.sin(grape_angle) + tangent_y,
+            )
+            add_dome_cylinder(
+                berry_center,
+                berry_size,
+                berry_z,
+                0.16,
+                f"dome_balustrade_grape_cluster_{ornament_index+1:02d}_berry_{berry_index:02d}",
+                "CapitolDome",
+                segments=12,
+            )
+    add_facade_detail(
+        "dome_boiler_plate_balustrade_ornament_inventory",
+        "dome_balustrade_ornament_inventory",
+        (0.0, 0.0, dome_z(20.95)),
+        {
+            "radial_bay_count": documented_balustrade_ornament_count,
+            "up_facing_acorn_count": documented_balustrade_ornament_count,
+            "down_facing_acorn_count": documented_balustrade_ornament_count,
+            "grape_cluster_count": documented_balustrade_ornament_count,
+            "berries_per_cluster": 5,
+            "material_interpretation": "painted_cast_iron",
+            "source_reference": "Architect of the Capitol Dome By-The-Numbers",
+            "public_accuracy": "aoc_count_aligned_silhouette_proxy",
+        },
+    )
     dome_drum_backdrop_radius = 15.4
     dome_peristyle_column_radius = 15.88
     dome_peristyle_shaft_radius = 0.22

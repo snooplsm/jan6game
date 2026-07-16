@@ -3344,6 +3344,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "expected at least 8 public roof skylight strip records")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_vertical_rib"]) < 36:
         error(errors, "expected the 36 documented dome vertical rib records")
+    dome_balustrade_ornaments = [
+        detail for detail in facade_details if detail.get("kind") == "dome_balustrade_ornament_inventory"
+    ]
+    if len(dome_balustrade_ornaments) != 1:
+        error(errors, "expected one documented dome balustrade ornament inventory")
+    else:
+        ornament_inventory = dome_balustrade_ornaments[0]
+        if (
+            int(ornament_inventory.get("radial_bay_count", 0)) != 36
+            or int(ornament_inventory.get("up_facing_acorn_count", 0)) != 36
+            or int(ornament_inventory.get("down_facing_acorn_count", 0)) != 36
+            or int(ornament_inventory.get("grape_cluster_count", 0)) != 36
+            or int(ornament_inventory.get("berries_per_cluster", 0)) != 5
+            or ornament_inventory.get("material_interpretation") != "painted_cast_iron"
+        ):
+            error(errors, "dome balustrade must retain the AOC-documented 36/36 acorns and 36 grape clusters")
     if len([detail for detail in facade_details if detail.get("kind") == "dome_curved_rib"]) < 36:
         error(errors, "expected the 36 documented visible dome curved rib records")
     coarse_dome_ribs = [

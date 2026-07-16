@@ -43,6 +43,11 @@ Modern west-front composition references:
   pedestal and documents 12 wreaths with 12 fasces on that base. The generated
   stack preserves those component heights beneath the fixed 288-foot building
   apex; its simplified ornament is a count-aligned silhouette proxy.
+  The same inventory documents 72 boiler-plate-balustrade acorns—36 facing up
+  and 36 facing down—plus 36 grape clusters. The lower dome balustrade now has
+  one simplified painted-cast-iron silhouette of each type per 10-degree bay;
+  five small berry forms make each cluster readable without claiming a carved
+  or foundry-accurate replica.
 - Library of Congress item `95860420`, 1877 west-elevation alterations drawing,
   no known restrictions on publication:
   https://www.loc.gov/pictures/item/95860420/
