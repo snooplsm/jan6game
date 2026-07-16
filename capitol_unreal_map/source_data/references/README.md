@@ -84,6 +84,12 @@ The paired lateral flights now also carry four narrow dark metal handrails over
 their stone rail lines and four substantial capped terminal piers at the upper
 landings. These reproduce the strong light-stone/dark-rail hierarchy visible in
 the HABS foreground without claiming surveyed fabrication dimensions.
+The thirteen lower terrace arches now contain differentiated inserts rather
+than identical dark voids: three central paired-leaf entrance assemblies with
+transoms and pull hardware, plus ten flanking glazed bays with a restrained
+two-vertical/one-horizontal mullion rhythm. HABS supports the opening hierarchy;
+the simplified fabrication and central entrance assignment remain a visual
+reconstruction beneath the January 2021 inaugural overlay.
 
 January 6, 2021 temporary West Front configuration references:
 

@@ -2823,6 +2823,29 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         error(errors, "west-front lateral stairs must retain turned balusters and four slope-following rails")
     if len([detail for detail in facade_details if detail.get("kind") == "west_front_reference_lower_arcade"]) < 1:
         error(errors, "expected the west-front lower terrace arcade reference record")
+    west_lower_arcade_entrances = [
+        detail for detail in facade_details if detail.get("kind") == "west_lower_arcade_entrance_bay"
+    ]
+    if len(west_lower_arcade_entrances) != 3:
+        error(errors, "expected three central west lower arcade entrance bays")
+    if any(
+        int(detail.get("door_leaf_count", 0)) != 2
+        or int(detail.get("pull_handle_count", 0)) != 2
+        or not detail.get("has_transom")
+        for detail in west_lower_arcade_entrances
+    ):
+        error(errors, "west lower arcade entrance bays must retain paired leaves, pulls, and transoms")
+    west_lower_arcade_glazed_bays = [
+        detail for detail in facade_details if detail.get("kind") == "west_lower_arcade_glazed_bay"
+    ]
+    if len(west_lower_arcade_glazed_bays) != 10:
+        error(errors, "expected ten flanking west lower arcade glazed bays")
+    if any(
+        int(detail.get("vertical_mullions", 0)) != 2
+        or int(detail.get("horizontal_mullions", 0)) != 1
+        for detail in west_lower_arcade_glazed_bays
+    ):
+        error(errors, "west lower arcade glazed bays must retain their visual mullion rhythm")
     wing_return_pavilions = [detail for detail in facade_details if detail.get("kind") == "west_wing_return_pavilion"]
     if len(wing_return_pavilions) < 2:
         error(errors, "expected projecting west-facing return pavilions for both congressional wings")

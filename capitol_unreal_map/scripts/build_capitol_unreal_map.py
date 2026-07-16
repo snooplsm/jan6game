@@ -9464,6 +9464,59 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         4.15,
         4.85,
     )
+    lower_arcade_bay_values = [-42.0, -35.0, -28.0, -21.0, -14.0, -7.0, 0.0, 7.0, 14.0, 21.0, 28.0, 35.0, 42.0]
+    lower_arcade_insert_x = -76.72
+    central_entrance_indices = {6, 7, 8}
+    for bay_index, bay_y in enumerate(lower_arcade_bay_values, start=1):
+        prefix = f"west_front_lower_arcade_bay_{bay_index:02d}"
+        if bay_index in central_entrance_indices:
+            for leaf_index, leaf_offset in enumerate((-0.86, 0.86), start=1):
+                leaf_name = f"{prefix}_entrance_leaf_{leaf_index}"
+                obj.add_box((lower_arcade_insert_x, bay_y + leaf_offset), (0.08, 1.56), 2.48, 1.58, leaf_name, "DoorMetal")
+                obj.add_box((lower_arcade_insert_x - 0.05, bay_y + leaf_offset), (0.06, 1.18), 1.72, 1.94, f"{leaf_name}_recessed_panel", "DoorGlass")
+                handle_y = bay_y + (-0.18 if leaf_index == 1 else 0.18)
+                obj.add_cylinder((lower_arcade_insert_x - 0.10, handle_y), 0.055, 2.62, 0.42, f"{leaf_name}_pull_handle", "DoorMetal", segments=12)
+            obj.add_box((lower_arcade_insert_x - 0.02, bay_y), (0.10, 0.10), 2.48, 1.58, f"{prefix}_center_seam", "ColumnStone")
+            obj.add_box((lower_arcade_insert_x, bay_y), (0.08, 3.48), 0.92, 4.16, f"{prefix}_transom_glass", "DoorGlass")
+            obj.add_box((lower_arcade_insert_x - 0.04, bay_y), (0.10, 3.66), 0.14, 4.10, f"{prefix}_transom_sill", "ColumnStone")
+            add_facade_detail(
+                prefix,
+                "west_lower_arcade_entrance_bay",
+                (lower_arcade_insert_x, bay_y, 3.33),
+                {
+                    "sequence": bay_index,
+                    "door_leaf_count": 2,
+                    "pull_handle_count": 2,
+                    "has_transom": True,
+                    "source_reference": "HABS DC-38-13",
+                    "public_accuracy": "habs_composition_aligned_approximate_fabrication",
+                },
+            )
+        else:
+            obj.add_box((lower_arcade_insert_x, bay_y), (0.08, 3.52), 3.22, 1.62, f"{prefix}_window_glass", "FacadeWindow")
+            for mullion_index, mullion_offset in enumerate((-0.62, 0.62), start=1):
+                obj.add_box(
+                    (lower_arcade_insert_x - 0.05, bay_y + mullion_offset),
+                    (0.10, 0.10),
+                    3.22,
+                    1.62,
+                    f"{prefix}_vertical_mullion_{mullion_index}",
+                    "ColumnStone",
+                )
+            obj.add_box((lower_arcade_insert_x - 0.05, bay_y), (0.10, 3.66), 0.14, 3.08, f"{prefix}_horizontal_mullion", "ColumnStone")
+            obj.add_box((lower_arcade_insert_x - 0.04, bay_y), (0.10, 3.78), 0.18, 1.52, f"{prefix}_window_sill", "ColumnStone")
+            add_facade_detail(
+                prefix,
+                "west_lower_arcade_glazed_bay",
+                (lower_arcade_insert_x, bay_y, 3.23),
+                {
+                    "sequence": bay_index,
+                    "vertical_mullions": 2,
+                    "horizontal_mullions": 1,
+                    "source_reference": "HABS DC-38-13",
+                    "public_accuracy": "habs_composition_aligned_approximate_fabrication",
+                },
+            )
     add_facade_detail(
         "west_front_lower_terrace_arcade_reference",
         "west_front_reference_lower_arcade",
