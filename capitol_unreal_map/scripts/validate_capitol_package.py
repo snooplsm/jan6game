@@ -2860,13 +2860,25 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         target_date_platforms[0].get("target_date") != "2021-01-06"
         or abs(float(target_date_platforms[0].get("area_square_feet", 0)) - 10000.0) > 250.0
         or target_date_platforms[0].get("geometry_role") != "temporary_modular_overlay"
+        or int(target_date_platforms[0].get("arcade_mask_panel_count", 0)) != 2
+        or int(target_date_platforms[0].get("deck_edge_fascia_count", 0)) != 4
+        or target_date_platforms[0].get("masking_role") != "reversible_temporary_overlay_preserving_permanent_arcade"
     ):
-        error(errors, "January 6 inaugural platform must remain date-stamped, modular, and approximately 10,000 square feet")
+        error(errors, "January 6 inaugural platform must retain its date, area, reversible arcade masks, and deck fascia")
     target_date_tunnels = [
         detail for detail in facade_details if detail.get("kind") == "jan6_target_date_lower_west_tunnel"
     ]
     if len(target_date_tunnels) != 1 or target_date_tunnels[0].get("target_date") != "2021-01-06":
         error(errors, "expected one date-stamped January 6 Lower West Terrace tunnel assembly")
+    elif (
+        abs(float(target_date_tunnels[0].get("clear_width_m", 0.0)) - 4.72) > 0.01
+        or abs(float(target_date_tunnels[0].get("clear_height_m", 0.0)) - 2.30) > 0.01
+        or abs(float(target_date_tunnels[0].get("covered_length_m", 0.0)) - 26.6) > 0.01
+        or int(target_date_tunnels[0].get("ceiling_frame_count", 0)) != 7
+        or int(target_date_tunnels[0].get("portal_jamb_count", 0)) != 2
+        or int(target_date_tunnels[0].get("base_rail_count", 0)) != 2
+    ):
+        error(errors, "January 6 Lower West Terrace tunnel must retain its clear envelope and complete temporary frame")
     target_date_scaffolds = [
         detail for detail in facade_details if detail.get("kind") == "jan6_target_date_white_sheeted_stair_scaffolding"
     ]

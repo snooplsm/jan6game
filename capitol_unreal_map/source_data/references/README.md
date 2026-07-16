@@ -112,6 +112,12 @@ January 6, 2021 temporary West Front configuration references:
 The inaugural platform, tunnel walls, white-sheeted stair scaffolds, and
 temporary seating tiers are authored as a separately named modular overlay.
 They are part of the target-date scene but are not permanent Capitol fabric.
+The platform now uses two reversible white mask panels in front of the five
+central permanent arcade bays plus four deck-edge fascia panels; these make the
+temporary construction read in front without deleting the source-modeled stone
+openings. The 4.72m-clear tunnel includes a continuous 26.6m ceiling/floor,
+seven cross frames, paired portal jambs, and paired wall-base rails. Exact
+fabrication remains a clearly labeled visual reconstruction.
 
 Permanent Olmsted West Front grounds fixtures:
 

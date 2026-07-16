@@ -9599,6 +9599,27 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     inaugural_deck_center = (-82.0, 0.0)
     inaugural_deck_size = (30.5, 30.5)  # 930.25 m2 / approximately 10,013 ft2
     obj.add_box(inaugural_deck_center, inaugural_deck_size, 0.34, 3.18, "jan6_2021_inaugural_main_platform", "PublicGallery")
+    # Reversible fascia/masking keeps the temporary platform visually in front
+    # of the permanent central arcade while leaving the 4.72m tunnel clear.
+    for side_name, fascia_y in (("south", -8.90), ("north", 8.90)):
+        obj.add_box(
+            (-77.08, fascia_y),
+            (0.18, 12.70),
+            2.62,
+            0.52,
+            f"jan6_2021_inaugural_arcade_mask_{side_name}",
+            "LaneMarkingWhite",
+        )
+        obj.add_box(
+            (-97.22, fascia_y),
+            (0.18, 12.70),
+            1.22,
+            1.96,
+            f"jan6_2021_inaugural_west_fascia_{side_name}",
+            "PublicGallery",
+        )
+    obj.add_box((-82.0, -15.20), (30.45, 0.18), 1.22, 1.96, "jan6_2021_inaugural_south_edge_fascia", "PublicGallery")
+    obj.add_box((-82.0, 15.20), (30.45, 0.18), 1.22, 1.96, "jan6_2021_inaugural_north_edge_fascia", "PublicGallery")
     for x_index, scaffold_x in enumerate([-96.0, -92.0, -88.0, -84.0, -80.0, -76.0, -72.0, -68.0], start=1):
         for y_index, scaffold_y in enumerate([-14.0, -10.0, -6.0, -2.0, 2.0, 6.0, 10.0, 14.0], start=1):
             obj.add_cylinder(
@@ -9631,6 +9652,20 @@ def build_capitol_landmark_details() -> dict[str, Any]:
     # the Tunnel in the federal January 6 record.
     obj.add_box((-81.4, -2.45), (26.6, 0.18), 2.62, 0.52, "jan6_2021_lower_west_tunnel_south_wall", "LaneMarkingWhite")
     obj.add_box((-81.4, 2.45), (26.6, 0.18), 2.62, 0.52, "jan6_2021_lower_west_tunnel_north_wall", "LaneMarkingWhite")
+    obj.add_box((-81.4, 0.0), (26.6, 4.90), 0.18, 2.96, "jan6_2021_lower_west_tunnel_ceiling", "PublicGallery")
+    obj.add_box((-81.4, 0.0), (26.6, 4.72), 0.08, 0.46, "jan6_2021_lower_west_tunnel_floor", "DoorMetal")
+    for frame_index, frame_x in enumerate((-94.4, -90.2, -86.0, -81.8, -77.6, -73.4, -69.2), start=1):
+        obj.add_box(
+            (frame_x, 0.0),
+            (0.12, 5.02),
+            0.16,
+            2.80,
+            f"jan6_2021_lower_west_tunnel_ceiling_frame_{frame_index:02d}",
+            "DoorMetal",
+        )
+    for jamb_side, jamb_y in (("south", -2.48), ("north", 2.48)):
+        obj.add_box((-95.02, jamb_y), (0.26, 0.28), 2.42, 0.50, f"jan6_2021_lower_west_tunnel_{jamb_side}_portal_jamb", "DoorMetal")
+        obj.add_box((-81.4, jamb_y), (26.6, 0.14), 0.16, 0.52, f"jan6_2021_lower_west_tunnel_{jamb_side}_base_rail", "DoorMetal")
     obj.add_box((-95.0, 0.0), (0.24, 5.15), 0.34, 2.82, "jan6_2021_lower_west_tunnel_header", "DoorMetal")
     obj.add_box((-94.82, 0.0), (0.10, 4.55), 2.16, 0.56, "jan6_2021_lower_west_tunnel_dark_mouth", "DoorMetal")
     add_facade_detail(
@@ -9643,13 +9678,25 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             "official_reference_area_square_feet": 10000,
             "geometry_role": "temporary_modular_overlay",
             "reference": "DOJ federal filings and Architect of the Capitol construction photography",
+            "arcade_mask_panel_count": 2,
+            "deck_edge_fascia_count": 4,
+            "masking_role": "reversible_temporary_overlay_preserving_permanent_arcade",
         },
     )
     add_facade_detail(
         "jan6_2021_lower_west_tunnel",
         "jan6_target_date_lower_west_tunnel",
         (-81.4, 0.0, 1.83),
-        {"target_date": "2021-01-06", "clear_width_m": 4.72, "geometry_role": "temporary_modular_overlay"},
+        {
+            "target_date": "2021-01-06",
+            "clear_width_m": 4.72,
+            "clear_height_m": 2.30,
+            "covered_length_m": 26.6,
+            "ceiling_frame_count": 7,
+            "portal_jamb_count": 2,
+            "base_rail_count": 2,
+            "geometry_role": "temporary_modular_overlay",
+        },
     )
 
     for side_name, side_sign in (("northwest", 1.0), ("southwest", -1.0)):
