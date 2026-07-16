@@ -1722,6 +1722,7 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "facade_window_keystone",
     "genius_of_america_figure",
     "genius_of_america_pediment_inventory",
+    "genius_of_america_inscription_relief",
     "progress_of_civilization_figure_group",
     "progress_of_civilization_pediment_inventory",
     "apotheosis_of_democracy_figure_group",
@@ -3193,6 +3194,22 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         or genius_inventories[0].get("location") != "East Central Entrance"
     ):
         error(errors, "Genius of America must retain AOC dimensions, location, and iconographic attributes")
+    genius_inscriptions = [
+        detail for detail in facade_details if detail.get("kind") == "genius_of_america_inscription_relief"
+    ]
+    expected_genius_inscriptions = {
+        ("USA",),
+        ("JULY 4", "1776"),
+        ("CONSTITUTION", "17 SEP 1787"),
+    }
+    if len(genius_inscriptions) != 3 or {tuple(detail.get("lines", [])) for detail in genius_inscriptions} != expected_genius_inscriptions:
+        error(errors, "Genius of America must retain the three documented shield, altar, and scroll inscriptions")
+    elif any(
+        detail.get("geometry") != "raised_three_by_five_marble_letter_pixels"
+        or int(detail.get("pixel_count", 0)) < 20
+        for detail in genius_inscriptions
+    ):
+        error(errors, "Genius of America inscriptions must retain substantive raised geometric lettering")
     east_pediments = [
         detail for detail in facade_details if detail.get("name") == "east_front_triangular_pediment"
     ]

@@ -9033,6 +9033,61 @@ def build_capitol_landmark_details() -> dict[str, Any]:
         def slab(name: str, y: float, z: float, width: float, height: float, angle: float = 0.0) -> None:
             obj.add_oriented_box((face_x, y), (relief_depth, width), height, z, angle, name, "ColumnStone")
 
+        inscription_font = {
+            "A": ("010", "101", "111", "101", "101"), "B": ("110", "101", "110", "101", "110"),
+            "C": ("011", "100", "100", "100", "011"), "E": ("111", "100", "110", "100", "111"),
+            "I": ("111", "010", "010", "010", "111"), "J": ("001", "001", "001", "101", "010"),
+            "L": ("100", "100", "100", "100", "111"), "N": ("101", "111", "111", "111", "101"),
+            "O": ("010", "101", "101", "101", "010"), "P": ("110", "101", "110", "100", "100"),
+            "R": ("110", "101", "110", "101", "101"), "S": ("011", "100", "010", "001", "110"),
+            "T": ("111", "010", "010", "010", "010"), "U": ("101", "101", "101", "101", "111"),
+            "Y": ("101", "101", "010", "010", "010"),
+            "0": ("111", "101", "101", "101", "111"), "1": ("010", "110", "010", "010", "111"),
+            "2": ("110", "001", "010", "100", "111"), "3": ("110", "001", "010", "001", "110"),
+            "4": ("101", "101", "111", "001", "001"), "5": ("111", "100", "110", "001", "110"),
+            "6": ("011", "100", "110", "101", "010"), "7": ("111", "001", "010", "010", "010"),
+            "8": ("010", "101", "010", "101", "010"), "9": ("010", "101", "011", "001", "110"),
+        }
+
+        def inscription(name: str, lines: list[str], center_y: float, center_z: float, max_width: float, max_height: float) -> None:
+            widest = max(len(line) for line in lines)
+            cell = min(max_width / max(1, widest * 4 - 1), max_height / max(1, len(lines) * 6 - 1))
+            pixel_count = 0
+            for line_index, text in enumerate(lines):
+                line_width = (len(text) * 4 - 1) * cell
+                start_y = center_y - line_width / 2.0
+                line_center_z = center_z + ((len(lines) - 1) / 2.0 - line_index) * 6 * cell
+                for char_index, character in enumerate(text):
+                    if character == " ":
+                        continue
+                    glyph = inscription_font[character]
+                    for row_index, row in enumerate(glyph):
+                        for column_index, filled in enumerate(row):
+                            if filled != "1":
+                                continue
+                            pixel_count += 1
+                            pixel_y = start_y + (char_index * 4 + column_index) * cell
+                            pixel_z = line_center_z + (2 - row_index) * cell - cell * 0.36
+                            obj.add_box(
+                                (face_x + 0.135, pixel_y),
+                                (0.035, cell * 0.72),
+                                cell * 0.72,
+                                pixel_z,
+                                f"{name}_raised_letter_pixel_{pixel_count:03d}",
+                                "ColumnStone",
+                            )
+            add_facade_detail(
+                name,
+                "genius_of_america_inscription_relief",
+                (face_x + 0.153, center_y, center_z),
+                {
+                    "lines": lines,
+                    "pixel_count": pixel_count,
+                    "geometry": "raised_three_by_five_marble_letter_pixels",
+                    "public_accuracy": "aoc_wording_aligned_schematic_inscription",
+                },
+            )
+
         def figure(name: str, y: float, standing: bool) -> None:
             total_height = 2.7432 if standing else 2.18
             body_top = base_z + total_height * (0.76 if standing else 0.66)
@@ -9087,6 +9142,8 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (-0.12, base_z + 0.82), (-0.98, base_z + 0.82), (-1.12, base_z + 0.68),
         ]
         obj.add_vertical_relief_polygon(altar_profile, face_x, 0.24, "east_west", "east_front_genius_july_4_1776_altar", "ColumnStone")
+        inscription("east_front_genius_usa_shield_inscription", ["USA"], -1.25, base_z + 1.04, 0.58, 0.34)
+        inscription("east_front_genius_altar_inscription", ["JULY 4", "1776"], -0.55, base_z + 0.42, 0.80, 0.42)
         slab("east_front_genius_justice_scale_beam", -4.15, base_z + 1.70, 1.42, 0.10, -0.05)
         for idx, pan_y in enumerate((-4.72, -3.58), start=1):
             slab(f"east_front_genius_justice_scale_pan_{idx}", pan_y, base_z + 1.30, 0.46, 0.09)
@@ -9095,6 +9152,7 @@ def build_capitol_landmark_details() -> dict[str, Any]:
             (-2.66, base_z + 1.66),
         ]
         obj.add_vertical_relief_polygon(scroll_profile, face_x, 0.23, "east_west", "east_front_genius_constitution_scroll", "ColumnStone")
+        inscription("east_front_genius_scroll_inscription", ["CONSTITUTION", "17 SEP 1787"], -2.44, base_z + 1.23, 0.42, 0.72)
         slab("east_front_genius_hope_anchor_shank", 4.12, base_z + 0.22, 0.16, 1.34, -0.10)
         slab("east_front_genius_hope_anchor_crossbar", 4.03, base_z + 1.20, 0.90, 0.11)
         eagle_profile = [
