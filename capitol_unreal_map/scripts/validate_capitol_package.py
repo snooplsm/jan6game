@@ -1727,6 +1727,8 @@ REQUIRED_FACADE_DETAIL_KINDS = {
     "progress_of_civilization_pediment_inventory",
     "apotheosis_of_democracy_figure_group",
     "apotheosis_of_democracy_pediment_inventory",
+    "east_congressional_wing_portico_column",
+    "east_congressional_wing_bronze_doors",
     "roof_balustrade",
     "roof_balustrade_post",
     "roof_balustrade_top_rail",
@@ -3386,10 +3388,37 @@ def validate_metadata(metadata: dict[str, Any], errors: list[str]) -> dict[str, 
         abs(float(detail.get("official_length_m", 0.0)) - 24.384) > 0.0001
         or abs(float(detail.get("official_center_height_m", 0.0)) - 3.6576) > 0.0001
         or float(detail.get("front_clearance_m", 0.0)) < 0.50
-        or abs(float(detail.get("center_m", [0.0, 0.0])[1])) <= abs(float(detail.get("portico_outer_wall_y_m", 999.0)))
+        or float(detail.get("center_m", [0.0])[0]) <= float(detail.get("portico_outer_wall_x_m", 999.0))
+        or detail.get("facade_orientation") != "east"
         for detail in wing_pediments
     ):
-        error(errors, "congressional-wing pediments must retain official scale and visible outer-wall projection")
+        error(errors, "congressional-wing pediments must retain official scale, east orientation, and visible outer-wall projection")
+    east_wing_columns = [
+        detail for detail in facade_details if detail.get("kind") == "east_congressional_wing_portico_column"
+    ]
+    if len(east_wing_columns) != 12 or {detail.get("wing") for detail in east_wing_columns} != {"north", "south"}:
+        error(errors, "expected six East Front portico columns at each congressional wing")
+    elif any(
+        detail.get("facade_orientation") != "east"
+        or int(detail.get("radial_segments", 0)) < 48
+        or int(detail.get("flute_count", 0)) != 24
+        for detail in east_wing_columns
+    ):
+        error(errors, "East congressional-wing columns must retain the hero Corinthian geometry standard")
+    east_wing_doors = [
+        detail for detail in facade_details if detail.get("kind") == "east_congressional_wing_bronze_doors"
+    ]
+    if len(east_wing_doors) != 2 or {detail.get("location") for detail in east_wing_doors} != {"East Senate Portico", "East House Portico"}:
+        error(errors, "expected one source-aligned bronze door set at each East congressional-wing portico")
+    elif any(
+        int(detail.get("valves", 0)) != 2
+        or int(detail.get("panels_per_valve", 0)) != 3
+        or int(detail.get("medallions_per_valve", 0)) != 1
+        or abs(float(detail.get("height_m", 0.0)) - 4.4069) > 0.0001
+        or abs(float(detail.get("width_m", 0.0)) - 2.2352) > 0.0001
+        for detail in east_wing_doors
+    ):
+        error(errors, "East congressional-wing bronze doors must retain paired valves, panel rhythm, medallions, and Senate reference dimensions")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade"]) < 6:
         error(errors, "expected at least 6 public roof balustrade records")
     if len([detail for detail in facade_details if detail.get("kind") == "roof_balustrade_post"]) < 90:
